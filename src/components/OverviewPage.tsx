@@ -22,10 +22,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
     <div className="flex-1 flex flex-col overflow-hidden">
       <header className="bg-[#00703C] text-white p-4 flex justify-between items-center w-full flex-shrink-0">
         <div className="flex items-center space-x-4">
-          <Image src="https://i.ibb.co/Ldn9N2N/nedbank-logo.png" alt="Van Schalkwyk Family Trust Logo" width={40} height={40} className="rounded-full" />
-          <div className="flex flex-col">
-            <span className="text-lg font-semibold text-white">Van Schalkwyk Family Trust</span>
-          </div>
+          <span className="text-lg font-semibold text-white">Van Schalkwyk Family Trust</span>
         </div>
         <div className="flex items-center space-x-4">
           <Bell size={24} className="text-white" />
