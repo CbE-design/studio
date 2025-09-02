@@ -111,24 +111,30 @@ const App = () => {
   );
 
   useEffect(() => {
-    const timer = setTimeout(() => setCurrentView('overview'), 3000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    const handleAuth = (user: User | null) => {
+    const timer = setTimeout(() => {
+      if (!userId) { // Only attempt sign-in if no user is set
+        signInAnonymously(auth).catch((error) => {
+          console.error('Anonymous sign-in failed:', error);
+          setIsLoading(false); // Stop loading on auth failure
+        });
+      }
+    }, 3000);
+  
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserId(user.uid);
         fetchData(db, user.uid);
+        setCurrentView('overview');
       } else {
-        signInAnonymously(auth).catch((error) => {
-          console.error('Anonymous sign-in failed:', error);
-          setIsLoading(false);
-        });
+        setUserId(null);
+        // User is signed out, you might want to reset state here
       }
+    });
+  
+    return () => {
+      clearTimeout(timer);
+      unsubscribe();
     };
-    const unsubscribe = onAuthStateChanged(auth, handleAuth);
-    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
