@@ -1,0 +1,107 @@
+'use client';
+import { Bell, Eye, ChevronLeft, ChevronRight, Wallet, FileText, Umbrella, Car, ShoppingCart, GitPullRequest, CreditCard, Banknote, Home, FileBadge, MessageSquare } from 'lucide-react';
+
+const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, handleCarouselScroll, scrollToPage, setCurrentView, scrollContainerRef }) => {
+  const getOnClickHandler = (action) => (typeof action === 'string' ? () => setCurrentView(action) : () => {});
+
+  const widgets = [
+    { icon: <Wallet size={24} />, text: 'Offers for you' },
+    { icon: <FileText size={24} />, text: 'Applications' },
+    { icon: <Umbrella size={24} />, text: 'Insure', badge: 5 },
+    { icon: <Car size={24} />, text: 'Discs and fines' },
+    { icon: <ShoppingCart size={24} />, text: 'Shop', badge: 1 },
+    { icon: <GitPullRequest size={24} />, text: 'PayShap Request' },
+    { icon: <Banknote size={24} />, text: 'Quick Pay' },
+    { icon: <CreditCard size={24} />, text: 'Get cash' },
+    { icon: <Home size={24} />, text: 'Home loans' },
+    { icon: <FileBadge size={24} />, text: 'Statements and docs' },
+  ];
+
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <header className="bg-[#00703C] text-white p-4 flex justify-between items-center w-full flex-shrink-0">
+        <div className="flex items-center space-x-4">
+          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center font-bold text-[#00703C]">J</div>
+          <div className="flex flex-col">
+            <span className="text-lg font-semibold text-white">John</span>
+            {userId && <span className="text-xs font-light text-white break-all">User ID: {userId}</span>}
+          </div>
+        </div>
+        <div className="flex items-center space-x-4">
+          <Bell size={24} className="text-white" />
+          <MessageSquare size={24} className="text-white" />
+        </div>
+      </header>
+      <div className="flex-1 overflow-y-auto pb-16">
+        <div className="bg-[#00703C]">
+          <div ref={scrollContainerRef} onScroll={handleCarouselScroll} className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth">
+            {overviewPagesData.map((page) => (
+              <div key={page.id} className="w-full flex-shrink-0 snap-center">
+                <div className="text-white p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h1 className="text-xl font-bold text-white">{page.title}</h1>
+                    <Eye size={20} className="text-white" />
+                  </div>
+                  <div className="space-y-0">
+                    {page.content.filter(item => item.type === 'account' || item.type === 'item').map((item, itemIndex) => {
+                      const value = item.balanceKey ? `R${balances[item.balanceKey].toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")}` : item.value;
+                      return (
+                        <div key={itemIndex} className="cursor-pointer py-3 border-b border-green-600 last:border-b-0" onClick={getOnClickHandler(item.onClick)}>
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <p className="text-sm font-light">{item.title}</p>
+                              <p className="text-xl font-normal">{value}</p>
+                            </div>
+                            <ChevronRight size={20} className="text-white" />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+                {page.content.filter(item => item.type === 'action').map((item, itemIndex) => (
+                  <div key={itemIndex} className="bg-[#005A30] px-4 py-4 text-white">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-sm">{item.title}</p>
+                        {item.value && <p className="text-lg font-semibold">{item.value}</p>}
+                      </div>
+                      <button className={`font-bold ${item.color === 'yellow' ? 'text-[#D4FF00]' : 'text-white'}`}>{item.actionText}</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-center items-center py-4 space-x-3">
+            <ChevronLeft size={20} className={carouselIndex > 0 ? "text-white cursor-pointer" : "text-gray-400"} onClick={() => scrollToPage(carouselIndex - 1)} />
+            {overviewPagesData.map((_, index) => (
+              <div key={index} onClick={() => scrollToPage(index)} className={`w-2 h-2 rounded-full cursor-pointer ${index === carouselIndex ? 'bg-white' : 'bg-gray-400'}`}></div>
+            ))}
+            <ChevronRight size={20} className={carouselIndex < overviewPagesData.length - 1 ? "text-white cursor-pointer" : "text-gray-400"} onClick={() => scrollToPage(carouselIndex + 1)} />
+          </div>
+        </div>
+        <div className="p-4 bg-gray-100">
+          <h2 className="text-lg font-bold mb-4 text-gray-800">My widgets</h2>
+          <div className="grid grid-cols-4 gap-4">
+            {widgets.map((widget, index) => (
+              <div key={index} className="flex flex-col items-center text-center">
+                <div className="relative bg-white p-4 rounded-xl shadow-md flex items-center justify-center w-16 h-16">
+                  {widget.icon}
+                  {widget.badge && (
+                    <div className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                      {widget.badge}
+                    </div>
+                  )}
+                </div>
+                <span className="mt-2 text-xs text-gray-700">{widget.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default OverviewPage;
