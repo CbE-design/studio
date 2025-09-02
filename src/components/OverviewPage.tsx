@@ -1,5 +1,6 @@
 'use client';
 import { Bell, Eye, ChevronLeft, ChevronRight, Wallet, FileText, Umbrella, Car, ShoppingCart, GitPullRequest, CreditCard, Banknote, Home, FileBadge, MessageSquare } from 'lucide-react';
+import Image from 'next/image';
 
 const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, handleCarouselScroll, scrollToPage, setCurrentView, scrollContainerRef }) => {
   const getOnClickHandler = (action) => (typeof action === 'string' ? () => setCurrentView(action) : () => {});
@@ -21,10 +22,9 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
     <div className="flex-1 flex flex-col overflow-hidden">
       <header className="bg-[#00703C] text-white p-4 flex justify-between items-center w-full flex-shrink-0">
         <div className="flex items-center space-x-4">
-          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center font-bold text-[#00703C]">J</div>
+          <Image src="https://i.ibb.co/Ldn9N2N/nedbank-logo.png" alt="Van Schalkwyk Family Trust Logo" width={40} height={40} className="rounded-full" />
           <div className="flex flex-col">
-            <span className="text-lg font-semibold text-white">John</span>
-            {userId && <span className="text-xs font-light text-white break-all">User ID: {userId}</span>}
+            <span className="text-lg font-semibold text-white">Van Schalkwyk Family Trust</span>
           </div>
         </div>
         <div className="flex items-center space-x-4">
