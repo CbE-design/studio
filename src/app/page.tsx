@@ -187,7 +187,6 @@ const App = () => {
   const fetchData = async (db, uid) => {
     const appId = 'van-schalkwyk-trust-mobile';
     await seedInitialData(db, uid);
-    setIsLoading(false);
 
     const docRefs = {
       balance1: doc(db, `artifacts/${appId}/users/${uid}/accountData/balance`),
@@ -227,6 +226,7 @@ const App = () => {
         }))
         .sort((a, b) => a.order - b.order);
       setOverviewPagesData(pagesList);
+      setIsLoading(false);
     });
   };
 
