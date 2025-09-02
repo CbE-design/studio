@@ -61,7 +61,7 @@ const App = () => {
   const [showBankModal, setShowBankModal] = useState(false);
   const [bankSearchQuery, setBankSearchQuery] = useState('');
   const [isRecipientSaved, setIsRecipientSaved] = useState(false);
-  const scrollContainerRef = useRef(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const failedTransactionsData = useMemo(() => {
     const tomorrow = new Date(MOCK_CURRENT_DATE);
