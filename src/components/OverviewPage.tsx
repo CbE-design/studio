@@ -35,7 +35,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
             {overviewPagesData.map((page) => (
               <div key={page.id} className="w-full flex-shrink-0 snap-center">
                 <div className="text-white p-4">
-                  <div className="flex justify-between items-center mb-4">
+                  <div className="flex items-center space-x-2 mb-4">
                     <h1 className="text-xl font-bold text-white">{page.title}</h1>
                     <Eye size={20} className="text-white" />
                   </div>
