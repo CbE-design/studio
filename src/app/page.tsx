@@ -30,6 +30,7 @@ import BottomNavBar from '@/components/BottomNavBar';
 import TransactLandingPage from '@/components/TransactLandingPage';
 import { combinedInitialTransactions, initialPlatinumChequeTransactions, initialThirdAccountTransactions, MOCK_CURRENT_DATE } from '@/lib/data';
 import { sendPaymentNotification } from '@/ai/flows/send-payment-notification';
+import { sendSms } from '@/ai/flows/send-sms';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('Overview');
@@ -111,30 +112,19 @@ const App = () => {
   );
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!userId) { // Only attempt sign-in if no user is set
-        signInAnonymously(auth).catch((error) => {
-          console.error('Anonymous sign-in failed:', error);
-          setIsLoading(false); // Stop loading on auth failure
-        });
-      }
-    }, 3000);
-  
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUserId(user.uid);
         fetchData(db, user.uid);
-        setCurrentView('overview');
       } else {
-        setUserId(null);
-        // User is signed out, you might want to reset state here
+        signInAnonymously(auth).catch((error) => {
+          console.error('Anonymous sign-in failed:', error);
+          setIsLoading(false);
+        });
       }
     });
-  
-    return () => {
-      clearTimeout(timer);
-      unsubscribe();
-    };
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -149,43 +139,48 @@ const App = () => {
   const seedInitialData = async (db, uid) => {
     const appId = 'van-schalkwyk-trust-mobile';
     const seedMarkerRef = doc(db, `artifacts/${appId}/users/${uid}/seededData/marker`);
-    const seedMarkerSnap = await getDoc(seedMarkerRef);
+    
+    try {
+        const seedMarkerSnap = await getDoc(seedMarkerRef);
 
-    if (!seedMarkerSnap.exists()) {
-      console.log("Seeding initial data...");
-      const batch = writeBatch(db);
+        if (!seedMarkerSnap.exists()) {
+            console.log("Seeding initial data...");
+            const batch = writeBatch(db);
+            
+            batch.set(doc(db, `artifacts/${appId}/users/${uid}/accountData/balance`), { value: 1590835.19 + 16300000 + 500000 });
+            batch.set(doc(db, `artifacts/${appId}/users/${uid}/secondAccountData/balance`), { value: 1600904.90 });
+            batch.set(doc(db, `artifacts/${appId}/users/${uid}/thirdAccountData/balance`), { value: 4775.00 });
       
-      batch.set(doc(db, `artifacts/${appId}/users/${uid}/accountData/balance`), { value: 1590835.19 + 16300000 + 500000 });
-      batch.set(doc(db, `artifacts/${appId}/users/${uid}/secondAccountData/balance`), { value: 1600904.90 });
-      batch.set(doc(db, `artifacts/${appId}/users/${uid}/thirdAccountData/balance`), { value: 4775.00 });
-
-      const transactionsColRef1 = collection(db, `artifacts/${appId}/users/${uid}/transactions`);
-      combinedInitialTransactions.forEach(tx => batch.set(doc(transactionsColRef1), tx));
+            const transactionsColRef1 = collection(db, `artifacts/${appId}/users/${uid}/transactions`);
+            combinedInitialTransactions.forEach(tx => batch.set(doc(transactionsColRef1), tx));
+            
+            const transactionsColRef2 = collection(db, `artifacts/${appId}/users/${uid}/secondAccountTransactions`);
+            initialPlatinumChequeTransactions.forEach(tx => batch.set(doc(transactionsColRef2), tx));
       
-      const transactionsColRef2 = collection(db, `artifacts/${appId}/users/${uid}/secondAccountTransactions`);
-      initialPlatinumChequeTransactions.forEach(tx => batch.set(doc(transactionsColRef2), tx));
-
-      const transactionsColRef3 = collection(db, `artifacts/${appId}/users/${uid}/thirdAccountTransactions`);
-      initialThirdAccountTransactions.forEach(tx => batch.set(doc(transactionsColRef3), tx));
-
-      const recipientsColRef = collection(db, `artifacts/${appId}/users/${uid}/recipients`);
-      const mfoloeRecipient = { name: 'Mfoloe Attorneys Inc', bank: 'First National Bank', accountNumber: '62939163961', lastPaid: new Date('2025-08-15') };
-      batch.set(doc(recipientsColRef), mfoloeRecipient);
-      const fransiskaRecipient = { name: 'Fransiska Meiring', bank: 'First National Bank', accountNumber: '62356388027', lastPaid: new Date('2025-08-18') };
-      batch.set(doc(recipientsColRef), fransiskaRecipient);
-
-      const overviewPagesColRef = collection(db, `artifacts/${appId}/users/${uid}/overviewPages`);
-      const pagesData = [
-        { title: 'Accounts', order: 1, content: JSON.stringify([ { type: 'account', title: 'Savvy Bundle Current Account', balanceKey: 'accountBalance', onClick: 'transactions' }, { type: 'account', title: 'Platinum Cheque', balanceKey: 'secondAccountBalance', onClick: 'secondAccountTransactions' }, { type: 'account', title: 'Platinum Cheque', balanceKey: 'thirdAccountBalance', onClick: 'thirdAccountTransactions' }, { type: 'action', title: 'Free savings feature', value: 'MyPocket', actionText: 'Set up now', color: 'yellow' } ]) },
-        { title: 'Savings & Investments', order: 2, content: JSON.stringify([ { type: 'item', title: 'Unit Trust (1)', value: 'R0.00' }, { type: 'item', title: 'Money Market Account', value: 'R25 000.00' }, { type: 'item', title: 'Other Investment Accounts (1)', value: 'R63.55' }, { type: 'item', title: 'Tax certificates', value: 'Tax certificates' }, { type: 'action', title: 'Save & Invest', actionText: 'Explore options', color: 'yellow' } ]) },
-        { title: 'Rewards', order: 3, content: JSON.stringify([ { type: 'item', title: 'Membership Rewards', value: 'MR 732 512' }, { type: 'item', title: 'Greenbacks Rewards', value: 'GB 90 000' } ]) },
-        { title: 'International banking and travel', order: 4, content: JSON.stringify([ { type: 'action', title: 'Incoming and outgoing payments', value: 'International payments', actionText: 'View', color: 'yellow' }, { type: 'item', title: 'Foreign Currency Accounts', value: 'Your currencies' }, { type: 'item', 'title': 'Travel Card', value: 'Mr C Van Schalkwyk' } ]) },
-        { title: 'Insurance', order: 5, content: JSON.stringify([ { type: 'item', title: 'My policies and applications', value: 'Insurance' }, { type: 'item', title: 'Funeral Plan', value: 'Policy #FP12345' }, { type: 'item', title: 'Car Insurance', value: 'Policy #CI67890' }, { type: 'action', title: 'Insurance', value: 'New policy', actionText: 'Get cover', color: 'yellow' } ]) },
-        { title: 'Lifestyle', order: 6, content: JSON.stringify([ { type: 'action', title: 'Unlock greater financial benefits', value: 'Family Banking', actionText: 'View', color: 'yellow' }, { type: 'item', title: 'Greenbacks Rewards', value: 'View your points' }, { type: 'item', title: 'Digital Vouchers', value: 'Buy and send vouchers' }, ]) }
-      ];
-      pagesData.forEach(page => batch.set(doc(overviewPagesColRef, page.title), page));
-      batch.set(seedMarkerRef, { seeded: true, timestamp: serverTimestamp() });
-      await batch.commit();
+            const transactionsColRef3 = collection(db, `artifacts/${appId}/users/${uid}/thirdAccountTransactions`);
+            initialThirdAccountTransactions.forEach(tx => batch.set(doc(transactionsColRef3), tx));
+      
+            const recipientsColRef = collection(db, `artifacts/${appId}/users/${uid}/recipients`);
+            const mfoloeRecipient = { name: 'Mfoloe Attorneys Inc', bank: 'First National Bank', accountNumber: '62939163961', lastPaid: new Date('2025-08-15') };
+            batch.set(doc(recipientsColRef), mfoloeRecipient);
+            const fransiskaRecipient = { name: 'Fransiska Meiring', bank: 'First National Bank', accountNumber: '62356388027', lastPaid: new Date('2025-08-18') };
+            batch.set(doc(recipientsColRef), fransiskaRecipient);
+      
+            const overviewPagesColRef = collection(db, `artifacts/${appId}/users/${uid}/overviewPages`);
+            const pagesData = [
+              { title: 'Accounts', order: 1, content: JSON.stringify([ { type: 'account', title: 'Savvy Bundle Current Account', balanceKey: 'accountBalance', onClick: 'transactions' }, { type: 'account', title: 'Platinum Cheque', balanceKey: 'secondAccountBalance', onClick: 'secondAccountTransactions' }, { type: 'account', title: 'Platinum Cheque', balanceKey: 'thirdAccountBalance', onClick: 'thirdAccountTransactions' }, { type: 'action', title: 'Free savings feature', value: 'MyPocket', actionText: 'Set up now', color: 'yellow' } ]) },
+              { title: 'Savings & Investments', order: 2, content: JSON.stringify([ { type: 'item', title: 'Unit Trust (1)', value: 'R0.00' }, { type: 'item', title: 'Money Market Account', value: 'R25 000.00' }, { type: 'item', title: 'Other Investment Accounts (1)', value: 'R63.55' }, { type: 'item', title: 'Tax certificates', value: 'Tax certificates' }, { type: 'action', title: 'Save & Invest', actionText: 'Explore options', color: 'yellow' } ]) },
+              { title: 'Rewards', order: 3, content: JSON.stringify([ { type: 'item', title: 'Membership Rewards', value: 'MR 732 512' }, { type: 'item', title: 'Greenbacks Rewards', value: 'GB 90 000' } ]) },
+              { title: 'International banking and travel', order: 4, content: JSON.stringify([ { type: 'action', title: 'Incoming and outgoing payments', value: 'International payments', actionText: 'View', color: 'yellow' }, { type: 'item', title: 'Foreign Currency Accounts', value: 'Your currencies' }, { type: 'item', 'title': 'Travel Card', value: 'Mr C Van Schalkwyk' } ]) },
+              { title: 'Insurance', order: 5, content: JSON.stringify([ { type: 'item', title: 'My policies and applications', value: 'Insurance' }, { type: 'item', title: 'Funeral Plan', value: 'Policy #FP12345' }, { type: 'item', title: 'Car Insurance', value: 'Policy #CI67890' }, { type: 'action', title: 'Insurance', value: 'New policy', actionText: 'Get cover', color: 'yellow' } ]) },
+              { title: 'Lifestyle', order: 6, content: JSON.stringify([ { type: 'action', title: 'Unlock greater financial benefits', value: 'Family Banking', actionText: 'View', color: 'yellow' }, { type: 'item', title: 'Greenbacks Rewards', value: 'View your points' }, { type: 'item', title: 'Digital Vouchers', value: 'Buy and send vouchers' }, ]) }
+            ];
+            pagesData.forEach(page => batch.set(doc(overviewPagesColRef, page.title), page));
+            batch.set(seedMarkerRef, { seeded: true, timestamp: serverTimestamp() });
+            await batch.commit();
+        }
+    } catch (error) {
+        console.error("Error seeding data:", error);
     }
   };
 
@@ -231,7 +226,7 @@ const App = () => {
         }))
         .sort((a, b) => a.order - b.order);
       setOverviewPagesData(pagesList);
-      setIsLoading(false);
+      setIsLoading(false); 
     });
   };
 
@@ -286,12 +281,17 @@ const App = () => {
             senderName: 'Van Schalkwyk Family Trust',
             yourReference: paymentDetails.yourReference,
           });
-          // In a real app, you would send this SMS. Here, we'll just alert it.
-          alert(`SMS to ${paymentDetails.recipientPhone}:\n${notification.smsMessage}`);
+
+          await sendSms({
+            to: paymentDetails.recipientPhone,
+            message: notification.smsMessage,
+          });
+
+          alert(`SMS sent to ${paymentDetails.recipientPhone}!`);
+
         } catch (aiError) {
-          console.error("Failed to generate SMS notification:", aiError);
-          // Non-critical error, so we don't block the payment flow.
-          // We can show a toast or a silent log.
+          console.error("Failed to send SMS notification:", aiError);
+          alert("Failed to send SMS. Please check server logs.");
         }
       }
 
@@ -332,7 +332,7 @@ const App = () => {
   const handleShareProof = () => {
     if (!lastPayment) return;
     const popWindow = window.open('', '_blank');
-    const popContent = `<html><head><title>Proof of Payment</title><style>body{font-family:Arial,sans-serif;margin:0;padding:40px;color:#333}.container{max-width:680px;margin:auto;border:1px solid #eee;padding:30px}h1{font-size:24px;color:#333;margin:0}p{font-size:14px;line-height:1.6;margin:1em 0}.details-table{width:100%;margin:30px 0}.details-table td{padding:8px 0;font-size:14px;border-bottom:1px solid #eee}.details-table td:first-child{font-weight:700;width:35%}.section-title{font-size:14px;font-weight:700;margin-top:20px;border-bottom:1px solid #ccc;padding-bottom:5px}.footer{font-size:10px;color:#777;margin-top:30px;line-height:1.5}</style></head><body><div class="container"><h1>Notification of Payment</h1><p>Nedbank Limited confirms that the following payment has been made:</p><table class="details-table"><tr><td>Date of Payment</td><td>: ${lastPayment.date.toLocaleDateString('en-ZA')}</td></tr><tr><td>Reference Number</td><td>: ${lastPayment.transactionNumber}</td></tr></table><p class="section-title">Beneficiary details</p><table class="details-table"><tr><td>Recipient</td><td>: ${lastPayment.recipient}</td></tr><tr><td>Amount</td><td>: R ${lastPayment.amount}</td></tr><tr><td>Recipient Reference</td><td>: ${lastPayment.recipientsReference || 'N/A'}</td></tr><tr><td>Bank</td><td>: ${lastPayment.bankName.toUpperCase()}</td></tr><tr><td>Account Number</td><td>: ...${lastPayment.accountNumber.slice(-6)}</td></tr><tr><td>Channel</td><td>: Internet payment</td></tr></table><p class="section-title">Payer details</p><table class="details-table"><tr><td>Paid from Account Holder</td><td>: JOHN DOE</td></tr><tr><td>Paid from Account</td><td>: ${lastPayment.fromAccountName}</td></tr></table><div class="footer">This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification.<br/><br/>Payments may take up to three business days. Please check your account to verify the existence of the funds.</div></div></body></html>`;
+    const popContent = `<html><head><title>Proof of Payment</title><style>body{font-family:Arial,sans-serif;margin:0;padding:40px;color:#333}.container{max-width:680px;margin:auto;border:1px solid #eee;padding:30px}h1{font-size:24px;color:#333;margin:0}p{font-size:14px;line-height:1.6;margin:1em 0}.details-table{width:100%;margin:30px 0}.details-table td{padding:8px 0;font-size:14px;border-bottom:1px solid #eee}.details-table td:first-child{font-weight:700;width:35%}.section-title{font-size:14px;font-weight:700;margin-top:20px;border-bottom:1px solid #ccc;padding-bottom:5px}.footer{font-size:10px;color:#777;margin-top:30px;line-height:1.5}</style></head><body><div class="container"><h1>Notification of Payment</h1><p>Nedbank Limited confirms that the following payment has been made:</p><table class="details-table"><tr><td>Date of Payment</td><td>: ${lastPayment.date.toLocaleDateString('en-ZA')}</td></tr><tr><td>Reference Number</td><td>: ${lastPayment.transactionNumber}</td></tr></table><p class="section-title">Beneficiary details</p><table class="details-table"><tr><td>Recipient</td><td>: ${lastPayment.recipient}</td></tr><tr><td>Amount</td><td>: R ${lastPayment.amount}</td></tr><tr><td>Recipient Reference</td><td>: ${lastPayment.recipientsReference || 'N/A'}</td></tr><tr><td>Bank</td><td>: ${lastPayment.bankName.toUpperCase()}</td></tr><tr><td>Account Number</td><td>: ...${lastPayment.accountNumber.slice(-6)}</td></tr><tr><td>Channel</td><td>: Internet payment</td></tr></table><p class="section-title">Payer details</p><table class="details-table"><tr><td>Paid from Account Holder</td><td>: Van Schalkwyk Family Trust</td></tr><tr><td>Paid from Account</td><td>: ${lastPayment.fromAccountName}</td></tr></table><div class="footer">This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification.<br/><br/>Payments may take up to three business days. Please check your account to verify the existence of the funds.</div></div></body></html>`;
     popWindow.document.write(popContent);
     popWindow.document.close();
   };
@@ -470,7 +470,7 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
-      {currentView === 'start' ? (
+      {currentView === 'start' || isLoading ? (
         <SplashScreen />
       ) : (
         <div className="flex flex-col h-screen">
