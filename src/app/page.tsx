@@ -114,18 +114,17 @@ const App = () => {
   useEffect(() => {
     const setupAuthAndFetchData = async () => {
       try {
-        await signInAnonymously(auth);
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-          if (user) {
-            setUserId(user.uid);
-            fetchData(db, user.uid);
-          } else {
-            // User signed out, handle appropriately if needed
-            setIsLoading(true);
-            setUserId(null);
-          }
-        });
-        return () => unsubscribe();
+        const userCredential = await signInAnonymously(auth);
+        const user = userCredential.user;
+        if (user) {
+          setUserId(user.uid);
+          await fetchData(db, user.uid);
+          setCurrentView('overview');
+        } else {
+          // User signed out, handle appropriately if needed
+          setIsLoading(true);
+          setUserId(null);
+        }
       } catch (error) {
         console.error('Anonymous sign-in failed:', error);
         setIsLoading(false);
