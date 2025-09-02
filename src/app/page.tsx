@@ -119,14 +119,12 @@ const App = () => {
         setUserId(user.uid);
         await fetchData(db, user.uid);
       } else {
-        try {
-          await signInAnonymously(auth);
-        } catch (error) {
+        // If there's no user, sign in anonymously.
+        // The onAuthStateChanged listener will be called again with the new user.
+        signInAnonymously(auth).catch((error) => {
           console.error("Anonymous sign-in failed:", error);
-          // Handle the error appropriately in a real app
-          // For now, we'll just log it and let the app continue without a user
-          setIsLoading(false);
-        }
+          setIsLoading(false); // Stop loading if sign-in fails
+        });
       }
     });
     return () => unsubscribe();
