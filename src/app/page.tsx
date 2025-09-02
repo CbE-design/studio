@@ -3,6 +3,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   signInAnonymously,
   onAuthStateChanged,
+  User,
 } from 'firebase/auth';
 import {
   doc,
@@ -40,7 +41,7 @@ const App = () => {
   const [secondRealTimeTransactions, setSecondRealTimeTransactions] = useState([]);
   const [thirdRealTimeTransactions, setThirdRealTimeTransactions] = useState([]);
   const [recipients, setRecipients] = useState([]);
-  const [userId, setUserId] = useState(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [overviewPagesData, setOverviewPagesData] = useState([]);
   const [paymentDetails, setPaymentDetails] = useState({
     recipient: '',
@@ -114,19 +115,21 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const handleAuth = async (user: User | null) => {
       if (user) {
         setUserId(user.uid);
         await fetchData(db, user.uid);
       } else {
-        // If there's no user, sign in anonymously.
-        // The onAuthStateChanged listener will be called again with the new user.
-        signInAnonymously(auth).catch((error) => {
-          console.error("Anonymous sign-in failed:", error);
+        try {
+          // If no user, sign in anonymously. The listener will be called again.
+          await signInAnonymously(auth);
+        } catch (error) {
+          console.error('Anonymous sign-in failed:', error);
           setIsLoading(false); // Stop loading if sign-in fails
-        });
+        }
       }
-    });
+    };
+    const unsubscribe = onAuthStateChanged(auth, handleAuth);
     return () => unsubscribe();
   }, []);
 
@@ -462,3 +465,4 @@ const App = () => {
 };
 
 export default App;
+    
