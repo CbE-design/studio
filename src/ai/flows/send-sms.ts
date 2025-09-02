@@ -8,7 +8,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import Twilio from 'twilio';
+const Twilio = require('twilio');
 
 const SendSmsInputSchema = z.object({
   to: z.string().describe('The recipient\'s phone number in E.164 format.'),
