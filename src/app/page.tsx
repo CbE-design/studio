@@ -29,6 +29,7 @@ import PaymentConfirmationPage from '@/components/PaymentConfirmationPage';
 import BottomNavBar from '@/components/BottomNavBar';
 import TransactLandingPage from '@/components/TransactLandingPage';
 import { combinedInitialTransactions, initialPlatinumChequeTransactions, initialThirdAccountTransactions, MOCK_CURRENT_DATE } from '@/lib/data';
+import { sendPaymentNotification } from '@/ai/flows/send-payment-notification';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('Overview');
@@ -115,18 +116,15 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    const handleAuth = async (user: User | null) => {
+    const handleAuth = (user: User | null) => {
       if (user) {
         setUserId(user.uid);
-        await fetchData(db, user.uid);
+        fetchData(db, user.uid);
       } else {
-        try {
-          // If no user, sign in anonymously. The listener will be called again.
-          await signInAnonymously(auth);
-        } catch (error) {
+        signInAnonymously(auth).catch((error) => {
           console.error('Anonymous sign-in failed:', error);
-          setIsLoading(false); // Stop loading if sign-in fails
-        }
+          setIsLoading(false);
+        });
       }
     };
     const unsubscribe = onAuthStateChanged(auth, handleAuth);
@@ -273,6 +271,24 @@ const App = () => {
       };
       await setDoc(fromAccountInfo.ref, { value: newBalance });
       await addDoc(fromAccountInfo.col, newTransaction);
+      
+      if (paymentDetails.sendSms && paymentDetails.recipientPhone) {
+        try {
+          const notification = await sendPaymentNotification({
+            recipientName: paymentDetails.recipient,
+            amount: paymentAmount,
+            senderName: 'Van Schalkwyk Family Trust',
+            yourReference: paymentDetails.yourReference,
+          });
+          // In a real app, you would send this SMS. Here, we'll just alert it.
+          alert(`SMS to ${paymentDetails.recipientPhone}:\n${notification.smsMessage}`);
+        } catch (aiError) {
+          console.error("Failed to generate SMS notification:", aiError);
+          // Non-critical error, so we don't block the payment flow.
+          // We can show a toast or a silent log.
+        }
+      }
+
       setLastPayment({
         ...paymentDetails,
         amount: paymentAmount.toFixed(2),
