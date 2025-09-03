@@ -6,6 +6,12 @@ const LoginPage = ({ setCurrentView }) => {
   const [pin, setPin] = useState(['', '', '', '', '']);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  const handleLogin = () => {
+    if (pin.join('').length === 5) {
+      setCurrentView('overview');
+    }
+  };
+
   const handlePinChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
     const { value } = e.target;
     if (/^[0-9]$/.test(value) || value === '') {
@@ -17,8 +23,10 @@ const LoginPage = ({ setCurrentView }) => {
         inputRefs.current[index + 1]?.focus();
       }
 
+      // Check if all PIN fields are filled and trigger login
       if (newPin.every(p => p !== '')) {
-        handleLogin();
+        // Use a timeout to allow the final digit to render before navigating
+        setTimeout(() => setCurrentView('overview'), 100);
       }
     }
   };
@@ -28,19 +36,11 @@ const LoginPage = ({ setCurrentView }) => {
       inputRefs.current[index - 1]?.focus();
     }
   };
-
-  const handleLogin = () => {
-    if (pin.join('').length === 5) {
-      setCurrentView('overview');
-    }
-  };
   
   const handleFooterClick = (label: string) => {
     if (label === 'Login') {
       handleLogin();
     } else {
-      // For now, other buttons will just log to the console to show they are active.
-      // You can replace this with actual navigation or functionality later.
       console.log(`${label} button clicked`);
       alert(`${label} is not yet implemented.`);
     }
