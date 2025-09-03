@@ -20,8 +20,7 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
           <div className="flex items-center space-x-4">
             <ArrowLeft size={24} className="cursor-pointer" onClick={() => setCurrentView(backView || 'overview')} />
             <div className="flex flex-col">
-              <span className="text-lg font-medium">{accountName}</span>
-              <span className="text-sm font-light text-primary-foreground">...6866</span>
+              <span className="text-lg font-normal">{accountName}</span>
             </div>
           </div>
           <MessageSquare size={24} />
