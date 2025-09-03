@@ -22,7 +22,7 @@ const RecipientsPage = ({ recipients, setCurrentView }) => {
       </header>
       <div className="bg-white px-4 py-2 border-b">
         <div className="flex space-x-4 text-sm font-medium">
-          <span className="text-[#00703C] border-b-2 border-[#00703C] pb-2">Local</span>
+          <span className="text-primary border-b-2 border-primary pb-2">Local</span>
           <span className="text-gray-500">International</span>
           <span className="text-gray-500">Bank-approved</span>
         </div>
@@ -48,7 +48,7 @@ const RecipientsPage = ({ recipients, setCurrentView }) => {
             </div>
           ))}
         </div>
-        <div className="flex flex-col p-2 bg-gray-50 text-xs font-medium text-[#00703C] space-y-1">
+        <div className="flex flex-col p-2 bg-gray-50 text-xs font-medium text-primary space-y-1">
           {alphabet.map((letter) => (
             <a key={letter} href={`#${letter}`} className="p-1 hover:bg-gray-200 rounded">{letter}</a>
           ))}

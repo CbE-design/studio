@@ -63,7 +63,7 @@ const LoginPage = ({ setCurrentView }) => {
               key={item.label}
               onClick={() => handleFooterClick(item.label)}
               className={`flex flex-col items-center justify-center h-full w-1/5 transition-colors duration-200 ${
-                item.primary ? 'text-[#00703C] font-bold' : 'text-gray-500 font-normal'
+                item.primary ? 'text-primary font-bold' : 'text-gray-500 font-normal'
               }`}
             >
               {item.icon}
@@ -100,7 +100,7 @@ const LoginPage = ({ setCurrentView }) => {
                 value={digit}
                 onChange={(e) => handlePinChange(e, index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
-                className="w-12 h-12 bg-transparent text-center text-2xl font-semibold border-b-2 border-gray-300 focus:outline-none focus:border-[#00703C] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-12 h-12 bg-transparent text-center text-2xl font-semibold border-b-2 border-gray-300 focus:outline-none focus:border-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 style={{ caretColor: 'transparent' }}
                 />
             ))}
@@ -108,14 +108,14 @@ const LoginPage = ({ setCurrentView }) => {
         </div>
 
         <div className="text-center mb-8">
-            <a href="#" className="text-green-600 font-semibold text-lg inline-flex items-center">
+            <a href="#" className="text-primary font-semibold text-lg inline-flex items-center">
                 Or use your Nedbank ID password <ArrowRight size={20} className="ml-2" />
             </a>
         </div>
 
         <div className="space-y-4">
             <div className="bg-gray-100 rounded-lg p-4 flex items-center">
-                <div className="bg-green-800 rounded-lg p-3 mr-4">
+                <div className="bg-primary/90 rounded-lg p-3 mr-4">
                     <PlayCircle className="h-8 w-8 text-white" />
                 </div>
                 <div>
@@ -125,7 +125,7 @@ const LoginPage = ({ setCurrentView }) => {
             </div>
 
             <div className="bg-gray-100 rounded-lg p-4 flex items-center">
-                    <div className="bg-green-800 rounded-lg p-3 mr-4">
+                    <div className="bg-primary/90 rounded-lg p-3 mr-4">
                         <PlayCircle className="h-8 w-8 text-white" />
                     </div>
                 <div>

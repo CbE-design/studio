@@ -28,7 +28,7 @@ const PaymentConfirmationPage = ({ lastPayment, onShareProof, onSaveRecipient, i
         </div>
       </main>
       <footer className="p-4 bg-white border-t">
-        <button onClick={onDone} className="w-full bg-[#00703C] text-white py-3 rounded-xl font-semibold">Done</button>
+        <button onClick={onDone} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold">Done</button>
       </footer>
     </div>
   );

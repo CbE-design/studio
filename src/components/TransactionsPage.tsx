@@ -16,30 +16,30 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <div>
-        <header className="bg-[#00703C] text-white p-4 flex justify-between items-center w-full">
+        <header className="bg-primary text-primary-foreground p-4 flex justify-between items-center w-full">
           <div className="flex items-center space-x-4">
             <ArrowLeft size={24} className="cursor-pointer" onClick={() => setCurrentView(backView || 'overview')} />
             <div className="flex flex-col">
               <span className="text-xl font-normal uppercase">{accountName}</span>
-              <span className="text-sm font-light text-white">1351056866</span>
+              <span className="text-sm font-light text-primary-foreground">1351056866</span>
             </div>
           </div>
           <MessageSquare size={24} />
         </header>
-        <div className="bg-[#00703C] text-white p-4 flex justify-around text-center w-full">
+        <div className="bg-primary text-primary-foreground p-4 flex justify-around text-center w-full">
           <div>
-            <p className="text-xs text-white">Current balance</p>
+            <p className="text-xs text-primary-foreground">Current balance</p>
             <p className="text-xl font-normal">R{currentBalance.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")}</p>
           </div>
           <div>
-            <p className="text-xs text-white">Available balance</p>
+            <p className="text-xs text-primary-foreground">Available balance</p>
             <p className="text-xl font-normal">R{currentBalance.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")}</p>
           </div>
         </div>
         <div className="bg-white border-b border-gray-300 overflow-x-auto whitespace-nowrap">
           <div className="flex px-4 space-x-6 text-sm">
             {menuItems.map((item, index) => (
-              <span key={item} className={`py-3 ${index === 0 ? 'text-[#00703C] font-semibold border-b-2 border-[#00703C]' : 'text-gray-500'}`}>{item}</span>
+              <span key={item} className={`py-3 ${index === 0 ? 'text-primary font-semibold border-b-2 border-primary' : 'text-gray-500'}`}>{item}</span>
             ))}
           </div>
         </div>
@@ -56,7 +56,7 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
               <input type="text" placeholder="Search" className="w-full pl-10 pr-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-gray-300" />
             </div>
             <div className="flex items-center space-x-1">
-              <span className="text-sm text-[#00703C]">Filter</span><Sliders size={18} className="text-[#00703C]" />
+              <span className="text-sm text-primary">Filter</span><Sliders size={18} className="text-primary" />
             </div>
           </div>
         </div>

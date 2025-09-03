@@ -3,12 +3,12 @@ import { Send, Repeat, FileText, Landmark, Globe, ChevronRight, ArrowLeft, Phone
 
 const TransactLandingPage = ({ setCurrentView }) => {
   const paymentOptions = [
-    { icon: <Send size={24} className="text-[#00703C]" />, title: 'Single payment', description: 'Make a once-off payment or pay a saved recipient.', onClick: () => setCurrentView('payment') },
-    { icon: <Phone size={24} className="text-[#00703C]" />, title: 'Send money', description: 'Send money to anyone with a South African cellphone number.' },
-    { icon: <Repeat size={24} className="text-[#00703C]" />, title: 'PayShap Request', description: 'Request and make payments with PayShap.' },
-    { icon: <FileText size={24} className="text-[#00703C]" />, title: 'Bill payments', description: 'Add and manage your monthly bills. Earn great rewards.' },
-    { icon: <Landmark size={24} className="text-[#00703C]" />, title: 'Government payment', description: 'Complete and view government payments.' },
-    { icon: <Globe size={24} className="text-[#00703C]" />, title: 'International payments', description: 'View, receive and make payments, or send money internationally.' },
+    { icon: <Send size={24} className="text-primary" />, title: 'Single payment', description: 'Make a once-off payment or pay a saved recipient.', onClick: () => setCurrentView('payment') },
+    { icon: <Phone size={24} className="text-primary" />, title: 'Send money', description: 'Send money to anyone with a South African cellphone number.' },
+    { icon: <Repeat size={24} className="text-primary" />, title: 'PayShap Request', description: 'Request and make payments with PayShap.' },
+    { icon: <FileText size={24} className="text-primary" />, title: 'Bill payments', description: 'Add and manage your monthly bills. Earn great rewards.' },
+    { icon: <Landmark size={24} className="text-primary" />, title: 'Government payment', description: 'Complete and view government payments.' },
+    { icon: <Globe size={24} className="text-primary" />, title: 'International payments', description: 'View, receive and make payments, or send money internationally.' },
   ];
 
   return (

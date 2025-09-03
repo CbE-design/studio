@@ -20,7 +20,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <header className="bg-[#00703C] text-white p-4 flex justify-between items-center w-full flex-shrink-0">
+      <header className="bg-primary text-primary-foreground p-4 flex justify-between items-center w-full flex-shrink-0">
         <div className="flex items-center space-x-2">
           <Image
             src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/images.jpeg?alt=media&token=e050b778-e10e-4e61-b6aa-7c6897140d4e"
@@ -29,22 +29,22 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
             height={32}
             className="rounded-full flex-shrink-0"
           />
-          <span className="text-lg font-semibold text-white">Van Schalkwyk Family Trust</span>
+          <span className="text-lg font-semibold text-primary-foreground">Van Schalkwyk Family Trust</span>
         </div>
         <div className="flex items-center space-x-4">
-          <Bell size={24} className="text-white" />
-          <MessageSquare size={24} className="text-white" />
+          <Bell size={24} className="text-primary-foreground" />
+          <MessageSquare size={24} className="text-primary-foreground" />
         </div>
       </header>
       <div className="flex-1 overflow-y-auto pb-16">
-        <div className="bg-[#00703C]">
+        <div className="bg-primary">
           <div ref={scrollContainerRef} onScroll={handleCarouselScroll} className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth">
             {overviewPagesData.map((page) => (
               <div key={page.id} className="w-full flex-shrink-0 snap-center">
-                <div className="text-white p-4">
+                <div className="text-primary-foreground p-4">
                   <div className="flex items-center space-x-2 mb-4">
-                    <h1 className="text-xl font-bold text-white">{page.title}</h1>
-                    <Eye size={20} className="text-white" />
+                    <h1 className="text-xl font-bold text-primary-foreground">{page.title}</h1>
+                    <Eye size={20} className="text-primary-foreground" />
                   </div>
                   <div className="space-y-0">
                     {page.content.filter(item => item.type === 'account' || item.type === 'item').map((item, itemIndex) => {
@@ -56,7 +56,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
                               <p className="text-sm font-light">{item.title}</p>
                               <p className="text-xl font-normal">{value}</p>
                             </div>
-                            <ChevronRight size={20} className="text-white" />
+                            <ChevronRight size={20} className="text-primary-foreground" />
                           </div>
                         </div>
                       );
@@ -64,13 +64,13 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
                   </div>
                 </div>
                 {page.content.filter(item => item.type === 'action').map((item, itemIndex) => (
-                  <div key={itemIndex} className="bg-[#005A30] px-4 py-4 text-white">
+                  <div key={itemIndex} className="bg-primary/80 px-4 py-4 text-primary-foreground">
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-sm">{item.title}</p>
                         {item.value && <p className="text-lg font-semibold">{item.value}</p>}
                       </div>
-                      <button className={`font-bold ${item.color === 'yellow' ? 'text-[#D4FF00]' : 'text-white'}`}>{item.actionText}</button>
+                      <button className={`font-bold ${item.color === 'yellow' ? 'text-[#D4FF00]' : 'text-primary-foreground'}`}>{item.actionText}</button>
                     </div>
                   </div>
                 ))}
@@ -78,11 +78,11 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
             ))}
           </div>
           <div className="flex justify-center items-center py-4 space-x-3">
-            <ChevronLeft size={20} className={carouselIndex > 0 ? "text-white cursor-pointer" : "text-gray-400"} onClick={() => scrollToPage(carouselIndex - 1)} />
+            <ChevronLeft size={20} className={carouselIndex > 0 ? "text-primary-foreground cursor-pointer" : "text-gray-400"} onClick={() => scrollToPage(carouselIndex - 1)} />
             {overviewPagesData.map((_, index) => (
               <div key={index} onClick={() => scrollToPage(index)} className={`w-2 h-2 rounded-full cursor-pointer ${index === carouselIndex ? 'bg-white' : 'bg-gray-400'}`}></div>
             ))}
-            <ChevronRight size={20} className={carouselIndex < overviewPagesData.length - 1 ? "text-white cursor-pointer" : "text-gray-400"} onClick={() => scrollToPage(carouselIndex + 1)} />
+            <ChevronRight size={20} className={carouselIndex < overviewPagesData.length - 1 ? "text-primary-foreground cursor-pointer" : "text-gray-400"} onClick={() => scrollToPage(carouselIndex + 1)} />
           </div>
         </div>
         <div className="p-4 bg-gray-100">

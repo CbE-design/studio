@@ -3,7 +3,7 @@ import { ArrowLeft, MessageSquare } from 'lucide-react';
 
 const FailedTransactionsPage = ({ failedTransactionsData, setCurrentView }) => (
   <div className="flex flex-col h-screen overflow-hidden">
-    <header className="bg-[#00703C] text-white p-4 flex justify-between items-center w-full">
+    <header className="bg-primary text-primary-foreground p-4 flex justify-between items-center w-full">
       <div className="flex items-center space-x-4">
         <ArrowLeft size={24} className="cursor-pointer" onClick={() => setCurrentView('transactions')} />
         <span className="text-lg font-semibold">Failed Transactions</span>

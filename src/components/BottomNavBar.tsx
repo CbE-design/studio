@@ -19,7 +19,7 @@ const BottomNavBar = ({ activeTab, onTabClick }) => {
             onClick={() => onTabClick(item.label, item.view)}
             className={`flex flex-col items-center justify-center h-full w-1/5 transition-colors duration-200 ${
               activeTab === item.label
-                ? 'text-black font-bold'
+                ? 'text-primary font-bold'
                 : 'text-gray-500 font-normal'
             }`}
           >

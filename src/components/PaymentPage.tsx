@@ -24,9 +24,9 @@ const PaymentPage = ({ paymentDetails, setPaymentDetails, handlePaymentSubmit, s
             <label className="block"><span className="text-gray-700 text-sm">Account number</span><input type="text" value={paymentDetails.accountNumber} onChange={(e) => setPaymentDetails({ ...paymentDetails, accountNumber: e.target.value })} className="w-full mt-1 p-3 border rounded-xl" placeholder="e.g. 123456789" required /></label>
             <label className="block"><span className="text-gray-700 text-sm">From which account?</span>
               <div className="mt-1">
-                <label className="inline-flex items-center mr-6"><input type="radio" name="fromAccount" value="current" checked={paymentDetails.fromAccount === 'current'} onChange={(e) => setPaymentDetails({ ...paymentDetails, fromAccount: e.target.value })} className="form-radio text-[#00703C]" /><span className="ml-2 text-sm">Savvy Bundle</span></label>
-                <label className="inline-flex items-center"><input type="radio" name="fromAccount" value="second" checked={paymentDetails.fromAccount === 'second'} onChange={(e) => setPaymentDetails({ ...paymentDetails, fromAccount: e.target.value })} className="form-radio text-[#00703C]" /><span className="ml-2 text-sm">Platinum Cheque</span></label>
-                <label className="inline-flex items-center"><input type="radio" name="fromAccount" value="third" checked={paymentDetails.fromAccount === 'third'} onChange={(e) => setPaymentDetails({ ...paymentDetails, fromAccount: e.target.value })} className="form-radio text-[#00703C]" /><span className="ml-2 text-sm">Platinum Cheque</span></label>
+                <label className="inline-flex items-center mr-6"><input type="radio" name="fromAccount" value="current" checked={paymentDetails.fromAccount === 'current'} onChange={(e) => setPaymentDetails({ ...paymentDetails, fromAccount: e.target.value })} className="form-radio text-primary" /><span className="ml-2 text-sm">Savvy Bundle</span></label>
+                <label className="inline-flex items-center"><input type="radio" name="fromAccount" value="second" checked={paymentDetails.fromAccount === 'second'} onChange={(e) => setPaymentDetails({ ...paymentDetails, fromAccount: e.target.value })} className="form-radio text-primary" /><span className="ml-2 text-sm">Platinum Cheque</span></label>
+                <label className="inline-flex items-center"><input type="radio" name="fromAccount" value="third" checked={paymentDetails.fromAccount === 'third'} onChange={(e) => setPaymentDetails({ ...paymentDetails, fromAccount: e.target.value })} className="form-radio text-primary" /><span className="ml-2 text-sm">Platinum Cheque</span></label>
               </div>
             </label>
             <label className="block"><span className="text-gray-700 text-sm">Amount (R)</span><input type="number" step="0.01" min="0.01" value={paymentDetails.amount} onChange={(e) => setPaymentDetails({ ...paymentDetails, amount: e.target.value })} className="w-full mt-1 p-3 border rounded-xl" placeholder="e.g. 100.00" required /></label>
@@ -36,7 +36,7 @@ const PaymentPage = ({ paymentDetails, setPaymentDetails, handlePaymentSubmit, s
             <div className="flex items-center justify-between pt-4">
               <div className="flex items-center"><input type="checkbox" id="sendSmsToggle" className="h-4 w-4 rounded" checked={paymentDetails.sendSms} onChange={(e) => setPaymentDetails({ ...paymentDetails, sendSms: e.target.checked })} /><label htmlFor="sendSmsToggle" className="ml-2 text-sm">Send SMS notification</label></div>
             </div>
-            <button type="submit" className="w-full bg-[#00703C] text-white py-3 rounded-xl font-semibold mt-4">Pay Now</button>
+            <button type="submit" className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold mt-4">Pay Now</button>
           </form>
         </div>
       </main>
