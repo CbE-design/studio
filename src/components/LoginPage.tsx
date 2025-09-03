@@ -1,6 +1,5 @@
 'use client';
 import React, { useState, useRef, ChangeEvent, KeyboardEvent } from 'react';
-import Image from 'next/image';
 import { MessageSquare, Menu, LayoutGrid, Lock, QrCode, Wallet, FileText } from 'lucide-react';
 
 const LoginPage = ({ setCurrentView }) => {
@@ -72,12 +71,7 @@ const LoginPage = ({ setCurrentView }) => {
   return (
     <div className="flex flex-col h-screen bg-white font-sans">
       <header className="p-4 flex justify-between items-center w-full flex-shrink-0">
-        <Image
-          src="https://i.ibb.co/dKq1gT7/nedbank-logo.png"
-          alt="Company Logo"
-          width={24}
-          height={24}
-        />
+        <div></div>
         <div className="flex items-center space-x-4">
           <MessageSquare size={24} className="text-gray-600" />
           <Menu size={24} className="text-gray-600" />
