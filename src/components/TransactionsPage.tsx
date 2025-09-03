@@ -62,19 +62,21 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
         </div>
       </div>
       <div className="flex-1 overflow-y-auto bg-white pb-20">
-        <div className="px-4">
+        <div className="">
           {Object.keys(groupedTransactions).sort((a, b) => new Date(b) - new Date(a)).map((monthYear) => (
-            <div key={monthYear} className="mb-4">
-              <h3 className="text-sm font-bold text-gray-800 mb-2 pt-2">{monthYear.toUpperCase()}</h3>
-              {groupedTransactions[monthYear].map((transaction, index) => (
-                <div key={transaction.id || index} onClick={() => handleTransactionClick(transaction)} className="flex justify-between items-center py-4 border-b border-gray-200 bg-white cursor-pointer last:border-b-0">
-                  <div>
-                    <p className="text-xs text-gray-500">{new Date(transaction.timestamp).toLocaleString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-                    <p className="text-sm font-bold text-gray-900 uppercase mt-1">{transaction.description}</p>
+            <div key={monthYear} className="">
+              <h3 className="text-sm font-bold text-gray-800 bg-gray-100 p-4">{monthYear.toUpperCase()}</h3>
+              <div className="px-4">
+                {groupedTransactions[monthYear].map((transaction, index) => (
+                  <div key={transaction.id || index} onClick={() => handleTransactionClick(transaction)} className="flex justify-between items-center py-4 border-b border-gray-200 bg-white cursor-pointer last:border-b-0">
+                    <div>
+                      <p className="text-xs text-gray-500">{new Date(transaction.timestamp).toLocaleString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                      <p className="text-sm font-bold text-gray-900 uppercase mt-1">{transaction.description}</p>
+                    </div>
+                    <p className={`text-sm font-semibold tabular-nums ${transaction.amount.startsWith('-') ? 'text-gray-800' : 'text-green-600'}`}>{transaction.amount}</p>
                   </div>
-                  <p className={`text-sm font-semibold tabular-nums ${transaction.amount.startsWith('-') ? 'text-gray-800' : 'text-green-600'}`}>{transaction.amount}</p>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ))}
         </div>
