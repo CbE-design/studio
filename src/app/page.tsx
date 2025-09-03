@@ -19,6 +19,7 @@ import {
 import { auth, db } from '@/lib/firebase';
 
 import SplashScreen from '@/components/SplashScreen';
+import LoginPage from '@/components/LoginPage';
 import OverviewPage from '@/components/OverviewPage';
 import TransactionsPage from '@/components/TransactionsPage';
 import FailedTransactionsPage from '@/components/FailedTransactionsPage';
@@ -112,26 +113,27 @@ const App = () => {
   );
 
   useEffect(() => {
-    const setupAuthAndFetchData = async () => {
-      try {
-        const userCredential = await signInAnonymously(auth);
-        const user = userCredential.user;
-        if (user) {
-          setUserId(user.uid);
-          await fetchData(db, user.uid);
-          setCurrentView('overview');
-        } else {
-          // User signed out, handle appropriately if needed
-          setIsLoading(true);
-          setUserId(null);
+    const authSub = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUserId(user.uid);
+        await fetchData(db, user.uid);
+        // Stays on login view after data is fetched.
+        setCurrentView('login');
+      } else {
+        // If there's no user, try to sign in.
+        try {
+          await signInAnonymously(auth);
+        } catch (error) {
+          console.error('Anonymous sign-in failed:', error);
+          setIsLoading(false);
         }
-      } catch (error) {
-        console.error('Anonymous sign-in failed:', error);
-        setIsLoading(false);
       }
-    };
-    setupAuthAndFetchData();
+    });
+
+    // Clean up the subscription on unmount
+    return () => authSub();
   }, []);
+
 
   useEffect(() => {
     if (lastPayment) {
@@ -371,6 +373,8 @@ const App = () => {
 
   const renderCurrentView = () => {
     switch (currentView) {
+      case 'login':
+        return <LoginPage setCurrentView={setCurrentView} />;
       case 'overview':
         return (
           <OverviewPage
@@ -476,12 +480,12 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
-      {currentView === 'start' || isLoading ? (
+      {currentView === 'start' || (isLoading && currentView !== 'login') ? (
         <SplashScreen />
       ) : (
         <div className="flex flex-col h-screen">
           {renderCurrentView()}
-          {currentView !== 'start' &&
+          {currentView !== 'start' && currentView !== 'login' &&
             !isLoading &&
             !['paymentConfirmation', 'transactionDetail', 'transactLanding', 'payment'].includes(currentView) && (
               <BottomNavBar activeTab={activeTab} onTabClick={handleTabClick} />
