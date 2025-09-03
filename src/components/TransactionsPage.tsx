@@ -39,7 +39,7 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
         <div className="bg-white border-b border-gray-300 overflow-x-auto whitespace-nowrap">
           <div className="flex px-4 space-x-6 text-sm">
             {menuItems.map((item, index) => (
-              <span key={item} className={`py-3 ${index === 0 ? 'text-primary font-semibold border-b-2 border-primary' : 'text-gray-500'}`}>{item}</span>
+              <span key={item} className={`py-3 ${index === 0 ? 'text-gray-900 font-semibold border-b-2 border-primary' : 'text-gray-500'}`}>{item}</span>
             ))}
           </div>
         </div>
