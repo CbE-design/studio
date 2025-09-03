@@ -27,7 +27,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
             alt="Company Logo"
             width={32}
             height={32}
-            className="rounded-full"
+            className="rounded-full flex-shrink-0"
           />
           <span className="text-lg font-semibold text-white">Van Schalkwyk Family Trust</span>
         </div>
