@@ -23,7 +23,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
       <header className="bg-primary text-primary-foreground p-4 flex justify-between items-center w-full flex-shrink-0">
         <div className="flex items-center space-x-2">
           <Image
-            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/images.jpeg?alt=media&token=e050b778-e10e-4e61-b6aa-7c6897140d4e"
+            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/logo.png?alt=media&token=0b61c15f-3d8b-4a6c-85f0-6c38a161353c"
             alt="Company Logo"
             width={32}
             height={32}
