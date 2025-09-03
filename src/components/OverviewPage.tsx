@@ -1,5 +1,5 @@
 'use client';
-import { Bell, Eye, ChevronLeft, ChevronRight, Wallet, FileText, Umbrella, Car, ShoppingCart, GitPullRequest, CreditCard, Banknote, Home, FileBadge, MessageSquare } from 'lucide-react';
+import { Eye, ChevronLeft, ChevronRight, Wallet, FileText, Umbrella, Car, ShoppingCart, GitPullRequest, CreditCard, Banknote, Home, FileBadge, MessageSquare } from 'lucide-react';
 import Image from 'next/image';
 
 const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, handleCarouselScroll, scrollToPage, setCurrentView, scrollContainerRef }) => {
@@ -32,7 +32,12 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
           <span className="text-lg font-semibold text-primary-foreground">Van Schalkwyk Family Trust</span>
         </div>
         <div className="flex items-center space-x-2">
-          <Bell size={24} className="text-primary-foreground" />
+          <Image
+            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/1756937737539~2.jpg?alt=media&token=2a7de540-01eb-4392-a20a-0acc05c1b175"
+            alt="Notifications"
+            width={24}
+            height={24}
+          />
           <MessageSquare size={24} className="text-primary-foreground" />
         </div>
       </header>
