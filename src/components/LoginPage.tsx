@@ -75,10 +75,7 @@ const LoginPage = ({ setCurrentView }) => {
   return (
     <div className="flex flex-col h-screen bg-white font-sans">
       <header className="p-4 flex justify-between items-center w-full flex-shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-700" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="#006a4e"/>
-            <path d="M13.41 12l4.95-4.95a7.93 7.93 0 0 0-1.41-1.41L12 10.59 7.05 5.64a7.93 7.93 0 0 0-1.41 1.41L10.59 12l-4.95 4.95a7.93 7.93 0 0 0 1.41 1.41L12 13.41l4.95 4.95a7.93 7.93 0 0 0 1.41-1.41L13.41 12z" fill="#fff"/>
-        </svg>
+        <div className="h-8 w-8"></div>
         <div className="flex items-center space-x-4">
           <MessageSquare size={24} className="text-gray-600" />
           <Menu size={24} className="text-gray-600" />
