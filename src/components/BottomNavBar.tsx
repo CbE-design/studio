@@ -9,7 +9,7 @@ const BottomNavBar = ({ activeTab, onTabClick }) => {
       icon: (
         <div className={`w-6 h-6 rounded-full flex items-center justify-center ${activeTab === 'Overview' ? 'bg-primary' : 'bg-gray-500'}`}>
           <Image 
-            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/20250903_214901554.png?alt=media&token=646e57d0-2074-4fe1-b543-0a04e46b93b5" 
+            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/IMG_20250903_230844.jpg?alt=media&token=0aa10470-9929-4628-9644-44c266baab5e" 
             width={20} 
             height={20} 
             alt="Overview"
