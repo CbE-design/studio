@@ -4,6 +4,8 @@ import {
   signInAnonymously,
   onAuthStateChanged,
   User,
+  browserLocalPersistence,
+  setPersistence,
 } from 'firebase/auth';
 import {
   doc,
@@ -113,25 +115,30 @@ const App = () => {
   );
 
   useEffect(() => {
-    const authSub = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        setUserId(user.uid);
-        await fetchData(db, user.uid);
-        // Stays on login view after data is fetched.
-        setCurrentView('login');
-      } else {
-        // If there's no user, try to sign in.
-        try {
-          await signInAnonymously(auth);
-        } catch (error) {
-          console.error('Anonymous sign-in failed:', error);
-          setIsLoading(false);
-        }
+    const initializeAuth = async () => {
+      try {
+        await setPersistence(auth, browserLocalPersistence);
+        const authSub = onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            setUserId(user.uid);
+            await fetchData(db, user.uid);
+            setCurrentView('login');
+          } else {
+            try {
+              await signInAnonymously(auth);
+            } catch (error) {
+              console.error('Anonymous sign-in failed:', error);
+              setIsLoading(false);
+            }
+          }
+        });
+        return () => authSub();
+      } catch (error) {
+        console.error('Failed to set persistence:', error);
+        setIsLoading(false);
       }
-    });
-
-    // Clean up the subscription on unmount
-    return () => authSub();
+    };
+    initializeAuth();
   }, []);
 
 
