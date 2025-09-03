@@ -4,6 +4,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Van Schalkwyk Trust Mobile',
   description: 'Mobile banking for the Van Schalkwyk Family Trust',
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
