@@ -1,9 +1,24 @@
 'use client';
-import { Target, CreditCard, Plus, User, MoreHorizontal } from 'lucide-react';
+import { CreditCard, Plus, User, MoreHorizontal } from 'lucide-react';
+import Image from 'next/image';
 
 const BottomNavBar = ({ activeTab, onTabClick }) => {
   const navItems = [
-    { label: 'Overview', icon: <Target size={24} />, view: 'overview' },
+    { 
+      label: 'Overview', 
+      icon: (
+        <div className={`w-6 h-6 rounded-full flex items-center justify-center ${activeTab === 'Overview' ? 'bg-primary' : 'bg-gray-500'}`}>
+          <Image 
+            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/20250903_214901554.png?alt=media&token=646e57d0-2074-4fe1-b543-0a04e46b93b5" 
+            width={20} 
+            height={20} 
+            alt="Overview"
+            className="rounded-full"
+          />
+        </div>
+      ), 
+      view: 'overview' 
+    },
     { label: 'Cards', icon: <CreditCard size={24} />, view: 'cards' },
     { label: 'Transact', icon: <Plus size={30} />, view: 'transactLanding' },
     { label: 'Recipients', icon: <User size={24} />, view: 'recipients' },
