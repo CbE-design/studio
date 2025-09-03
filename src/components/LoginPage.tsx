@@ -39,7 +39,10 @@ const LoginPage = ({ setCurrentView }) => {
     if (label === 'Login') {
       handleLogin();
     } else {
+      // For now, other buttons will just log to the console to show they are active.
+      // You can replace this with actual navigation or functionality later.
       console.log(`${label} button clicked`);
+      alert(`${label} is not yet implemented.`);
     }
   };
 
@@ -86,7 +89,7 @@ const LoginPage = ({ setCurrentView }) => {
         <h1 className="text-3xl font-light text-gray-800 mb-8">Welcome back.</h1>
         
         <div className="mb-10">
-            <p className="mb-2 text-sm font-medium text-gray-600">App PIN</p>
+            <p className="mb-4 text-sm font-medium text-gray-600">App PIN</p>
             <div className="flex justify-center items-center space-x-2">
             {pin.map((digit, index) => (
                 <input
@@ -97,8 +100,8 @@ const LoginPage = ({ setCurrentView }) => {
                 value={digit}
                 onChange={(e) => handlePinChange(e, index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
-                className="w-12 h-0.5 bg-gray-300 rounded-full text-center focus:outline-none focus:ring-2 focus:ring-[#00703C] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                style={{ caretColor: 'transparent', fontSize: '2rem' }}
+                className="w-12 h-12 bg-transparent text-center text-2xl font-semibold border-b-2 border-gray-300 focus:outline-none focus:border-[#00703C] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                style={{ caretColor: 'transparent' }}
                 />
             ))}
             </div>
