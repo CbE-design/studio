@@ -20,19 +20,19 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
           <div className="flex items-center space-x-4">
             <ArrowLeft size={24} className="cursor-pointer" onClick={() => setCurrentView(backView || 'overview')} />
             <div className="flex flex-col">
-              <span className="text-xl font-normal uppercase">{accountName}</span>
+              <span className="text-xl font-semibold tracking-wider">CURRENT</span>
               <span className="text-sm font-light text-primary-foreground">1351056866</span>
             </div>
           </div>
           <MessageSquare size={24} />
         </header>
-        <div className="bg-primary text-primary-foreground p-4 flex justify-around text-center w-full">
-          <div>
-            <p className="text-xs text-primary-foreground">Current balance</p>
+        <div className="bg-primary text-primary-foreground p-4 flex justify-between text-left w-full space-x-4">
+          <div className="flex-1">
+            <p className="text-xs text-primary-foreground font-light">Current balance</p>
             <p className="text-xl font-normal">R{currentBalance.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")}</p>
           </div>
-          <div>
-            <p className="text-xs text-primary-foreground">Available balance</p>
+          <div className="flex-1">
+            <p className="text-xs text-primary-foreground font-light">Available balance</p>
             <p className="text-xl font-normal">R{currentBalance.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")}</p>
           </div>
         </div>
