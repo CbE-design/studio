@@ -64,7 +64,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
                   </div>
                 </div>
                 {page.content.filter(item => item.type === 'action').map((item, itemIndex) => (
-                  <div key={itemIndex} className="bg-primary/80 px-4 py-4 text-primary-foreground">
+                  <div key={itemIndex} className="bg-[#006A38] px-4 py-4 text-primary-foreground">
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-sm">{item.title}</p>
@@ -78,11 +78,11 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
             ))}
           </div>
           <div className="flex justify-center items-center py-4 space-x-3">
-            <ChevronLeft size={20} className={carouselIndex > 0 ? "text-primary-foreground cursor-pointer" : "text-gray-400"} onClick={() => scrollToPage(carouselIndex - 1)} />
+            <ChevronLeft size={20} className={carouselIndex > 0 ? "text-white cursor-pointer" : "text-white/50"} onClick={() => scrollToPage(carouselIndex - 1)} />
             {overviewPagesData.map((_, index) => (
-              <div key={index} onClick={() => scrollToPage(index)} className={`w-2 h-2 rounded-full cursor-pointer ${index === carouselIndex ? 'bg-white' : 'bg-gray-400'}`}></div>
+              <div key={index} onClick={() => scrollToPage(index)} className={`cursor-pointer rounded-full transition-all duration-300 ${index === carouselIndex ? 'w-3 h-3 bg-white' : 'w-2 h-2 bg-green-300/50'}`}></div>
             ))}
-            <ChevronRight size={20} className={carouselIndex < overviewPagesData.length - 1 ? "text-primary-foreground cursor-pointer" : "text-gray-400"} onClick={() => scrollToPage(carouselIndex + 1)} />
+            <ChevronRight size={20} className={carouselIndex < overviewPagesData.length - 1 ? "text-white cursor-pointer" : "text-white/50"} onClick={() => scrollToPage(carouselIndex + 1)} />
           </div>
         </div>
         <div className="p-4 bg-gray-100">
