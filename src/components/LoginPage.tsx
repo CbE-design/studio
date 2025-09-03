@@ -13,12 +13,10 @@ const LoginPage = ({ setCurrentView }) => {
       newPin[index] = value;
       setPin(newPin);
 
-      // Move to next input if a digit is entered
       if (value !== '' && index < 4) {
         inputRefs.current[index + 1]?.focus();
       }
 
-      // If all pins are filled, log in
       if (newPin.every(p => p !== '')) {
         handleLogin();
       }
@@ -26,14 +24,12 @@ const LoginPage = ({ setCurrentView }) => {
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>, index: number) => {
-    // Move to previous input on backspace if current is empty
     if (e.key === 'Backspace' && pin[index] === '' && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
   const handleLogin = () => {
-    // Simple check, in a real app this would be a proper validation
     if (pin.join('').length === 5) {
       setCurrentView('overview');
     }
@@ -43,7 +39,6 @@ const LoginPage = ({ setCurrentView }) => {
     if (label === 'Login') {
       handleLogin();
     } else {
-      // Placeholder for other button actions
       console.log(`${label} button clicked`);
     }
   };
