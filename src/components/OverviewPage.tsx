@@ -1,6 +1,5 @@
 'use client';
 import { Bell, Eye, ChevronLeft, ChevronRight, Wallet, FileText, Umbrella, Car, ShoppingCart, GitPullRequest, CreditCard, Banknote, Home, FileBadge, MessageSquare } from 'lucide-react';
-import Image from 'next/image';
 
 const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, handleCarouselScroll, scrollToPage, setCurrentView, scrollContainerRef }) => {
   const getOnClickHandler = (action) => (typeof action === 'string' ? () => setCurrentView(action) : () => {});
@@ -22,13 +21,6 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
     <div className="flex-1 flex flex-col overflow-hidden">
       <header className="bg-[#00703C] text-white p-4 flex justify-between items-center w-full flex-shrink-0">
         <div className="flex items-center space-x-2">
-          <Image
-            src="https://i.ibb.co/dKq1gT7/nedbank-logo.png"
-            alt="Company Logo"
-            width={32}
-            height={32}
-            className="rounded-full flex-shrink-0"
-          />
           <span className="text-lg font-semibold text-white">Van Schalkwyk Family Trust</span>
         </div>
         <div className="flex items-center space-x-4">
