@@ -38,6 +38,15 @@ const LoginPage = ({ setCurrentView }) => {
       setCurrentView('overview');
     }
   };
+  
+  const handleFooterClick = (label: string) => {
+    if (label === 'Login') {
+      handleLogin();
+    } else {
+      // Placeholder for other button actions
+      console.log(`${label} button clicked`);
+    }
+  };
 
   const LoginFooter = () => {
     const navItems = [
@@ -54,7 +63,7 @@ const LoginPage = ({ setCurrentView }) => {
           {navItems.map((item) => (
             <button
               key={item.label}
-              onClick={item.primary ? handleLogin : () => {}}
+              onClick={() => handleFooterClick(item.label)}
               className={`flex flex-col items-center justify-center h-full w-1/5 transition-colors duration-200 ${
                 item.primary ? 'text-[#00703C] font-bold' : 'text-gray-500 font-normal'
               }`}
@@ -96,7 +105,7 @@ const LoginPage = ({ setCurrentView }) => {
                 value={digit}
                 onChange={(e) => handlePinChange(e, index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
-                className="w-12 h-2 bg-gray-300 rounded-full text-center focus:outline-none focus:ring-2 focus:ring-[#00703C] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-12 h-0.5 bg-gray-300 rounded-full text-center focus:outline-none focus:ring-2 focus:ring-[#00703C] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 style={{ caretColor: 'transparent', fontSize: '2rem' }}
                 />
             ))}
