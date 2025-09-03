@@ -31,7 +31,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
           />
           <span className="text-lg font-semibold text-primary-foreground">Van Schalkwyk Family Trust</span>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
           <Bell size={24} className="text-primary-foreground" />
           <MessageSquare size={24} className="text-primary-foreground" />
         </div>
@@ -43,7 +43,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
               <div key={page.id} className="w-full flex-shrink-0 snap-center">
                 <div className="text-primary-foreground p-4">
                   <div className="flex items-center space-x-2 mb-4">
-                    <h1 className="text-xl font-bold text-primary-foreground">{page.title}</h1>
+                    <h1 className="text-2xl font-bold text-primary-foreground">{page.title}</h1>
                     <Eye size={20} className="text-primary-foreground" />
                   </div>
                   <div className="space-y-0">
@@ -54,7 +54,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
                           <div className="flex justify-between items-center">
                             <div>
                               <p className="text-sm font-light">{item.title}</p>
-                              <p className="text-xl font-normal">{value}</p>
+                              <p className="text-2xl font-normal">{value}</p>
                             </div>
                             <ChevronRight size={20} className="text-primary-foreground" />
                           </div>
