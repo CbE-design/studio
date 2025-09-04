@@ -17,6 +17,7 @@ import {
   writeBatch,
   getDoc,
   query,
+  runTransaction,
 } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 
@@ -165,6 +166,7 @@ const App = () => {
             batch.set(doc(db, `artifacts/${appId}/users/${uid}/accountData/balance`), { value: 1590835.19 + 16300000 + 500000 });
             batch.set(doc(db, `artifacts/${appId}/users/${uid}/secondAccountData/balance`), { value: 1600904.90 });
             batch.set(doc(db, `artifacts/${appId}/users/${uid}/thirdAccountData/balance`), { value: 4775.00 });
+            batch.set(doc(db, `artifacts/${appId}/users/${uid}/transactionCounter/counter`), { value: 3692825731 });
       
             const transactionsColRef1 = collection(db, `artifacts/${appId}/users/${uid}/transactions`);
             combinedInitialTransactions.forEach(tx => batch.set(doc(transactionsColRef1), tx));
@@ -278,8 +280,19 @@ const App = () => {
       setIsLoading(false);
       return;
     }
-
+    
     try {
+      const counterRef = doc(db, `artifacts/${appId}/users/${userId}/transactionCounter/counter`);
+      const newTransactionRefNumber = await runTransaction(db, async (transaction) => {
+        const counterDoc = await transaction.get(counterRef);
+        if (!counterDoc.exists()) {
+          throw "Transaction counter does not exist!";
+        }
+        const newCounterValue = counterDoc.data().value + 1;
+        transaction.update(counterRef, { value: newCounterValue });
+        return newCounterValue;
+      });
+
       const newTransaction = {
         description: (paymentDetails.yourReference || `${paymentDetails.recipient}`).toUpperCase(),
         amount: `-R${paymentAmount.toFixed(2)}`,
@@ -309,13 +322,14 @@ const App = () => {
           alert("Failed to send SMS. Please check server logs.");
         }
       }
-
+      const paymentDate = new Date();
+      const formattedDate = `${paymentDate.getFullYear()}-${(paymentDate.getMonth() + 1).toString().padStart(2, '0')}-${paymentDate.getDate().toString().padStart(2, '0')}`;
       setLastPayment({
         ...paymentDetails,
         amount: paymentAmount.toFixed(2),
-        date: new Date(),
+        date: paymentDate,
         reference: paymentDetails.yourReference || `${paymentDetails.recipient.toUpperCase()}`,
-        transactionNumber: `20250817/Nedbank/${Math.floor(Math.random() * 1e11)}`,
+        transactionNumber: `${formattedDate}/Nedbank/00${newTransactionRefNumber}`,
         fromAccountName: fromAccountInfo.name,
       });
       setPaymentDetails({ recipient: '', bankName: 'Select bank', accountNumber: '', paymentMethod: 'Standard EFT', amount: '', yourReference: '', recipientsReference: '', recipientPhone: '', sendSms: false, saveRecipient: false, fromAccount: 'current' });
@@ -347,7 +361,87 @@ const App = () => {
   const handleShareProof = () => {
     if (!lastPayment) return;
     const popWindow = window.open('', '_blank');
-    const popContent = `<html><head><title>Proof of Payment</title><style>body{font-family:Arial,sans-serif;margin:0;padding:40px;color:#333}.container{max-width:680px;margin:auto;border:1px solid #eee;padding:30px}h1{font-size:24px;color:#333;margin:0}p{font-size:14px;line-height:1.6;margin:1em 0}.details-table{width:100%;margin:30px 0}.details-table td{padding:8px 0;font-size:14px;border-bottom:1px solid #eee}.details-table td:first-child{font-weight:700;width:35%}.section-title{font-size:14px;font-weight:700;margin-top:20px;border-bottom:1px solid #ccc;padding-bottom:5px}.footer{font-size:10px;color:#777;margin-top:30px;line-height:1.5}</style></head><body><div class="container"><h1>Notification of Payment</h1><p>Nedbank Limited confirms that the following payment has been made:</p><table class="details-table"><tr><td>Date of Payment</td><td>: ${lastPayment.date.toLocaleDateString('en-ZA')}</td></tr><tr><td>Reference Number</td><td>: ${lastPayment.transactionNumber}</td></tr></table><p class="section-title">Beneficiary details</p><table class="details-table"><tr><td>Recipient</td><td>: ${lastPayment.recipient}</td></tr><tr><td>Amount</td><td>: R ${lastPayment.amount}</td></tr><tr><td>Recipient Reference</td><td>: ${lastPayment.recipientsReference || 'N/A'}</td></tr><tr><td>Bank</td><td>: ${lastPayment.bankName.toUpperCase()}</td></tr><tr><td>Account Number</td><td>: ...${lastPayment.accountNumber.slice(-6)}</td></tr><tr><td>Channel</td><td>: Internet payment</td></tr></table><p class="section-title">Payer details</p><table class="details-table"><tr><td>Paid from Account Holder</td><td>: Van Schalkwyk Family Trust</td></tr><tr><td>Paid from Account</td><td>: ${lastPayment.fromAccountName}</td></tr></table><div class="footer">This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification.<br/><br/>Payments may take up to three business days. Please check your account to verify the existence of the funds.</div></div></body></html>`;
+    const paymentDate = new Date(lastPayment.date);
+    const formattedDate = `${paymentDate.getDate().toString().padStart(2, '0')}/${(paymentDate.getMonth() + 1).toString().padStart(2, '0')}/${paymentDate.getFullYear()}`;
+    const securityCode = 'DB85BE175B1E35A823EBD2CDE32DC8D542472D1A'; 
+
+    const popContent = `
+      <html>
+        <head>
+          <title>Proof of Payment</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 40px; color: #333; font-size: 12px; }
+            .container { max-width: 750px; margin: auto; padding: 20px; border: 1px solid #ddd; }
+            .header { display: flex; align-items: center; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
+            .header img { width: 50px; height: auto; }
+            h1 { font-size: 18px; color: #333; margin: 0; }
+            .section { margin-top: 20px; }
+            .section h2 { font-size: 14px; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; }
+            .details-table { width: 100%; border-collapse: collapse; }
+            .details-table td { padding: 4px 0; }
+            .details-table td:first-child { font-weight: normal; width: 25%; }
+            .details-table td:nth-child(2) { width: 5%; text-align: center; }
+            .details-table td:nth-child(3) { font-weight: bold; }
+            .disclaimer { font-size: 10px; color: #555; margin-top: 20px; }
+            .footer { font-size: 9px; color: #777; margin-top: 30px; border-top: 1px solid #ccc; padding-top: 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <img src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/logo.png?alt=media&token=0b61c15f-3d8b-4a6c-85f0-6c38a161353c" alt="Nedbank Logo">
+            </div>
+            <div class="section">
+              <h1>Notification of Payment</h1>
+              <p>Nedbank Limited confirms that the following payment has been made:</p>
+              <table class="details-table">
+                <tr><td>Date of Payment</td><td>:</td><td>${formattedDate}</td></tr>
+                <tr><td>Reference Number</td><td>:</td><td>${lastPayment.transactionNumber}</td></tr>
+              </table>
+            </div>
+
+            <div class="section">
+              <h2>Beneficiary details</h2>
+              <table class="details-table">
+                <tr><td>Recipient</td><td>:</td><td>${lastPayment.recipient}</td></tr>
+                <tr><td>Amount</td><td>:</td><td>R${parseFloat(lastPayment.amount).toFixed(2)}</td></tr>
+                <tr><td>Recipient Reference</td><td>:</td><td>${lastPayment.recipientsReference || lastPayment.yourReference || 'N/A'}</td></tr>
+                <tr><td>Bank</td><td>:</td><td>${lastPayment.bankName.toUpperCase()}</td></tr>
+                <tr><td>Account Number</td><td>:</td><td>...${lastPayment.accountNumber.slice(-6)}</td></tr>
+                <tr><td>Channel</td><td>:</td><td>Internet payment</td></tr>
+              </table>
+            </div>
+            
+            <div class="section">
+              <h2>Payer details</h2>
+              <table class="details-table">
+                <tr><td>Paid from Account Holder</td><td>:</td><td>VAN SCHALKWYK FAMILY TRUST</td></tr>
+              </table>
+            </div>
+            
+            <p class="disclaimer" style="margin-top: 20px;">Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.</p>
+            <p class="disclaimer">This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification. Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information. Payments may take up to three business days. Please check your account to verify the existence of the funds.</p>
+            <p class="disclaimer">Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.</p>
+
+            <div class="section">
+              <h2>Nedbank Limited email disclaimer</h2>
+              <p class="disclaimer">This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.</p>
+            </div>
+            
+            <div class="section">
+              <table class="details-table">
+                <tr><td>Security Code</td><td>:</td><td>${securityCode}</td></tr>
+              </table>
+            </div>
+
+            <div class="footer">
+              <p>Nedbank Limited Reg No 1951/000009/06 VAT Reg No 4320116074 135 Rivonia Road Sandown Sandton 2196 South Africa</p>
+              <p>We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services.<br>We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCR Reg No NCRCP16).</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
     popWindow.document.write(popContent);
     popWindow.document.close();
   };
