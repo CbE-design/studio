@@ -285,11 +285,14 @@ const App = () => {
       const counterRef = doc(db, `artifacts/${appId}/users/${userId}/transactionCounter/counter`);
       const newTransactionRefNumber = await runTransaction(db, async (transaction) => {
         const counterDoc = await transaction.get(counterRef);
+        let newCounterValue;
         if (!counterDoc.exists()) {
-          throw "Transaction counter does not exist!";
+          newCounterValue = 3692825731; // Initial value
+          transaction.set(counterRef, { value: newCounterValue });
+        } else {
+          newCounterValue = counterDoc.data().value + 1;
+          transaction.update(counterRef, { value: newCounterValue });
         }
-        const newCounterValue = counterDoc.data().value + 1;
-        transaction.update(counterRef, { value: newCounterValue });
         return newCounterValue;
       });
 
