@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useRef, ChangeEvent, KeyboardEvent } from 'react';
 import { MessageSquare, Menu, LayoutGrid, Lock, QrCode, Wallet, FileText, ArrowRight, PlayCircle } from 'lucide-react';
+import Image from 'next/image';
 
 const LoginPage = ({ setCurrentView }) => {
   const [pin, setPin] = useState(['', '', '', '', '']);
@@ -78,7 +79,13 @@ const LoginPage = ({ setCurrentView }) => {
   return (
     <div className="flex flex-col h-screen bg-white font-sans">
       <header className="p-4 flex justify-between items-center w-full flex-shrink-0">
-        <div className="h-8 w-8"></div>
+        <Image
+            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/IMG_20250903_230844.jpg?alt=media&token=0aa10470-9929-4628-9644-44c266baab5e"
+            width={32}
+            height={32}
+            alt="Logo"
+            className="rounded-full"
+          />
         <div className="flex items-center space-x-4">
           <MessageSquare size={24} className="text-gray-600" />
           <Menu size={24} className="text-gray-600" />
