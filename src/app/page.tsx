@@ -125,11 +125,14 @@ const App = () => {
             await fetchData(db, user.uid);
             setCurrentView('login');
           } else {
-            try {
-              await signInAnonymously(auth);
-            } catch (error) {
-              console.error('Anonymous sign-in failed:', error);
-              setIsLoading(false);
+            // Only sign in anonymously if there's no user after the initial check
+            if (auth.currentUser === null) {
+              try {
+                await signInAnonymously(auth);
+              } catch (error) {
+                console.error('Anonymous sign-in failed:', error);
+                setIsLoading(false);
+              }
             }
           }
         });
