@@ -117,30 +117,41 @@ const App = () => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      try {
-        await setPersistence(auth, browserLocalPersistence);
-        const authSub = onAuthStateChanged(auth, async (user) => {
-          if (user) {
-            setUserId(user.uid);
-            await fetchData(db, user.uid);
-            setCurrentView('login');
-          } else {
-            // Only sign in anonymously if there's no user after the initial check
-            if (auth.currentUser === null) {
-              try {
-                await signInAnonymously(auth);
-              } catch (error) {
-                console.error('Anonymous sign-in failed:', error);
-                setIsLoading(false);
-              }
-            }
-          }
-        });
-        return () => authSub();
-      } catch (error) {
-        console.error('Failed to set persistence:', error);
-        setIsLoading(false);
-      }
+        try {
+            await setPersistence(auth, browserLocalPersistence);
+            let userChecked = false;
+
+            const authSub = onAuthStateChanged(auth, async (user) => {
+                userChecked = true;
+                if (user) {
+                    setUserId(user.uid);
+                    await fetchData(db, user.uid);
+                    setCurrentView('login');
+                } else {
+                    try {
+                        await signInAnonymously(auth);
+                    } catch (error) {
+                        console.error('Anonymous sign-in failed:', error);
+                        setIsLoading(false);
+                    }
+                }
+            });
+
+            // Fallback for cases where onAuthStateChanged might not fire immediately
+            setTimeout(() => {
+                if (!userChecked && !auth.currentUser) {
+                    signInAnonymously(auth).catch(error => {
+                        console.error('Delayed anonymous sign-in failed:', error);
+                        setIsLoading(false);
+                    });
+                }
+            }, 1000);
+
+            return () => authSub();
+        } catch (error) {
+            console.error('Failed to set persistence:', error);
+            setIsLoading(false);
+        }
     };
     initializeAuth();
   }, []);
@@ -379,7 +390,7 @@ const App = () => {
             body { font-family: Arial, sans-serif; margin: 40px; color: #333; font-size: 12px; }
             .container { max-width: 750px; margin: auto; padding: 20px; border: 1px solid #ddd; }
             .header { display: flex; align-items: center; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
-            .header img { width: 50px; height: auto; }
+            .header img { width: 100px; height: auto; }
             h1 { font-size: 18px; color: #333; margin: 0; }
             .section { margin-top: 20px; }
             .section h2 { font-size: 14px; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; }
@@ -395,7 +406,7 @@ const App = () => {
         <body>
           <div class="container">
             <div class="header">
-              <img src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/NEDBANK_N_SYMBOL_CMYK.jpg?alt=media&token=5b41cca3-a9a9-419f-9cb9-a656b10469f0" alt="Nedbank Logo">
+              <img src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/274c21be47b77228176e072b7bec2a8c.jpg?alt=media&token=5d537a53-0b4d-4d94-9dc7-83536b53fc88" alt="Nedbank Logo">
             </div>
             <div class="section">
               <h1>Notification of Payment</h1>
