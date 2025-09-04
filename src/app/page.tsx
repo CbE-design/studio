@@ -287,7 +287,7 @@ const App = () => {
         const counterDoc = await transaction.get(counterRef);
         let newCounterValue;
         if (!counterDoc.exists()) {
-          newCounterValue = 3692825731; // Initial value
+          newCounterValue = 3692825731;
           transaction.set(counterRef, { value: newCounterValue });
         } else {
           newCounterValue = counterDoc.data().value + 1;
@@ -392,7 +392,7 @@ const App = () => {
         <body>
           <div class="container">
             <div class="header">
-              <img src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/logo.png?alt=media&token=0b61c15f-3d8b-4a6c-85f0-6c38a161353c" alt="Nedbank Logo">
+              <img src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/NEDBANK_N_SYMBOL_CMYK.jpg?alt=media&token=5b41cca3-a9a9-419f-9cb9-a656b10469f0" alt="Nedbank Logo">
             </div>
             <div class="section">
               <h1>Notification of Payment</h1>
