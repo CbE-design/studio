@@ -71,10 +71,10 @@ const generateStatementReferenceFlow = ai.defineFlow(
         baseReference = [input.merchantData?.merchantName, input.merchantData?.merchantLocation].filter(Boolean).join(' ');
         break;
       case 'ATM_WD_NED':
-        baseReference = `ATM CASH ${input.uniqueTransactionId?.substring(0, 15) || ''}`.trim();
+        baseReference = `ATM WITHDRAWAL NEDBANK`;
         break;
       case 'ATM_WD_SASW':
-        baseReference = `SASW CASH ${input.uniqueTransactionId?.substring(0, 15) || ''}`.trim();
+        baseReference = `SASWITCH WITHDRAWAL`;
         break;
       case 'ATM_WD_INTL':
         baseReference = `ATM W/D ${input.atmData?.atmOwnerBank || ''}`.trim();
@@ -89,7 +89,7 @@ const generateStatementReferenceFlow = ai.defineFlow(
         baseReference = [input.eftData?.originatorName, input.eftData?.originatorReference].filter(Boolean).join(' ');
         break;
       case 'CASH_WD_RETAIL':
-        baseReference = '24HOURCASH';
+        baseReference = `${input.merchantData?.merchantName || 'RETAILER'} CASH W/D`;
         break;
       case 'FEE_TRANSACTION':
         baseReference = input.feeData?.feeDescription || '';
