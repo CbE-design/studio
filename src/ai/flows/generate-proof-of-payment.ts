@@ -33,23 +33,6 @@ export async function generateProofOfPaymentPdf(input: GenerateProofOfPaymentInp
   return generateProofOfPaymentPdfFlow(input);
 }
 
-const nedbankLogoSvg = `
-<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <g clip-path="url(#clip0_101_2)">
-    <path d="M16.8995 8.4H23.2995V15.6H16.8995V8.4Z" fill="#009A4D"/>
-    <path d="M15.2002 12L8.7002 2.4L0.700195 12L8.7002 21.6L15.2002 12Z" fill="#009A4D"/>
-    <path d="M16.8995 8.4H23.2995V15.6H16.8995V8.4Z" stroke="#005A30" stroke-width="0.5"/>
-    <path d="M8.7002 2.4L0.700195 12L8.7002 21.6L15.2002 12L8.7002 2.4Z" stroke="#005A30" stroke-width="0.5"/>
-  </g>
-  <defs>
-    <clipPath id="clip0_101_2">
-      <rect width="24" height="24" fill="white"/>
-    </clipPath>
-  </defs>
-</svg>
-`;
-
-
 const generateProofOfPaymentPdfFlow = ai.defineFlow(
   {
     name: 'generateProofOfPaymentPdfFlow',
@@ -71,25 +54,22 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     let y = height - margin;
 
     // 1. Logo
-    // Note: pdf-lib doesn't support SVG embedding directly. This is a placeholder.
-    // For a real implementation, you'd convert the SVG to a PNG or use vector drawing commands.
-    // We'll draw a simplified version for now.
+    // We'll draw a simplified vector version of the Nedbank logo.
     const logoGreen = rgb(0 / 255, 154 / 255, 77 / 255);
-    page.drawPolygon({
-        points: [
-            { x: margin + 31.8, y: y - 19.2 }, // Top
-            { x: margin, y: y },
-            { x: margin + 31.8, y: y + 19.2 }, // bottom
-            { x: margin + 49.8, y: y }
-        ],
-        fillColor: logoGreen,
-    });
+    const rhombusPath = 'M 31.8 0 L 0 19.2 L 31.8 38.4 L 49.8 19.2 Z';
+    page.drawSvgPath(rhombusPath, {
+      x: margin,
+      y: y + 19.2, // SVG y-axis is inverted from pdf-lib
+      color: logoGreen,
+      scale: 1,
+    })
+
      page.drawRectangle({
         x: margin + 55,
         y: y - 14.4,
         width: 25,
         height: 28.8,
-        fillColor: logoGreen,
+        color: logoGreen,
     });
 
 
