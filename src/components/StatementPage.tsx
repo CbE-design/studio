@@ -16,25 +16,26 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
     }, [sortedTransactions]);
     
     const calculations = useMemo(() => {
-        let runningBalance = balance;
-        const transactionsWithBalance = [];
-        
-        // Calculate historical balances by reversing transactions from the current closing balance
+        // First, calculate the balance as it was *before* the first transaction in the list.
+        // We do this by starting with the current balance and "reversing" all transactions
+        // that occurred *after* the statement period's last transaction.
+        // For this app's logic, we assume the passed `balance` is the closing balance for the selected month.
+        let openingBalance = balance;
         for (let i = sortedTransactions.length - 1; i >= 0; i--) {
             const tx = sortedTransactions[i];
             const amount = parseFloat(tx.amount.replace('R', '').replace(/ /g, ''));
-            transactionsWithBalance.unshift({ ...tx, balance: runningBalance });
-            runningBalance -= amount;
+            openingBalance -= amount;
         }
-        
-        let openingBalance = runningBalance;
+
         let totalDebits = 0;
         let totalCredits = 0;
         let totalFees = 0;
         
-        const finalTransactions = transactionsWithBalance.map(tx => {
+        // Now, create the list of transactions for display, calculating the running balance forward.
+        let runningBalance = openingBalance;
+        const finalTransactions = sortedTransactions.map(tx => {
             const amount = parseFloat(tx.amount.replace('R', '').replace(/ /g, ''));
-            const newBalance = openingBalance + amount;
+            runningBalance += amount;
             if (amount < 0) {
                 totalDebits += Math.abs(amount);
                 if (tx.description.toLowerCase().includes('fee:')) {
@@ -43,11 +44,10 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
             } else {
                 totalCredits += amount;
             }
-            openingBalance = newBalance; // update for next iteration
-            return { ...tx, balance: newBalance };
+            return { ...tx, balance: runningBalance };
         });
 
-        const closingBalance = openingBalance;
+        const closingBalance = runningBalance;
 
         // Note: VAT calculation is based on the total fees. VAT = Total Fee * (15 / 115)
         const vatOnFees = totalFees * (15 / 115);
@@ -60,7 +60,6 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
             totalFees,
             vatOnFees,
             finalTransactions,
-            openingBalanceForTxList: runningBalance // The balance before the first transaction
         };
     }, [sortedTransactions, balance]);
 
@@ -117,7 +116,7 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
                     <h3 className="text-sm font-bold bg-gray-200 p-1">Account summary</h3>
                     <div className="bg-[#00703C] text-white p-2 flex justify-between">
                         <p>Account type: <span className="font-bold">{accountName}</span></p>
-                        <p>Account number: <span className="font-bold">...{accountName.includes('Savvy') ? '5731' : (accountName.includes('Platinum') ? '8027' : '4775')}</span></p>
+                        <p>Account number: <span className="font-bold">...{accountName.includes('Savvy') ? '5731' : (accountName.includes('Platinum Cheque') && accountName.includes('2000000') ? '8027' : '4775')}</span></p>
                     </div>
                     <table className="w-full text-[10px] border-separate border-spacing-x-4">
                         <tbody>
@@ -171,7 +170,7 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
                             <table className="w-full text-[10px]">
                                 <tbody>
                                     <tr>
-                                        <td>Opening balance</td><td className="text-right">R{formatCurrency(calculations.openingBalanceForTxList)}</td>
+                                        <td>Opening balance</td><td className="text-right">R{formatCurrency(calculations.openingBalance)}</td>
                                     </tr>
                                     <tr>
                                         <td>Funds received/Credits</td><td className="text-right">R{formatCurrency(calculations.totalCredits)}</td>
@@ -208,7 +207,7 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
                                     <td className="p-1">{calculations.finalTransactions.length > 0 ? new Date(calculations.finalTransactions[0].timestamp).toLocaleDateString('en-GB') : '-'}</td>
                                     <td className="p-1">Opening balance</td>
                                     <td></td><td></td>
-                                    <td className="text-right p-1">{formatCurrency(calculations.openingBalanceForTxList)}</td>
+                                    <td className="text-right p-1">{formatCurrency(calculations.openingBalance)}</td>
                                 </tr>
                                 {calculations.finalTransactions.map((tx, index) => {
                                     const amount = parseFloat(tx.amount.replace('R', '').replace(/ /g, ''));
@@ -251,5 +250,3 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
 };
 
 export default StatementPage;
-
-    
