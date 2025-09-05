@@ -75,6 +75,7 @@ const App = () => {
   const [bankSearchQuery, setBankSearchQuery] = useState('');
   const [isRecipientSaved, setIsRecipientSaved] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const authInitialized = useRef(false);
 
   const failedTransactionsData = useMemo(() => {
     const tomorrow = new Date(MOCK_CURRENT_DATE);
@@ -129,41 +130,29 @@ const App = () => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-        try {
-            await setPersistence(auth, browserLocalPersistence);
-            let userChecked = false;
+      try {
+        await setPersistence(auth, browserLocalPersistence);
+        if (authInitialized.current) return;
+        authInitialized.current = true;
 
-            const authSub = onAuthStateChanged(auth, async (user) => {
-                userChecked = true;
-                if (user) {
-                    setUserId(user.uid);
-                    await fetchData(db, user.uid);
-                    setCurrentView('login');
-                } else {
-                    try {
-                        await signInAnonymously(auth);
-                    } catch (error) {
-                        console.error('Anonymous sign-in failed:', error);
-                        setIsLoading(false);
-                    }
-                }
-            });
-
-            // Fallback for cases where onAuthStateChanged might not fire immediately
-            setTimeout(() => {
-                if (!userChecked && !auth.currentUser) {
-                    signInAnonymously(auth).catch(error => {
-                        console.error('Delayed anonymous sign-in failed:', error);
-                        setIsLoading(false);
-                    });
-                }
-            }, 1000);
-
-            return () => authSub();
-        } catch (error) {
-            console.error('Failed to set persistence:', error);
-            setIsLoading(false);
-        }
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            setUserId(user.uid);
+            await fetchData(db, user.uid);
+            setCurrentView('login');
+          } else {
+            try {
+              await signInAnonymously(auth);
+            } catch (error) {
+              console.error('Anonymous sign-in failed:', error);
+              setIsLoading(false);
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Failed to set persistence:', error);
+        setIsLoading(false);
+      }
     };
     initializeAuth();
   }, []);
@@ -180,13 +169,13 @@ const App = () => {
 
   const seedInitialData = async (db, uid) => {
     const appId = 'van-schalkwyk-trust-mobile';
-    const seedMarkerRef = doc(db, `artifacts/${appId}/users/${uid}/seededData/marker`);
+    const seedMarkerRef = doc(db, `artifacts/${appId}/users/${uid}/seededData/marker-v2-fees-applied`);
     
     try {
         const seedMarkerSnap = await getDoc(seedMarkerRef);
 
         if (!seedMarkerSnap.exists()) {
-            console.log("Seeding initial data...");
+            console.log("Seeding initial data with fee calculations...");
             const batch = writeBatch(db);
             
             // Note: Balances are updated to reflect the inclusion of retroactive fees.
