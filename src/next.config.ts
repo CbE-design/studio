@@ -37,10 +37,6 @@ const nextConfig: NextConfig = {
     ],
   },
   transpilePackages: ['firebase'],
-  experimental: {
-    // This is required to allow requests from the development environment.
-  },
-  allowedDevOrigins: ["*.cloudworkstations.dev"],
 };
 
 export default nextConfig;
