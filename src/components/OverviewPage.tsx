@@ -41,6 +41,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
         <div className="flex items-center space-x-4">
           <RefreshCw size={24} className="text-primary-foreground" />
           <Bell size={24} className="text-primary-foreground" />
+          <MessageSquare size={24} className="text-primary-foreground" />
         </div>
       </header>
       <div className="flex-1 overflow-y-auto pb-16">
