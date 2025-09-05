@@ -500,16 +500,6 @@ const App = () => {
     }
   };
 
-  const handleGenerateStatement = (accountName, transactions, balance) => {
-    setStatementData({
-      accountName,
-      transactions,
-      balance,
-      previousView: currentView,
-    });
-    setCurrentView('statement');
-  };
-
   const handleStatementMonthSelect = (monthTransactions, balance) => {
     setStatementData({
       accountName: statementAccount.name,
@@ -546,7 +536,6 @@ const App = () => {
             backView="overview"
             setCurrentView={setCurrentView}
             handleTransactionClick={handleTransactionClick}
-            onGenerateStatement={() => handleGenerateStatement('Savvy Bundle Current Account', combinedTransactions, accountBalance)}
           />
         );
       case 'secondAccountTransactions':
@@ -558,7 +547,6 @@ const App = () => {
             backView="overview"
             setCurrentView={setCurrentView}
             handleTransactionClick={handleTransactionClick}
-            onGenerateStatement={() => handleGenerateStatement('Platinum Cheque', secondCombinedTransactions, secondAccountBalance)}
           />
         );
       case 'thirdAccountTransactions':
@@ -570,7 +558,6 @@ const App = () => {
             backView="overview"
             setCurrentView={setCurrentView}
             handleTransactionClick={handleTransactionClick}
-            onGenerateStatement={() => handleGenerateStatement('Platinum Cheque', thirdCombinedTransactions, thirdAccountBalance)}
           />
         );
       case 'failedTransactions':

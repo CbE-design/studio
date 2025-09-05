@@ -1,7 +1,7 @@
 'use client';
 import { ArrowLeft, MessageSquare, ChevronRight, Search, Sliders, FileBadge, Send } from 'lucide-react';
 
-const TransactionsPage = ({ accountName, currentBalance, transactionsList, backView, setCurrentView, handleTransactionClick, onGenerateStatement }) => {
+const TransactionsPage = ({ accountName, currentBalance, transactionsList, backView, setCurrentView, handleTransactionClick }) => {
   const groupedTransactions = transactionsList.reduce((acc, transaction) => {
     const date = new Date(transaction.timestamp);
     if (isNaN(date.getTime())) return acc;
@@ -50,13 +50,6 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
             <div className="flex items-center">
               <Send size={20} className="mr-2 text-primary" />
               <span className="text-sm">Once-off payment</span>
-            </div>
-            <ChevronRight size={16} />
-          </div>
-           <div className="bg-white p-4 rounded-xl shadow-md flex justify-between items-center cursor-pointer" onClick={onGenerateStatement}>
-            <div className="flex items-center">
-              <FileBadge size={20} className="mr-2 text-primary" />
-              <span className="text-sm">Statements and docs</span>
             </div>
             <ChevronRight size={16} />
           </div>
