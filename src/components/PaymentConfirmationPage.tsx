@@ -77,7 +77,7 @@ const ProofOfPaymentContent = ({ lastPayment, forwardedRef }) => {
   );
 };
 
-const PaymentConfirmationPage = ({ lastPayment, onShareProof, onSaveRecipient, isRecipientSaved, onDone }) => {
+const PaymentConfirmationPage = ({ lastPayment, onShareProof, isRecipientSaved, onDone }) => {
   const popRef = useRef(null);
 
   const handleDownloadPdf = async () => {
@@ -128,7 +128,7 @@ const PaymentConfirmationPage = ({ lastPayment, onShareProof, onSaveRecipient, i
           <div className="mt-6 space-y-3">
             <button onClick={onShareProof} className="w-full flex items-center justify-center bg-gray-200 text-gray-800 py-3 rounded-xl font-semibold"><Share2 size={18} className="mr-2" /> Share proof of payment</button>
             <button onClick={handleDownloadPdf} className="w-full flex items-center justify-center bg-gray-200 text-gray-800 py-3 rounded-xl font-semibold"><Download size={18} className="mr-2" /> Download PDF</button>
-            <button onClick={onSaveRecipient} disabled={isRecipientSaved} className={`w-full flex items-center justify-center py-3 rounded-xl font-semibold ${isRecipientSaved ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-800'}`}><Save size={18} className="mr-2" /> {isRecipientSaved ? 'Recipient Saved' : 'Save recipient'}</button>
+            <button disabled={isRecipientSaved} className={`w-full flex items-center justify-center py-3 rounded-xl font-semibold ${isRecipientSaved ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-800'}`}><Save size={18} className="mr-2" /> {isRecipientSaved ? 'Recipient Saved' : 'Save recipient'}</button>
           </div>
         </div>
       </main>
