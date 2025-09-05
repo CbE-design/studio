@@ -51,7 +51,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
       <header className="bg-primary text-primary-foreground p-4 flex justify-between items-center w-full flex-shrink-0">
         <div className="flex items-center space-x-2">
           <Image
-            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/IMG_20250903_230844.jpg?alt=media&token=0aa10470-9929-4628-9644-44c266baab5e"
+            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/IMG_20250903_230844.jpg?alt=media&token=0aa10470-9929-4628-9644-44c266baab5e"
             alt="Logo"
             width={32}
             height={32}
@@ -120,8 +120,8 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
         <div className="p-4 bg-gray-100">
           <h2 className="text-lg font-bold mb-4 text-gray-800">My widgets</h2>
           <div className="grid grid-cols-4 gap-4">
-            {widgets.map((widget, index) => (
-              <div key={index} className="flex flex-col items-center text-center cursor-pointer" onClick={widget.onClick}>
+            {widgets.map((widget) => (
+              <div key={widget.text} className="flex flex-col items-center text-center cursor-pointer" onClick={widget.onClick}>
                 <div className="relative bg-white p-4 rounded-xl shadow-md flex items-center justify-center w-16 h-16">
                   {widget.icon}
                   {widget.badge && (
