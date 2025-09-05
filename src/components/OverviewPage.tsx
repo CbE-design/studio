@@ -1,5 +1,5 @@
 'use client';
-import { Bell, Eye, ChevronLeft, ChevronRight, Wallet, FileText, Umbrella, Car, ShoppingCart, GitPullRequest, CreditCard, Banknote, Home, FileBadge, MessageSquare } from 'lucide-react';
+import { Bell, Eye, ChevronLeft, ChevronRight, Wallet, FileText, Umbrella, Car, ShoppingCart, GitPullRequest, CreditCard, Banknote, Home, FileBadge, MessageSquare, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
 
 const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, handleCarouselScroll, scrollToPage, setCurrentView, scrollContainerRef }) => {
@@ -18,25 +18,29 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
     { icon: <FileBadge size={24} />, text: 'Statements and docs', onClick: () => setCurrentView('statementAccount') },
   ];
 
+  const today = new Date();
+  const formattedDate = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear().toString().slice(-2)}`;
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <header className="bg-primary text-primary-foreground p-4 flex justify-between items-center w-full flex-shrink-0">
         <div className="flex items-center space-x-2">
-          <Image
-            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/nedbank-logo.png?alt=media"
-            alt="Company Logo"
-            width={32}
-            height={32}
-            className="rounded-full flex-shrink-0"
-          />
+          <div className="bg-white p-1 rounded-sm">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#00703C"/>
+                <path d="M2 17L12 22L22 17L12 12L2 17Z" fill="#00703C"/>
+                <path d="M2 7L12 12L22 7L12 2L2 7Z" stroke="#004D2A" strokeWidth="0.5" strokeLinejoin="round"/>
+                <path d="M12 12L2 7V17L12 22V12Z" fill="#005A30"/>
+            </svg>
+          </div>
           <div>
             <span className="text-lg font-semibold text-primary-foreground">Van Schalkwyk Family Trust</span>
-            <p className="text-xs text-primary-foreground/70 truncate">User ID: {userId}</p>
+            <p className="text-xs text-primary-foreground/70 truncate">User ID: {userId} | Last nedbank-id-login: {formattedDate}</p>
           </div>
         </div>
         <div className="flex items-center space-x-4">
+          <RefreshCw size={24} className="text-primary-foreground" />
           <Bell size={24} className="text-primary-foreground" />
-          <MessageSquare size={24} className="text-primary-foreground" />
         </div>
       </header>
       <div className="flex-1 overflow-y-auto pb-16">
