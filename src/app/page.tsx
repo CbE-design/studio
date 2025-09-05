@@ -76,7 +76,6 @@ const App = () => {
   const [bankSearchQuery, setBankSearchQuery] = useState('');
   const [isRecipientSaved, setIsRecipientSaved] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const authInitialized = useRef(false);
 
   const failedTransactionsData = useMemo(() => {
     const tomorrow = new Date(MOCK_CURRENT_DATE);
@@ -130,35 +129,34 @@ const App = () => {
   ];
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        await setPersistence(auth, browserLocalPersistence);
-        if (authInitialized.current) return;
-        authInitialized.current = true;
-
-        onAuthStateChanged(auth, async (user) => {
-          if (user) {
-            setUserId(user.uid);
-            await fetchData(db, user.uid);
+    const setupAuth = async () => {
+      await setPersistence(auth, browserLocalPersistence);
+      
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          // User is signed in, see docs for a list of available properties
+          // https://firebase.google.com/docs/reference/js/firebase.User
+          setUserId(user.uid);
+          await fetchData(db, user.uid);
+          setCurrentView('login');
+        } else {
+          // User is signed out, so sign them in anonymously.
+          try {
+            const userCredential = await signInAnonymously(auth);
+            setUserId(userCredential.user.uid);
+            await fetchData(db, userCredential.user.uid);
             setCurrentView('login');
-          } else {
-            try {
-              // This ensures that even if the user logs out or the session is cleared,
-              // they are signed back in. With browserLocalPersistence, this will
-              // typically re-authenticate the SAME anonymous user.
-              await signInAnonymously(auth);
-            } catch (error) {
-              console.error('Anonymous sign-in failed:', error);
-              setIsLoading(false);
-            }
+          } catch (error) {
+             console.error('Anonymous sign-in failed:', error);
+             setIsLoading(false);
           }
-        });
-      } catch (error) {
-        console.error('Failed to set persistence:', error);
-        setIsLoading(false);
-      }
+        }
+        // Stop listening to auth state changes after the first one.
+        unsubscribe(); 
+      });
     };
-    initializeAuth();
+
+    setupAuth();
   }, []);
 
 
@@ -174,7 +172,7 @@ const App = () => {
   const seedInitialData = async (db, uid) => {
     const appId = 'van-schalkwyk-trust-mobile';
     const baseUserRef = doc(db, `artifacts/${appId}/users/${uid}`);
-    const seedMarkerRef = doc(baseUserRef, 'seededData', 'marker-v6-single-user');
+    const seedMarkerRef = doc(baseUserRef, 'seededData', 'marker-v7-single-user-persistent');
     
     try {
         const seedMarkerSnap = await getDoc(seedMarkerRef);
@@ -183,12 +181,10 @@ const App = () => {
             console.log("Seeding final data structure...");
             const batch = writeBatch(db);
             
-            // Define account document references
             const account1Ref = doc(baseUserRef, 'accounts', 'savvy');
             const account2Ref = doc(baseUserRef, 'accounts', 'platinum1');
             const account3Ref = doc(baseUserRef, 'accounts', 'platinum2');
 
-            // Set balances in the main account docs
             batch.set(account1Ref, { balance: 18000000.00, name: 'Savvy Bundle Current Account' });
             batch.set(account2Ref, { balance: 2000000.00, name: 'Platinum Cheque' });
             batch.set(account3Ref, { balance: 4775.00, name: 'Platinum Cheque' });
@@ -199,10 +195,6 @@ const App = () => {
             const feeCountersRef = doc(baseUserRef, 'metadata', 'feeCounters');
             batch.set(feeCountersRef, { nedbank_atm_wd_count: 0, nedbank_atm_dep_value: 0 }); 
       
-            // Note: Deleting old collections is complex in client-side SDK. 
-            // For this sandbox, we'll just write to the new, correct locations.
-            
-            // Seed transactions in subcollections of the correct account documents
             const transactionsColRef1 = collection(account1Ref, 'transactions');
             combinedInitialTransactions.forEach(tx => batch.set(doc(transactionsColRef1), tx));
             
