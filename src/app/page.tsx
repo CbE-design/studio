@@ -189,13 +189,16 @@ const App = () => {
             console.log("Seeding initial data...");
             const batch = writeBatch(db);
             
-            batch.set(doc(db, `artifacts/${appId}/users/${uid}/accountData/balance`), { value: 1590835.19 + 16300000 + 500000 });
+            // Note: Balances are updated to reflect the inclusion of retroactive fees.
+            batch.set(doc(db, `artifacts/${appId}/users/${uid}/accountData/balance`), { value: 1590835.19 + 16300000 + 500000 - 9912.65 });
             batch.set(doc(db, `artifacts/${appId}/users/${uid}/secondAccountData/balance`), { value: 1600904.90 });
             batch.set(doc(db, `artifacts/${appId}/users/${uid}/thirdAccountData/balance`), { value: 4775.00 });
-            batch.set(doc(db, `artifacts/${appId}/users/${uid}/transactionCounter/counter`), { value: 3692825731 });
+            
+            const counterRef = doc(db, `artifacts/${appId}/users/${uid}/transactionCounter/counter`);
+            batch.set(counterRef, { value: 3692825731 });
             
             const feeCountersRef = doc(db, `artifacts/${appId}/users/${uid}/feeCounters/monthly`);
-            batch.set(feeCountersRef, { nedbank_atm_wd_count: 0, nedbank_atm_dep_value: 0 });
+            batch.set(feeCountersRef, { nedbank_atm_wd_count: 4, nedbank_atm_dep_value: 0 }); // Pre-set counters based on seed data
       
             const transactionsColRef1 = collection(db, `artifacts/${appId}/users/${uid}/transactions`);
             combinedInitialTransactions.forEach(tx => batch.set(doc(transactionsColRef1), tx));
@@ -309,7 +312,14 @@ const App = () => {
         // 1. Get current fee counters
         const feeCountersRef = doc(db, `artifacts/${appId}/users/${userId}/feeCounters/monthly`);
         const feeCountersSnap = await transaction.get(feeCountersRef);
-        const currentCounters = feeCountersSnap.exists() ? feeCountersSnap.data() : { nedbank_atm_wd_count: 0, nedbank_atm_dep_value: 0 };
+        
+        let currentCounters;
+        if (feeCountersSnap.exists()) {
+          currentCounters = feeCountersSnap.data();
+        } else {
+          // Initialize if it doesn't exist
+          currentCounters = { nedbank_atm_wd_count: 0, nedbank_atm_dep_value: 0 };
+        }
   
         // 2. Calculate the fee
         const feeInput: CalculateBankingFeesInput = {
@@ -336,10 +346,13 @@ const App = () => {
         // 4. Get new transaction reference number
         const counterRef = doc(db, `artifacts/${appId}/users/${userId}/transactionCounter/counter`);
         const counterDoc = await transaction.get(counterRef);
-        if (!counterDoc.exists()) {
-          throw new Error("Transaction counter does not exist!");
+        let newTransactionRefNumber;
+        if (counterDoc.exists()) {
+          newTransactionRefNumber = counterDoc.data().value + 1;
+        } else {
+          // Initialize if it doesn't exist
+          newTransactionRefNumber = 3692825731; // Starting value
         }
-        const newTransactionRefNumber = counterDoc.data().value + 1;
   
         // 5. Queue up all writes
         // Update balance
@@ -367,7 +380,7 @@ const App = () => {
         transaction.set(feeCountersRef, updatedCounters);
         
         // Update transaction ref counter
-        transaction.update(counterRef, { value: newTransactionRefNumber });
+        transaction.set(counterRef, { value: newTransactionRefNumber }); // Use set to handle creation
   
         // Set last payment details for confirmation screen (outside transaction)
         const paymentDate = new Date();
