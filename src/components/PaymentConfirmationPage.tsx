@@ -16,7 +16,12 @@ const ProofOfPaymentContent = ({ lastPayment, forwardedRef }) => {
     <div ref={forwardedRef} className="p-4 bg-white" style={{ fontFamily: 'Arial, sans-serif', color: '#333', fontSize: '12px', width: '750px' }}>
       <div style={{ maxWidth: '750px', margin: 'auto', padding: '20px', border: '1px solid #ddd' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #ccc', paddingBottom: '10px' }}>
-            <img src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/NEDBANK_N_SYMBOL_CMYK.jpg?alt=media&token=5b41cca3-a9a9-419f-9cb9-a656b10469f0" alt="Nedbank Logo" style={{ width: '120px', height: 'auto' }} />
+            <img 
+              src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/NEDBANK_N_SYMBOL_CMYK.jpg?alt=media&token=5b41cca3-a9a9-419f-9cb9-a656b10469f0" 
+              alt="Nedbank Logo" 
+              style={{ width: '120px', height: 'auto' }} 
+              crossOrigin="anonymous"
+            />
         </div>
         <div style={{ marginTop: '20px' }}>
           <h1 style={{ fontSize: '18px', color: '#333', margin: '0' }}>Notification of Payment</h1>
