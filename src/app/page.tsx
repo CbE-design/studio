@@ -143,6 +143,9 @@ const App = () => {
             setCurrentView('login');
           } else {
             try {
+              // This ensures that even if the user logs out or the session is cleared,
+              // they are signed back in. With browserLocalPersistence, this will
+              // typically re-authenticate the SAME anonymous user.
               await signInAnonymously(auth);
             } catch (error) {
               console.error('Anonymous sign-in failed:', error);
@@ -171,7 +174,7 @@ const App = () => {
   const seedInitialData = async (db, uid) => {
     const appId = 'van-schalkwyk-trust-mobile';
     const baseUserRef = doc(db, `artifacts/${appId}/users/${uid}`);
-    const seedMarkerRef = doc(baseUserRef, 'seededData', 'marker-v5-final-structure');
+    const seedMarkerRef = doc(baseUserRef, 'seededData', 'marker-v6-single-user');
     
     try {
         const seedMarkerSnap = await getDoc(seedMarkerRef);
@@ -736,4 +739,6 @@ const App = () => {
 };
 
 export default App;
+    
+
     
