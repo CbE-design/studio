@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import { Check, Share2, Save, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import Image from 'next/image';
 
 const ProofOfPaymentContent = ({ lastPayment, forwardedRef }) => {
   if (!lastPayment) return null;
@@ -15,9 +16,8 @@ const ProofOfPaymentContent = ({ lastPayment, forwardedRef }) => {
     <div ref={forwardedRef} className="p-4 bg-white" style={{ fontFamily: 'Arial, sans-serif', color: '#333', fontSize: '12px', width: '750px' }}>
       <div style={{ maxWidth: '750px', margin: 'auto', padding: '20px', border: '1px solid #ddd' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #ccc', paddingBottom: '10px' }}>
-            <svg width="70" height="70" viewBox="0 0 104 90" xmlns="http://www.w3.org/2000/svg" fill="#00703C">
-                <path d="M26 0 L0 15 L0 45 L26 60 L26 90 L52 75 L52 45 L26 30 L26 0 Z M52 45 L52 75 L78 60 L78 30 L52 45 Z M78 60 L104 45 L104 15 L78 0 L78 30 L78 60 Z" />
-            </svg>
+            {/* Replace the placeholder with your actual Firebase Storage URL */}
+            <img src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/nedbank-logo.png?alt=media" alt="Nedbank Logo" style={{ width: '120px', height: 'auto' }} />
         </div>
         <div style={{ marginTop: '20px' }}>
           <h1 style={{ fontSize: '18px', color: '#333', margin: '0' }}>Notification of Payment</h1>
@@ -82,6 +82,7 @@ const PaymentConfirmationPage = ({ lastPayment, onShareProof, onSaveRecipient, i
 
     const canvas = await html2canvas(element, {
       scale: 2, // Improves quality
+      useCORS: true, // Important for external images
     });
     
     const imgData = canvas.toDataURL('image/png');
