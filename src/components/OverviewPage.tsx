@@ -15,7 +15,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
     { icon: <Banknote size={24} />, text: 'Quick Pay' },
     { icon: <CreditCard size={24} />, text: 'Get cash' },
     { icon: <Home size={24} />, text: 'Home loans' },
-    { icon: <FileBadge size={24} />, text: 'Statements and docs', onClick: () => setCurrentView('transactions') },
+    { icon: <FileBadge size={24} />, text: 'Statements and docs', onClick: () => setCurrentView('statementAccount') },
   ];
 
   return (
@@ -54,7 +54,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
                           <div className="flex justify-between items-center">
                             <div>
                               <p className="text-sm font-light">{item.title}</p>
-                              <p className="text-xl font-normal">{value}</p>
+                              <p className="text-lg font-normal">{value}</p>
                             </div>
                             <ChevronRight size={20} className="text-primary-foreground" />
                           </div>

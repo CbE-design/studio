@@ -33,6 +33,8 @@ import PaymentConfirmationPage from '@/components/PaymentConfirmationPage';
 import BottomNavBar from '@/components/BottomNavBar';
 import TransactLandingPage from '@/components/TransactLandingPage';
 import StatementPage from '@/components/StatementPage';
+import StatementAccountPage from '@/components/StatementAccountPage';
+import StatementMonthPage from '@/components/StatementMonthPage';
 import { combinedInitialTransactions, initialPlatinumChequeTransactions, initialThirdAccountTransactions, MOCK_CURRENT_DATE } from '@/lib/data';
 import { sendPaymentNotification } from '@/ai/flows/send-payment-notification';
 import { sendSms } from '@/ai/flows/send-sms';
@@ -51,6 +53,7 @@ const App = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [overviewPagesData, setOverviewPagesData] = useState([]);
   const [statementData, setStatementData] = useState(null);
+  const [statementAccount, setStatementAccount] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState({
     recipient: '',
     bankName: 'Select bank',
@@ -116,6 +119,12 @@ const App = () => {
       ),
     [thirdRealTimeTransactions]
   );
+  
+  const allAccounts = [
+    { name: 'Savvy Bundle Current Account', transactions: combinedTransactions, balance: accountBalance, id: 'savvy' },
+    { name: 'Platinum Cheque', transactions: secondCombinedTransactions, balance: secondAccountBalance, id: 'platinum1' },
+    { name: 'Platinum Cheque', transactions: thirdCombinedTransactions, balance: thirdAccountBalance, id: 'platinum2' }
+  ];
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -501,6 +510,16 @@ const App = () => {
     setCurrentView('statement');
   };
 
+  const handleStatementMonthSelect = (monthTransactions, balance) => {
+    setStatementData({
+      accountName: statementAccount.name,
+      transactions: monthTransactions,
+      balance,
+      previousView: 'statementMonth',
+    });
+    setCurrentView('statement');
+  };
+
   const renderCurrentView = () => {
     switch (currentView) {
       case 'login':
@@ -606,7 +625,7 @@ const App = () => {
             scrollContainerRef={scrollContainerRef}
           />
         );
-        case 'statement':
+      case 'statement':
           return statementData ? (
             <StatementPage
               accountName={statementData.accountName}
@@ -616,6 +635,16 @@ const App = () => {
               previousView={statementData.previousView}
             />
           ) : null;
+      case 'statementAccount':
+        return <StatementAccountPage accounts={allAccounts} setCurrentView={setCurrentView} setStatementAccount={setStatementAccount} />;
+      case 'statementMonth':
+        return statementAccount ? (
+            <StatementMonthPage
+                account={statementAccount}
+                setCurrentView={setCurrentView}
+                onMonthSelect={handleStatementMonthSelect}
+            />
+        ) : null;
       default:
         return <SplashScreen />;
     }
@@ -630,7 +659,7 @@ const App = () => {
           {renderCurrentView()}
           {currentView !== 'start' && currentView !== 'login' &&
             !isLoading &&
-            !['paymentConfirmation', 'transactionDetail', 'transactLanding', 'payment', 'statement'].includes(currentView) && (
+            !['paymentConfirmation', 'transactionDetail', 'transactLanding', 'payment', 'statement', 'statementAccount', 'statementMonth'].includes(currentView) && (
               <BottomNavBar activeTab={activeTab} onTabClick={handleTabClick} />
             )}
         </div>
