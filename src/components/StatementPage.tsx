@@ -1,41 +1,33 @@
 'use client';
-import { ArrowLeft, Download } from 'lucide-react';
-import Image from 'next/image';
-import { useMemo, useRef } from 'react';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { ArrowLeft, Download, Loader2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { generateStatementPdf } from '@/ai/flows/generate-statement-pdf';
+
 
 const StatementPage = ({ accountName, transactions, balance, setCurrentView, previousView }) => {
-    const statementRef = useRef(null);
+    const [isDownloading, setIsDownloading] = useState(false);
 
     const handleDownloadPdf = async () => {
-        const element = statementRef.current;
-        if (!element) {
-            console.error("Statement element not ready for PDF generation.");
-            return;
-        };
+        setIsDownloading(true);
+        try {
+            const { pdfBase64 } = await generateStatementPdf({
+                accountName,
+                transactions,
+                balance,
+            });
 
-        // Temporarily give the element a defined width for consistent PDF generation
-        element.style.width = '1024px';
-
-        const canvas = await html2canvas(element, {
-          scale: 2, // Improves quality
-          useCORS: true,
-        });
-
-        // Revert the style change
-        element.style.width = null;
-        
-        const imgData = canvas.toDataURL('image/png');
-        
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'px',
-          format: [canvas.width, canvas.height]
-        });
-        
-        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-        pdf.save('AccountStatement.pdf');
+            const link = document.createElement('a');
+            link.href = `data:application/pdf;base64,${pdfBase64}`;
+            link.download = 'AccountStatement.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error("Failed to generate or download statement PDF:", error);
+            alert("Sorry, we couldn't generate the statement PDF. Please try again.");
+        } finally {
+            setIsDownloading(false);
+        }
     };
 
     const sortedTransactions = useMemo(() => 
@@ -104,12 +96,16 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
                     <ArrowLeft size={24} className="cursor-pointer" onClick={() => setCurrentView(previousView)} />
                     <h1 className="text-lg font-semibold ml-4">Account Statement</h1>
                 </div>
-                <button onClick={handleDownloadPdf} className="flex items-center bg-primary text-primary-foreground py-2 px-4 rounded-lg font-semibold text-sm">
-                    <Download size={16} className="mr-2" />
-                    Download PDF
+                <button 
+                  onClick={handleDownloadPdf} 
+                  disabled={isDownloading}
+                  className="flex items-center bg-primary text-primary-foreground py-2 px-4 rounded-lg font-semibold text-sm disabled:opacity-50"
+                >
+                  {isDownloading ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Download size={16} className="mr-2" />}
+                  {isDownloading ? 'Generating...' : 'Download PDF'}
                 </button>
             </header>
-            <main ref={statementRef} className="p-4 md:p-6">
+            <main className="p-4 md:p-6">
                 <div className="max-w-4xl mx-auto">
                     {/* Header */}
                     <div className="flex justify-between items-start mb-4">
