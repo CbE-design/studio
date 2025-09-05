@@ -1,9 +1,39 @@
 'use client';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 import Image from 'next/image';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const StatementPage = ({ accountName, transactions, balance, setCurrentView, previousView }) => {
+    const statementRef = useRef(null);
+
+    const handleDownloadPdf = async () => {
+        const element = statementRef.current;
+        if (!element) return;
+
+        // Temporarily give the element a defined width for consistent PDF generation
+        element.style.width = '1024px';
+
+        const canvas = await html2canvas(element, {
+          scale: 2, // Improves quality
+        });
+
+        // Revert the style change
+        element.style.width = null;
+        
+        const imgData = canvas.toDataURL('image/png');
+        
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'px',
+          format: [canvas.width, canvas.height]
+        });
+        
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save('AccountStatement.pdf');
+    };
+
     const sortedTransactions = useMemo(() => 
         [...transactions].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)), 
     [transactions]);
@@ -65,11 +95,17 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
 
     return (
         <div className="bg-white min-h-screen font-sans text-xs text-black">
-            <header className="bg-gray-100 p-4 flex items-center print:hidden">
-                <ArrowLeft size={24} className="cursor-pointer" onClick={() => setCurrentView(previousView)} />
-                <h1 className="text-lg font-semibold ml-4">Account Statement</h1>
+            <header className="bg-gray-100 p-4 flex items-center justify-between print:hidden">
+                <div className="flex items-center">
+                    <ArrowLeft size={24} className="cursor-pointer" onClick={() => setCurrentView(previousView)} />
+                    <h1 className="text-lg font-semibold ml-4">Account Statement</h1>
+                </div>
+                <button onClick={handleDownloadPdf} className="flex items-center bg-primary text-primary-foreground py-2 px-4 rounded-lg font-semibold text-sm">
+                    <Download size={16} className="mr-2" />
+                    Download PDF
+                </button>
             </header>
-            <main className="p-4 md:p-6">
+            <main ref={statementRef} className="p-4 md:p-6">
                 <div className="max-w-4xl mx-auto">
                     {/* Header */}
                     <div className="flex justify-between items-start mb-4">
