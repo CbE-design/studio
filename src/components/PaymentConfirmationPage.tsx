@@ -1,10 +1,10 @@
 'use client';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Check, Share2, Save, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-const ProofOfPaymentContent = ({ lastPayment, forwardedRef }) => {
+const ProofOfPaymentContent = ({ lastPayment, logoSrc, forwardedRef }) => {
   if (!lastPayment) return null;
 
   const paymentDate = new Date(lastPayment.date);
@@ -16,7 +16,7 @@ const ProofOfPaymentContent = ({ lastPayment, forwardedRef }) => {
       <div style={{ maxWidth: '750px', margin: 'auto', padding: '20px', border: '1px solid #ddd' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #ccc', paddingBottom: '10px' }}>
             <img 
-              src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/NEDBANK_N_SYMBOL_CMYK.jpg?alt=media&token=5b41cca3-a9a9-419f-9cb9-a656b10469f0" 
+              src={logoSrc}
               alt="Nedbank Logo" 
               style={{ width: '120px', height: 'auto' }} 
               crossOrigin="anonymous"
@@ -78,14 +78,36 @@ const ProofOfPaymentContent = ({ lastPayment, forwardedRef }) => {
 
 const PaymentConfirmationPage = ({ lastPayment, onShareProof, isRecipientSaved, onDone }) => {
   const popRef = useRef(null);
+  const [logoDataUri, setLogoDataUri] = useState('');
+
+  useEffect(() => {
+    const imageUrl = 'https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/NEDBANK_N_SYMBOL_CMYK.jpg?alt=media&token=5b41cca3-a9a9-419f-9cb9-a656b10469f0';
+    
+    const fetchAndConvertImage = async () => {
+      try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setLogoDataUri(reader.result as string);
+        };
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error("Failed to fetch and convert image:", error);
+      }
+    };
+    
+    fetchAndConvertImage();
+  }, []);
+
 
   const handleDownloadPdf = async () => {
     const element = popRef.current;
     if (!element) return;
 
     const canvas = await html2canvas(element, {
-      scale: 2, // Improves quality
-      useCORS: true, // Important for external images
+      scale: 2, 
+      useCORS: true, 
     });
     
     const imgData = canvas.toDataURL('image/png');
@@ -104,7 +126,7 @@ const PaymentConfirmationPage = ({ lastPayment, onShareProof, isRecipientSaved, 
     <div className="flex flex-col h-screen overflow-hidden bg-gray-100">
       {/* Hidden element for PDF generation */}
       <div className="absolute -z-10 -left-[9999px] top-0">
-        <ProofOfPaymentContent lastPayment={lastPayment} forwardedRef={popRef} />
+        <ProofOfPaymentContent lastPayment={lastPayment} logoSrc={logoDataUri} forwardedRef={popRef} />
       </div>
 
       <header className="bg-white p-4 flex justify-between items-center w-full shadow-md">
