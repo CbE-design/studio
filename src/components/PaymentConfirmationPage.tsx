@@ -15,11 +15,11 @@ const ProofOfPaymentContent = ({ lastPayment, forwardedRef }) => {
     <div ref={forwardedRef} className="p-4 bg-white" style={{ fontFamily: 'Arial, sans-serif', color: '#333', fontSize: '12px', width: '750px' }}>
       <div style={{ maxWidth: '750px', margin: 'auto', padding: '20px', border: '1px solid #ddd' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #ccc', paddingBottom: '10px' }}>
-          <svg width="70" height="70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#00703C"/>
-              <path d="M2 17L12 22L22 17L12 12L2 17Z" fill="#00703C"/>
-              <path d="M2 7L12 12L22 7L12 2L2 7Z" stroke="#004D2A" strokeWidth="0.5" strokeLinejoin="round"/>
-              <path d="M12 12L2 7V17L12 22V12Z" fill="#005A30"/>
+          <svg width="70" height="70" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#00703C">
+              <polygon points="100,25 25,75 100,125 175,75" />
+              <polygon points="25,75 100,125 25,175" />
+            </g>
           </svg>
         </div>
         <div style={{ marginTop: '20px' }}>
