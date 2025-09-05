@@ -38,6 +38,7 @@ import StatementMonthPage from '@/components/StatementMonthPage';
 import { combinedInitialTransactions, initialPlatinumChequeTransactions, initialThirdAccountTransactions, MOCK_CURRENT_DATE } from '@/lib/data';
 import { sendPaymentNotification } from '@/ai/flows/send-payment-notification';
 import { sendSms } from '@/ai/flows/send-sms';
+import { calculateBankingFees, CalculateBankingFeesInput } from '@/ai/flows/calculate-banking-fees';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('Overview');
@@ -192,6 +193,9 @@ const App = () => {
             batch.set(doc(db, `artifacts/${appId}/users/${uid}/secondAccountData/balance`), { value: 1600904.90 });
             batch.set(doc(db, `artifacts/${appId}/users/${uid}/thirdAccountData/balance`), { value: 4775.00 });
             batch.set(doc(db, `artifacts/${appId}/users/${uid}/transactionCounter/counter`), { value: 3692825731 });
+            
+            const feeCountersRef = doc(db, `artifacts/${appId}/users/${uid}/feeCounters/monthly`);
+            batch.set(feeCountersRef, { nedbank_atm_wd_count: 0, nedbank_atm_dep_value: 0 });
       
             const transactionsColRef1 = collection(db, `artifacts/${appId}/users/${uid}/transactions`);
             combinedInitialTransactions.forEach(tx => batch.set(doc(transactionsColRef1), tx));
@@ -281,54 +285,104 @@ const App = () => {
     e.preventDefault();
     if (!paymentDetails.recipient || !paymentDetails.amount || paymentDetails.bankName === 'Select bank' || !paymentDetails.accountNumber) return;
     setIsLoading(true);
-
+  
     const appId = 'van-schalkwyk-trust-mobile';
     if (!db || !userId) {
       setIsLoading(false);
       return;
     }
-
+  
     const paymentAmount = parseFloat(paymentDetails.amount);
-    let fromAccountInfo = {};
-
+    let fromAccountInfo: any;
+    let accountId: CalculateBankingFeesInput['accountId'];
+  
     if (paymentDetails.fromAccount === 'current') {
       fromAccountInfo = { ref: doc(db, `artifacts/${appId}/users/${userId}/accountData/balance`), col: collection(db, `artifacts/${appId}/users/${userId}/transactions`), balance: accountBalance, name: "Savvy Bundle Current Account" };
-    } else if (paymentDetails.fromAccount === 'second') {
-      fromAccountInfo = { ref: doc(db, `artifacts/${appId}/users/${userId}/secondAccountData/balance`), col: collection(db, `artifacts/${appId}/users/${userId}/secondAccountTransactions`), balance: secondAccountBalance, name: "Platinum Cheque" };
-    } else {
-      fromAccountInfo = { ref: doc(db, `artifacts/${appId}/users/${userId}/thirdAccountData/balance`), col: collection(db, `artifacts/${appId}/users/${userId}/thirdAccountTransactions`), balance: thirdAccountBalance, name: "Platinum Cheque" };
+      accountId = 'GOLD_SAVVY_BUNDLE';
+    } else { // Assuming 'second' and 'third' are Platinum
+      fromAccountInfo = { ref: doc(db, `artifacts/${appId}/users/${userId}/${paymentDetails.fromAccount}AccountData/balance`), col: collection(db, `artifacts/${appId}/users/${userId}/${paymentDetails.fromAccount}AccountTransactions`), balance: paymentDetails.fromAccount === 'second' ? secondAccountBalance : thirdAccountBalance, name: "Platinum Cheque" };
+      accountId = 'PLATINUM_CHEQUE';
     }
-
-    const newBalance = fromAccountInfo.balance - paymentAmount;
-    if (newBalance < 0) {
-      console.error("Insufficient funds");
-      setIsLoading(false);
-      return;
-    }
-    
+  
     try {
-      const counterRef = doc(db, `artifacts/${appId}/users/${userId}/transactionCounter/counter`);
-      const newTransactionRefNumber = await runTransaction(db, async (transaction) => {
-        const counterDoc = await transaction.get(counterRef);
-        let newCounterValue;
-        if (!counterDoc.exists()) {
-          newCounterValue = 3692825731;
-          transaction.set(counterRef, { value: newCounterValue });
-        } else {
-          newCounterValue = counterDoc.data().value + 1;
-          transaction.update(counterRef, { value: newCounterValue });
+      await runTransaction(db, async (transaction) => {
+        // 1. Get current fee counters
+        const feeCountersRef = doc(db, `artifacts/${appId}/users/${userId}/feeCounters/monthly`);
+        const feeCountersSnap = await transaction.get(feeCountersRef);
+        const currentCounters = feeCountersSnap.exists() ? feeCountersSnap.data() : { nedbank_atm_wd_count: 0, nedbank_atm_dep_value: 0 };
+  
+        // 2. Calculate the fee
+        const feeInput: CalculateBankingFeesInput = {
+          accountId,
+          transactionCode: 'EFT_PAY_DIGITAL',
+          transactionValue: paymentAmount,
+          counters: {
+            nedbank_atm_wd_count: currentCounters.nedbank_atm_wd_count || 0,
+            nedbank_atm_dep_value: currentCounters.nedbank_atm_dep_value || 0,
+          }
+        };
+        const { fee, updatedCounters } = await calculateBankingFees(feeInput);
+        const totalDeduction = paymentAmount + fee;
+  
+        // 3. Get current balance
+        const balanceSnap = await transaction.get(fromAccountInfo.ref);
+        const currentBalance = balanceSnap.exists() ? balanceSnap.data().value : 0;
+  
+        if (currentBalance < totalDeduction) {
+          throw new Error("Insufficient funds for payment and fees.");
         }
-        return newCounterValue;
+        const newBalance = currentBalance - totalDeduction;
+  
+        // 4. Get new transaction reference number
+        const counterRef = doc(db, `artifacts/${appId}/users/${userId}/transactionCounter/counter`);
+        const counterDoc = await transaction.get(counterRef);
+        if (!counterDoc.exists()) {
+          throw new Error("Transaction counter does not exist!");
+        }
+        const newTransactionRefNumber = counterDoc.data().value + 1;
+  
+        // 5. Queue up all writes
+        // Update balance
+        transaction.update(fromAccountInfo.ref, { value: newBalance });
+  
+        // Add payment transaction
+        const paymentTransaction = {
+          description: (paymentDetails.yourReference || `${paymentDetails.recipient}`).toUpperCase(),
+          amount: `-R${paymentAmount.toFixed(2)}`,
+          timestamp: serverTimestamp(),
+        };
+        transaction.set(doc(fromAccountInfo.col), paymentTransaction);
+  
+        // Add fee transaction if applicable
+        if (fee > 0) {
+          const feeTransaction = {
+            description: `FEE: ${feeInput.transactionCode}`,
+            amount: `-R${fee.toFixed(2)}`,
+            timestamp: serverTimestamp(),
+          };
+          transaction.set(doc(fromAccountInfo.col), feeTransaction);
+        }
+  
+        // Update fee counters
+        transaction.set(feeCountersRef, updatedCounters);
+        
+        // Update transaction ref counter
+        transaction.update(counterRef, { value: newTransactionRefNumber });
+  
+        // Set last payment details for confirmation screen (outside transaction)
+        const paymentDate = new Date();
+        const formattedDate = `${paymentDate.getFullYear()}-${(paymentDate.getMonth() + 1).toString().padStart(2, '0')}-${paymentDate.getDate().toString().padStart(2, '0')}`;
+        setLastPayment({
+          ...paymentDetails,
+          amount: paymentAmount.toFixed(2),
+          date: paymentDate,
+          reference: paymentDetails.yourReference || `${paymentDetails.recipient.toUpperCase()}`,
+          transactionNumber: `${formattedDate}/Nedbank/00${newTransactionRefNumber}`,
+          fromAccountName: fromAccountInfo.name,
+        });
       });
-
-      const newTransaction = {
-        description: (paymentDetails.yourReference || `${paymentDetails.recipient}`).toUpperCase(),
-        amount: `-R${paymentAmount.toFixed(2)}`,
-        timestamp: serverTimestamp(),
-      };
-      await setDoc(fromAccountInfo.ref, { value: newBalance });
-      await addDoc(fromAccountInfo.col, newTransaction);
-      
+  
+      // This part runs only if the transaction was successful
       if (paymentDetails.sendSms && paymentDetails.recipientPhone) {
         try {
           const notification = await sendPaymentNotification({
@@ -337,37 +391,28 @@ const App = () => {
             senderName: 'Van Schalkwyk Family Trust',
             yourReference: paymentDetails.yourReference,
           });
-
           await sendSms({
             to: paymentDetails.recipientPhone,
             message: notification.smsMessage,
           });
-
           alert(`SMS sent to ${paymentDetails.recipientPhone}!`);
-
         } catch (aiError) {
           console.error("Failed to send SMS notification:", aiError);
           alert("Failed to send SMS. Please check server logs.");
         }
       }
-      const paymentDate = new Date();
-      const formattedDate = `${paymentDate.getFullYear()}-${(paymentDate.getMonth() + 1).toString().padStart(2, '0')}-${paymentDate.getDate().toString().padStart(2, '0')}`;
-      setLastPayment({
-        ...paymentDetails,
-        amount: paymentAmount.toFixed(2),
-        date: paymentDate,
-        reference: paymentDetails.yourReference || `${paymentDetails.recipient.toUpperCase()}`,
-        transactionNumber: `${formattedDate}/Nedbank/00${newTransactionRefNumber}`,
-        fromAccountName: fromAccountInfo.name,
-      });
+      
       setPaymentDetails({ recipient: '', bankName: 'Select bank', accountNumber: '', paymentMethod: 'Standard EFT', amount: '', yourReference: '', recipientsReference: '', recipientPhone: '', sendSms: false, saveRecipient: false, fromAccount: 'current' });
       setCurrentView('paymentConfirmation');
+  
     } catch (error) {
       console.error("Error processing payment:", error);
+      alert(`Payment failed: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   const handleSaveRecipient = async () => {
     if (!lastPayment || !db || !userId || isRecipientSaved) return;
