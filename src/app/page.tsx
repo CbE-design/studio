@@ -39,6 +39,7 @@ import { combinedInitialTransactions, initialPlatinumChequeTransactions, initial
 import { sendPaymentNotification } from '@/ai/flows/send-payment-notification';
 import { sendSms } from '@/ai/flows/send-sms';
 import { calculateBankingFees, CalculateBankingFeesInput } from '@/ai/flows/calculate-banking-fees';
+import { generateStatementReference } from '@/ai/flows/generate-statement-reference';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('Overview');
@@ -345,13 +346,26 @@ const App = () => {
           newTransactionRefNumber = 3692825731; // Starting value
         }
   
-        // 5. Queue up all writes
+        // 5. Generate Statement References
+        const { statementReference: paymentReference } = await generateStatementReference({
+            internalTransactionCode: 'EFT_PAY_OUTGOING',
+            transactionStatus: 'COMPLETED',
+            eftData: { beneficiaryReference: paymentDetails.yourReference || paymentDetails.recipient },
+        });
+
+        const { statementReference: feeReference } = await generateStatementReference({
+            internalTransactionCode: 'FEE_TRANSACTION',
+            transactionStatus: 'COMPLETED',
+            feeData: { feeDescription: `FEE: ${feeInput.transactionCode}` },
+        });
+
+        // 6. Queue up all writes
         // Update balance
         transaction.update(fromAccountInfo.ref, { value: newBalance });
   
         // Add payment transaction
         const paymentTransaction = {
-          description: (paymentDetails.yourReference || `${paymentDetails.recipient}`).toUpperCase(),
+          description: paymentReference,
           amount: `-R${paymentAmount.toFixed(2)}`,
           timestamp: serverTimestamp(),
         };
@@ -360,7 +374,7 @@ const App = () => {
         // Add fee transaction if applicable
         if (fee > 0) {
           const feeTransaction = {
-            description: `FEE: ${feeInput.transactionCode}`,
+            description: feeReference,
             amount: `-R${fee.toFixed(2)}`,
             timestamp: serverTimestamp(),
           };
@@ -380,7 +394,7 @@ const App = () => {
           ...paymentDetails,
           amount: paymentAmount.toFixed(2),
           date: paymentDate,
-          reference: paymentDetails.yourReference || `${paymentDetails.recipient.toUpperCase()}`,
+          reference: paymentReference,
           transactionNumber: `${formattedDate}/Nedbank/00${newTransactionRefNumber}`,
           fromAccountName: fromAccountInfo.name,
         });
