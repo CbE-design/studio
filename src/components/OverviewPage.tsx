@@ -15,7 +15,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
     { icon: <Banknote size={24} />, text: 'Quick Pay' },
     { icon: <CreditCard size={24} />, text: 'Get cash' },
     { icon: <Home size={24} />, text: 'Home loans' },
-    { icon: <FileBadge size={24} />, text: 'Statements and docs' },
+    { icon: <FileBadge size={24} />, text: 'Statements and docs', onClick: () => setCurrentView('transactions') },
   ];
 
   return (
@@ -54,7 +54,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
                           <div className="flex justify-between items-center">
                             <div>
                               <p className="text-sm font-light">{item.title}</p>
-                              <p className="text-lg font-normal">{value}</p>
+                              <p className="text-xl font-normal">{value}</p>
                             </div>
                             <ChevronRight size={20} className="text-primary-foreground" />
                           </div>
@@ -89,7 +89,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
           <h2 className="text-lg font-bold mb-4 text-gray-800">My widgets</h2>
           <div className="grid grid-cols-4 gap-4">
             {widgets.map((widget, index) => (
-              <div key={index} className="flex flex-col items-center text-center">
+              <div key={index} className="flex flex-col items-center text-center cursor-pointer" onClick={widget.onClick}>
                 <div className="relative bg-white p-4 rounded-xl shadow-md flex items-center justify-center w-16 h-16">
                   {widget.icon}
                   {widget.badge && (
