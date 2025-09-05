@@ -4,7 +4,7 @@ import { Check, Share2, Save, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-const ProofOfPaymentContent = ({ lastPayment, logoSrc, forwardedRef }) => {
+const ProofOfPaymentContent = ({ lastPayment, forwardedRef }) => {
   if (!lastPayment) return null;
 
   const paymentDate = new Date(lastPayment.date);
@@ -12,16 +12,12 @@ const ProofOfPaymentContent = ({ lastPayment, logoSrc, forwardedRef }) => {
   const securityCode = 'DB85BE175B1E35A823EBD2CDE32DC8D542472D1A';
 
   return (
-    <div ref={forwardedRef} className="p-4 bg-white" style={{ fontFamily: 'Arial, sans-serif', color: '#333', fontSize: '12px', width: '750px' }}>
+    <div ref={forwardedRef} className="p-4 bg-white" style={{ fontFamily: 'Arial, sans-serif', color: '#333', fontSize: '12px' }}>
       <div style={{ maxWidth: '750px', margin: 'auto', padding: '20px', border: '1px solid #ddd' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #ccc', paddingBottom: '10px' }}>
-            <img 
-              src={logoSrc}
-              alt="Nedbank Logo" 
-              style={{ width: '120px', height: 'auto' }} 
-            />
+        <div style={{ borderBottom: '2px solid #ccc', paddingBottom: '10px', marginBottom: '20px' }}>
+            <h1 style={{fontSize: '24px', margin: '0', color: '#00703C'}}>NEDBANK</h1>
         </div>
-        <div style={{ marginTop: '20px' }}>
+        <div>
           <h1 style={{ fontSize: '18px', color: '#333', margin: '0' }}>Notification of Payment</h1>
           <p>Nedbank Limited confirms that the following payment has been made:</p>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -53,12 +49,6 @@ const ProofOfPaymentContent = ({ lastPayment, logoSrc, forwardedRef }) => {
           </table>
         </div>
         <p style={{ fontSize: '10px', color: '#555', marginTop: '20px' }}>Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.</p>
-        <p style={{ fontSize: '10px', color: '#555', marginTop: '20px' }}>This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification. Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information. Payments may take up to three business days. Please check your account to verify the existence of the funds.</p>
-        <p style={{ fontSize: '10px', color: '#555', marginTop: '20px' }}>Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.</p>
-        <div style={{ marginTop: '20px' }}>
-          <h2 style={{ fontSize: '14px', fontWeight: 'bold', borderBottom: '1px solid #eee', paddingBottom: '5px', marginBottom: '10px' }}>Nedbank Limited email disclaimer</h2>
-          <p style={{ fontSize: '10px', color: '#555' }}>This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.</p>
-        </div>
         <div style={{ marginTop: '20px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <tbody>
@@ -75,20 +65,31 @@ const ProofOfPaymentContent = ({ lastPayment, logoSrc, forwardedRef }) => {
   );
 };
 
-const PaymentConfirmationPage = ({ lastPayment, onShareProof, isRecipientSaved, onDone, logoDataUri }) => {
+const PaymentConfirmationPage = ({ lastPayment, onSaveRecipient, isRecipientSaved, onDone }) => {
   const popRef = useRef(null);
 
-  const handleDownloadPdf = async () => {
+  const generateAndDownloadPdf = async () => {
     const element = popRef.current;
-    if (!element || !logoDataUri) {
-      console.error("Proof of payment element or logo not ready for PDF generation.");
+    if (!element) {
+      console.error("Proof of payment element not ready for PDF generation.");
       return;
     };
+    
+    // To ensure html2canvas captures the full content, we temporarily append it to the body,
+    // render it, and then remove it.
+    element.style.position = 'absolute';
+    element.style.left = '-9999px';
+    element.style.top = '-9999px';
+    element.style.width = '750px'; // A fixed width for consistent layout
+    document.body.appendChild(element);
 
     const canvas = await html2canvas(element, {
       scale: 2, 
       useCORS: true, 
+      logging: true,
     });
+    
+    document.body.removeChild(element); // Clean up
     
     const imgData = canvas.toDataURL('image/png');
     
@@ -105,8 +106,8 @@ const PaymentConfirmationPage = ({ lastPayment, onShareProof, isRecipientSaved, 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-gray-100">
       {/* Hidden element for PDF generation */}
-      <div className="absolute -z-10 -left-[9999px] top-0">
-        <ProofOfPaymentContent lastPayment={lastPayment} logoSrc={logoDataUri} forwardedRef={popRef} />
+      <div className="absolute opacity-0 -z-10 pointer-events-none">
+        <ProofOfPaymentContent lastPayment={lastPayment} forwardedRef={popRef} />
       </div>
 
       <header className="bg-white p-4 flex justify-between items-center w-full shadow-md">
@@ -127,9 +128,9 @@ const PaymentConfirmationPage = ({ lastPayment, onShareProof, isRecipientSaved, 
             <div className="flex justify-between"><p className="text-gray-500">Recipient's reference</p><p className="font-medium">{lastPayment.recipientsReference || 'N/A'}</p></div>
           </div>
           <div className="mt-6 space-y-3">
-            <button onClick={onShareProof} className="w-full flex items-center justify-center bg-gray-200 text-gray-800 py-3 rounded-xl font-semibold"><Share2 size={18} className="mr-2" /> Share proof of payment</button>
-            <button onClick={handleDownloadPdf} className="w-full flex items-center justify-center bg-gray-200 text-gray-800 py-3 rounded-xl font-semibold"><Download size={18} className="mr-2" /> Download PDF</button>
-            <button disabled={isRecipientSaved} className={`w-full flex items-center justify-center py-3 rounded-xl font-semibold ${isRecipientSaved ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-800'}`}><Save size={18} className="mr-2" /> {isRecipientSaved ? 'Recipient Saved' : 'Save recipient'}</button>
+            <button onClick={generateAndDownloadPdf} className="w-full flex items-center justify-center bg-gray-200 text-gray-800 py-3 rounded-xl font-semibold"><Share2 size={18} className="mr-2" /> Share proof of payment</button>
+            <button onClick={generateAndDownloadPdf} className="w-full flex items-center justify-center bg-gray-200 text-gray-800 py-3 rounded-xl font-semibold"><Download size={18} className="mr-2" /> Download PDF</button>
+            <button onClick={onSaveRecipient} disabled={isRecipientSaved} className={`w-full flex items-center justify-center py-3 rounded-xl font-semibold ${isRecipientSaved ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-800'}`}><Save size={18} className="mr-2" /> {isRecipientSaved ? 'Recipient Saved' : 'Save recipient'}</button>
           </div>
         </div>
       </main>
