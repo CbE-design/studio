@@ -28,14 +28,13 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
         }
         
         let openingBalance = runningBalance;
-
         let totalDebits = 0;
         let totalCredits = 0;
         let totalFees = 0;
-
+        
         const finalTransactions = transactionsWithBalance.map(tx => {
             const amount = parseFloat(tx.amount.replace('R', '').replace(/ /g, ''));
-            openingBalance += amount;
+            const newBalance = openingBalance + amount;
             if (amount < 0) {
                 totalDebits += Math.abs(amount);
                 if (tx.description.toLowerCase().includes('fee:')) {
@@ -44,7 +43,8 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
             } else {
                 totalCredits += amount;
             }
-            return { ...tx, balance: openingBalance };
+            openingBalance = newBalance; // update for next iteration
+            return { ...tx, balance: newBalance };
         });
 
         const closingBalance = openingBalance;
@@ -251,3 +251,5 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
 };
 
 export default StatementPage;
+
+    
