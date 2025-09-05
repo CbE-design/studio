@@ -3,7 +3,6 @@ import { useRef } from 'react';
 import { Check, Share2, Save, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import Image from 'next/image';
 
 const ProofOfPaymentContent = ({ lastPayment, forwardedRef }) => {
   if (!lastPayment) return null;
