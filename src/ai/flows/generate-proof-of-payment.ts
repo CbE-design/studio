@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview Generates a Proof of Payment PDF document.
+ * @fileOverview Generates a Proof of Payment PDF document based on a specific design.
  *
  * - generateProofOfPaymentPdf - Creates a PDF from transaction details.
  * - GenerateProofOfPaymentInput - The input type for the function.
@@ -33,6 +33,23 @@ export async function generateProofOfPaymentPdf(input: GenerateProofOfPaymentInp
   return generateProofOfPaymentPdfFlow(input);
 }
 
+const nedbankLogoSvg = `
+<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g clip-path="url(#clip0_101_2)">
+    <path d="M16.8995 8.4H23.2995V15.6H16.8995V8.4Z" fill="#009A4D"/>
+    <path d="M15.2002 12L8.7002 2.4L0.700195 12L8.7002 21.6L15.2002 12Z" fill="#009A4D"/>
+    <path d="M16.8995 8.4H23.2995V15.6H16.8995V8.4Z" stroke="#005A30" stroke-width="0.5"/>
+    <path d="M8.7002 2.4L0.700195 12L8.7002 21.6L15.2002 12L8.7002 2.4Z" stroke="#005A30" stroke-width="0.5"/>
+  </g>
+  <defs>
+    <clipPath id="clip0_101_2">
+      <rect width="24" height="24" fill="white"/>
+    </clipPath>
+  </defs>
+</svg>
+`;
+
+
 const generateProofOfPaymentPdfFlow = ai.defineFlow(
   {
     name: 'generateProofOfPaymentPdfFlow',
@@ -41,46 +58,79 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
   },
   async (details) => {
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([595, 842]); // A4 size
+    const page = pdfDoc.addPage([595.28, 841.89]); // A4 size
     const { width, height } = page.getSize();
     
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     
-    const primaryColor = rgb(0 / 255, 112 / 255, 60 / 255); // Nedbank Green
+    const black = rgb(0, 0, 0);
     const grayColor = rgb(0.3, 0.3, 0.3);
-    
-    let y = height - 50;
 
-    // Header
-    page.drawText('NEDBANK', { x: 50, y, font: boldFont, size: 24, color: primaryColor });
-    y -= 40;
-    page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 1, color: grayColor });
-    y -= 30;
+    const margin = 50;
+    let y = height - margin;
 
-    // Title
-    page.drawText('Notification of Payment', { x: 50, y, font: boldFont, size: 18 });
-    y -= 20;
-    page.drawText('Nedbank Limited confirms that the following payment has been made:', { x: 50, y, font, size: 10 });
+    // 1. Logo
+    // Note: pdf-lib doesn't support SVG embedding directly. This is a placeholder.
+    // For a real implementation, you'd convert the SVG to a PNG or use vector drawing commands.
+    // We'll draw a simplified version for now.
+    const logoGreen = rgb(0 / 255, 154 / 255, 77 / 255);
+    page.drawPolygon({
+        points: [
+            { x: margin + 31.8, y: y - 19.2 }, // Top
+            { x: margin, y: y },
+            { x: margin + 31.8, y: y + 19.2 }, // bottom
+            { x: margin + 49.8, y: y }
+        ],
+        fillColor: logoGreen,
+    });
+     page.drawRectangle({
+        x: margin + 55,
+        y: y - 14.4,
+        width: 25,
+        height: 28.8,
+        fillColor: logoGreen,
+    });
+
+
+    y -= 50;
+
+    // 2. Title and separator line
+    page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 12, color: black });
+    y -= 15;
+    page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 0.5, color: grayColor });
     y -= 25;
 
-    // Main Details
-    page.drawText('Date of Payment:', { x: 50, y, font, size: 10, color: grayColor });
-    page.drawText(details.date, { x: 200, y, font: boldFont, size: 10 });
-    y -= 15;
-    page.drawText('Reference Number:', { x: 50, y, font, size: 10, color: grayColor });
-    page.drawText(details.transactionNumber, { x: 200, y, font: boldFont, size: 10 });
-    y -= 30;
+    // 3. Confirmation Text
+    page.drawText('Nedbank Limited confirms that the following payment has been made:', { x: margin, y, font, size: 10, color: black });
+    y -= 25;
 
-    // Beneficiary Details
-    page.drawText('Beneficiary details', { x: 50, y, font: boldFont, size: 12 });
-    y -= 10;
-    page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 0.5, color: primaryColor });
+    // 4. Payment Details Table
+    const detailsLeftColX = margin;
+    const detailsColonColX = 180;
+    const detailsRightColX = 200;
+
+    const paymentDetailsData = [
+        { label: 'Date of Payment', value: details.date },
+        { label: 'Reference Number', value: details.transactionNumber },
+    ];
+    
+    paymentDetailsData.forEach(item => {
+        page.drawText(item.label, { x: detailsLeftColX, y, font, size: 10 });
+        page.drawText(':', { x: detailsColonColX, y, font, size: 10 });
+        page.drawText(item.value, { x: detailsRightColX, y, font, size: 10 });
+        y -= 15;
+    });
+
+    y -= 20;
+
+    // 5. Beneficiary Details
+    page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 11 });
     y -= 20;
 
     const beneficiaryDetails = [
       { label: 'Recipient', value: details.recipient },
-      { label: 'Amount', value: `R ${parseFloat(details.amount).toFixed(2)}` },
+      { label: 'Amount', value: `R${parseFloat(details.amount).toFixed(2)}` },
       { label: 'Recipient Reference', value: details.recipientsReference || details.yourReference || 'N/A' },
       { label: 'Bank', value: details.bankName.toUpperCase() },
       { label: 'Account Number', value: `...${details.accountNumber.slice(-6)}` },
@@ -88,27 +138,62 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     ];
 
     beneficiaryDetails.forEach(item => {
-        page.drawText(item.label + ':', { x: 50, y, font, size: 10, color: grayColor });
-        page.drawText(item.value, { x: 200, y, font: boldFont, size: 10 });
+        page.drawText(item.label, { x: detailsLeftColX, y, font, size: 10 });
+        page.drawText(':', { x: detailsColonColX, y, font, size: 10 });
+        page.drawText(item.value, { x: detailsRightColX, y, font, size: 10 });
         y -= 15;
     });
-    y -= 15;
 
-    // Payer Details
-    page.drawText('Payer details', { x: 50, y, font: boldFont, size: 12 });
-    y -= 10;
-    page.drawLine({ start: { x: 50, y }, end: { x: width - 50, y }, thickness: 0.5, color: primaryColor });
     y -= 20;
 
-    page.drawText('Paid from Account Holder:', { x: 50, y, font, size: 10, color: grayColor });
-    page.drawText('VAN SCHALKWYK FAMILY TRUST', { x: 200, y, font: boldFont, size: 10 });
-    y -= 30;
+    // 6. Payer Details
+    page.drawText('Payer details', { x: margin, y, font: boldFont, size: 11 });
+    y -= 20;
+    page.drawText('Paid from Account Holder', { x: detailsLeftColX, y, font, size: 10 });
+    page.drawText(':', { x: detailsColonColX, y, font, size: 10 });
+    page.drawText(details.fromAccountName.toUpperCase(), { x: detailsRightColX, y, font, size: 10 });
+
+    y -= 40;
+
+    // 7. Disclaimers and Notes
+    const disclaimerText1 = 'Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on\nwww.nedbank.co.za and click on Verify payments.';
+    page.drawText(disclaimerText1, { x: margin, y, font, size: 10, lineHeight: 12 });
+    y -= 40;
+    
+    const disclaimerText2 = `This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this\npayment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for\nenquiries regarding the contents of this notification.\nNedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability\nfor any loss or damage whatsoever nature, arising from the use thereof.\nPayments may take up to three business days. Please check your account to verify the existence of the funds.`;
+    page.drawText(disclaimerText2, { x: margin, y, font, size: 10, lineHeight: 12 });
+    y -= 100;
+
+    const disclaimerText3 = 'Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification\nand authentication details.';
+    page.drawText(disclaimerText3, { x: margin, y, font, size: 10, lineHeight: 12 });
+    y -= 40;
+
+    page.drawText('Nedbank Limited email disclaimer', { x: margin, y, font: boldFont, size: 10 });
+    y -= 15;
+
+    const disclaimerText4 = `This email and any accompanying attachments may contain confidential and proprietary information. This information is\nprivate and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire\ncommunication immediately and are notified that any disclosure, copying or distribution of or taking any action based on\nthis information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not\naccept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of or\ntampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for\nwhatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment\nis required, please request a hard copy version.`;
+    page.drawText(disclaimerText4, { x: margin, y, font, size: 8, lineHeight: 10 });
+    y -= 110;
+
+    // 8. Security Code
+    page.drawText('Security Code', { x: detailsLeftColX, y, font, size: 10 });
+    page.drawText(':', { x: detailsColonColX, y, font, size: 10 });
+    // This is a placeholder for a real security code
+    const securityCode = 'DB85BE175B1E35A823EBD2CDE32DC8D542472D1A';
+    page.drawText(securityCode, { x: detailsRightColX, y, font, size: 10 });
+
+    y -= 40;
 
     // Footer
-    const footerText1 = 'Nedbank Ltd Reg No 1951/000009/06. Licensed financial services provider (FSP9363) and registered credit provider (NCRCP16).';
-    page.drawText(footerText1, { x: 50, y: 80, font, size: 8, color: grayColor });
+    page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 0.5, color: grayColor });
+    y -= 15;
+
+    const footerText1 = 'Nedbank Limited Reg No 1951/000009/06. VAT Reg No 4320116074. 135 Rivonia Road, Sandown, Sandton, 2196, South Africa.';
+    page.drawText(footerText1, { x: margin, y, font, size: 8, color: grayColor });
+    y -= 12;
+
     const footerText2 = 'We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services.';
-    page.drawText(footerText2, { x: 50, y: 70, font, size: 8, color: grayColor });
+    page.drawText(footerText2, { x: margin, y, font, size: 8, color: grayColor });
 
 
     const pdfBytes = await pdfDoc.save();
