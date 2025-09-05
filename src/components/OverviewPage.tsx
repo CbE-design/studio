@@ -29,7 +29,10 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
             height={32}
             className="rounded-full flex-shrink-0"
           />
-          <span className="text-lg font-semibold text-primary-foreground">Van Schalkwyk Family Trust</span>
+          <div>
+            <span className="text-lg font-semibold text-primary-foreground">Van Schalkwyk Family Trust</span>
+            <p className="text-xs text-primary-foreground/70 truncate">User ID: {userId}</p>
+          </div>
         </div>
         <div className="flex items-center space-x-4">
           <Bell size={24} className="text-primary-foreground" />
