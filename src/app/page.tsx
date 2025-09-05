@@ -77,25 +77,6 @@ const App = () => {
   const [bankSearchQuery, setBankSearchQuery] = useState('');
   const [isRecipientSaved, setIsRecipientSaved] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [logoDataUri, setLogoDataUri] = useState('');
-
-  useEffect(() => {
-    // Fetch and convert the logo image to a data URI once, and pass it down
-    const imageUrl = 'https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/NEDBANK_N_SYMBOL_CMYK.jpg?alt=media&token=5b41cca3-a9a9-419f-9cb9-a656b10469f0';
-    const fetchAndConvertImage = async () => {
-      try {
-        const response = await fetch(`/api/image-proxy?imageUrl=${encodeURIComponent(imageUrl)}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const { dataUri } = await response.json();
-        setLogoDataUri(dataUri);
-      } catch (error) {
-        console.error("Failed to fetch and convert image via proxy:", error);
-      }
-    };
-    fetchAndConvertImage();
-  }, []);
 
   const failedTransactionsData = useMemo(() => {
     const tomorrow = new Date(MOCK_CURRENT_DATE);
@@ -626,7 +607,6 @@ const App = () => {
               balance={statementData.balance}
               setCurrentView={setCurrentView}
               previousView={statementData.previousView}
-              logoDataUri={logoDataUri}
             />
           ) : null;
       case 'statementAccount':

@@ -5,13 +5,13 @@ import { useMemo, useRef } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-const StatementPage = ({ accountName, transactions, balance, setCurrentView, previousView, logoDataUri }) => {
+const StatementPage = ({ accountName, transactions, balance, setCurrentView, previousView }) => {
     const statementRef = useRef(null);
 
     const handleDownloadPdf = async () => {
         const element = statementRef.current;
-        if (!element || !logoDataUri) {
-            console.error("Statement element or logo not ready for PDF generation.");
+        if (!element) {
+            console.error("Statement element not ready for PDF generation.");
             return;
         };
 
@@ -114,7 +114,6 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
                     {/* Header */}
                     <div className="flex justify-between items-start mb-4">
                         <div>
-                            {logoDataUri && <img src={logoDataUri} alt="Nedbank Logo" style={{width: '100px', height: 'auto'}} />}
                             <div className="border-2 border-black p-1 mt-2 text-center text-[10px]">
                                 <p className="font-bold">eConfirm</p>
                                 <p>{new Date().toLocaleDateString('en-GB')}</p>
