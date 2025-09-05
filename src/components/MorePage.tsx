@@ -1,5 +1,5 @@
 'use client';
-import { Bell, User, Phone, Lock, Settings, Share2, FileText, Smartphone, ChevronRight } from 'lucide-react';
+import { Bell, User, Phone, Lock, Settings, Share2, FileText, Smartphone, ChevronRight, Plus } from 'lucide-react';
 
 const MorePage = ({ setCurrentView }) => {
     const options = [
@@ -14,12 +14,35 @@ const MorePage = ({ setCurrentView }) => {
         { icon: <FileText size={24} className="text-gray-500" />, label: 'Terms and conditions' },
     ];
 
+    const profiles = [
+      { name: 'John', initial: 'J' },
+      { name: 'Jaco', initial: 'J' },
+      { name: 'Xavier', initial: 'X' },
+      { name: 'Corrie', initial: 'C' },
+    ];
+
     return (
-        <div className="flex flex-col h-screen bg-gray-100">
-            <header className="bg-primary text-primary-foreground p-4 w-full">
-                <h1 className="text-xl font-semibold">More</h1>
-            </header>
-            <main className="flex-1 overflow-y-auto bg-white pb-16">
+        <div className="flex flex-col h-screen bg-white">
+            <main className="flex-1 overflow-y-auto pb-16">
+                <div className="p-4 bg-white">
+                    <div className="flex justify-around items-center text-center p-4">
+                        {profiles.map(profile => (
+                            <div key={profile.name} className="flex flex-col items-center">
+                                <div className="w-16 h-16 rounded-full border-2 border-primary flex items-center justify-center mb-2">
+                                    <span className="text-2xl font-semibold text-gray-700">{profile.initial}</span>
+                                </div>
+                                <span className="text-sm font-medium text-gray-800">{profile.name}</span>
+                            </div>
+                        ))}
+                        <div className="flex flex-col items-center">
+                            <div className="w-16 h-16 rounded-full border border-gray-400 flex items-center justify-center mb-2">
+                                <Plus size={24} className="text-gray-500" />
+                            </div>
+                            <span className="text-sm text-gray-500">Link a Profile</span>
+                        </div>
+                    </div>
+                </div>
+                <hr className="border-gray-200" />
                 <ul>
                     {options.map((option, index) => (
                         <li 
