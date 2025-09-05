@@ -170,53 +170,62 @@ const App = () => {
 
   const seedInitialData = async (db, uid) => {
     const appId = 'van-schalkwyk-trust-mobile';
-    const seedMarkerRef = doc(db, `artifacts/${appId}/users/${uid}/seededData/marker-v3-corrected-history`);
+    const baseUserRef = doc(db, `artifacts/${appId}/users/${uid}`);
+    const seedMarkerRef = doc(baseUserRef, 'seededData', 'marker-v4-corrected-structure');
     
     try {
         const seedMarkerSnap = await getDoc(seedMarkerRef);
 
         if (!seedMarkerSnap.exists()) {
-            console.log("Seeding corrected transaction history...");
+            console.log("Seeding corrected data structure...");
             const batch = writeBatch(db);
             
-            // Set balances according to the new history
-            batch.set(doc(db, `artifacts/${appId}/users/${uid}/accountData/balance`), { value: 18000000.00 });
-            batch.set(doc(db, `artifacts/${appId}/users/${uid}/secondAccountData/balance`), { value: 2000000.00 });
-            batch.set(doc(db, `artifacts/${appId}/users/${uid}/thirdAccountData/balance`), { value: 4775.00 });
+            // Define account document references
+            const account1Ref = doc(baseUserRef, 'accounts', 'savvy');
+            const account2Ref = doc(baseUserRef, 'accounts', 'platinum1');
+            const account3Ref = doc(baseUserRef, 'accounts', 'platinum2');
+
+            // Set balances in the main account docs
+            batch.set(account1Ref, { balance: 18000000.00, name: 'Savvy Bundle Current Account' });
+            batch.set(account2Ref, { balance: 2000000.00, name: 'Platinum Cheque' });
+            batch.set(account3Ref, { balance: 4775.00, name: 'Platinum Cheque' });
             
-            const counterRef = doc(db, `artifacts/${appId}/users/${uid}/transactionCounter/counter`);
+            const counterRef = doc(baseUserRef, 'metadata', 'transactionCounter');
             batch.set(counterRef, { value: 3692825731 });
             
-            const feeCountersRef = doc(db, `artifacts/${appId}/users/${uid}/feeCounters/monthly`);
-            batch.set(feeCountersRef, { nedbank_atm_wd_count: 0, nedbank_atm_dep_value: 0 }); // Reset counters
+            const feeCountersRef = doc(baseUserRef, 'metadata', 'feeCounters');
+            batch.set(feeCountersRef, { nedbank_atm_wd_count: 0, nedbank_atm_dep_value: 0 }); 
       
-            // Clear existing transactions before seeding new ones
-            // Note: In a real app, a more robust migration is needed. For this sandbox, we'll just overwrite.
-            const transactionsColRef1 = collection(db, `artifacts/${appId}/users/${uid}/transactions`);
+            // Note: Deleting old collections is complex in client-side SDK. 
+            // For this sandbox, we'll just write to the new, correct locations.
+            
+            // Seed transactions in subcollections of the correct account documents
+            const transactionsColRef1 = collection(account1Ref, 'transactions');
             combinedInitialTransactions.forEach(tx => batch.set(doc(transactionsColRef1), tx));
             
-            const transactionsColRef2 = collection(db, `artifacts/${appId}/users/${uid}/secondAccountTransactions`);
+            const transactionsColRef2 = collection(account2Ref, 'transactions');
             initialPlatinumChequeTransactions.forEach(tx => batch.set(doc(transactionsColRef2), tx));
       
-            const transactionsColRef3 = collection(db, `artifacts/${appId}/users/${uid}/thirdAccountTransactions`);
+            const transactionsColRef3 = collection(account3Ref, 'transactions');
             initialThirdAccountTransactions.forEach(tx => batch.set(doc(transactionsColRef3), tx));
       
-            const recipientsColRef = collection(db, `artifacts/${appId}/users/${uid}/recipients`);
+            const recipientsColRef = collection(baseUserRef, 'recipients');
             const mfoloeRecipient = { name: 'Mfoloe Attorneys Inc', bank: 'First National Bank', accountNumber: '62939163961', lastPaid: new Date('2025-11-14') };
             batch.set(doc(recipientsColRef), mfoloeRecipient);
             const fransiskaRecipient = { name: 'Fransiska Meiring', bank: 'First National Bank', accountNumber: '62356388027', lastPaid: new Date('2025-11-14') };
             batch.set(doc(recipientsColRef), fransiskaRecipient);
       
-            const overviewPagesColRef = collection(db, `artifacts/${appId}/users/${uid}/overviewPages`);
+            const overviewPagesColRef = collection(baseUserRef, 'overviewPages');
             const pagesData = [
               { title: 'Accounts', order: 1, content: JSON.stringify([ { type: 'account', title: 'Savvy Bundle Current Account', balanceKey: 'accountBalance', onClick: 'transactions' }, { type: 'account', title: 'Platinum Cheque', balanceKey: 'secondAccountBalance', onClick: 'secondAccountTransactions' }, { type: 'account', title: 'Platinum Cheque', balanceKey: 'thirdAccountBalance', onClick: 'thirdAccountTransactions' }, { type: 'action', title: 'Free savings feature', value: 'MyPocket', actionText: 'Set up now', color: 'yellow' } ]) },
               { title: 'Savings & Investments', order: 2, content: JSON.stringify([ { type: 'item', title: 'Unit Trust (1)', value: 'R0.00' }, { type: 'item', title: 'Money Market Account', value: 'R25 000.00' }, { type: 'item', title: 'Other Investment Accounts (1)', value: 'R63.55' }, { type: 'item', title: 'Tax certificates', value: 'Tax certificates' }, { type: 'action', title: 'Save & Invest', actionText: 'Explore options', color: 'yellow' } ]) },
               { title: 'Rewards', order: 3, content: JSON.stringify([ { type: 'item', title: 'Membership Rewards', value: 'MR 732 512' }, { type: 'item', title: 'Greenbacks Rewards', value: 'GB 90 000' } ]) },
               { title: 'International banking and travel', order: 4, content: JSON.stringify([ { type: 'action', title: 'Incoming and outgoing payments', value: 'International payments', actionText: 'View', color: 'yellow' }, { type: 'item', title: 'Foreign Currency Accounts', value: 'Your currencies' }, { type: 'item', title: 'Travel Card', value: 'Mr C Van Schalkwyk' } ]) },
               { title: 'Insurance', order: 5, content: JSON.stringify([ { type: 'item', title: 'My policies and applications', value: 'Insurance' }, { type: 'item', title: 'Funeral Plan', value: 'Policy #FP12345' }, { type: 'item', title: 'Car Insurance', value: 'Policy #CI67890' }, { type: 'action', title: 'Insurance', value: 'New policy', actionText: 'Get cover', color: 'yellow' } ]) },
-              { title: 'Lifestyle', order: 6, content: JSON.stringify([ { type: 'action', title: 'Unlock greater financial benefits', value: 'Family Banking', actionText: 'View', color: 'yellow' }, { type: 'item', title: 'Greenbacks Rewards', value: 'View your points' }, { type: 'item', title: 'Digital Vouchers', value: 'Buy and send vouchers' }, ]) }
+              { title: 'Lifestyle', order: 6, content: JSON.stringify([ { type: 'action', title: 'Unlock greater financial benefits', value: 'Family Banking', actionText: 'View', color: 'yellow' }, { type: 'item', title: 'Greenbacks Rewards', value: 'View your points' }, { type: 'item', 'title': 'Digital Vouchers', value: 'Buy and send vouchers' }, ]) }
             ];
             pagesData.forEach(page => batch.set(doc(overviewPagesColRef, page.title), page));
+            
             batch.set(seedMarkerRef, { seeded: true, timestamp: serverTimestamp() });
             await batch.commit();
         }
@@ -228,24 +237,26 @@ const App = () => {
   const fetchData = async (db, uid) => {
     const appId = 'van-schalkwyk-trust-mobile';
     await seedInitialData(db, uid);
+    
+    const baseUserRef = doc(db, `artifacts/${appId}/users/${uid}`);
 
     const docRefs = {
-      balance1: doc(db, `artifacts/${appId}/users/${uid}/accountData/balance`),
-      balance2: doc(db, `artifacts/${appId}/users/${uid}/secondAccountData/balance`),
-      balance3: doc(db, `artifacts/${appId}/users/${uid}/thirdAccountData/balance`),
+      account1: doc(baseUserRef, 'accounts', 'savvy'),
+      account2: doc(baseUserRef, 'accounts', 'platinum1'),
+      account3: doc(baseUserRef, 'accounts', 'platinum2'),
     };
 
     const colRefs = {
-      trans1: collection(db, `artifacts/${appId}/users/${uid}/transactions`),
-      trans2: collection(db, `artifacts/${appId}/users/${uid}/secondAccountTransactions`),
-      trans3: collection(db, `artifacts/${appId}/users/${uid}/thirdAccountTransactions`),
-      recipients: collection(db, `artifacts/${appId}/users/${uid}/recipients`),
-      overviewPages: collection(db, `artifacts/${appId}/users/${uid}/overviewPages`),
+      trans1: collection(docRefs.account1, 'transactions'),
+      trans2: collection(docRefs.account2, 'transactions'),
+      trans3: collection(docRefs.account3, 'transactions'),
+      recipients: collection(baseUserRef, 'recipients'),
+      overviewPages: collection(baseUserRef, 'overviewPages'),
     };
 
-    onSnapshot(docRefs.balance1, (docSnap) => docSnap.exists() && setAccountBalance(docSnap.data().value));
-    onSnapshot(docRefs.balance2, (docSnap) => docSnap.exists() && setSecondAccountBalance(docSnap.data().value));
-    onSnapshot(docRefs.balance3, (docSnap) => docSnap.exists() && setThirdAccountBalance(docSnap.data().value));
+    onSnapshot(docRefs.account1, (docSnap) => docSnap.exists() && setAccountBalance(docSnap.data().balance));
+    onSnapshot(docRefs.account2, (docSnap) => docSnap.exists() && setSecondAccountBalance(docSnap.data().balance));
+    onSnapshot(docRefs.account3, (docSnap) => docSnap.exists() && setThirdAccountBalance(docSnap.data().balance));
 
     const processSnapshot = (snapshot) =>
       snapshot.docs.map((d) => ({
@@ -286,23 +297,28 @@ const App = () => {
       setIsLoading(false);
       return;
     }
+    const baseUserRef = doc(db, `artifacts/${appId}/users/${uid}`);
   
     const paymentAmount = parseFloat(paymentDetails.amount);
     let fromAccountInfo: any;
     let accountId: CalculateBankingFeesInput['accountId'];
   
     if (paymentDetails.fromAccount === 'current') {
-      fromAccountInfo = { ref: doc(db, `artifacts/${appId}/users/${userId}/accountData/balance`), col: collection(db, `artifacts/${appId}/users/${userId}/transactions`), balance: accountBalance, name: "Savvy Bundle Current Account" };
+      fromAccountInfo = { ref: doc(baseUserRef, 'accounts', 'savvy'), balance: accountBalance, name: "Savvy Bundle Current Account" };
       accountId = 'GOLD_SAVVY_BUNDLE';
-    } else { // Assuming 'second' and 'third' are Platinum
-      fromAccountInfo = { ref: doc(db, `artifacts/${appId}/users/${userId}/${paymentDetails.fromAccount}AccountData/balance`), col: collection(db, `artifacts/${appId}/users/${userId}/${paymentDetails.fromAccount}AccountTransactions`), balance: paymentDetails.fromAccount === 'second' ? secondAccountBalance : thirdAccountBalance, name: "Platinum Cheque" };
+    } else if (paymentDetails.fromAccount === 'second') {
+      fromAccountInfo = { ref: doc(baseUserRef, 'accounts', 'platinum1'), balance: secondAccountBalance, name: "Platinum Cheque" };
+      accountId = 'PLATINUM_CHEQUE';
+    } else { // 'third'
+      fromAccountInfo = { ref: doc(baseUserRef, 'accounts', 'platinum2'), balance: thirdAccountBalance, name: "Platinum Cheque" };
       accountId = 'PLATINUM_CHEQUE';
     }
+    const fromAccountTransactionsRef = collection(fromAccountInfo.ref, 'transactions');
   
     try {
       await runTransaction(db, async (transaction) => {
         // 1. Get current fee counters
-        const feeCountersRef = doc(db, `artifacts/${appId}/users/${userId}/feeCounters/monthly`);
+        const feeCountersRef = doc(baseUserRef, 'metadata', 'feeCounters');
         const feeCountersSnap = await transaction.get(feeCountersRef);
         
         let currentCounters;
@@ -328,7 +344,7 @@ const App = () => {
   
         // 3. Get current balance
         const balanceSnap = await transaction.get(fromAccountInfo.ref);
-        const currentBalance = balanceSnap.exists() ? balanceSnap.data().value : 0;
+        const currentBalance = balanceSnap.exists() ? balanceSnap.data().balance : 0;
   
         if (currentBalance < totalDeduction) {
           throw new Error("Insufficient funds for payment and fees.");
@@ -336,7 +352,7 @@ const App = () => {
         const newBalance = currentBalance - totalDeduction;
   
         // 4. Get new transaction reference number
-        const counterRef = doc(db, `artifacts/${appId}/users/${userId}/transactionCounter/counter`);
+        const counterRef = doc(baseUserRef, 'metadata', 'transactionCounter');
         const counterDoc = await transaction.get(counterRef);
         let newTransactionRefNumber;
         if (counterDoc.exists()) {
@@ -361,7 +377,7 @@ const App = () => {
 
         // 6. Queue up all writes
         // Update balance
-        transaction.update(fromAccountInfo.ref, { value: newBalance });
+        transaction.update(fromAccountInfo.ref, { balance: newBalance });
   
         // Add payment transaction
         const paymentTransaction = {
@@ -369,7 +385,7 @@ const App = () => {
           amount: `-R${paymentAmount.toFixed(2)}`,
           timestamp: serverTimestamp(),
         };
-        transaction.set(doc(fromAccountInfo.col), paymentTransaction);
+        transaction.set(doc(fromAccountTransactionsRef), paymentTransaction);
   
         // Add fee transaction if applicable
         if (fee > 0) {
@@ -378,7 +394,7 @@ const App = () => {
             amount: `-R${fee.toFixed(2)}`,
             timestamp: serverTimestamp(),
           };
-          transaction.set(doc(fromAccountInfo.col), feeTransaction);
+          transaction.set(doc(fromAccountTransactionsRef), feeTransaction);
         }
   
         // Update fee counters
@@ -435,7 +451,8 @@ const App = () => {
   const handleSaveRecipient = async () => {
     if (!lastPayment || !db || !userId || isRecipientSaved) return;
     const appId = 'van-schalkwyk-trust-mobile';
-    const recipientsColRef = collection(db, `artifacts/${appId}/users/${userId}/recipients`);
+    const baseUserRef = doc(db, `artifacts/${appId}/users/${userId}`);
+    const recipientsColRef = collection(baseUserRef, 'recipients');
     try {
       await addDoc(recipientsColRef, {
         name: lastPayment.recipient,
