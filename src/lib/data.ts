@@ -58,8 +58,7 @@ export const initialPlatinumChequeTransactions = [
   { timestamp: new Date('2024-11-15T09:00:00'), description: 'TRUST PAYMENT NOV24', amount: '+R340000.00' },
   { timestamp: new Date('2024-12-15T09:00:00'), description: 'TRUST PAYMENT DEC24', amount: '+R400000.00' },
   
-  // Key events with corrected dates
-  { timestamp: new Date('2025-08-14T08:00:00'), description: 'VAN SCHALKWYK FAMILY TRUST', amount: '+R20000000.00' },
+  // Key events with corrected dates - Note: R20M transfer removed from here as it's part of the initial balance now.
   { timestamp: new Date('2025-08-14T09:00:00'), description: 'INTER-ACCOUNT TRANSFER', amount: '-R18000000.00' },
   { timestamp: new Date('2025-08-14T09:00:05'), description: 'FEE: EFT_PAY_DIGITAL', amount: '-R0.00' },
 ];
