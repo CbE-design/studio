@@ -35,6 +35,7 @@ import TransactLandingPage from '@/components/TransactLandingPage';
 import StatementPage from '@/components/StatementPage';
 import StatementAccountPage from '@/components/StatementAccountPage';
 import StatementMonthPage from '@/components/StatementMonthPage';
+import MorePage from '@/components/MorePage';
 import { combinedInitialTransactions, initialPlatinumChequeTransactions, initialThirdAccountTransactions, MOCK_CURRENT_DATE } from '@/lib/data';
 import { sendPaymentNotification } from '@/ai/flows/send-payment-notification';
 import { sendSms } from '@/ai/flows/send-sms';
@@ -567,7 +568,7 @@ const App = () => {
 
   const handleTabClick = (label, view) => {
     setActiveTab(label);
-    const implementedViews = ['overview', 'transactLanding', 'recipients'];
+    const implementedViews = ['overview', 'transactLanding', 'recipients', 'more'];
     if (implementedViews.includes(view)) {
       setCurrentView(view);
     } else {
@@ -707,6 +708,8 @@ const App = () => {
                 onMonthSelect={handleStatementMonthSelect}
             />
         ) : null;
+      case 'more':
+        return <MorePage setCurrentView={setCurrentView} />;
       default:
         return <SplashScreen />;
     }
