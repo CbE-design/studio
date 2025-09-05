@@ -36,10 +36,11 @@ const nextConfig: NextConfig = {
       }
     ],
   },
+  // This is required to allow requests from the development environment.
   experimental: {
     // Other experimental features can go here if needed
   },
-  // This is required to allow requests from the development environment.
+  transpilePackages: ['firebase'],
   allowedDevOrigins: ["*.cloudworkstations.dev"],
 };
 
