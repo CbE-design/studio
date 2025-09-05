@@ -7,3 +7,4 @@ import '@/ai/flows/send-payment-notification.ts';
 import '@/ai/flows/send-sms.ts';
 import '@/ai/flows/calculate-banking-fees.ts';
 import '@/ai/flows/generate-statement-reference.ts';
+import '@/ai/flows/generate-proof-of-payment.ts';
