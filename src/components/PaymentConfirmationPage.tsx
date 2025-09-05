@@ -14,8 +14,13 @@ const ProofOfPaymentContent = ({ lastPayment, forwardedRef }) => {
   return (
     <div ref={forwardedRef} className="p-4 bg-white" style={{ fontFamily: 'Arial, sans-serif', color: '#333', fontSize: '12px', width: '750px' }}>
       <div style={{ maxWidth: '750px', margin: 'auto', padding: '20px', border: '1px solid #ddd' }}>
-        <div style={{ display: 'flex', alignItems: 'center', borderBottom: '2px solid #ccc', paddingBottom: '10px' }}>
-          <img src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/274c21be47b77228176e072b7bec2a8c.jpg?alt=media&token=5d537a53-0b4d-4d94-9dc7-83536b53fc88" alt="Nedbank Logo" style={{ width: '100px', height: 'auto' }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #ccc', paddingBottom: '10px' }}>
+          <svg width="70" height="70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#00703C"/>
+              <path d="M2 17L12 22L22 17L12 12L2 17Z" fill="#00703C"/>
+              <path d="M2 7L12 12L22 7L12 2L2 7Z" stroke="#004D2A" strokeWidth="0.5" strokeLinejoin="round"/>
+              <path d="M12 12L2 7V17L12 22V12Z" fill="#005A30"/>
+          </svg>
         </div>
         <div style={{ marginTop: '20px' }}>
           <h1 style={{ fontSize: '18px', color: '#333', margin: '0' }}>Notification of Payment</h1>
