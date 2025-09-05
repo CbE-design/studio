@@ -16,10 +16,6 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
     }, [sortedTransactions]);
     
     const calculations = useMemo(() => {
-        // First, calculate the balance as it was *before* the first transaction in the list.
-        // We do this by starting with the current balance and "reversing" all transactions
-        // that occurred *after* the statement period's last transaction.
-        // For this app's logic, we assume the passed `balance` is the closing balance for the selected month.
         let openingBalance = balance;
         for (let i = sortedTransactions.length - 1; i >= 0; i--) {
             const tx = sortedTransactions[i];
@@ -31,7 +27,6 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
         let totalCredits = 0;
         let totalFees = 0;
         
-        // Now, create the list of transactions for display, calculating the running balance forward.
         let runningBalance = openingBalance;
         const finalTransactions = sortedTransactions.map(tx => {
             const amount = parseFloat(tx.amount.replace('R', '').replace(/ /g, ''));
@@ -49,7 +44,6 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
 
         const closingBalance = runningBalance;
 
-        // Note: VAT calculation is based on the total fees. VAT = Total Fee * (15 / 115)
         const vatOnFees = totalFees * (15 / 115);
 
         return {
@@ -116,7 +110,7 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
                     <h3 className="text-sm font-bold bg-gray-200 p-1">Account summary</h3>
                     <div className="bg-[#00703C] text-white p-2 flex justify-between">
                         <p>Account type: <span className="font-bold">{accountName}</span></p>
-                        <p>Account number: <span className="font-bold">...{accountName.includes('Savvy') ? '5731' : (accountName.includes('Platinum Cheque') && accountName.includes('2000000') ? '8027' : '4775')}</span></p>
+                        <p>Account number: <span className="font-bold">...{typeof accountName === 'string' && accountName.includes('Savvy') ? '5731' : (typeof accountName === 'string' && accountName.includes('Platinum Cheque') ? '8027' : '4775')}</span></p>
                     </div>
                     <table className="w-full text-[10px] border-separate border-spacing-x-4">
                         <tbody>
