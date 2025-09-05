@@ -1,5 +1,5 @@
 'use client';
-import { ArrowLeft, MessageSquare, ChevronRight, Search, Sliders, FileBadge } from 'lucide-react';
+import { ArrowLeft, MessageSquare, ChevronRight, Search, Sliders, FileBadge, Send } from 'lucide-react';
 
 const TransactionsPage = ({ accountName, currentBalance, transactionsList, backView, setCurrentView, handleTransactionClick, onGenerateStatement }) => {
   const groupedTransactions = transactionsList.reduce((acc, transaction) => {
@@ -45,6 +45,13 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
         <div className="p-4 space-y-4 bg-gray-100">
           <div className="bg-white p-4 rounded-xl shadow-md flex justify-between items-center cursor-pointer" onClick={() => setCurrentView('failedTransactions')}>
             <span className="text-sm">Failed transactions</span><ChevronRight size={16} />
+          </div>
+          <div className="bg-white p-4 rounded-xl shadow-md flex justify-between items-center cursor-pointer" onClick={() => setCurrentView('payment')}>
+            <div className="flex items-center">
+              <Send size={20} className="mr-2 text-primary" />
+              <span className="text-sm">Once-off payment</span>
+            </div>
+            <ChevronRight size={16} />
           </div>
            <div className="bg-white p-4 rounded-xl shadow-md flex justify-between items-center cursor-pointer" onClick={onGenerateStatement}>
             <div className="flex items-center">
