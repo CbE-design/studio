@@ -1,12 +1,37 @@
 'use client';
-import { Bell, Eye, ChevronLeft, ChevronRight, Wallet, FileText, Umbrella, Car, ShoppingCart, GitPullRequest, CreditCard, Banknote, Home, FileBadge, MessageSquare, RefreshCw } from 'lucide-react';
+import { Bell, Eye, ChevronLeft, ChevronRight, FileText, Umbrella, Car, ShoppingCart, GitPullRequest, CreditCard, Banknote, Home, FileBadge, MessageSquare, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
 
 const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, handleCarouselScroll, scrollToPage, setCurrentView, scrollContainerRef }) => {
   const getOnClickHandler = (action) => (typeof action === 'string' ? () => setCurrentView(action) : () => {});
 
   const widgets = [
-    { icon: <Wallet size={24} />, text: 'Offers for you' },
+    {
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="text-primary"
+        >
+          <path d="M12 10c-2.3 0-4-1.8-4-4s1.7-4 4-4 4 1.8 4 4-1.7 4-4 4zM8.5 10H6c-1.7 0-3 1.3-3 3v2c0 1.7 1.3 3 3 3h12c1.7 0 3-1.3 3-3v-2c0-1.7-1.3-3-3-3h-2.5" />
+          <path d="M12.5 10.5c.3.3.5.7.5 1.1 0 .4-.2.8-.5 1.1-.3.3-.7.5-1.1.5s-.8-.2-1.1-.5c-.3-.3-.5-.7-.5-1.1 0-.4.2-.8.5-1.1.3-.3.7-.5 1.1-.5s.8.2 1.1.5z" />
+          <path d="M12 8v-1" />
+          <path d="M12 15v1" />
+          <path d="M10.5 9.5l-.7-.7" />
+          <path d="M14.2 13.2l.7.7" />
+          <path d="M13.5 9.5l.7-.7" />
+          <path d="M9.8 13.2l-.7.7" />
+        </svg>
+      ),
+      text: 'Offers for you'
+    },
     { icon: <FileText size={24} />, text: 'Applications' },
     { icon: <Umbrella size={24} />, text: 'Insure', badge: 5 },
     { icon: <Car size={24} />, text: 'Discs and fines' },
