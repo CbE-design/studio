@@ -83,7 +83,7 @@ const generateStatementPdfFlow = ai.defineFlow(
 
     // PDF Generation
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage(PageSizes.A4);
+    let page = pdfDoc.addPage(PageSizes.A4);
     const { width, height } = page.getSize();
     
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
