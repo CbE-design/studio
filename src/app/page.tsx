@@ -81,18 +81,17 @@ const App = () => {
 
   useEffect(() => {
     // Fetch and convert the logo image to a data URI once, and pass it down
-    const imageUrl = 'https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/NEDBANK_N_SYMBOL_CMYK.jpg?alt=media&token=5b41cca3-a9a9-419f-9cb9-a656b10469f0';
+    const imageUrl = 'https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/NEDBANK_N_SYMBOL_CMYK.jpg?alt=media&token=5b41cca3-a9a9-419f-9cb9-a656b10469f0';
     const fetchAndConvertImage = async () => {
       try {
-        const response = await fetch(imageUrl);
-        const blob = await response.blob();
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setLogoDataUri(reader.result as string);
-        };
-        reader.readAsDataURL(blob);
+        const response = await fetch(`/api/image-proxy?imageUrl=${encodeURIComponent(imageUrl)}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const { dataUri } = await response.json();
+        setLogoDataUri(dataUri);
       } catch (error) {
-        console.error("Failed to fetch and convert image:", error);
+        console.error("Failed to fetch and convert image via proxy:", error);
       }
     };
     fetchAndConvertImage();
