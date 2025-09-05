@@ -16,8 +16,7 @@ const ProofOfPaymentContent = ({ lastPayment, forwardedRef }) => {
     <div ref={forwardedRef} className="p-4 bg-white" style={{ fontFamily: 'Arial, sans-serif', color: '#333', fontSize: '12px', width: '750px' }}>
       <div style={{ maxWidth: '750px', margin: 'auto', padding: '20px', border: '1px solid #ddd' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #ccc', paddingBottom: '10px' }}>
-            {/* Replace the placeholder with your actual Firebase Storage URL */}
-            <img src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/nedbank-logo.png?alt=media" alt="Nedbank Logo" style={{ width: '120px', height: 'auto' }} />
+            <img src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/274c21be47b77228176e072b7bec2a8c.jpg?alt=media&token=5d537a53-0b4d-4d94-9dc7-83536b53fc88" alt="Nedbank Logo" style={{ width: '120px', height: 'auto' }} />
         </div>
         <div style={{ marginTop: '20px' }}>
           <h1 style={{ fontSize: '18px', color: '#333', margin: '0' }}>Notification of Payment</h1>
