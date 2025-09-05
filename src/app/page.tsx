@@ -32,6 +32,7 @@ import RecipientsPage from '@/components/RecipientsPage';
 import PaymentConfirmationPage from '@/components/PaymentConfirmationPage';
 import BottomNavBar from '@/components/BottomNavBar';
 import TransactLandingPage from '@/components/TransactLandingPage';
+import StatementPage from '@/components/StatementPage';
 import { combinedInitialTransactions, initialPlatinumChequeTransactions, initialThirdAccountTransactions, MOCK_CURRENT_DATE } from '@/lib/data';
 import { sendPaymentNotification } from '@/ai/flows/send-payment-notification';
 import { sendSms } from '@/ai/flows/send-sms';
@@ -49,6 +50,7 @@ const App = () => {
   const [recipients, setRecipients] = useState([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [overviewPagesData, setOverviewPagesData] = useState([]);
+  const [statementData, setStatementData] = useState(null);
   const [paymentDetails, setPaymentDetails] = useState({
     recipient: '',
     bankName: 'Select bank',
@@ -489,6 +491,16 @@ const App = () => {
     }
   };
 
+  const handleGenerateStatement = (accountName, transactions, balance) => {
+    setStatementData({
+      accountName,
+      transactions,
+      balance,
+      previousView: currentView,
+    });
+    setCurrentView('statement');
+  };
+
   const renderCurrentView = () => {
     switch (currentView) {
       case 'login':
@@ -515,6 +527,7 @@ const App = () => {
             backView="overview"
             setCurrentView={setCurrentView}
             handleTransactionClick={handleTransactionClick}
+            onGenerateStatement={() => handleGenerateStatement('Savvy Bundle Current Account', combinedTransactions, accountBalance)}
           />
         );
       case 'secondAccountTransactions':
@@ -526,6 +539,7 @@ const App = () => {
             backView="overview"
             setCurrentView={setCurrentView}
             handleTransactionClick={handleTransactionClick}
+            onGenerateStatement={() => handleGenerateStatement('Platinum Cheque', secondCombinedTransactions, secondAccountBalance)}
           />
         );
       case 'thirdAccountTransactions':
@@ -537,6 +551,7 @@ const App = () => {
             backView="overview"
             setCurrentView={setCurrentView}
             handleTransactionClick={handleTransactionClick}
+            onGenerateStatement={() => handleGenerateStatement('Platinum Cheque', thirdCombinedTransactions, thirdAccountBalance)}
           />
         );
       case 'failedTransactions':
@@ -591,6 +606,16 @@ const App = () => {
             scrollContainerRef={scrollContainerRef}
           />
         );
+        case 'statement':
+          return statementData ? (
+            <StatementPage
+              accountName={statementData.accountName}
+              transactions={statementData.transactions}
+              balance={statementData.balance}
+              setCurrentView={setCurrentView}
+              previousView={statementData.previousView}
+            />
+          ) : null;
       default:
         return <SplashScreen />;
     }
@@ -605,7 +630,7 @@ const App = () => {
           {renderCurrentView()}
           {currentView !== 'start' && currentView !== 'login' &&
             !isLoading &&
-            !['paymentConfirmation', 'transactionDetail', 'transactLanding', 'payment'].includes(currentView) && (
+            !['paymentConfirmation', 'transactionDetail', 'transactLanding', 'payment', 'statement'].includes(currentView) && (
               <BottomNavBar activeTab={activeTab} onTabClick={handleTabClick} />
             )}
         </div>

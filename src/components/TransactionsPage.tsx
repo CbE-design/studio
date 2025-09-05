@@ -1,7 +1,7 @@
 'use client';
-import { ArrowLeft, MessageSquare, ChevronRight, Search, Sliders } from 'lucide-react';
+import { ArrowLeft, MessageSquare, ChevronRight, Search, Sliders, FileBadge } from 'lucide-react';
 
-const TransactionsPage = ({ accountName, currentBalance, transactionsList, backView, setCurrentView, handleTransactionClick }) => {
+const TransactionsPage = ({ accountName, currentBalance, transactionsList, backView, setCurrentView, handleTransactionClick, onGenerateStatement }) => {
   const groupedTransactions = transactionsList.reduce((acc, transaction) => {
     const date = new Date(transaction.timestamp);
     if (isNaN(date.getTime())) return acc;
@@ -20,7 +20,7 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
           <div className="flex items-center space-x-4">
             <ArrowLeft size={24} className="cursor-pointer" onClick={() => setCurrentView(backView || 'overview')} />
             <div className="flex flex-col">
-              <span className="text-lg font-normal">{accountName}</span>
+              <span className="text-lg font-light">{accountName}</span>
             </div>
           </div>
           <MessageSquare size={24} />
@@ -38,7 +38,7 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
         <div className="bg-white border-b border-gray-300 overflow-x-auto whitespace-nowrap">
           <div className="flex px-4 space-x-6 text-sm">
             {menuItems.map((item, index) => (
-              <span key={item} className={`py-3 ${index === 0 ? 'text-gray-900 font-semibold border-b-2 border-primary' : 'text-gray-500'}`}>{item}</span>
+              <span key={item} className={`py-3 ${index === 0 ? 'text-black font-semibold border-b-2 border-primary' : 'text-gray-500'}`}>{item}</span>
             ))}
           </div>
         </div>
@@ -46,8 +46,12 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
           <div className="bg-white p-4 rounded-xl shadow-md flex justify-between items-center cursor-pointer" onClick={() => setCurrentView('failedTransactions')}>
             <span className="text-sm">Failed transactions</span><ChevronRight size={16} />
           </div>
-          <div className="bg-white p-4 rounded-xl shadow-md flex justify-between items-center cursor-pointer">
-            <span className="text-sm">Once-off payments</span><ChevronRight size={16} />
+           <div className="bg-white p-4 rounded-xl shadow-md flex justify-between items-center cursor-pointer" onClick={onGenerateStatement}>
+            <div className="flex items-center">
+              <FileBadge size={20} className="mr-2 text-primary" />
+              <span className="text-sm">Statements and docs</span>
+            </div>
+            <ChevronRight size={16} />
           </div>
           <div className="flex items-center space-x-2">
             <div className="relative flex-1">
