@@ -171,13 +171,13 @@ const App = () => {
   const seedInitialData = async (db, uid) => {
     const appId = 'van-schalkwyk-trust-mobile';
     const baseUserRef = doc(db, `artifacts/${appId}/users/${uid}`);
-    const seedMarkerRef = doc(baseUserRef, 'seededData', 'marker-v4-corrected-structure');
+    const seedMarkerRef = doc(baseUserRef, 'seededData', 'marker-v5-final-structure');
     
     try {
         const seedMarkerSnap = await getDoc(seedMarkerRef);
 
         if (!seedMarkerSnap.exists()) {
-            console.log("Seeding corrected data structure...");
+            console.log("Seeding final data structure...");
             const batch = writeBatch(db);
             
             // Define account document references
@@ -297,7 +297,7 @@ const App = () => {
       setIsLoading(false);
       return;
     }
-    const baseUserRef = doc(db, `artifacts/${appId}/users/${uid}`);
+    const baseUserRef = doc(db, `artifacts/${appId}/users/${userId}`);
   
     const paymentAmount = parseFloat(paymentDetails.amount);
     let fromAccountInfo: any;
