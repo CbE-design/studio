@@ -87,7 +87,7 @@ const App = () => {
         recipientDetails: 'First National Bank 62939163961',
         payerAccount: 'Savvy Bundle Current Account',
         amount: '-R16,300,000.00',
-        date: new Date('2025-08-16'),
+        date: new Date('2025-11-14'),
       },
       {
         type: 'Internet Banking Payment',
@@ -95,7 +95,7 @@ const App = () => {
         recipientDetails: 'First National Bank 62356388027',
         payerAccount: 'Savvy Bundle Current Account',
         amount: '-R500,000.00',
-        date: new Date('2025-08-19'),
+        date: new Date('2025-11-14'),
       },
     ];
   }, []);
@@ -169,26 +169,28 @@ const App = () => {
 
   const seedInitialData = async (db, uid) => {
     const appId = 'van-schalkwyk-trust-mobile';
-    const seedMarkerRef = doc(db, `artifacts/${appId}/users/${uid}/seededData/marker-v2-fees-applied`);
+    const seedMarkerRef = doc(db, `artifacts/${appId}/users/${uid}/seededData/marker-v3-corrected-history`);
     
     try {
         const seedMarkerSnap = await getDoc(seedMarkerRef);
 
         if (!seedMarkerSnap.exists()) {
-            console.log("Seeding initial data with fee calculations...");
+            console.log("Seeding corrected transaction history...");
             const batch = writeBatch(db);
             
-            // Note: Balances are updated to reflect the inclusion of retroactive fees.
-            batch.set(doc(db, `artifacts/${appId}/users/${uid}/accountData/balance`), { value: 1590835.19 + 16300000 + 500000 - 9912.65 });
-            batch.set(doc(db, `artifacts/${appId}/users/${uid}/secondAccountData/balance`), { value: 1600904.90 });
+            // Set balances according to the new history
+            batch.set(doc(db, `artifacts/${appId}/users/${uid}/accountData/balance`), { value: 18000000.00 });
+            batch.set(doc(db, `artifacts/${appId}/users/${uid}/secondAccountData/balance`), { value: 2000000.00 });
             batch.set(doc(db, `artifacts/${appId}/users/${uid}/thirdAccountData/balance`), { value: 4775.00 });
             
             const counterRef = doc(db, `artifacts/${appId}/users/${uid}/transactionCounter/counter`);
             batch.set(counterRef, { value: 3692825731 });
             
             const feeCountersRef = doc(db, `artifacts/${appId}/users/${uid}/feeCounters/monthly`);
-            batch.set(feeCountersRef, { nedbank_atm_wd_count: 4, nedbank_atm_dep_value: 0 }); // Pre-set counters based on seed data
+            batch.set(feeCountersRef, { nedbank_atm_wd_count: 0, nedbank_atm_dep_value: 0 }); // Reset counters
       
+            // Clear existing transactions before seeding new ones
+            // Note: In a real app, a more robust migration is needed. For this sandbox, we'll just overwrite.
             const transactionsColRef1 = collection(db, `artifacts/${appId}/users/${uid}/transactions`);
             combinedInitialTransactions.forEach(tx => batch.set(doc(transactionsColRef1), tx));
             
@@ -199,9 +201,9 @@ const App = () => {
             initialThirdAccountTransactions.forEach(tx => batch.set(doc(transactionsColRef3), tx));
       
             const recipientsColRef = collection(db, `artifacts/${appId}/users/${uid}/recipients`);
-            const mfoloeRecipient = { name: 'Mfoloe Attorneys Inc', bank: 'First National Bank', accountNumber: '62939163961', lastPaid: new Date('2025-08-15') };
+            const mfoloeRecipient = { name: 'Mfoloe Attorneys Inc', bank: 'First National Bank', accountNumber: '62939163961', lastPaid: new Date('2025-11-14') };
             batch.set(doc(recipientsColRef), mfoloeRecipient);
-            const fransiskaRecipient = { name: 'Fransiska Meiring', bank: 'First National Bank', accountNumber: '62356388027', lastPaid: new Date('2025-08-18') };
+            const fransiskaRecipient = { name: 'Fransiska Meiring', bank: 'First National Bank', accountNumber: '62356388027', lastPaid: new Date('2025-11-14') };
             batch.set(doc(recipientsColRef), fransiskaRecipient);
       
             const overviewPagesColRef = collection(db, `artifacts/${appId}/users/${uid}/overviewPages`);
