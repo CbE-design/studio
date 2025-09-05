@@ -1,37 +1,19 @@
 'use client';
 import { ArrowLeft, Download } from 'lucide-react';
 import Image from 'next/image';
-import { useMemo, useRef, useState, useEffect } from 'react';
+import { useMemo, useRef } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-const StatementPage = ({ accountName, transactions, balance, setCurrentView, previousView }) => {
+const StatementPage = ({ accountName, transactions, balance, setCurrentView, previousView, logoDataUri }) => {
     const statementRef = useRef(null);
-    const [logoDataUri, setLogoDataUri] = useState('');
-
-    useEffect(() => {
-        const imageUrl = 'https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/274c21be47b77228176e072b7bec2a8c.jpg?alt=media&token=5d537a53-0b4d-4d94-9dc7-83536b53fc88';
-        
-        const fetchAndConvertImage = async () => {
-          try {
-            const response = await fetch(imageUrl);
-            const blob = await response.blob();
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              setLogoDataUri(reader.result as string);
-            };
-            reader.readAsDataURL(blob);
-          } catch (error) {
-            console.error("Failed to fetch and convert image for statement:", error);
-          }
-        };
-        
-        fetchAndConvertImage();
-    }, []);
 
     const handleDownloadPdf = async () => {
         const element = statementRef.current;
-        if (!element) return;
+        if (!element || !logoDataUri) {
+            console.error("Statement element or logo not ready for PDF generation.");
+            return;
+        };
 
         // Temporarily give the element a defined width for consistent PDF generation
         element.style.width = '1024px';

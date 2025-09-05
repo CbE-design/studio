@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState, useEffect } from 'react';
+import { useRef } from 'react';
 import { Check, Share2, Save, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -19,7 +19,6 @@ const ProofOfPaymentContent = ({ lastPayment, logoSrc, forwardedRef }) => {
               src={logoSrc}
               alt="Nedbank Logo" 
               style={{ width: '120px', height: 'auto' }} 
-              crossOrigin="anonymous"
             />
         </div>
         <div style={{ marginTop: '20px' }}>
@@ -76,34 +75,15 @@ const ProofOfPaymentContent = ({ lastPayment, logoSrc, forwardedRef }) => {
   );
 };
 
-const PaymentConfirmationPage = ({ lastPayment, onShareProof, isRecipientSaved, onDone }) => {
+const PaymentConfirmationPage = ({ lastPayment, onShareProof, isRecipientSaved, onDone, logoDataUri }) => {
   const popRef = useRef(null);
-  const [logoDataUri, setLogoDataUri] = useState('');
-
-  useEffect(() => {
-    const imageUrl = 'https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/NEDBANK_N_SYMBOL_CMYK.jpg?alt=media&token=5b41cca3-a9a9-419f-9cb9-a656b10469f0';
-    
-    const fetchAndConvertImage = async () => {
-      try {
-        const response = await fetch(imageUrl);
-        const blob = await response.blob();
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setLogoDataUri(reader.result as string);
-        };
-        reader.readAsDataURL(blob);
-      } catch (error) {
-        console.error("Failed to fetch and convert image:", error);
-      }
-    };
-    
-    fetchAndConvertImage();
-  }, []);
-
 
   const handleDownloadPdf = async () => {
     const element = popRef.current;
-    if (!element) return;
+    if (!element || !logoDataUri) {
+      console.error("Proof of payment element or logo not ready for PDF generation.");
+      return;
+    };
 
     const canvas = await html2canvas(element, {
       scale: 2, 

@@ -77,6 +77,26 @@ const App = () => {
   const [bankSearchQuery, setBankSearchQuery] = useState('');
   const [isRecipientSaved, setIsRecipientSaved] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [logoDataUri, setLogoDataUri] = useState('');
+
+  useEffect(() => {
+    // Fetch and convert the logo image to a data URI once, and pass it down
+    const imageUrl = 'https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/NEDBANK_N_SYMBOL_CMYK.jpg?alt=media&token=5b41cca3-a9a9-419f-9cb9-a656b10469f0';
+    const fetchAndConvertImage = async () => {
+      try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setLogoDataUri(reader.result as string);
+        };
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error("Failed to fetch and convert image:", error);
+      }
+    };
+    fetchAndConvertImage();
+  }, []);
 
   const failedTransactionsData = useMemo(() => {
     const tomorrow = new Date(MOCK_CURRENT_DATE);
@@ -463,7 +483,7 @@ const App = () => {
   };
 
   const handleShareProof = () => {
-    if (!lastPayment) return;
+    if (!lastPayment || !logoDataUri) return;
     const popWindow = window.open('', '_blank');
     const paymentDate = new Date(lastPayment.date);
     const formattedDate = `${paymentDate.getDate().toString().padStart(2, '0')}/${(paymentDate.getMonth() + 1).toString().padStart(2, '0')}/${paymentDate.getFullYear()}`;
@@ -493,7 +513,7 @@ const App = () => {
         <body>
           <div class="container">
             <div class="header">
-              <img src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/274c21be47b77228176e072b7bec2a8c.jpg?alt=media&token=5d537a53-0b4d-4d94-9dc7-83536b53fc88" alt="Nedbank Logo" crossorigin="anonymous">
+              <img src="${logoDataUri}" alt="Nedbank Logo">
             </div>
             <div class="section">
               <h1>Notification of Payment</h1>
@@ -675,6 +695,7 @@ const App = () => {
             onSaveRecipient={handleSaveRecipient}
             isRecipientSaved={isRecipientSaved}
             onDone={() => setCurrentView('overview')}
+            logoDataUri={logoDataUri}
           />
         ) : (
           <OverviewPage
@@ -696,6 +717,7 @@ const App = () => {
               balance={statementData.balance}
               setCurrentView={setCurrentView}
               previousView={statementData.previousView}
+              logoDataUri={logoDataUri}
             />
           ) : null;
       case 'statementAccount':
