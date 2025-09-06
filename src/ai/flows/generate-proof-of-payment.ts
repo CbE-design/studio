@@ -125,7 +125,6 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     y -= 20;
     page.drawText('Paid from Account Holder', { x: detailsLeftColX, y, font, size: 10 });
     page.drawText(':', { x: detailsColonColX, y, font, size: 10 });
-    // This is the updated line as per user request
     page.drawText("VAN SCHALKWYK FAMILY TRUST", { x: detailsRightColX, y, font, size: 10 });
 
     y -= 40;
@@ -153,13 +152,12 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     // 8. Security Code
     page.drawText('Security Code', { x: detailsLeftColX, y, font, size: 10 });
     page.drawText(':', { x: detailsColonColX, y, font, size: 10 });
-    // This is a placeholder for a real security code
     const securityCode = 'DB85BE175B1E35A823EBD2CDE32DC8D542472D1A';
     page.drawText(securityCode, { x: detailsRightColX, y, font, size: 10 });
 
     y -= 40;
 
-    // Footer with corrected text and layout
+    // Footer
     page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 0.5, color: grayColor });
     y -= 15;
 
