@@ -97,11 +97,12 @@ const generateStatementPdfFlow = ai.defineFlow(
 
     // Header
     page.drawText('NEDBANK', { x: 50, y, font: boldFont, size: 20, color: primaryColor });
-    page.drawText('Computer-generated tax invoice', { x: width/2 - 100, y: y-30, font: boldFont, size: 12});
-    page.drawLine({ start: { x: 50, y: y-20}, end: {x: width - 50, y: y-20 }, thickness: 1, color: black});
-    page.drawLine({ start: { x: 50, y: y-40}, end: {x: width - 50, y: y-40 }, thickness: 1, color: black});
     
-    y -= 80;
+    const rightHeaderText = 'Computer-generated tax invoice';
+    const textWidth = boldFont.widthOfTextAtSize(rightHeaderText, 12);
+    page.drawText(rightHeaderText, { x: width - 50 - textWidth, y: y, font: boldFont, size: 12});
+    
+    y -= 40;
 
     // Account Summary
     page.drawText('Account summary', { x: 50, y, font: boldFont, size: 12 });

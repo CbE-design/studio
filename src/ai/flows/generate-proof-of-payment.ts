@@ -49,34 +49,13 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     
     const black = rgb(0, 0, 0);
     const grayColor = rgb(0.3, 0.3, 0.3);
+    const nedbankGreen = rgb(0 / 255, 112 / 255, 60 / 255);
 
     const margin = 50;
     let y = height - margin;
 
-    // 1. Logo using user-provided SVG paths
-    const logoGreen = rgb(1 / 255, 102 / 255, 52 / 255);
-    const logoWhite = rgb(1, 1, 1);
-    
-    const greenPath = "M0 22 L21 11 L41 11 L61 44 L81 22 L81 66 L61 77 L41 77 L21 44 L0 55 Z";
-    const whitePath = "M21 11 L41 11 L61 44 L61 77 L41 77 L21 44 Z";
-    
-    // pdf-lib's y-axis is bottom-up, so we need to adjust for the SVG's top-down coordinate system.
-    // The SVG height is 88, so we'll position it relative to y.
-    const logoY = y - 88;
-
-    page.drawSvgPath(greenPath, {
-      x: margin,
-      y: logoY, 
-      color: logoGreen,
-      scale: 0.5
-    });
-
-    page.drawSvgPath(whitePath, {
-        x: margin,
-        y: logoY,
-        color: logoWhite,
-        scale: 0.5
-    });
+    // 1. Header Text
+    page.drawText('NEDBANK', { x: margin, y, font: boldFont, size: 24, color: nedbankGreen });
     
     y -= 50;
 
