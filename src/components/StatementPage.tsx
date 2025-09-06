@@ -110,6 +110,7 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
                     {/* Header */}
                     <div className="flex justify-between items-start mb-4">
                         <div>
+                             <div className="text-2xl font-extrabold text-[#00703C]">NEDBANK</div>
                             <div className="border-2 border-black p-1 mt-2 text-center text-[10px]">
                                 <p className="font-bold">eConfirm</p>
                                 <p>{new Date().toLocaleDateString('en-GB')}</p>
@@ -123,7 +124,6 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
                             </div>
                         </div>
                         <div className="text-right">
-                           <div className="text-2xl font-bold text-green-800">NEDBANK</div>
                            <div className="text-[10px] mt-2">
                                 <p>135 Rivonia Road, Sandown, 2196</p>
                                 <p>P O Box 1144, Johannesburg, 2000, South Africa</p>
@@ -254,7 +254,6 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
                     <div className="mt-8 text-center">
                         <p className="font-bold text-lg text-green-700">seemoneydifferently</p>
                         <div className="flex justify-end mt-2">
-                           <div className="text-xl font-bold text-green-800">NEDBANK</div>
                         </div>
                         <p className="text-[9px] text-gray-600 mt-2">
                             We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution
@@ -269,3 +268,5 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
 };
 
 export default StatementPage;
+
+    

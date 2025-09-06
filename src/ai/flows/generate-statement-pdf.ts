@@ -104,22 +104,19 @@ const generateStatementPdfFlow = ai.defineFlow(
     
     // 1. Header
     // Top Left
-    page.drawText('NEDBANK', { x: margin, y, font: boldFont, size: 14, color: primaryColor });
+    page.drawText('NEDBANK', { x: margin, y, font: boldFont, size: 24, color: primaryColor });
     y -= 10;
-    page.drawText('Reg No 1951/000009/06', { x: margin, y, font, size: 8 });
     
     // eConfirm Box
     y += 5;
     const eConfirmBoxWidth = 80;
-    page.drawRectangle({x: margin + eConfirmBoxWidth + 10, y: y-12, width: eConfirmBoxWidth, height: 30, borderColor: black, borderWidth: 1});
-    page.drawText('eConfirm', { x: margin + eConfirmBoxWidth + 28, y: y + 5, font: boldFont, size: 10 });
-    page.drawText(new Date().toLocaleDateString('en-GB'), { x: margin + eConfirmBoxWidth + 25, y: y - 5, font, size: 8 });
+    page.drawRectangle({x: margin + eConfirmBoxWidth + 80, y: y-12, width: eConfirmBoxWidth, height: 30, borderColor: black, borderWidth: 1});
+    page.drawText('eConfirm', { x: margin + eConfirmBoxWidth + 98, y: y + 5, font: boldFont, size: 10 });
+    page.drawText(new Date().toLocaleDateString('en-GB'), { x: margin + eConfirmBoxWidth + 95, y: y - 5, font, size: 8 });
 
     // Top Right
     const rightColX = width - margin - 150;
     let yRight = height - 40;
-    page.drawText('NEDBANK', { x: rightColX + 100, y: yRight, font: boldFont, size: 14, color: primaryColor });
-    yRight -= 20;
     page.drawText('135 Rivonia Road, Sandown, 2196', { x: rightColX, y: yRight, font, size: 8 });
     yRight -= 10;
     page.drawText('P O Box 1144, Johannesburg, 2000, South Africa', { x: rightColX, y: yRight, font, size: 8 });
