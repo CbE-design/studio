@@ -115,7 +115,8 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     y -= 20;
     page.drawText('Paid from Account Holder', { x: detailsLeftColX, y, font, size: 10 });
     page.drawText(':', { x: detailsColonColX, y, font, size: 10 });
-    page.drawText(details.fromAccountName.toUpperCase(), { x: detailsRightColX, y, font, size: 10 });
+    // This is the updated line as per user request
+    page.drawText("VAN SCHALKWYK FAMILY TRUST", { x: detailsRightColX, y, font, size: 10 });
 
     y -= 40;
 
@@ -148,7 +149,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
 
     y -= 40;
 
-    // Footer
+    // Footer with corrected text and layout
     page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 0.5, color: grayColor });
     y -= 15;
 
@@ -156,8 +157,8 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     page.drawText(footerText1, { x: margin, y, font, size: 8, color: grayColor });
     y -= 12;
 
-    const footerText2 = 'We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services.';
-    page.drawText(footerText2, { x: margin, y, font, size: 8, color: grayColor });
+    const footerText2 = 'We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the\nOmbudsman for Banking Services.';
+    page.drawText(footerText2, { x: margin, y, font, size: 8, color: grayColor, lineHeight: 10 });
 
 
     const pdfBytes = await pdfDoc.save();
