@@ -48,9 +48,9 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     
     // Embed the logo
-    const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/NEDBANK_N_SYMBOL_CMYK.jpg?alt=media&token=5b41cca3-a9a9-419f-9cb9-a656b10469f0';
+    const logoUrl = 'https://i.ibb.co/b3hP5t5/NEDBANK-N-SYMBOL-RGB.jpg';
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
-    const logoImage = await pdfDoc.embedPng(logoImageBytes);
+    const logoImage = await pdfDoc.embedJpg(logoImageBytes);
     const logoDims = logoImage.scale(0.08); // Scale the logo down
 
     const black = rgb(0, 0, 0);
@@ -177,5 +177,3 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     return { pdfBase64 };
   }
 );
-
-    
