@@ -47,15 +47,25 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     
+    // Embed the logo
+    const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/NEDBANK_N_SYMBOL_CMYK.jpg?alt=media&token=5b41cca3-a9a9-419f-9cb9-a656b10469f0';
+    const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
+    const logoImage = await pdfDoc.embedJpg(logoImageBytes);
+    const logoDims = logoImage.scale(0.08); // Scale the logo down
+
     const black = rgb(0, 0, 0);
     const grayColor = rgb(0.3, 0.3, 0.3);
-    const nedbankGreen = rgb(0 / 255, 112 / 255, 60 / 255);
 
     const margin = 50;
     let y = height - margin;
 
-    // 1. Header Text
-    page.drawText('NEDBANK', { x: margin, y, font: boldFont, size: 24, color: nedbankGreen });
+    // 1. Header with Logo
+    page.drawImage(logoImage, {
+        x: margin,
+        y: y - logoDims.height + 15,
+        width: logoDims.width,
+        height: logoDims.height,
+    });
     
     y -= 50;
 
