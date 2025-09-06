@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview Generates a Statement PDF document using pdf-lib.
+ * @fileOverview Generates a Statement PDF document using pdf-lib, matching a specific Nedbank design.
  *
  * - generateStatementPdf - Creates a PDF from account and transaction details.
  * - GenerateStatementPdfInput - The input type for the function.
@@ -54,6 +54,7 @@ const generateStatementPdfFlow = ai.defineFlow(
         .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
     let openingBalance = balance;
+    // Calculate opening balance by reverse-summing transactions from the closing balance
     for (let i = sortedTransactions.length - 1; i >= 0; i--) {
         const tx = sortedTransactions[i];
         const amount = parseFloat(tx.amount.replace('R', '').replace(/ /g, ''));
@@ -62,6 +63,7 @@ const generateStatementPdfFlow = ai.defineFlow(
 
     let totalDebits = 0;
     let totalCredits = 0;
+    let totalFees = 0;
     
     let runningBalance = openingBalance;
     const finalTransactions = sortedTransactions.map(tx => {
@@ -69,6 +71,9 @@ const generateStatementPdfFlow = ai.defineFlow(
         runningBalance += amount;
         if (amount < 0) {
             totalDebits += Math.abs(amount);
+             if (tx.description.toLowerCase().includes('fee:')) {
+                totalFees += Math.abs(amount);
+            }
         } else {
             totalCredits += amount;
         }
@@ -76,6 +81,7 @@ const generateStatementPdfFlow = ai.defineFlow(
     });
 
     const closingBalance = runningBalance;
+    const vatOnFees = totalFees * (15 / 115);
     
     const statementPeriod = sortedTransactions.length > 0
         ? `${new Date(sortedTransactions[0].timestamp).toLocaleDateString('en-GB')} - ${new Date(sortedTransactions[sortedTransactions.length - 1].timestamp).toLocaleDateString('en-GB')}`
@@ -94,46 +100,144 @@ const generateStatementPdfFlow = ai.defineFlow(
     const black = rgb(0, 0, 0);
 
     let y = height - 40;
-
-    // Header
-    page.drawText('NEDBANK', { x: 50, y, font: boldFont, size: 20, color: primaryColor });
+    const margin = 50;
     
-    const rightHeaderText = 'Computer-generated tax invoice';
-    const textWidth = boldFont.widthOfTextAtSize(rightHeaderText, 12);
-    page.drawText(rightHeaderText, { x: width - 50 - textWidth, y: y, font: boldFont, size: 12});
+    // 1. Header
+    // Top Left
+    page.drawText('NEDBANK', { x: margin, y, font: boldFont, size: 14, color: primaryColor });
+    y -= 10;
+    page.drawText('Reg No 1951/000009/06', { x: margin, y, font, size: 8 });
     
-    y -= 40;
+    // eConfirm Box
+    y += 5;
+    const eConfirmBoxWidth = 80;
+    page.drawRectangle({x: margin + eConfirmBoxWidth + 10, y: y-12, width: eConfirmBoxWidth, height: 30, borderColor: black, borderWidth: 1});
+    page.drawText('eConfirm', { x: margin + eConfirmBoxWidth + 28, y: y + 5, font: boldFont, size: 10 });
+    page.drawText(new Date().toLocaleDateString('en-GB'), { x: margin + eConfirmBoxWidth + 25, y: y - 5, font, size: 8 });
 
-    // Account Summary
-    page.drawText('Account summary', { x: 50, y, font: boldFont, size: 12 });
+    // Top Right
+    const rightColX = width - margin - 150;
+    let yRight = height - 40;
+    page.drawText('NEDBANK', { x: rightColX + 100, y: yRight, font: boldFont, size: 14, color: primaryColor });
+    yRight -= 20;
+    page.drawText('135 Rivonia Road, Sandown, 2196', { x: rightColX, y: yRight, font, size: 8 });
+    yRight -= 10;
+    page.drawText('P O Box 1144, Johannesburg, 2000, South Africa', { x: rightColX, y: yRight, font, size: 8 });
+    yRight -= 15;
+    page.drawText('Bank VAT Reg No. 4320116074', { x: rightColX, y: yRight, font, size: 8 });
+    yRight -= 10;
+    page.drawText('Lost cards 0800 110 929', { x: rightColX, y: yRight, font, size: 8 });
+    yRight -= 10;
+    page.drawText('Client services 0860 555 111', { x: rightColX, y: yRight, font, size: 8 });
+    yRight -= 10;
+    page.drawText('nedbank.co.za', { x: rightColX, y: yRight, font, size: 8 });
+    
+    // User Address
+    y = height - 100;
+    page.drawText("VAN SCHALKWYK FAMILY TRUST", { x: margin, y, font, size: 10 });
+    y -= 12;
+    page.drawText("PO BOX 1234", { x: margin, y, font, size: 10 });
+    y -= 12;
+    page.drawText("SANDTON, GAUTENG, 2196", { x: margin, y, font, size: 10 });
+    
+    y -= 25;
+    // Computer Generated Invoice Line
+    const textWidth = boldFont.widthOfTextAtSize('Computer-generated tax invoice', 10);
+    page.drawText('Computer-generated tax invoice', { x: width - margin - textWidth, y: y, font: boldFont, size: 10 });
+    y -= 10;
+    page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 1, color: black });
+
+    y -= 40; // Space for the green banner if needed in future, now just space
+
+    // 2. Account Summary
+    page.drawText('Account summary', { x: margin, y, font: boldFont, size: 12 });
     y -= 15;
-    page.drawRectangle({ x: 50, y: y - 2, width: width - 100, height: 20, color: primaryColor });
-    page.drawText(`Account type: ${accountName}`, { x: 60, y, font: boldFont, size: 10, color: rgb(1,1,1) });
-    y -= 40;
+    page.drawRectangle({ x: margin, y: y - 5, width: width - 100, height: 20, color: primaryColor });
+    y -= 2;
+    page.drawText(`Account type:`, { x: margin + 10, y, font: boldFont, size: 10, color: rgb(1,1,1) });
+    page.drawText(`Account number:`, { x: width/2, y, font: boldFont, size: 10, color: rgb(1,1,1) });
+    y -= 15;
+    page.drawText(`${accountName}`, { x: margin + 10, y, font: boldFont, size: 10 });
+    page.drawText(`...${typeof accountName === 'string' && accountName.includes('Savvy') ? '5731' : (typeof accountName === 'string' && accountName.includes('Platinum') ? '8027' : '4775')}`, { x: width/2, y, font: boldFont, size: 10 });
+    y -= 20;
 
-    // Cashflow
-    page.drawText('Cashflow', { x: 50, y, font: boldFont, size: 12 });
-    y-=15;
-    page.drawLine({ start: { x: 50, y}, end: {x: width - 50, y }, thickness: 0.5, color: black});
-    y-= 5;
+    // Statement Details Table
+    const details = [
+        { label: 'Statement date:', value: new Date().toLocaleDateString('en-GB'), x1: margin, x2: margin + 100 },
+        { label: 'Envelope:', value: '1 of 1', x1: width/2, x2: width/2 + 100 },
+        { label: 'Statement period:', value: statementPeriod, x1: margin, x2: margin + 100 },
+        { label: 'Total pages:', value: '1', x1: width/2, x2: width/2 + 100 },
+        { label: 'Statement frequency:', value: 'Monthly', x1: margin, x2: margin + 100 },
+        { label: 'ClientVATNumber:', value: '', x1: width/2, x2: width/2 + 100 }
+    ];
+    
+    details.forEach((item, index) => {
+        if (index % 2 === 0 && index > 0) y -= 12;
+        page.drawText(item.label, { x: item.x1, y, font: boldFont, size: 9 });
+        page.drawText(item.value, { x: item.x2, y, font, size: 9 });
+    });
+    
+    y -= 30;
 
+    // 3. Bank Charges and Cashflow
+    page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 0.5, color: black });
+    y -= 15;
+    const col1X = margin;
+    const col2X = width/2;
+    let yCharges = y;
+    let yCashflow = y;
+
+    page.drawText('Bank charges summary', { x: col1X, y: yCharges, font: boldFont, size: 10 });
+    yCharges -= 15;
+    const charges = [
+        { label: 'Electronic banking fees', value: formatCurrency(totalFees) },
+        { label: 'Initiation fee', value: '0.00' },
+        { label: 'Transaction service fees', value: '0.00' },
+        { label: 'Other charges', value: '0.00' },
+    ];
+    charges.forEach(item => {
+        page.drawText(item.label, { x: col1X, y: yCharges, font, size: 9 });
+        page.drawText(`R ${item.value}`, { x: col1X + 150, y: yCharges, font, size: 9, color: black });
+        yCharges -= 12;
+    });
+    yCharges -= 2;
+    page.drawLine({ start: { x: col1X, y: yCharges }, end: { x: col1X + 200, y: yCharges }, thickness: 0.5, color: black });
+    yCharges -= 12;
+    page.drawText('Bank charge(s) (total)', { x: col1X, y: yCharges, font: boldFont, size: 9 });
+    page.drawText(`R ${formatCurrency(totalFees)}`, { x: col1X + 150, y: yCharges, font: boldFont, size: 9 });
+    yCharges -= 12;
+    page.drawText('*VAT inclusive @', { x: col1X, y: yCharges, font, size: 9 });
+    page.drawText('15.000%', { x: col1X + 150, y: yCharges, font, size: 9 });
+     yCharges -= 12;
+    page.drawText('VAT calculated monthly', { x: col1X, y: yCharges, font, size: 9 });
+    page.drawText(`R ${formatCurrency(vatOnFees)}`, { x: col1X + 150, y: yCharges, font, size: 9 });
+
+
+    page.drawText('Cashflow', { x: col2X, y: yCashflow, font: boldFont, size: 10 });
+    yCashflow -= 15;
     const cashflow = [
         { label: 'Opening balance', value: formatCurrency(openingBalance) },
         { label: 'Funds received/Credits', value: formatCurrency(totalCredits) },
         { label: 'Funds used/Debits', value: formatCurrency(totalDebits) },
-        { label: 'Closing balance', value: formatCurrency(closingBalance) },
     ];
-    
     cashflow.forEach(item => {
-        y-=15;
-        page.drawText(item.label, { x: 50, y, font, size: 10 });
-        page.drawText(`R ${item.value}`, { x: width - 150, y, font, size: 10, color: black });
+        page.drawText(item.label, { x: col2X, y: yCashflow, font, size: 9 });
+        page.drawText(`R ${item.value}`, { x: col2X + 150, y: yCashflow, font, size: 9, color: black });
+        yCashflow -= 12;
     });
+    yCashflow -=2;
+    page.drawLine({ start: { x: col2X, y: yCashflow }, end: { x: col2X + 200, y: yCashflow }, thickness: 0.5, color: black });
+    yCashflow -= 12;
+    page.drawText('Closing balance', { x: col2X, y: yCashflow, font: boldFont, size: 9 });
+    page.drawText(`R ${formatCurrency(closingBalance)}`, { x: col2X + 150, y: yCashflow, font: boldFont, size: 9 });
+    yCashflow -= 12;
+    page.drawText('Annual credit interest rate', { x: col2X, y: yCashflow, font, size: 9 });
+    page.drawText('0.000%', { x: col2X + 150, y: yCashflow, font, size: 9 });
     
-    y -= 20;
+    y = Math.min(yCharges, yCashflow) - 20;
 
-    // Transactions Table Header
-    page.drawRectangle({ x: 50, y: y - 5, width: width - 100, height: 20, color: primaryColor });
+    // 4. Transactions Table Header
+    page.drawRectangle({ x: margin, y: y - 5, width: width - 100, height: 20, color: primaryColor });
     y -= 2;
     page.drawText('Date', { x: 55, y, font: boldFont, size: 10, color: rgb(1,1,1) });
     page.drawText('Description', { x: 120, y, font: boldFont, size: 10, color: rgb(1,1,1) });
@@ -154,7 +258,7 @@ const generateStatementPdfFlow = ai.defineFlow(
             page = pdfDoc.addPage(PageSizes.A4);
             y = height - 40;
         }
-        page.drawLine({ start: { x: 50, y: y + 5 }, end: { x: width - 50, y: y + 5 }, thickness: 0.5, color: grayColor });
+        page.drawLine({ start: { x: margin, y: y + 5 }, end: { x: width - margin, y: y + 5 }, thickness: 0.5, color: grayColor });
         page.drawText(new Date(tx.timestamp).toLocaleDateString('en-GB'), { x: 55, y, font, size: 9 });
         page.drawText(tx.description.substring(0, 40), { x: 120, y, font, size: 9 });
         if (tx.amount < 0) {
@@ -172,3 +276,5 @@ const generateStatementPdfFlow = ai.defineFlow(
     return { pdfBase64 };
   }
 );
+
+    
