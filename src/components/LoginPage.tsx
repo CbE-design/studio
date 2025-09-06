@@ -79,12 +79,7 @@ const LoginPage = ({ setCurrentView }) => {
   return (
     <div className="flex flex-col h-screen bg-white font-sans">
       <header className="p-4 flex justify-between items-center w-full flex-shrink-0">
-        <Image
-            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/NEDBANK_N_SYMBOL_CMYK.jpg?alt=media&token=5b41cca3-a9a9-419f-9cb9-a656b10469f0"
-            width={80}
-            height={26}
-            alt="Logo"
-          />
+        <h1 className="text-2xl font-bold tracking-wider text-primary">NEDBANK</h1>
         <div className="flex items-center space-x-4">
           <MessageSquare size={24} className="text-gray-600" />
           <Menu size={24} className="text-gray-600" />
