@@ -39,6 +39,12 @@ const nextConfig: NextConfig = {
         hostname: 'van-schalkwyk-trust-mobile.appspot.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
