@@ -90,7 +90,7 @@ const generateStatementPdfFlow = ai.defineFlow(
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
     // Embed the logo
-    const logoUrl = 'https://i.ibb.co/b3hP5t5/NEDBANK-N-SYMBOL-RGB.jpg';
+    const logoUrl = 'https://i.ibb.co/gbv2MPtF/274c21be47b77228176e072b7bec2a8c.jpg';
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedJpg(logoImageBytes);
     const logoDims = logoImage.scale(0.12); // Scale the logo down
@@ -218,3 +218,5 @@ const generateStatementPdfFlow = ai.defineFlow(
     return { pdfBase64 };
   }
 );
+
+    
