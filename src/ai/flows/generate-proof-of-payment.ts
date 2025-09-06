@@ -47,7 +47,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     
-    const logoUrl = 'https://i.ibb.co/L0T0D9Q/nedbank-logo-png-transparent.png';
+    const logoUrl = 'https://i.ibb.co/bF00bVp/nedbank-logo-vector-2.png';
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
     const logoDims = logoImage.scale(0.12);

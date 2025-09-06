@@ -90,7 +90,7 @@ const generateStatementPdfFlow = ai.defineFlow(
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
     // Embed the logo
-    const logoUrl = 'https://i.ibb.co/L0T0D9Q/nedbank-logo-png-transparent.png';
+    const logoUrl = 'https://i.ibb.co/bF00bVp/nedbank-logo-vector-2.png';
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
     const logoDims = logoImage.scale(0.12); // Scale the logo down
