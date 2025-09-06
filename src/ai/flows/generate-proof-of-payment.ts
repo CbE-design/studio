@@ -53,26 +53,31 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     const margin = 50;
     let y = height - margin;
 
-    // 1. Logo
-    // We'll draw a simplified vector version of the Nedbank logo.
-    const logoGreen = rgb(0 / 255, 154 / 255, 77 / 255);
-    const rhombusPath = 'M 31.8 0 L 0 19.2 L 31.8 38.4 L 49.8 19.2 Z';
-    page.drawSvgPath(rhombusPath, {
-      x: margin,
-      y: y + 19.2, // SVG y-axis is inverted from pdf-lib
-      color: logoGreen,
-      scale: 1,
-    })
+    // 1. Logo using user-provided SVG paths
+    const logoGreen = rgb(1 / 255, 102 / 255, 52 / 255);
+    const logoWhite = rgb(1, 1, 1);
+    
+    const greenPath = "M0 22 L21 11 L41 11 L61 44 L81 22 L81 66 L61 77 L41 77 L21 44 L0 55 Z";
+    const whitePath = "M21 11 L41 11 L61 44 L61 77 L41 77 L21 44 Z";
+    
+    // pdf-lib's y-axis is bottom-up, so we need to adjust for the SVG's top-down coordinate system.
+    // The SVG height is 88, so we'll position it relative to y.
+    const logoY = y - 88;
 
-     page.drawRectangle({
-        x: margin + 55,
-        y: y - 14.4,
-        width: 25,
-        height: 28.8,
-        color: logoGreen,
+    page.drawSvgPath(greenPath, {
+      x: margin,
+      y: logoY, 
+      color: logoGreen,
+      scale: 0.5
     });
 
-
+    page.drawSvgPath(whitePath, {
+        x: margin,
+        y: logoY,
+        color: logoWhite,
+        scale: 0.5
+    });
+    
     y -= 50;
 
     // 2. Title and separator line
