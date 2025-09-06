@@ -48,7 +48,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     
     // Embed the logo
-    const logoUrl = 'https://i.ibb.co/gbv2MPtF/274c21be47b77228176e072b7bec2a8c.jpg';
+    const logoUrl = 'https://i.ibb.co/gbv2MPt/274c21be47b77228176e072b7bec2a8c.jpg';
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedJpg(logoImageBytes);
     const logoDims = logoImage.scale(0.08); // Scale the logo down
@@ -167,8 +167,12 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     page.drawText(footerText1, { x: margin, y, font, size: 8, color: grayColor });
     y -= 12;
 
-    const footerText2 = 'We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the\nOmbudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCRCP16).';
-    page.drawText(footerText2, { x: margin, y, font, size: 8, color: grayColor, lineHeight: 10 });
+    const footerLine1 = 'We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the';
+    const footerLine2 = 'Ombudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCRCP16).';
+
+    page.drawText(footerLine1, { x: margin, y, font, size: 8, color: grayColor });
+    y -= 10;
+    page.drawText(footerLine2, { x: margin, y, font, size: 8, color: grayColor });
 
 
     const pdfBytes = await pdfDoc.save();
@@ -177,5 +181,3 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     return { pdfBase64 };
   }
 );
-
-    
