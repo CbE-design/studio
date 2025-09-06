@@ -165,11 +165,14 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     y -= 12;
 
     const footerLine1 = 'We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the';
-    const footerLine2 = 'Ombudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCRCP16).';
+    const footerLine2 = 'Ombudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the';
+    const footerLine3 = 'National Credit Act (NCRCP16).';
 
     page.drawText(footerLine1, { x: margin, y, font, size: 8, color: black });
     y -= 10;
     page.drawText(footerLine2, { x: margin, y, font, size: 8, color: black });
+    y -= 10;
+    page.drawText(footerLine3, { x: margin, y, font, size: 8, color: black });
 
 
     const pdfBytes = await pdfDoc.save();
