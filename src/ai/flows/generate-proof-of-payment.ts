@@ -12,10 +12,10 @@ import { z } from 'genkit';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
 const GenerateProofOfPaymentInputSchema = z.object({
-  date: z.string().describe("The date of the payment, e.g., '20/11/2025'"),
+  date: z.string().describe("The date of the payment, e.g., '06/10/2022'"),
   transactionNumber: z.string().describe('The unique reference number for the transaction.'),
   recipient: z.string().describe('The name of the recipient.'),
-  amount: z.string().describe('The payment amount, e.g., "100.00"'),
+  amount: z.string().describe('The payment amount, e.g., "100000.00"'),
   recipientsReference: z.string().optional().describe("The recipient's reference."),
   yourReference: z.string().optional().describe("The sender's reference."),
   bankName: z.string().describe("The recipient's bank name."),
@@ -47,17 +47,16 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     
-    // Embed the logo
     const logoUrl = 'https://i.ibb.co/L0T0D9Q/nedbank-logo-png-transparent.png';
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    const logoDims = logoImage.scale(0.08); // Scale the logo down
+    const logoDims = logoImage.scale(0.08);
 
     const black = rgb(0, 0, 0);
-    const grayColor = rgb(0.3, 0.3, 0.3);
+    const grayColor = rgb(0.7, 0.7, 0.7);
 
     const margin = 50;
-    let y = height - margin;
+    let y = height - margin - 20;
 
     // 1. Header with Logo
     page.drawImage(logoImage, {
@@ -72,7 +71,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     // 2. Title and separator line
     page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 12, color: black });
     y -= 15;
-    page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 0.5, color: grayColor });
+    page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 0.5, color: rgb(0.5, 0.5, 0.5) });
     y -= 25;
 
     // 3. Confirmation Text
@@ -125,7 +124,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     y -= 20;
     page.drawText('Paid from Account Holder', { x: detailsLeftColX, y, font, size: 10 });
     page.drawText(':', { x: detailsColonColX, y, font, size: 10 });
-    page.drawText("VAN SCHALKWYK FAMILY TRUST", { x: detailsRightColX, y, font, size: 10 });
+    page.drawText("CORRIE DIRK VAN SCHALKWYK", { x: detailsRightColX, y, font, size: 10 });
 
     y -= 40;
 
@@ -158,19 +157,19 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     y -= 40;
 
     // Footer
-    page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 0.5, color: grayColor });
+    page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 0.5, color: rgb(0.5, 0.5, 0.5) });
     y -= 15;
 
     const footerText1 = 'Nedbank Limited Reg No 1951/000009/06. VAT Reg No 4320116074. 135 Rivonia Road, Sandown, Sandton, 2196, South Africa.';
-    page.drawText(footerText1, { x: margin, y, font, size: 8, color: grayColor });
+    page.drawText(footerText1, { x: margin, y, font, size: 8, color: black });
     y -= 12;
 
     const footerLine1 = 'We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the';
     const footerLine2 = 'Ombudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCRCP16).';
 
-    page.drawText(footerLine1, { x: margin, y, font, size: 8, color: grayColor });
+    page.drawText(footerLine1, { x: margin, y, font, size: 8, color: black });
     y -= 10;
-    page.drawText(footerLine2, { x: margin, y, font, size: 8, color: grayColor });
+    page.drawText(footerLine2, { x: margin, y, font, size: 8, color: black });
 
 
     const pdfBytes = await pdfDoc.save();
