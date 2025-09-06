@@ -123,12 +123,7 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
                             </div>
                         </div>
                         <div className="text-right">
-                           <svg width="70" height="70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#00703C"/>
-                                <path d="M2 17L12 22L22 17L12 12L2 17Z" fill="#00703C"/>
-                                <path d="M2 7L12 12L22 7L12 2L2 7Z" stroke="#004D2A" strokeWidth="0.5" strokeLinejoin="round"/>
-                                <path d="M12 12L2 7V17L12 22V12Z" fill="#005A30"/>
-                           </svg>
+                           <div className="text-2xl font-bold text-green-800">NEDBANK</div>
                            <div className="text-[10px] mt-2">
                                 <p>135 Rivonia Road, Sandown, 2196</p>
                                 <p>P O Box 1144, Johannesburg, 2000, South Africa</p>
@@ -259,12 +254,7 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
                     <div className="mt-8 text-center">
                         <p className="font-bold text-lg text-green-700">seemoneydifferently</p>
                         <div className="flex justify-end mt-2">
-                             <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#00703C"/>
-                                <path d="M2 17L12 22L22 17L12 12L2 17Z" fill="#00703C"/>
-                                <path d="M2 7L12 12L22 7L12 2L2 7Z" stroke="#004D2A" strokeWidth="0.5" strokeLinejoin="round"/>
-                                <path d="M12 12L2 7V17L12 22V12Z" fill="#005A30"/>
-                           </svg>
+                           <div className="text-xl font-bold text-green-800">NEDBANK</div>
                         </div>
                         <p className="text-[9px] text-gray-600 mt-2">
                             We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution
