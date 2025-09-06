@@ -31,14 +31,14 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
     };
 
     const sortedTransactions = useMemo(() => 
-        [...transactions].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)), 
+        [...transactions].sort((a, b) => new Date(a.timestamp) - b.timestamp), 
     [transactions]);
 
     const statementPeriod = useMemo(() => {
         if (sortedTransactions.length === 0) return "N/A";
-        const startDate = new Date(sortedTransactions[0].timestamp).toLocaleDateString('en-GB');
-        const endDate = new Date(sortedTransactions[sortedTransactions.length - 1].timestamp).toLocaleDateString('en-GB');
-        return `${startDate} - ${endDate}`;
+        const startDate = new Date(sortedTransactions[0].timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+        const endDate = new Date(sortedTransactions[sortedTransactions.length - 1].timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+        return `${startDate} to ${endDate}`;
     }, [sortedTransactions]);
     
     const calculations = useMemo(() => {
@@ -49,36 +49,26 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
             openingBalance -= amount;
         }
 
-        let totalDebits = 0;
-        let totalCredits = 0;
         let totalFees = 0;
         
         let runningBalance = openingBalance;
         const finalTransactions = sortedTransactions.map(tx => {
             const amount = parseFloat(tx.amount.replace('R', '').replace(/ /g, ''));
             runningBalance += amount;
-            if (amount < 0) {
-                totalDebits += Math.abs(amount);
-                if (tx.description.toLowerCase().includes('fee:')) {
-                    totalFees += Math.abs(amount);
-                }
-            } else {
-                totalCredits += amount;
+            if (tx.description.toLowerCase().includes('fee:')) {
+                totalFees += Math.abs(amount);
             }
-            return { ...tx, balance: runningBalance };
+            return { ...tx, balance: runningBalance, amount: amount };
         });
 
-        const closingBalance = runningBalance;
-
         const vatOnFees = totalFees * (15 / 115);
+        const itemCostFees = totalFees - vatOnFees;
 
         return {
             openingBalance,
-            closingBalance,
-            totalCredits,
-            totalDebits,
             totalFees,
             vatOnFees,
+            itemCostFees,
             finalTransactions,
         };
     }, [sortedTransactions, balance]);
@@ -90,8 +80,8 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
     };
 
     return (
-        <div className="bg-white min-h-screen font-sans text-xs text-black">
-            <header className="bg-gray-100 p-4 flex items-center justify-between print:hidden">
+        <div className="bg-white min-h-screen font-sans text-sm text-gray-800">
+            <header className="bg-white p-4 flex items-center justify-between sticky top-0 z-10 border-b">
                 <div className="flex items-center">
                     <ArrowLeft size={24} className="cursor-pointer" onClick={() => setCurrentView(previousView)} />
                     <h1 className="text-lg font-semibold ml-4">Account Statement</h1>
@@ -105,162 +95,96 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
                   {isDownloading ? 'Generating...' : 'Download PDF'}
                 </button>
             </header>
-            <main className="p-4 md:p-6">
-                <div className="max-w-4xl mx-auto">
-                    {/* Header */}
-                    <div className="flex justify-between items-start mb-4">
-                        <div>
-                             <div className="text-2xl font-extrabold text-[#00703C]">NEDBANK</div>
-                            <div className="border-2 border-black p-1 mt-2 text-center text-[10px]">
-                                <p className="font-bold">eConfirm</p>
-                                <p>{new Date().toLocaleDateString('en-GB')}</p>
-                            </div>
-                            <div className="mt-4">
-                                <p>VAN SCHALKWYK FAMILY TRUST</p>
-                                <p>PO BOX 1234</p>
-                                <p>SANDTON</p>
-                                <p>GAUTENG</p>
-                                <p>2196</p>
-                            </div>
-                        </div>
-                        <div className="text-right">
-                           <div className="text-[10px] mt-2">
-                                <p>135 Rivonia Road, Sandown, 2196</p>
-                                <p>P O Box 1144, Johannesburg, 2000, South Africa</p>
-                                <p className="mt-2">Bank VAT Reg No. 4320116074</p>
-                                <p>Lost cards 0800 110 929</p>
-                                <p>Client services 0860 555 111</p>
-                                <p>nedbank.co.za</p>
-                           </div>
-                        </div>
-                    </div>
-                    <p className="text-center font-bold text-sm border-t-2 border-b-2 border-black py-1 mb-4">Computer-generated tax invoice</p>
+            <main className="p-4">
+                <div className="border rounded-lg p-2 mb-4 w-28">
+                    <p className="font-bold text-center">eConfirm</p>
+                    <p className="text-xs text-center">{new Date().toLocaleDateString('en-GB')}</p>
+                </div>
 
-                    {/* Account Summary */}
-                    <h3 className="text-sm font-bold bg-gray-200 p-1">Account summary</h3>
-                    <div className="bg-[#00703C] text-white p-2 flex justify-between">
-                        <p>Account type: <span className="font-bold">{accountName}</span></p>
-                        <p>Account number: <span className="font-bold">...{typeof accountName === 'string' && accountName.includes('Savvy') ? '5731' : (typeof accountName === 'string' && accountName.includes('Platinum Cheque') ? '8027' : '4775')}</span></p>
-                    </div>
-                    <table className="w-full text-[10px] border-separate border-spacing-x-4">
+                <h2 className="font-bold mb-2">Bank charges for the period {statementPeriod}</h2>
+                
+                {/* Bank Charges Table */}
+                <div className="overflow-x-auto mb-8">
+                    <table className="w-full text-left text-xs">
+                        <thead className="bg-[#00703C] text-white">
+                            <tr>
+                                <th className="p-2 font-semibold">NarrativeDescription</th>
+                                <th className="p-2 font-semibold text-right">Itemcost(R)</th>
+                                <th className="p-2 font-semibold text-right">VAT(R)</th>
+                                <th className="p-2 font-semibold text-right">Total(R)</th>
+                            </tr>
+                        </thead>
                         <tbody>
-                            <tr>
-                                <td>Statement date: {new Date().toLocaleDateString('en-GB')}</td>
-                                <td>Envelope: 1 of 1</td>
+                            <tr className="border-b">
+                                <td className="p-2">Electronic banking fees</td>
+                                <td className="p-2 text-right">{formatCurrency(calculations.itemCostFees)}</td>
+                                <td className="p-2 text-right">{formatCurrency(calculations.vatOnFees)}</td>
+                                <td className="p-2 text-right">{formatCurrency(calculations.totalFees)}</td>
                             </tr>
-                            <tr>
-                                <td>Statement period: {statementPeriod}</td>
-                                <td>Total pages: 1</td>
+                            <tr className="border-b">
+                                <td className="p-2">Initiation fee</td>
+                                <td className="p-2 text-right">0.00</td>
+                                <td className="p-2 text-right">0.00</td>
+                                <td className="p-2 text-right">0.00</td>
                             </tr>
-                             <tr>
-                                <td>Statement frequency: Monthly</td>
-                                <td>Client VAT number:</td>
+                             <tr className="border-b">
+                                <td className="p-2">Transaction service fees</td>
+                                <td className="p-2 text-right">0.00</td>
+                                <td className="p-2 text-right">0.00</td>
+                                <td className="p-2 text-right">0.00</td>
+                            </tr>
+                            <tr className="border-b">
+                                <td className="p-2">Other charges</td>
+                                <td className="p-2 text-right">0.00</td>
+                                <td className="p-2 text-right">0.00</td>
+                                <td className="p-2 text-right">0.00</td>
+                            </tr>
+                            <tr className="font-bold">
+                                <td className="p-2">TotalCharges</td>
+                                <td className="p-2 text-right" colSpan={2}></td>
+                                <td className="p-2 text-right">{formatCurrency(calculations.totalFees)}</td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
 
-                    {/* Bank Charges & Cashflow */}
-                    <div className="grid grid-cols-2 gap-6 mt-4 border-t border-b border-black py-2">
-                        <div>
-                            <h3 className="text-sm font-bold mb-2">Bank charges summary</h3>
-                             <table className="w-full text-[10px]">
-                                <tbody>
-                                    <tr>
-                                        <td>Electronic banking fees</td><td className="text-right">R{formatCurrency(calculations.totalFees)}</td>
+                {/* Transactions Table */}
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                        <thead className="bg-[#00703C] text-white">
+                            <tr>
+                                <th className="p-2 font-semibold">Date</th>
+                                <th className="p-2 font-semibold">Description</th>
+                                <th className="p-2 font-semibold text-right">Fees(R)</th>
+                                <th className="p-2 font-semibold text-right">Debits(R)</th>
+                                <th className="p-2 font-semibold text-right">Credits(R)</th>
+                                <th className="p-2 font-semibold text-right">Balance(R)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className="border-b font-bold">
+                                <td className="p-2">{calculations.finalTransactions.length > 0 ? new Date(calculations.finalTransactions[0].timestamp).toLocaleDateString('en-GB') : '-'}</td>
+                                <td className="p-2">Openingbalance</td>
+                                <td className="p-2 text-right"></td>
+                                <td className="p-2 text-right"></td>
+                                <td className="p-2 text-right"></td>
+                                <td className="p-2 text-right">{formatCurrency(calculations.openingBalance)}</td>
+                            </tr>
+                            {calculations.finalTransactions.map((tx, index) => {
+                                const isFee = tx.description.toLowerCase().includes('fee:');
+                                return (
+                                    <tr key={tx.id || index} className="border-b">
+                                        <td className="p-2">{new Date(tx.timestamp).toLocaleDateString('en-GB')}</td>
+                                        <td className="p-2">{tx.description}</td>
+                                        <td className="p-2 text-right">{isFee ? formatCurrency(Math.abs(tx.amount)) : ''}</td>
+                                        <td className="p-2 text-right">{!isFee && tx.amount < 0 ? formatCurrency(Math.abs(tx.amount)) : ''}</td>
+                                        <td className="p-2 text-right">{!isFee && tx.amount >= 0 ? formatCurrency(tx.amount) : ''}</td>
+                                        <td className="p-2 text-right">{formatCurrency(tx.balance)}</td>
                                     </tr>
-                                    <tr>
-                                        <td>Initiation fee</td><td className="text-right">R0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Transaction service fees</td><td className="text-right">R0.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Other charges</td><td className="text-right">R0.00</td>
-                                    </tr>
-                                    <tr className="border-t border-black font-bold">
-                                        <td>Bank charge(s) (total)</td><td className="text-right">R{formatCurrency(calculations.totalFees)}</td>
-                                    </tr>
-                                     <tr>
-                                        <td>*VAT inclusive @</td><td className="text-right">15.000%</td>
-                                    </tr>
-                                     <tr>
-                                        <td>VAT calculated monthly</td><td className="text-right">R{formatCurrency(calculations.vatOnFees)}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div>
-                             <h3 className="text-sm font-bold mb-2">Cashflow</h3>
-                            <table className="w-full text-[10px]">
-                                <tbody>
-                                    <tr>
-                                        <td>Opening balance</td><td className="text-right">R{formatCurrency(calculations.openingBalance)}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Funds received/Credits</td><td className="text-right">R{formatCurrency(calculations.totalCredits)}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Funds used/Debits</td><td className="text-right">R{formatCurrency(calculations.totalDebits)}</td>
-                                    </tr>
-                                    <tr className="border-t border-black font-bold">
-                                        <td>Closing balance</td><td className="text-right">R{formatCurrency(calculations.closingBalance)}</td>
-                                    </tr>
-                                     <tr>
-                                        <td>Annual credit interest rate</td><td className="text-right">0.000%</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-
-                    {/* Transactions Table */}
-                    <div className="mt-4">
-                        <table className="w-full text-[10px]">
-                            <thead className="bg-[#00703C] text-white">
-                                <tr>
-                                    <th className="text-left p-1 font-normal">Date</th>
-                                    <th className="text-left p-1 font-normal">Description</th>
-                                    <th className="text-right p-1 font-normal">Debits(R)</th>
-                                    <th className="text-right p-1 font-normal">Credits(R)</th>
-                                    <th className="text-right p-1 font-normal">Balance(R)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr className="border-b bg-gray-100 font-bold">
-                                    <td className="p-1">{calculations.finalTransactions.length > 0 ? new Date(calculations.finalTransactions[0].timestamp).toLocaleDateString('en-GB') : '-'}</td>
-                                    <td className="p-1">Opening balance</td>
-                                    <td></td><td></td>
-                                    <td className="text-right p-1">{formatCurrency(calculations.openingBalance)}</td>
-                                </tr>
-                                {calculations.finalTransactions.map((tx, index) => {
-                                    const amount = parseFloat(tx.amount.replace('R', '').replace(/ /g, ''));
-                                    const isDebit = amount < 0;
-                                    return (
-                                        <tr key={tx.id || index} className="border-b bg-gray-100">
-                                            <td className="p-1">{new Date(tx.timestamp).toLocaleDateString('en-GB')}</td>
-                                            <td className="p-1">{tx.description}</td>
-                                            <td className="text-right p-1">{isDebit ? formatCurrency(Math.abs(amount)) : ''}</td>
-                                            <td className="text-right p-1">{!isDebit ? formatCurrency(amount) : ''}</td>
-                                            <td className="text-right p-1">{formatCurrency(tx.balance)}</td>
-                                        </tr>
-                                    )
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Footer */}
-                    <div className="mt-8 text-center">
-                        <p className="font-bold text-lg text-green-700">seemoneydifferently</p>
-                        <div className="flex justify-end mt-2">
-                        </div>
-                        <p className="text-[9px] text-gray-600 mt-2">
-                            We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution
-                            <br/>
-                            through the Ombudsman for Banking Services. Authorised financial services and registered credit provider (NCRCP16).
-                        </p>
-                    </div>
+                                )
+                            })}
+                        </tbody>
+                    </table>
                 </div>
             </main>
         </div>
@@ -268,5 +192,3 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
 };
 
 export default StatementPage;
-
-    
