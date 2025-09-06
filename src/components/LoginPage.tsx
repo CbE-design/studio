@@ -80,7 +80,7 @@ const LoginPage = ({ setCurrentView }) => {
     <div className="flex flex-col h-screen bg-white font-sans">
       <header className="p-4 flex justify-between items-center w-full flex-shrink-0">
         <Image
-            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/Nedbank_Logo.svg?alt=media&token=a4843b40-1cc6-4bc2-91dc-b9247f08c02c"
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Nedbank_logo.svg/1200px-Nedbank_logo.svg.png"
             alt="Nedbank Logo"
             width={100}
             height={28}
