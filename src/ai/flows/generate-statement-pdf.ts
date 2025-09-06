@@ -90,10 +90,10 @@ const generateStatementPdfFlow = ai.defineFlow(
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
     // Embed the logo
-    const logoUrl = 'https://i.ibb.co/bF00bVp/nedbank-logo-vector-2.png';
+    const logoUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Nedbank_logo.svg/2560px-Nedbank_logo.svg.png';
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    const logoDims = logoImage.scale(0.12); // Scale the logo down
+    const logoDims = logoImage.scale(0.05);
     
     const primaryColor = rgb(0 / 255, 112 / 255, 60 / 255); // Nedbank Green
     const black = rgb(0, 0, 0);
