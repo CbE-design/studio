@@ -21,7 +21,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
           className="text-primary"
         >
           <path d="M12 10c-2.3 0-4-1.8-4-4s1.7-4 4-4 4 1.8 4 4-1.7 4-4 4zM8.5 10H6c-1.7 0-3 1.3-3 3v2c0 1.7 1.3 3 3 3h12c1.7 0 3-1.3 3-3v-2c0-1.7-1.3-3-3-3h-2.5" />
-          <path d="M12.5 10.5c.3.3.5.7.5 1.1 0 .4-.2.8-.5 1.1-.3.3-.7.5-1.1.5s-.8-.2-1.1-.5c-.3-.3-.5-.7-.5-1.1 0-.4.2-.8.5-1.1.3-.3.7-.5 1.1-.5s.8.2 1.1.5z" />
+          <path d="M12.5 10.5c.3.3.5.7.5 1.1 0 .4-.2.8-.5 1.1-.3.3-.7.5-1.1.5s-.8-.2-1.1-.5c-.3-.3-.5-.7-.5-1.1 0-.4.2.8.5-1.1.3-.3.7-.5 1.1-.5s.8.2 1.1.5z" />
           <path d="M12 8v-1" />
           <path d="M12 15v1" />
           <path d="M10.5 9.5l-.7-.7" />
@@ -59,7 +59,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
           />
           <div>
             <span className="text-lg font-semibold text-primary-foreground">Van Schalkwyk Family Trust</span>
-            <p className="text-xs text-primary-foreground/70 truncate">User ID: {userId} | Last nedbank-id-login: {formattedDate}</p>
+            <p className="text-xs text-primary-foreground/70 truncate">Last nedbank-id-login: {formattedDate}</p>
           </div>
         </div>
         <div className="flex items-center space-x-4">
