@@ -1,7 +1,7 @@
 'use client';
 import { ArrowLeft, Download, Loader2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { generateStatementPdf } from '@/ai/flows/generate-statement-pdf';
+import { generateStatementPdf, GenerateStatementPdfInput } from '@/ai/flows/generate-statement-pdf';
 
 
 const StatementPage = ({ accountName, transactions, balance, setCurrentView, previousView }) => {
@@ -10,11 +10,85 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
     const handleDownloadPdf = async () => {
         setIsDownloading(true);
         try {
-            const { pdfBase64 } = await generateStatementPdf({
-                accountName,
-                transactions,
-                balance,
-            });
+            // This now constructs the full, detailed object the flow expects.
+            const input: GenerateStatementPdfInput = {
+                statementProvider: "Nedbank",
+                statementType: "eConfirm",
+                documentType: "Computer-generated invoice",
+                recipient: {
+                    name: "CORRIE DIRK VAN SCHALKWYK",
+                    address: {
+                        street: "123 Main Street",
+                        suburb: "Sandton",
+                        city: "Johannesburg",
+                        postalCode: "2196"
+                    }
+                },
+                providerDetails: {
+                    address1: "135 Rivonia Road, Sandown, 2196",
+                    address2: "PO Box 1144, Johannesburg, 2000, South Africa",
+                    vatRegNo: "4320116074",
+                    contact: {
+                        lostCards: "0800 110 929",
+                        clientServices: "0860 555 111"
+                    }
+                },
+                accountSummary: {
+                    accountType: accountName,
+                    accountNumber: "1234567890", // Placeholder
+                    statementDate: new Date().toISOString().split('T')[0],
+                    statementPeriod: {
+                        from: transactions.length > 0 ? new Date(transactions[0].timestamp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                        to: transactions.length > 0 ? new Date(transactions[transactions.length - 1].timestamp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                    },
+                    statementFrequency: "Monthly",
+                    page: "1 of 1"
+                },
+                cashflow: {
+                    currency: "ZAR",
+                    openingBalance: calculations.openingBalance,
+                    fundsReceived: calculations.totalCredits,
+                    fundsUsed: Math.abs(calculations.totalDebits),
+                    closingBalance: balance,
+                    annualizedInterestRate: 0.00
+                },
+                bankChargesSummary: {
+                    currency: "ZAR",
+                    electronicBankingFees: calculations.totalFees,
+                    initiationFee: 0,
+                    transactionServiceFees: 0,
+                    otherCharges: 0,
+                    totalCharges: calculations.totalFees,
+                    vatRate: 15.00
+                },
+                fundsReceivedBreakdown: {
+                    currency: "ZAR",
+                    electronicPaymentsReceived: calculations.totalCredits,
+                    reversalsCredited: 0,
+                    transfersIn: 0,
+                    totalReceived: calculations.totalCredits
+                },
+                fundsUsedBreakdown: {
+                    currency: "ZAR",
+                    accountPayments: Math.abs(calculations.totalDebits) - calculations.totalFees,
+                    cashWithdrawals: 0,
+                    debitCardPurchase: 0,
+                    electronicTransfers: 0,
+                    totalChargesAndFees: calculations.totalFees,
+                    totalUsed: Math.abs(calculations.totalDebits)
+                },
+                transactions: calculations.finalTransactions.map(tx => ({
+                    transactionId: tx.id || null,
+                    date: new Date(tx.timestamp).toISOString().split('T')[0],
+                    description: tx.description,
+                    fees: tx.description.toLowerCase().includes('fee:') ? Math.abs(tx.amount) : 0.00,
+                    debit: tx.amount < 0 ? Math.abs(tx.amount) : 0.00,
+                    credit: tx.amount > 0 ? tx.amount : 0.00,
+                    balance: tx.balance,
+                }))
+            };
+
+            const { pdfBase64 } = await generateStatementPdf(input);
 
             const link = document.createElement('a');
             link.href = `data:application/pdf;base64,${pdfBase64}`;
@@ -31,7 +105,7 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
     };
 
     const sortedTransactions = useMemo(() => 
-        [...transactions].sort((a, b) => new Date(a.timestamp) - b.timestamp), 
+        [...transactions].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()), 
     [transactions]);
 
     const statementPeriod = useMemo(() => {
@@ -50,6 +124,8 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
         }
 
         let totalFees = 0;
+        let totalCredits = 0;
+        let totalDebits = 0;
         
         let runningBalance = openingBalance;
         const finalTransactions = sortedTransactions.map(tx => {
@@ -57,6 +133,11 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
             runningBalance += amount;
             if (tx.description.toLowerCase().includes('fee:')) {
                 totalFees += Math.abs(amount);
+            }
+            if (amount > 0) {
+                totalCredits += amount;
+            } else {
+                totalDebits += amount;
             }
             return { ...tx, balance: runningBalance, amount: amount };
         });
@@ -70,6 +151,8 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
             vatOnFees,
             itemCostFees,
             finalTransactions,
+            totalCredits,
+            totalDebits,
         };
     }, [sortedTransactions, balance]);
 
