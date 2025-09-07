@@ -9,7 +9,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { PDFDocument, rgb, StandardFonts, PageSizes } from 'pdf-lib';
+import { PDFDocument, rgb, StandardFonts, PageSizes, grayscale } from 'pdf-lib';
 
 const TransactionSchema = z.object({
   id: z.string().optional(),
@@ -37,9 +37,13 @@ export async function generateStatementPdf(input: GenerateStatementPdfInput): Pr
 
 // Helper to format currency
 const formatCurrency = (value: number | string) => {
-    const num = typeof value === 'string' ? parseFloat(value) : value;
+    const num = typeof value === 'string' ? parseFloat(value.toString().replace(/[^0-9.-]+/g,"")) : value;
     if (typeof num !== 'number' || isNaN(num)) return '0.00';
     return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+};
+
+const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
 
@@ -55,15 +59,16 @@ const generateStatementPdfFlow = ai.defineFlow(
         .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
     let openingBalance = balance;
-    // Calculate opening balance by reverse-summing transactions from the closing balance
+    let fundsReceived = 0;
+    let fundsUsed = 0;
+    let totalFees = 0;
+
     for (let i = sortedTransactions.length - 1; i >= 0; i--) {
         const tx = sortedTransactions[i];
         const amount = parseFloat(tx.amount.replace('R', '').replace(/ /g, ''));
         openingBalance -= amount;
     }
 
-    let totalFees = 0;
-    
     let runningBalance = openingBalance;
     const finalTransactions = sortedTransactions.map(tx => {
         const amount = parseFloat(tx.amount.replace('R', '').replace(/ /g, ''));
@@ -71,15 +76,22 @@ const generateStatementPdfFlow = ai.defineFlow(
         if (tx.description.toLowerCase().includes('fee:')) {
             totalFees += Math.abs(amount);
         }
+        if (amount > 0) {
+            fundsReceived += amount;
+        } else {
+            fundsUsed += Math.abs(amount);
+        }
         return { ...tx, balance: runningBalance, amount };
     });
     
     const statementPeriod = sortedTransactions.length > 0
-        ? `${new Date(sortedTransactions[0].timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} to ${new Date(sortedTransactions[sortedTransactions.length - 1].timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`
+        ? `${formatDate(new Date(sortedTransactions[0].timestamp))} - ${formatDate(new Date(sortedTransactions[sortedTransactions.length - 1].timestamp))}`
         : "N/A";
+    
+    const statementDate = sortedTransactions.length > 0 
+        ? formatDate(new Date(sortedTransactions[sortedTransactions.length - 1].timestamp))
+        : formatDate(new Date());
 
-    const vatOnFees = totalFees * (15 / 115);
-    const itemCostFees = totalFees - vatOnFees;
 
     // PDF Generation
     const pdfDoc = await PDFDocument.create();
@@ -89,104 +101,167 @@ const generateStatementPdfFlow = ai.defineFlow(
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    // Embed the logo
+    // Embed the logos
     const logoUrl = 'https://i.ibb.co/Ldn0sRk/nedbank-logo.png';
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
     const logoDims = logoImage.scale(0.05);
-    
+
+    const mainLogoUrl = 'https://i.ibb.co/28SpD9k/nedbank-main-logo.png';
+    const mainLogoImageBytes = await fetch(mainLogoUrl).then((res) => res.arrayBuffer());
+    const mainLogoImage = await pdfDoc.embedPng(mainLogoImageBytes);
+    const mainLogoDims = mainLogoImage.scale(0.08);
+
     const primaryColor = rgb(0 / 255, 112 / 255, 60 / 255); // Nedbank Green
     const black = rgb(0, 0, 0);
     const white = rgb(1,1,1);
+    const gray = grayscale(0.5);
 
     let y = height - 40;
     const margin = 50;
-    
-    // 1. Header
-    page.drawImage(logoImage, {
-        x: margin,
-        y: y - logoDims.height + 25,
-        width: logoDims.width,
-        height: logoDims.height,
-    });
-    page.drawText('Account Statement', { x: width - margin - 120, y, font: boldFont, size: 16, color: black });
-    y -= 50;
+    const rightColX = width / 2 + 20;
 
+    // 1. Header Section
     // eConfirm Box
-    const eConfirmBoxWidth = 80;
-    page.drawRectangle({x: margin, y: y, width: eConfirmBoxWidth, height: 30, borderColor: black, borderWidth: 1});
-    page.drawText('eConfirm', { x: margin + 18, y: y + 15, font: boldFont, size: 10 });
-    page.drawText(new Date().toLocaleDateString('en-GB'), { x: margin + 15, y: y + 5, font, size: 8 });
+    page.drawRectangle({x: margin, y: y - 28, width: 95, height: 40, borderColor: black, borderWidth: 1});
+    page.drawImage(logoImage, { x: margin + 2, y: y - 18, width: logoDims.width, height: logoDims.height });
+    page.drawText('eConfirm', { x: margin + 18, y: y + 2, font: boldFont, size: 10 });
+    page.drawText(statementDate, { x: margin + 15, y: y - 22, font, size: 8 });
+
+    // Main Logo and Bank Address
+    page.drawImage(mainLogoImage, { x: width - margin - mainLogoDims.width, y: y - 10, width: mainLogoDims.width, height: mainLogoDims.height });
+    y -= 55;
+    const bankAddressY = y;
+    page.drawText('135 Rivonia Road, Sandown, 2196', { x: rightColX, y: bankAddressY, font, size: 9 });
+    page.drawText('P O Box 1144, Johannesburg, 2000, South Africa', { x: rightColX, y: bankAddressY - 12, font, size: 9 });
+    
+    // Client Address
+    const clientAddress = [
+        'MR CORRIE DIRK VAN SCHALKWYK',
+        'C/O VAN SCHALKWYK TRUST',
+        '123 TRUST LANE',
+        'PRETORIA, GAUTENG',
+        '0001'
+    ];
+    clientAddress.forEach((line, index) => {
+        page.drawText(line, { x: margin, y: y - (index * 12), font: boldFont, size: 9 });
+    });
+
+    y -= 45;
+
+    page.drawText('Bank VAT Reg No. 4320116074', { x: rightColX, y: y, font, size: 9 });
+    page.drawText('Lost cards 0800 110 929', { x: rightColX, y: y - 12, font, size: 9 });
+    page.drawText('Client services 0860 555 111', { x: rightColX, y: y - 24, font, size: 9 });
+    page.drawText('nedbank.co.za', { x: rightColX, y: y - 36, font, size: 9 });
+    
+    y -= 50;
+    page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 0.5, color: black });
+    page.drawText('Computer-generated tax invoice', { x: width/2 - 60, y: y - 12, font: boldFont, size: 9 });
+    y -= 25;
+
+    // 2. Notification Box
+    page.drawRectangle({x: margin, y: y - 45, width: width - (margin * 2), height: 50, color: primaryColor});
+    page.drawText('CERTAIN CHEQUE SERVICES WILL NO LONGER BE AVAILABLE FROM', { x: margin + 10, y: y - 15, font: boldFont, size: 12, color: white });
+    page.drawText('1 SEPTEMBER 2020.', { x: margin + 10, y: y - 30, font: boldFont, size: 12, color: white });
+    page.drawText('PLEASE VISIT NEDBANK.CO.ZA FOR MORE INFORMATION.', { x: width - margin - 250, y: y - 30, font: boldFont, size: 9, color: white });
+    y-= 50;
+
+    page.drawText('Please examine this statement soonest. If no error is reported within 30 days after receipt, the statement will be considered as being correct.', { x: margin, y, font, size: 6 });
+    y -= 15;
+
+    // 3. Account Summary
+    page.drawText('Account summary', { x: margin, y, font: boldFont, size: 12, color: primaryColor });
+    y -= 5;
+    page.drawRectangle({x: margin, y: y - 20, width: width - (margin * 2), height: 20, color: primaryColor});
+    page.drawText('Account type', { x: margin + 5, y: y-15, font: boldFont, size: 9, color: white });
+    page.drawText('Account number', { x: rightColX, y: y-15, font: boldFont, size: 9, color: white });
+    y -= 35;
+    page.drawText(accountName, { x: margin + 5, y, font, size: 9 });
+    page.drawText('1180729749', { x: rightColX, y, font, size: 9 });
+    y -= 10;
+    page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 0.5, color: gray });
+    y -= 15;
+    
+    const summaryDetails = [
+        { labelLeft: 'Statement date:', valueLeft: statementDate, labelRight: 'Envelope:', valueRight: '1 of 1' },
+        { labelLeft: 'Statement period:', valueLeft: statementPeriod, labelRight: 'Total pages:', valueRight: '1' },
+        { labelLeft: 'Statement frequency:', valueLeft: 'Monthly', labelRight: 'Client VAT number:', valueRight: 'N/A' },
+    ];
+    summaryDetails.forEach(detail => {
+        page.drawText(detail.labelLeft, { x: margin + 5, y, font, size: 9 });
+        page.drawText(detail.valueLeft, { x: margin + 100, y, font: boldFont, size: 9 });
+        page.drawText(detail.labelRight, { x: rightColX, y, font, size: 9 });
+        page.drawText(detail.valueRight, { x: rightColX + 100, y, font: boldFont, size: 9 });
+        y -= 12;
+    });
+    y -= 15;
+
+    // 4. Bank Charges & Cashflow
+    const chargesLeftCol = margin + 5;
+    const chargesRightCol = margin + 150;
+    const cashflowLeftCol = rightColX;
+    const cashflowRightCol = rightColX + 150;
+
+    page.drawText('Bank charges summary', { x: chargesLeftCol, y, font: boldFont, size: 11, color: primaryColor });
+    page.drawText('Cashflow', { x: cashflowLeftCol, y, font: boldFont, size: 11, color: primaryColor });
     y -= 20;
 
-    // Bank Charges Period
-    page.drawText(`Bank charges for the period ${statementPeriod}`, { x: margin, y, font: boldFont, size: 11 });
-    y -= 25;
-
-    // 2. Bank Charges Table
-    const tableTopY = y;
-    const col1X = margin;
-    const col2X = col1X + 250;
-    const col3X = col2X + 80;
-    const col4X = col3X + 80;
-    const tableWidth = width - (margin * 2);
-
-    // Header
-    page.drawRectangle({x: margin, y: tableTopY - 5, width: tableWidth, height: 20, color: primaryColor});
-    page.drawText('NarrativeDescription', {x: col1X + 5, y: tableTopY, color: white, font: boldFont, size: 9});
-    page.drawText('Itemcost(R)', {x: col2X + 5, y: tableTopY, color: white, font: boldFont, size: 9});
-    page.drawText('VAT(R)', {x: col3X + 5, y: tableTopY, color: white, font: boldFont, size: 9});
-    page.drawText('Total(R)', {x: col4X + 5, y: tableTopY, color: white, font: boldFont, size: 9});
-    y -= 25;
-    
-    // Rows
-    const chargesData = [
-        { desc: 'Electronic banking fees', cost: formatCurrency(itemCostFees), vat: formatCurrency(vatOnFees), total: formatCurrency(totalFees) },
-        { desc: 'Initiation fee', cost: '0.00', vat: '0.00', total: '0.00' },
-        { desc: 'Transaction service fees', cost: '0.00', vat: '0.00', total: '0.00' },
-        { desc: 'Other charges', cost: '0.00', vat: '0.00', total: '0.00' },
+    const bankChargesData = [
+        { label: 'Electronic banking fees', value: formatCurrency(totalFees) },
+        { label: 'Initiation fee', value: '0.00' },
+        { label: 'Transaction service fees', value: '0.00' },
+        { label: 'Other charges', value: '0.00' },
+        { label: 'Bank charge(s) (total)', value: formatCurrency(totalFees) },
+        { label: 'VAT inclusive @', value: '15.000%' },
     ];
-    chargesData.forEach(charge => {
-        page.drawText(charge.desc, {x: col1X + 5, y, color: black, font, size: 9});
-        page.drawText(charge.cost, {x: col2X + 5, y, color: black, font, size: 9});
-        page.drawText(charge.vat, {x: col3X + 5, y, color: black, font, size: 9});
-        page.drawText(charge.total, {x: col4X + 5, y, color: black, font, size: 9});
-        y -= 15;
-    });
+
+    const cashflowData = [
+        { label: 'Opening balance', value: formatCurrency(openingBalance) },
+        { label: 'Funds received/Credits', value: formatCurrency(fundsReceived) },
+        { label: 'Funds used/Debits', value: formatCurrency(fundsUsed) },
+        { label: 'Closing balance', value: formatCurrency(runningBalance) },
+        { label: 'Annual credit interest rate', value: '0.000%' },
+    ];
     
-    // Total
-    y -= 5;
-    page.drawLine({ start: { x: col1X, y }, end: { x: width-margin, y }, thickness: 0.5, color: black });
+    const rows = Math.max(bankChargesData.length, cashflowData.length);
+    for (let i = 0; i < rows; i++) {
+        if (bankChargesData[i]) {
+            page.drawText(bankChargesData[i].label, { x: chargesLeftCol, y, font, size: 9 });
+            page.drawText(`R${bankChargesData[i].value}`, { x: chargesRightCol, y, font, size: 9, color: black });
+        }
+        if (cashflowData[i]) {
+            page.drawText(cashflowData[i].label, { x: cashflowLeftCol, y, font, size: 9 });
+            page.drawText(`R${cashflowData[i].value}`, { x: cashflowRightCol, y, font, size: 9, color: black });
+        }
+        y -= 15;
+    }
+
+    y -= 30;
+
+    // Transactions Table
+    page.drawText('Transactions', { x: margin, y, font: boldFont, size: 12, color: primaryColor });
     y -= 15;
-    page.drawText('TotalCharges', {x: col1X + 5, y, color: black, font: boldFont, size: 9});
-    page.drawText(formatCurrency(totalFees), {x: col4X + 5, y, color: black, font: boldFont, size: 9});
-    y -= 40;
 
-
-    // 3. Transactions Table
     const transTableTopY = y;
     const transCol1X = margin;       // Date
     const transCol2X = transCol1X + 80;  // Description
-    const transCol3X = transCol2X + 180; // Fees
-    const transCol4X = transCol3X + 60;  // Debits
-    const transCol5X = transCol4X + 60;  // Credits
-    const transCol6X = transCol5X + 60;  // Balance
+    const transCol3X = transCol2X + 220; // Debits
+    const transCol4X = transCol3X + 80;  // Credits
+    const transCol5X = transCol4X + 80;  // Balance
+    const tableWidth = width - (margin * 2);
 
-    // Header
     page.drawRectangle({x: margin, y: transTableTopY - 5, width: tableWidth, height: 20, color: primaryColor});
     page.drawText('Date', {x: transCol1X + 5, y: transTableTopY, color: white, font: boldFont, size: 9});
     page.drawText('Description', {x: transCol2X + 5, y: transTableTopY, color: white, font: boldFont, size: 9});
-    page.drawText('Fees(R)', {x: transCol3X + 5, y: transTableTopY, color: white, font: boldFont, size: 9});
-    page.drawText('Debits(R)', {x: transCol4X + 5, y: transTableTopY, color: white, font: boldFont, size: 9});
-    page.drawText('Credits(R)', {x: transCol5X + 5, y: transTableTopY, color: white, font: boldFont, size: 9});
-    page.drawText('Balance(R)', {x: transCol6X + 5, y: transTableTopY, color: white, font: boldFont, size: 9});
+    page.drawText('Debits(R)', {x: transCol3X + 5, y: transTableTopY, color: white, font: boldFont, size: 9, textAlign: 'right'});
+    page.drawText('Credits(R)', {x: transCol4X + 5, y: transTableTopY, color: white, font: boldFont, size: 9, textAlign: 'right'});
+    page.drawText('Balance(R)', {x: transCol5X + 5, y: transTableTopY, color: white, font: boldFont, size: 9, textAlign: 'right'});
     y -= 25;
 
     // Opening Balance Row
-    const firstDate = sortedTransactions.length > 0 ? new Date(sortedTransactions[0].timestamp).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB');
-    page.drawText(firstDate, { x: transCol1X + 5, y, font, size: 9 });
-    page.drawText('Openingbalance', { x: transCol2X + 5, y, font: boldFont, size: 9 });
-    page.drawText(formatCurrency(openingBalance), { x: transCol6X + 5, y, font, size: 9 });
+    page.drawText(sortedTransactions.length > 0 ? formatDate(new Date(sortedTransactions[0].timestamp)) : '-', { x: transCol1X + 5, y, font, size: 9 });
+    page.drawText('Opening balance', { x: transCol2X + 5, y, font: boldFont, size: 9 });
+    page.drawText(formatCurrency(openingBalance), { x: transCol5X + tableWidth - (transCol5X+5), y, font, size: 9, textAlign: 'right' });
     y -= 15;
 
     // Transaction Rows
@@ -196,19 +271,16 @@ const generateStatementPdfFlow = ai.defineFlow(
             y = height - 40;
         }
         page.drawLine({ start: { x: margin, y: y + 5 }, end: { x: width - margin, y: y + 5 }, thickness: 0.5, color: rgb(0.9, 0.9, 0.9) });
-        page.drawText(new Date(tx.timestamp).toLocaleDateString('en-GB'), { x: transCol1X + 5, y, font, size: 9 });
-        page.drawText(tx.description.substring(0, 35), { x: transCol2X + 5, y, font, size: 9 });
+        page.drawText(formatDate(new Date(tx.timestamp)), { x: transCol1X + 5, y, font, size: 9 });
+        page.drawText(tx.description.substring(0, 40), { x: transCol2X + 5, y, font, size: 9 });
         
-        const isFee = tx.description.toLowerCase().includes('fee:');
-        if (isFee) {
-             page.drawText(formatCurrency(Math.abs(tx.amount)), { x: transCol3X + 5, y, font, size: 9 });
-        } else if (tx.amount < 0) {
-            page.drawText(formatCurrency(Math.abs(tx.amount)), { x: transCol4X + 5, y, font, size: 9 });
+        if (tx.amount < 0) {
+            page.drawText(formatCurrency(Math.abs(tx.amount)), { x: transCol3X + 70, y, font, size: 9, textAlign: 'right' });
         } else {
-            page.drawText(formatCurrency(tx.amount), { x: transCol5X + 5, y, font, size: 9 });
+            page.drawText(formatCurrency(tx.amount), { x: transCol4X + 70, y, font, size: 9, textAlign: 'right' });
         }
         
-        page.drawText(formatCurrency(tx.balance), { x: transCol6X + 5, y, font, size: 9 });
+        page.drawText(formatCurrency(tx.balance), { x: transCol5X + 70, y, font, size: 9, textAlign: 'right' });
         y -= 15;
     });
 
@@ -218,5 +290,3 @@ const generateStatementPdfFlow = ai.defineFlow(
     return { pdfBase64 };
   }
 );
-
-    
