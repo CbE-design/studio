@@ -7,11 +7,12 @@ import { getAuth } from 'firebase/auth';
 const firebaseConfig = {
   "projectId": "van-schalkwyk-trust-mobile",
   "appId": "1:853116909297:web:3f219f7baf9f45668e9b50",
-  "storageBucket": "van-schalkwyk-trust-mobile.firebasestorage.app",
+  "storageBucket": "van-schalkwyk-trust-mobile.appspot.com",
   "apiKey": "AIzaSyClK8KfevXUzXNf7Tpfp6es8e-BRc5feG0",
   "authDomain": "van-schalkwyk-trust-mobile.firebaseapp.com",
   "measurementId": "",
-  "messagingSenderId": "853116909297"
+  "messagingSenderId": "853116909297",
+  "databaseURL": "https://van-schalkwyk-trust-mobile.firebaseio.com"
 };
 
 // Initialize Firebase
