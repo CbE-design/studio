@@ -137,11 +137,11 @@ const generateStatementPdfFlow = ai.defineFlow(
     
     // Client Address
     const clientAddress = [
-        'MR CORRIE DIRK VAN SCHALKWYK',
-        'C/O VAN SCHALKWYK TRUST',
-        '123 TRUST LANE',
-        'PRETORIA, GAUTENG',
-        '0001'
+        'VAN SCHALKWYK FAMILY TRUST',
+        'PO BOX 1234',
+        'SANDTON',
+        'GAUTENG',
+        '2196'
     ];
     clientAddress.forEach((line, index) => {
         page.drawText(line, { x: margin, y: y - (index * 12), font: boldFont, size: 9 });
@@ -177,7 +177,7 @@ const generateStatementPdfFlow = ai.defineFlow(
     page.drawText('Account number', { x: rightColX, y: y-15, font: boldFont, size: 9, color: white });
     y -= 35;
     page.drawText(accountName, { x: margin + 5, y, font, size: 9 });
-    page.drawText('1180729749', { x: rightColX, y, font, size: 9 });
+    page.drawText('...8027', { x: rightColX, y, font, size: 9 });
     y -= 10;
     page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 0.5, color: gray });
     y -= 15;
@@ -227,11 +227,11 @@ const generateStatementPdfFlow = ai.defineFlow(
     for (let i = 0; i < rows; i++) {
         if (bankChargesData[i]) {
             page.drawText(bankChargesData[i].label, { x: chargesLeftCol, y, font, size: 9 });
-            page.drawText(`R${bankChargesData[i].value}`, { x: chargesRightCol, y, font, size: 9, color: black });
+            page.drawText(`R${bankChargesData[i].value}`, { x: chargesRightCol, y, font: font, size: 9, color: black });
         }
         if (cashflowData[i]) {
             page.drawText(cashflowData[i].label, { x: cashflowLeftCol, y, font, size: 9 });
-            page.drawText(`R${cashflowData[i].value}`, { x: cashflowRightCol, y, font, size: 9, color: black });
+            page.drawText(`R${cashflowData[i].value}`, { x: cashflowRightCol, y, font: font, size: 9, color: black });
         }
         y -= 15;
     }
