@@ -123,7 +123,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     y -= 20;
     page.drawText('Paid from Account Holder', { x: detailsLeftColX, y, font, size: 10 });
     page.drawText(':', { x: detailsColonColX, y, font, size: 10 });
-    page.drawText("CORRIE DIRK VAN SCHALKWYK", { x: detailsRightColX, y, font, size: 10 });
+    page.drawText(details.fromAccountName.toUpperCase(), { x: detailsRightColX, y, font, size: 10 });
 
     y -= 40;
 
@@ -180,5 +180,3 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     return { pdfBase64 };
   }
 );
-
-    
