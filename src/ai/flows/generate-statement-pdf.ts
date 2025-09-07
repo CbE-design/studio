@@ -198,9 +198,9 @@ const generateStatementPdfFlow = ai.defineFlow(
 
     // 4. Bank Charges & Cashflow
     const chargesLeftCol = margin + 5;
-    const chargesRightCol = margin + 150;
+    const chargesRightColValueX = chargesLeftCol + 200;
     const cashflowLeftCol = rightColX;
-    const cashflowRightCol = rightColX + 150;
+    const cashflowRightColValueX = cashflowLeftCol + 200;
 
     page.drawText('Bank charges summary', { x: chargesLeftCol, y, font: boldFont, size: 11, color: primaryColor });
     page.drawText('Cashflow', { x: cashflowLeftCol, y, font: boldFont, size: 11, color: primaryColor });
@@ -211,27 +211,29 @@ const generateStatementPdfFlow = ai.defineFlow(
         { label: 'Initiation fee', value: '0.00' },
         { label: 'Transaction service fees', value: '0.00' },
         { label: 'Other charges', value: '0.00' },
-        { label: 'Bank charge(s) (total)', value: formatCurrency(totalFees) },
+        { label: 'Bank charge(s) (total)', value: formatCurrency(totalFees), isBold: true },
         { label: 'VAT inclusive @', value: '15.000%' },
     ];
 
     const cashflowData = [
-        { label: 'Opening balance', value: formatCurrency(openingBalance) },
+        { label: 'Opening balance', value: formatCurrency(openingBalance), isBold: true },
         { label: 'Funds received/Credits', value: formatCurrency(fundsReceived) },
         { label: 'Funds used/Debits', value: formatCurrency(fundsUsed) },
-        { label: 'Closing balance', value: formatCurrency(runningBalance) },
+        { label: 'Closing balance', value: formatCurrency(runningBalance), isBold: true },
         { label: 'Annual credit interest rate', value: '0.000%' },
     ];
     
     const rows = Math.max(bankChargesData.length, cashflowData.length);
     for (let i = 0; i < rows; i++) {
         if (bankChargesData[i]) {
-            page.drawText(bankChargesData[i].label, { x: chargesLeftCol, y, font, size: 9 });
-            page.drawText(`R${bankChargesData[i].value}`, { x: chargesRightCol, y, font: font, size: 9, color: black });
+            const currentFont = bankChargesData[i].isBold ? boldFont : font;
+            page.drawText(bankChargesData[i].label, { x: chargesLeftCol, y, font: currentFont, size: 9 });
+            page.drawText(`R${bankChargesData[i].value}`, { x: chargesRightColValueX + 70, width: 80, y, font: currentFont, size: 9, color: black, align: 'right' });
         }
         if (cashflowData[i]) {
-            page.drawText(cashflowData[i].label, { x: cashflowLeftCol, y, font, size: 9 });
-            page.drawText(`R${cashflowData[i].value}`, { x: cashflowRightCol, y, font: font, size: 9, color: black });
+            const currentFont = cashflowData[i].isBold ? boldFont : font;
+            page.drawText(cashflowData[i].label, { x: cashflowLeftCol, y, font: currentFont, size: 9 });
+            page.drawText(`R${cashflowData[i].value}`, { x: cashflowRightColValueX + 70, width: 80, y, font: currentFont, size: 9, color: black, align: 'right' });
         }
         y -= 15;
     }
@@ -244,7 +246,7 @@ const generateStatementPdfFlow = ai.defineFlow(
 
     const transTableTopY = y;
     const transCol1X = margin;       // Date
-    const transCol2X = transCol1X + 80;  // Description
+    const transCol2X = transCol1X + 60;  // Description
     const transCol3X = transCol2X + 220; // Debits
     const transCol4X = transCol3X + 80;  // Credits
     const transCol5X = transCol4X + 80;  // Balance
@@ -253,15 +255,15 @@ const generateStatementPdfFlow = ai.defineFlow(
     page.drawRectangle({x: margin, y: transTableTopY - 5, width: tableWidth, height: 20, color: primaryColor});
     page.drawText('Date', {x: transCol1X + 5, y: transTableTopY, color: white, font: boldFont, size: 9});
     page.drawText('Description', {x: transCol2X + 5, y: transTableTopY, color: white, font: boldFont, size: 9});
-    page.drawText('Debits(R)', {x: transCol3X + 5, y: transTableTopY, color: white, font: boldFont, size: 9, textAlign: 'right'});
-    page.drawText('Credits(R)', {x: transCol4X + 5, y: transTableTopY, color: white, font: boldFont, size: 9, textAlign: 'right'});
-    page.drawText('Balance(R)', {x: transCol5X + 5, y: transTableTopY, color: white, font: boldFont, size: 9, textAlign: 'right'});
+    page.drawText('Debits(R)', {x: transCol3X + 5, y: transTableTopY, color: white, font: boldFont, size: 9});
+    page.drawText('Credits(R)', {x: transCol4X + 5, y: transTableTopY, color: white, font: boldFont, size: 9});
+    page.drawText('Balance(R)', {x: transCol5X + 5, y: transTableTopY, color: white, font: boldFont, size: 9});
     y -= 25;
 
     // Opening Balance Row
     page.drawText(sortedTransactions.length > 0 ? formatDate(new Date(sortedTransactions[0].timestamp)) : '-', { x: transCol1X + 5, y, font, size: 9 });
     page.drawText('Opening balance', { x: transCol2X + 5, y, font: boldFont, size: 9 });
-    page.drawText(formatCurrency(openingBalance), { x: transCol5X + tableWidth - (transCol5X+5), y, font, size: 9, textAlign: 'right' });
+    page.drawText(formatCurrency(openingBalance), { x: transCol5X, width: 70, y, font: boldFont, size: 9, align: 'right' });
     y -= 15;
 
     // Transaction Rows
@@ -275,14 +277,24 @@ const generateStatementPdfFlow = ai.defineFlow(
         page.drawText(tx.description.substring(0, 40), { x: transCol2X + 5, y, font, size: 9 });
         
         if (tx.amount < 0) {
-            page.drawText(formatCurrency(Math.abs(tx.amount)), { x: transCol3X + 70, y, font, size: 9, textAlign: 'right' });
+            page.drawText(formatCurrency(Math.abs(tx.amount)), { x: transCol3X, width: 70, y, font, size: 9, align: 'right' });
         } else {
-            page.drawText(formatCurrency(tx.amount), { x: transCol4X + 70, y, font, size: 9, textAlign: 'right' });
+            page.drawText(formatCurrency(tx.amount), { x: transCol4X, width: 70, y, font, size: 9, align: 'right' });
         }
         
-        page.drawText(formatCurrency(tx.balance), { x: transCol5X + 70, y, font, size: 9, textAlign: 'right' });
+        page.drawText(formatCurrency(tx.balance), { x: transCol5X, width: 70, y, font, size: 9, align: 'right' });
         y -= 15;
     });
+    
+    // Closing Balance Row
+    if (y < 60) {
+        page = pdfDoc.addPage(PageSizes.A4);
+        y = height - 40;
+    }
+    page.drawLine({ start: { x: margin, y: y + 5 }, end: { x: width - margin, y: y + 5 }, thickness: 0.5, color: rgb(0.9, 0.9, 0.9) });
+    page.drawText(sortedTransactions.length > 0 ? formatDate(new Date(sortedTransactions[sortedTransactions.length - 1].timestamp)) : '-', { x: transCol1X + 5, y, font, size: 9 });
+    page.drawText('Closing balance', { x: transCol2X + 5, y, font: boldFont, size: 9 });
+    page.drawText(formatCurrency(runningBalance), { x: transCol5X, width: 70, y, font: boldFont, size: 9, align: 'right' });
 
     const pdfBytes = await pdfDoc.save();
     const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
