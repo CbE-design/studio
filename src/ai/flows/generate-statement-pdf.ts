@@ -59,10 +59,8 @@ const generateStatementPdfFlow = ai.defineFlow(
         .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
     let openingBalance = balance;
-    let fundsReceived = 0;
-    let fundsUsed = 0;
-    let totalFees = 0;
-
+    
+    // Calculate opening balance by working backwards from the closing balance
     for (let i = sortedTransactions.length - 1; i >= 0; i--) {
         const tx = sortedTransactions[i];
         const amount = parseFloat(tx.amount.replace('R', '').replace(/ /g, ''));
@@ -70,16 +68,34 @@ const generateStatementPdfFlow = ai.defineFlow(
     }
 
     let runningBalance = openingBalance;
+    let fundsReceived = 0;
+    let fundsUsed = 0;
+    let totalFees = 0;
+
+    // Categorization logic
+    const fundsReceivedBreakdown = { electronicPayments: 0, transfersIn: 0, reversals: 0, other: 0 };
+    const fundsUsedBreakdown = { accountPayments: 0, cashWithdrawals: 0, debitCardPurchases: 0, electronicTransfers: 0, other: 0 };
+
     const finalTransactions = sortedTransactions.map(tx => {
         const amount = parseFloat(tx.amount.replace('R', '').replace(/ /g, ''));
+        const desc = tx.description.toLowerCase();
         runningBalance += amount;
-        if (tx.description.toLowerCase().includes('fee:')) {
+
+        if (desc.includes('fee:')) {
             totalFees += Math.abs(amount);
-        }
-        if (amount > 0) {
+        } else if (amount > 0) {
             fundsReceived += amount;
-        } else {
+            if (desc.includes('payment')) fundsReceivedBreakdown.electronicPayments += amount;
+            else if (desc.includes('transfer')) fundsReceivedBreakdown.transfersIn += amount;
+            else if (desc.includes('revers')) fundsReceivedBreakdown.reversals += amount;
+            else fundsReceivedBreakdown.other += amount;
+        } else { // amount < 0
             fundsUsed += Math.abs(amount);
+            if (desc.includes('payment')) fundsUsedBreakdown.accountPayments += Math.abs(amount);
+            else if (desc.includes('atm') || desc.includes('withdrawal')) fundsUsedBreakdown.cashWithdrawals += Math.abs(amount);
+            else if (desc.includes('purchase') || ['woolworths'].some(merch => desc.includes(merch))) fundsUsedBreakdown.debitCardPurchases += Math.abs(amount);
+            else if (desc.includes('transfer')) fundsUsedBreakdown.electronicTransfers += Math.abs(amount);
+            else fundsUsedBreakdown.other += Math.abs(amount);
         }
         return { ...tx, balance: runningBalance, amount };
     });
@@ -198,9 +214,9 @@ const generateStatementPdfFlow = ai.defineFlow(
 
     // 4. Bank Charges & Cashflow
     const chargesLeftCol = margin + 5;
-    const chargesRightColValueX = chargesLeftCol + 200;
+    const chargesRightColValueX = chargesLeftCol + 150;
     const cashflowLeftCol = rightColX;
-    const cashflowRightColValueX = cashflowLeftCol + 200;
+    const cashflowRightColValueX = cashflowLeftCol + 150;
 
     page.drawText('Bank charges summary', { x: chargesLeftCol, y, font: boldFont, size: 11, color: primaryColor });
     page.drawText('Cashflow', { x: cashflowLeftCol, y, font: boldFont, size: 11, color: primaryColor });
@@ -228,12 +244,12 @@ const generateStatementPdfFlow = ai.defineFlow(
         if (bankChargesData[i]) {
             const currentFont = bankChargesData[i].isBold ? boldFont : font;
             page.drawText(bankChargesData[i].label, { x: chargesLeftCol, y, font: currentFont, size: 9 });
-            page.drawText(`R${bankChargesData[i].value}`, { x: chargesRightColValueX + 70, width: 80, y, font: currentFont, size: 9, color: black, align: 'right' });
+            page.drawText(`R ${bankChargesData[i].value}`, { x: chargesRightColValueX, width: 80, y, font: currentFont, size: 9, color: black });
         }
         if (cashflowData[i]) {
             const currentFont = cashflowData[i].isBold ? boldFont : font;
             page.drawText(cashflowData[i].label, { x: cashflowLeftCol, y, font: currentFont, size: 9 });
-            page.drawText(`R${cashflowData[i].value}`, { x: cashflowRightColValueX + 70, width: 80, y, font: currentFont, size: 9, color: black, align: 'right' });
+            page.drawText(`R ${cashflowData[i].value}`, { x: cashflowRightColValueX, width: 80, y, font: currentFont, size: 9, color: black });
         }
         y -= 15;
     }
@@ -295,6 +311,52 @@ const generateStatementPdfFlow = ai.defineFlow(
     page.drawText(sortedTransactions.length > 0 ? formatDate(new Date(sortedTransactions[sortedTransactions.length - 1].timestamp)) : '-', { x: transCol1X + 5, y, font, size: 9 });
     page.drawText('Closing balance', { x: transCol2X + 5, y, font: boldFont, size: 9 });
     page.drawText(formatCurrency(runningBalance), { x: transCol5X, width: 70, y, font: boldFont, size: 9, align: 'right' });
+    y-= 20;
+
+    // New Breakdown Sections
+    const breakdownLeftCol = margin + 5;
+    const breakdownRightColValueX = breakdownLeftCol + 200;
+
+    const drawBreakdown = (title: string, data: {label: string, value: number}[]) => {
+        if (y < 150) { // Check if there's enough space
+            page = pdfDoc.addPage(PageSizes.A4);
+            y = height - 40;
+        }
+        y -= 20;
+        page.drawText(title, { x: margin, y, font: boldFont, size: 12, color: primaryColor });
+        y -= 20;
+        
+        data.forEach(item => {
+            page.drawText(item.label, { x: breakdownLeftCol, y, font, size: 9 });
+            page.drawText(`R ${formatCurrency(item.value)}`, { x: breakdownRightColValueX, width: 80, y, font, size: 9 });
+            y -= 15;
+        });
+
+        const total = data.reduce((sum, item) => sum + item.value, 0);
+        page.drawLine({ start: { x: breakdownLeftCol, y: y + 5 }, end: { x: breakdownLeftCol + 290, y: y + 5 }, thickness: 0.5, color: gray });
+        page.drawText('Total', { x: breakdownLeftCol, y: y - 10, font: boldFont, size: 9 });
+        page.drawText(`R ${formatCurrency(total)}`, { x: breakdownRightColValueX, width: 80, y: y - 10, font: boldFont, size: 9 });
+        y -= 25;
+    }
+
+    const receivedData = [
+        { label: 'Electronic payments received', value: fundsReceivedBreakdown.electronicPayments },
+        { label: 'Transfers in', value: fundsReceivedBreakdown.transfersIn },
+        { label: 'Reversals credited', value: fundsReceivedBreakdown.reversals },
+        { label: 'Other credits', value: fundsReceivedBreakdown.other },
+    ];
+    drawBreakdown('Funds received breakdown', receivedData);
+
+    const usedData = [
+        { label: 'Account payments', value: fundsUsedBreakdown.accountPayments },
+        { label: 'Cash withdrawals', value: fundsUsedBreakdown.cashWithdrawals },
+        { label: 'Debit card purchases', value: fundsUsedBreakdown.debitCardPurchases },
+        { label: 'Electronic transfers', value: fundsUsedBreakdown.electronicTransfers },
+        { label: 'Total charges and fees', value: totalFees },
+        { label: 'Other debits', value: fundsUsedBreakdown.other },
+    ];
+    drawBreakdown('Funds used breakdown', usedData);
+
 
     const pdfBytes = await pdfDoc.save();
     const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
