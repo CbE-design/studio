@@ -67,7 +67,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
               <div key={page.id} className="w-full flex-shrink-0 snap-center">
                 <div className="text-primary-foreground p-4">
                   <div className="flex items-center space-x-2 mb-4">
-                    <h1 className="text-lg font-bold text-primary-foreground font-libre-franklin">{page.title}</h1>
+                    <h1 className="text-lg font-extrabold text-primary-foreground font-libre-franklin">{page.title}</h1>
                     <Eye size={20} className="text-primary-foreground" />
                   </div>
                   <div className="space-y-0">
