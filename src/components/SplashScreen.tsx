@@ -1,6 +1,6 @@
 'use client';
 const SplashScreen = () => (
-  <div className="bg-gradient-to-b from-[#009E4D] to-[#008D41] text-white flex flex-col h-screen font-sans p-8">
+  <div className="bg-gradient-to-b from-[#34D399] to-[#059669] text-white flex flex-col h-screen font-sans p-8">
     <div className="flex-1 flex flex-col items-center justify-center">
       <h1 className="text-3xl text-center tracking-wider">
         <span className="font-extrabold text-white">NEDBANK</span>
