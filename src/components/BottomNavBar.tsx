@@ -22,13 +22,21 @@ const BottomNavBar = ({ activeTab, onTabClick }) => {
             key={item.label}
             onClick={() => onTabClick(item.label, item.view)}
             className={`flex flex-col items-center justify-center h-full w-1/5 transition-colors duration-200 ${
-              activeTab === item.label
+              activeTab === item.label && item.label !== 'Transact'
                 ? 'text-primary font-bold'
                 : 'text-gray-500 font-normal'
-            }`}
+            } ${item.label === 'Transact' ? 'relative -top-2' : ''}`}
           >
-            {item.icon}
-            <span className="text-xs mt-1">{item.label}</span>
+            {item.label === 'Transact' ? (
+              <div className="bg-primary text-white rounded-full p-3 shadow-lg">
+                <Plus size={30} />
+              </div>
+            ) : (
+              <>
+                {item.icon}
+                <span className="text-xs mt-1">{item.label}</span>
+              </>
+            )}
           </button>
         ))}
       </div>

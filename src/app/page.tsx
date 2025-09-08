@@ -36,6 +36,7 @@ import StatementPage from '@/components/StatementPage';
 import StatementAccountPage from '@/components/StatementAccountPage';
 import StatementMonthPage from '@/components/StatementMonthPage';
 import MorePage from '@/components/MorePage';
+import TransactModal from '@/components/TransactModal';
 import { combinedInitialTransactions, initialPlatinumChequeTransactions, initialThirdAccountTransactions, MOCK_CURRENT_DATE } from '@/lib/data';
 import { sendPaymentNotification } from '@/ai/flows/send-payment-notification';
 import { sendSms } from '@/ai/flows/send-sms';
@@ -76,6 +77,7 @@ const App = () => {
   const [showBankModal, setShowBankModal] = useState(false);
   const [bankSearchQuery, setBankSearchQuery] = useState('');
   const [isRecipientSaved, setIsRecipientSaved] = useState(false);
+  const [showTransactModal, setShowTransactModal] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const failedTransactionsData = useMemo(() => {
@@ -479,8 +481,12 @@ const App = () => {
   };
 
   const handleTabClick = (label, view) => {
+    if (label === 'Transact') {
+        setShowTransactModal(true);
+        return;
+    }
     setActiveTab(label);
-    const implementedViews = ['overview', 'transactLanding', 'recipients', 'more'];
+    const implementedViews = ['overview', 'recipients', 'more'];
     if (implementedViews.includes(view)) {
       setCurrentView(view);
     } else {
@@ -635,10 +641,22 @@ const App = () => {
           <main className="flex-1">
             {renderCurrentView()}
           </main>
+          {showTransactModal && 
+            <TransactModal 
+              onClose={() => setShowTransactModal(false)} 
+              onNavigate={(view) => {
+                setCurrentView(view);
+                setShowTransactModal(false);
+              }} 
+            />
+          }
           {currentView !== 'start' && currentView !== 'login' &&
             !isLoading &&
             !['paymentConfirmation', 'transactionDetail', 'transactLanding', 'payment', 'statement', 'statementAccount', 'statementMonth'].includes(currentView) && (
-              <BottomNavBar activeTab={activeTab} onTabClick={handleTabClick} />
+              <BottomNavBar 
+                activeTab={activeTab} 
+                onTabClick={handleTabClick} 
+              />
             )}
         </div>
       )}
