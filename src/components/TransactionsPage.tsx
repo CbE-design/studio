@@ -14,6 +14,7 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
   const menuItems = ['Transactions', 'Debit orders', 'Scheduled', 'Card management', 'Details', 'Features'];
   
   const formatAmount = (amountStr) => {
+    if (typeof amountStr !== 'string') return '';
     if (amountStr.startsWith('+')) {
       return amountStr.substring(1);
     }
@@ -42,20 +43,23 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
           </div>
         </div>
         <div className="p-4 space-y-3 bg-gray-100">
-          <div 
-            className="bg-white p-5 rounded-xl shadow-md flex justify-between items-center cursor-pointer" 
-            onClick={() => setCurrentView('failedTransactions')}
-          >
-            <span className="text-base">Failed transactions</span>
-            <ChevronRight size={20} />
-          </div>
-          <div 
-            className="bg-white p-5 rounded-xl shadow-md flex justify-between items-center cursor-pointer" 
-            onClick={() => setCurrentView('payment')}
-          >
-            <span className="text-base">Once-off payment</span>
-            <ChevronRight size={20} />
-          </div>
+           <div className="bg-white rounded-xl shadow-md">
+                <div 
+                    className="p-5 flex justify-between items-center cursor-pointer"
+                    onClick={() => setCurrentView('failedTransactions')}
+                >
+                    <span className="text-base">Failed transactions</span>
+                    <ChevronRight size={20} />
+                </div>
+                <hr className="mx-5" />
+                <div 
+                    className="p-5 flex justify-between items-center cursor-pointer"
+                    onClick={() => setCurrentView('payment')}
+                >
+                    <span className="text-base">Once-off payment</span>
+                    <ChevronRight size={20} />
+                </div>
+            </div>
           <div className="flex items-center space-x-2 pt-2">
             <div className="relative flex-1">
               <Search size={20} className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
