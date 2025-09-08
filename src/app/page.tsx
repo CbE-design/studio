@@ -28,6 +28,7 @@ import TransactionsPage from '@/components/TransactionsPage';
 import FailedTransactionsPage from '@/components/FailedTransactionsPage';
 import TransactionDetailPage from '@/components/TransactionDetailPage';
 import PaymentPage from '@/components/PaymentPage';
+import PaymentTypePage from '@/components/PaymentTypePage';
 import RecipientsPage from '@/components/RecipientsPage';
 import PaymentConfirmationPage from '@/components/PaymentConfirmationPage';
 import BottomNavBar from '@/components/BottomNavBar';
@@ -504,6 +505,11 @@ const App = () => {
     setCurrentView('statement');
   };
 
+  const handlePaymentTypeSelect = (paymentType: string) => {
+    setPaymentDetails(prev => ({ ...prev, paymentMethod: paymentType }));
+    setCurrentView('payment');
+  };
+
   const renderCurrentView = () => {
     switch (currentView) {
       case 'login':
@@ -583,6 +589,8 @@ const App = () => {
             setBankSearchQuery={setBankSearchQuery}
           />
         );
+      case 'paymentType':
+        return <PaymentTypePage onSelect={handlePaymentTypeSelect} setCurrentView={setCurrentView} />;
       case 'recipients':
         return <RecipientsPage recipients={recipients} setCurrentView={setCurrentView} />;
       case 'paymentConfirmation':
@@ -652,7 +660,7 @@ const App = () => {
           }
           {currentView !== 'start' && currentView !== 'login' &&
             !isLoading && !showTransactModal &&
-            !['paymentConfirmation', 'transactionDetail', 'transactLanding', 'payment', 'statement', 'statementAccount', 'statementMonth'].includes(currentView) && (
+            !['paymentConfirmation', 'transactionDetail', 'transactLanding', 'payment', 'paymentType', 'statement', 'statementAccount', 'statementMonth'].includes(currentView) && (
               <BottomNavBar 
                 activeTab={activeTab} 
                 onTabClick={handleTabClick} 
