@@ -12,6 +12,13 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
   }, {});
 
   const menuItems = ['Transactions', 'Debit orders', 'Scheduled', 'Card management', 'Details', 'Features'];
+  
+  const formatAmount = (amountStr) => {
+    if (amountStr.startsWith('+')) {
+      return amountStr.substring(1);
+    }
+    return amountStr;
+  };
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-gray-100">
@@ -80,11 +87,11 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
                     className="flex justify-between items-center py-4 border-b border-gray-200 bg-white cursor-pointer last:border-b-0"
                   >
                     <div>
-                      <p className="text-xs text-gray-500">{new Date(transaction.timestamp).toLocaleString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-                      <p className="text-sm font-bold text-gray-900 uppercase mt-1">{transaction.description}</p>
+                      <p className="text-xs text-gray-500">{new Date(transaction.timestamp).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                      <p className="text-sm font-medium text-gray-900 uppercase mt-1">{transaction.description}</p>
                     </div>
-                    <p className={`text-sm font-semibold tabular-nums ${transaction.amount.startsWith('-') ? 'text-gray-800' : 'text-green-600'}`}>
-                      {transaction.amount}
+                    <p className={`text-sm font-normal tabular-nums ${transaction.amount.startsWith('-') ? 'text-gray-800' : 'text-green-600'}`}>
+                      {formatAmount(transaction.amount)}
                     </p>
                   </div>
                 ))}
