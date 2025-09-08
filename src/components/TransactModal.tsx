@@ -50,21 +50,21 @@ const TransactModal = ({ onClose, onNavigate }) => {
                 onClick={(e) => e.stopPropagation()} // Prevent closing modal when clicking on the buttons area
             >
                 <div className="flex flex-col items-center" onClick={() => handleActionClick(null)}>
-                    <div className="bg-white rounded-full h-16 w-16 flex items-center justify-center text-gray-800 shadow-lg">
+                    <div className="bg-white rounded-full h-14 w-14 flex items-center justify-center text-gray-800 shadow-lg">
                         <TransferIcon />
                     </div>
                     <span className="text-white mt-2 text-sm">Transfer</span>
                 </div>
                 
-                <div className="flex flex-col items-center transform -translate-y-10" onClick={() => handleActionClick('payment')}>
-                    <div className="bg-white rounded-full h-16 w-16 flex items-center justify-center text-gray-800 shadow-lg">
+                <div className="flex flex-col items-center transform -translate-y-16" onClick={() => handleActionClick('payment')}>
+                    <div className="bg-white rounded-full h-14 w-14 flex items-center justify-center text-gray-800 shadow-lg">
                         <PayIcon />
                     </div>
                     <span className="text-white mt-2 text-sm">Pay</span>
                 </div>
                 
                 <div className="flex flex-col items-center" onClick={() => handleActionClick(null)}>
-                    <div className="bg-white rounded-full h-16 w-16 flex items-center justify-center text-gray-800 shadow-lg">
+                    <div className="bg-white rounded-full h-14 w-14 flex items-center justify-center text-gray-800 shadow-lg">
                         <BuyIcon />
                     </div>
                     <span className="text-white mt-2 text-sm">Buy</span>

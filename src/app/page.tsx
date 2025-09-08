@@ -651,7 +651,7 @@ const App = () => {
             />
           }
           {currentView !== 'start' && currentView !== 'login' &&
-            !isLoading &&
+            !isLoading && !showTransactModal &&
             !['paymentConfirmation', 'transactionDetail', 'transactLanding', 'payment', 'statement', 'statementAccount', 'statementMonth'].includes(currentView) && (
               <BottomNavBar 
                 activeTab={activeTab} 
