@@ -28,6 +28,7 @@ import TransactionsPage from '@/components/TransactionsPage';
 import FailedTransactionsPage from '@/components/FailedTransactionsPage';
 import TransactionDetailPage from '@/components/TransactionDetailPage';
 import PaymentPage from '@/components/PaymentPage';
+import PaymentAmountPage from '@/components/PaymentAmountPage';
 import PaymentTypePage from '@/components/PaymentTypePage';
 import RecipientsPage from '@/components/RecipientsPage';
 import PaymentConfirmationPage from '@/components/PaymentConfirmationPage';
@@ -284,6 +285,10 @@ const App = () => {
   const handleTransactionClick = (transaction) => {
     setSelectedTransaction(transaction);
     setCurrentView('transactionDetail');
+  };
+
+  const handleRecipientSubmit = () => {
+    setCurrentView('paymentAmount');
   };
 
   const handlePaymentSubmit = async (e) => {
@@ -581,12 +586,22 @@ const App = () => {
           <PaymentPage
             paymentDetails={paymentDetails}
             setPaymentDetails={setPaymentDetails}
-            handlePaymentSubmit={handlePaymentSubmit}
+            handleRecipientSubmit={handleRecipientSubmit}
             setCurrentView={setCurrentView}
             showBankModal={showBankModal}
             setShowBankModal={setShowBankModal}
             bankSearchQuery={bankSearchQuery}
             setBankSearchQuery={setBankSearchQuery}
+          />
+        );
+       case 'paymentAmount':
+        return (
+          <PaymentAmountPage
+            paymentDetails={paymentDetails}
+            setPaymentDetails={setPaymentDetails}
+            handlePaymentSubmit={handlePaymentSubmit}
+            setCurrentView={setCurrentView}
+            accounts={allAccounts}
           />
         );
       case 'paymentType':
@@ -660,7 +675,7 @@ const App = () => {
           }
           {currentView !== 'start' && currentView !== 'login' &&
             !isLoading && !showTransactModal &&
-            !['paymentConfirmation', 'transactionDetail', 'transactLanding', 'payment', 'paymentType', 'statement', 'statementAccount', 'statementMonth'].includes(currentView) && (
+            !['paymentConfirmation', 'transactionDetail', 'transactLanding', 'payment', 'paymentType', 'paymentAmount', 'statement', 'statementAccount', 'statementMonth'].includes(currentView) && (
               <BottomNavBar 
                 activeTab={activeTab} 
                 onTabClick={handleTabClick} 
@@ -676,4 +691,5 @@ export default App;
     
 
     
+
 

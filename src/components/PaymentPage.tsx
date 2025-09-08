@@ -15,7 +15,7 @@ const BankIcon = () => (
 );
 
 
-const PaymentPage = ({ paymentDetails, setPaymentDetails, handlePaymentSubmit, setCurrentView, showBankModal, setShowBankModal, bankSearchQuery, setBankSearchQuery }) => {
+const PaymentPage = ({ paymentDetails, setPaymentDetails, handleRecipientSubmit, setCurrentView, showBankModal, setShowBankModal, bankSearchQuery, setBankSearchQuery }) => {
   const allBanks = [ 'NEDBANK', 'ABSA BANK', 'CAPITEC BANK', 'FNB SOUTH AFRICA', 'STANDARD BANK SOUTH AFRICA', 'AFRICAN BANK', 'ALBARAKA BANK', 'BANK ZERO', 'BIDVEST BANK', 'BNP PARIBAS', 'CITIBANK', 'DISCOVERY BANK', 'FinBond Mutual Bank', 'FINBOND MUTUAL EPE DIVISION', 'FIRST NATIONAL BANK', 'GRINDROD BANK', 'GROBANK LTD', 'HABIB OVERSEAS BANK LIMITED', 'HBZ BANK LIMITED', 'HSBC BANK', 'INVESTEC BANK LIMITED', 'ITHALA(ABSA)', 'JP MORGAN CHASE', 'MERCANTILE BANK', 'NEDBANK-PEOPLES MORTGAGE LTD', 'NEDBANK (BOND ACCOUNTS)', 'NEDBANK INCORP. FBC', 'NEDBANK LESOTHO LIMITED', 'NEDBANK LTD INCORP. BOE BANK', 'NEDBANK LTD INCORP. PEP BANK', 'NEDBANK NAMIBIA' ];
   const filteredBanks = useMemo(() => allBanks.filter(bank => bank.toLowerCase().includes(bankSearchQuery.toLowerCase())), [bankSearchQuery, allBanks]);
   const isFormValid = paymentDetails.recipient && paymentDetails.bankName !== 'Select bank' && paymentDetails.accountNumber;
@@ -29,8 +29,8 @@ const PaymentPage = ({ paymentDetails, setPaymentDetails, handlePaymentSubmit, s
       </header>
       
       <main className="flex-1 overflow-y-auto pb-32">
-        <form onSubmit={handlePaymentSubmit}>
-          <div className="p-4 bg-white min-h-[200px]">
+        <form onSubmit={(e) => { e.preventDefault(); handleRecipientSubmit(); }}>
+          <div className="p-4 bg-white min-h-[250px]">
             <label className="block">
               <span className="text-gray-500 text-sm">A new recipient</span>
               <input 
@@ -113,7 +113,7 @@ const PaymentPage = ({ paymentDetails, setPaymentDetails, handlePaymentSubmit, s
               />
           </div>
           <Button 
-            onClick={handlePaymentSubmit} 
+            onClick={handleRecipientSubmit}
             disabled={!isFormValid}
             className="w-full text-lg py-6"
           >
