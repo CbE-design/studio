@@ -632,7 +632,7 @@ const App = () => {
         <SplashScreen />
       ) : (
         <div className="flex-1 flex flex-col overflow-hidden">
-          <main className="flex-1 overflow-y-auto">
+          <main className="flex-1">
             {renderCurrentView()}
           </main>
           {currentView !== 'start' && currentView !== 'login' &&
