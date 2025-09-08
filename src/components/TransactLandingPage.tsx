@@ -15,15 +15,15 @@ const TransactLandingPage = ({ setCurrentView }) => {
     <div className="flex flex-col h-screen bg-white">
       <header className="bg-white text-gray-800 p-4 flex items-center w-full shadow-md">
         <ArrowLeft size={24} className="cursor-pointer" onClick={() => setCurrentView('overview')} />
-        <h1 className="text-xl font-semibold ml-4">What would you like to do?</h1>
+        <h1 className="text-2xl font-semibold ml-4">What would you like to do?</h1>
       </header>
       <main className="flex-1 overflow-y-auto">
         {paymentOptions.map((option, index) => (
           <div key={index} onClick={option.onClick} className="flex items-center p-4 border-b cursor-pointer">
             <div className="p-2 bg-gray-100 rounded-full">{option.icon}</div>
             <div className="ml-4 flex-1">
-              <p className="font-semibold">{option.title}</p>
-              <p className="text-sm text-gray-500">{option.description}</p>
+              <p className="font-medium">{option.title}</p>
+              <p className="text-base text-gray-500">{option.description}</p>
             </div>
             <ChevronRight size={20} className="text-gray-400" />
           </div>
