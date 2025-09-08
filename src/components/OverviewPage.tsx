@@ -44,8 +44,8 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
   ];
 
   return (
-    <div className="flex flex-col h-screen">
-      <header className="bg-gradient-to-b from-[#009448] to-[#007E3A] text-primary-foreground p-4 flex justify-between items-center w-full flex-shrink-0">
+    <div className="flex flex-col h-screen bg-gradient-to-b from-[#009448] to-[#007E3A]">
+      <header className="bg-transparent text-primary-foreground p-4 flex justify-between items-center w-full flex-shrink-0">
         <div className="flex items-center space-x-4">
           <Image
             src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/Nedbank_idvPPE6CB0_1.png?alt=media&token=aa008132-7cf7-4971-b859-e64a8ac3aa47"
@@ -61,7 +61,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
         </div>
       </header>
       <div className="flex-1 overflow-y-auto">
-        <div className="bg-gradient-to-b from-[#009448] to-[#007E3A]">
+        <div>
           <div ref={scrollContainerRef} onScroll={handleCarouselScroll} className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth">
             {overviewPagesData.map((page) => (
               <div key={page.id} className="w-full flex-shrink-0 snap-center">
@@ -92,7 +92,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-sm">{item.title}</p>
-                        {item.value && <p className="text-lg font-normal text-opacity-100">{item.value}</p>}
+                        {item.value && <p className="text-lg text-opacity-100 font-normal">{item.value}</p>}
                       </div>
                       <button className={`font-bold ${item.color === 'yellow' ? 'text-[#C2F000]' : 'text-white'}`}>{item.actionText}</button>
                     </div>
