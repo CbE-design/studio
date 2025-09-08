@@ -43,9 +43,6 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
     { icon: <FileBadge size={24} />, text: 'Statements and docs', onClick: () => setCurrentView('statementAccount') },
   ];
 
-  const today = new Date();
-  const formattedDate = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear().toString().slice(-2)}`;
-
   return (
     <div className="flex flex-col h-full">
       <header className="bg-gradient-to-b from-[#009448] to-[#007E3A] text-primary-foreground p-4 flex justify-between items-center w-full flex-shrink-0">
