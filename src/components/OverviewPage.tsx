@@ -91,13 +91,13 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
                   </div>
                 </div>
                 {page.content.filter(item => item.type === 'action').map((item, itemIndex) => (
-                  <div key={itemIndex} className="bg-[#006A4E] px-4 py-4 text-primary-foreground">
+                  <div key={itemIndex} className="bg-white/20 px-4 py-4 text-white">
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-sm">{item.title}</p>
                         {item.value && <p className="text-lg font-semibold">{item.value}</p>}
                       </div>
-                      <button className={`font-bold ${item.color === 'yellow' ? 'text-[#D4FF00]' : 'text-primary-foreground'}`}>{item.actionText}</button>
+                      <button className={`font-bold ${item.color === 'yellow' ? 'text-[#D4FF00]' : 'text-white'}`}>{item.actionText}</button>
                     </div>
                   </div>
                 ))}
