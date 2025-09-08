@@ -53,7 +53,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
             width={28}
             height={28}
           />
-          <span className="text-lg font-normal text-primary-foreground">Van Schalkwyk Family Trust</span>
+          <span className="text-lg font-medium text-primary-foreground">Van Schalkwyk Family Trust</span>
         </div>
         <div className="flex items-center space-x-4">
           <Bell size={24} className="text-primary-foreground" />
