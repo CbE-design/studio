@@ -13,6 +13,7 @@ export default {
         body: ['Inter', 'sans-serif'],
         headline: ['Inter', 'sans-serif'],
         code: ['monospace'],
+        'libre-franklin': ['"Libre Franklin"', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
