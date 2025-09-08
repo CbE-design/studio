@@ -48,7 +48,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <div className="bg-gradient-to-b from-[#009E4D] to-[#006745]">
+      <div className="bg-gradient-to-b from-[#009E4D] to-[#008055]">
         <header className="bg-transparent text-primary-foreground p-4 flex justify-between items-center w-full flex-shrink-0">
           <div className="flex items-center space-x-4">
             <Image
