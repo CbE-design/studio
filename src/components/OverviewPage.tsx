@@ -97,7 +97,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
                         <p className="text-sm">{item.title}</p>
                         {item.value && <p className="text-lg font-normal text-opacity-100">{item.value}</p>}
                       </div>
-                      <button className={`font-bold ${item.color === 'yellow' ? 'text-[#D4FF00]' : 'text-white'}`}>{item.actionText}</button>
+                      <button className={`font-bold ${item.color === 'yellow' ? 'text-[#C2F000]' : 'text-white'}`}>{item.actionText}</button>
                     </div>
                   </div>
                 ))}
