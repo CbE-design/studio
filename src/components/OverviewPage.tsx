@@ -91,7 +91,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
                   </div>
                 </div>
                 {page.content.filter(item => item.type === 'action').map((item, itemIndex) => (
-                  <div key={itemIndex} className="bg-[#005A30] px-4 py-4 text-primary-foreground">
+                  <div key={itemIndex} className="bg-[#006A4E] px-4 py-4 text-primary-foreground">
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-sm">{item.title}</p>
