@@ -14,20 +14,16 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
           height="32"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="currentColor"
+          stroke="black"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="text-primary"
         >
-          <path d="M12 10c-2.3 0-4-1.8-4-4s1.7-4 4-4 4 1.8 4 4-1.7 4-4 4zM8.5 10H6c-1.7 0-3 1.3-3 3v2c0 1.7 1.3 3 3 3h12c1.7 0 3-1.3 3-3v-2c0-1.7-1.3-3-3-3h-2.5" />
-          <path d="M12.5 10.5c.3.3.5.7.5 1.1 0 .4-.2.8-.5 1.1-.3.3-.7.5-1.1.5s-.8-.2-1.1-.5c-.3-.3-.5-.7-.5-1.1 0-.4.2.8.5-1.1.3-.3.7-.5 1.1-.5s.8.2 1.1.5z" />
-          <path d="M12 8v-1" />
-          <path d="M12 15v1" />
-          <path d="M10.5 9.5l-.7-.7" />
-          <path d="M14.2 13.2l.7.7" />
-          <path d="M13.5 9.5l.7-.7" />
-          <path d="M9.8 13.2l-.7.7" />
+          <path d="M4 11.5v8.5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8.5" />
+          <path d="M3 11.5h18" />
+          <path d="M12 2v9.5" />
+          <path d="M4.5 6.5C4.5 4.5 8 2 12 2s7.5 2.5 7.5 4.5" />
+          <path d="M12 21a4 4 0 0 0 4-4H8a4 4 0 0 0 4 4z" />
         </svg>
       ),
       text: 'Offers for you'
