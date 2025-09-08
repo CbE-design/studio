@@ -9,3 +9,4 @@ import '@/ai/flows/calculate-banking-fees.ts';
 import '@/ai/flows/generate-statement-reference.ts';
 import '@/ai/flows/generate-proof-of-payment.ts';
 import '@/ai/flows/generate-statement-pdf.ts';
+import '@/ai/flows/send-email.ts';
