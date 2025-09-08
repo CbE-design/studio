@@ -94,7 +94,7 @@ const LoginPage = ({ setCurrentView }) => {
       </header>
 
       <main className="flex-1 px-6 py-8 overflow-y-auto">
-        <h1 className="text-3xl font-semibold text-gray-800 mb-8">Welcome back.</h1>
+        <h1 className="text-3xl font-light text-gray-800 mb-8">Welcome back.</h1>
         
         <div className="mb-10">
             <p className="mb-4 text-sm font-medium text-gray-600">App PIN</p>
