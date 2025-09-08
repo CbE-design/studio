@@ -1,5 +1,5 @@
 'use client';
-import { Bell, Eye, ChevronLeft, ChevronRight, FileText, Umbrella, Car, ShoppingCart, GitPullRequest, CreditCard, Banknote, Home, FileBadge, MessageSquare, RefreshCw } from 'lucide-react';
+import { Bell, Eye, ChevronLeft, ChevronRight, FileText, Umbrella, Car, ShoppingCart, GitPullRequest, CreditCard, Banknote, Home, FileBadge, MessageSquare } from 'lucide-react';
 import Image from 'next/image';
 
 const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, handleCarouselScroll, scrollToPage, setCurrentView, scrollContainerRef }) => {
@@ -49,21 +49,17 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <header className="bg-primary text-primary-foreground p-4 flex justify-between items-center w-full flex-shrink-0">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-4">
           <Image
-            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/1757286430216~2.jpg?alt=media&token=a6428187-261e-4dd1-8190-44b042e3866e"
+            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/NEDBANK_N_SYMBOL_CMYK.jpg?alt=media&token=5b41cca3-a9a9-419f-9cb9-a656b10469f0"
             alt="Logo"
             width={40}
             height={40}
-            className="rounded-full object-cover"
+            className="rounded-sm object-cover"
           />
-          <div>
-            <span className="text-lg font-semibold text-primary-foreground">Van Schalkwyk Family Trust</span>
-            <p className="text-xs text-primary-foreground/70 truncate">Last nedbank-id-login: {formattedDate}</p>
-          </div>
+          <span className="text-lg font-semibold text-primary-foreground">Van Schalkwyk Family Trust</span>
         </div>
         <div className="flex items-center space-x-4">
-          <RefreshCw size={24} className="text-primary-foreground" />
           <Bell size={24} className="text-primary-foreground" />
           <MessageSquare size={24} className="text-primary-foreground" />
         </div>
@@ -96,7 +92,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
                   </div>
                 </div>
                 {page.content.filter(item => item.type === 'action').map((item, itemIndex) => (
-                  <div key={itemIndex} className="bg-[#006A38] px-4 py-4 text-primary-foreground">
+                  <div key={itemIndex} className="bg-[#005A30] px-4 py-4 text-primary-foreground">
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-sm">{item.title}</p>
