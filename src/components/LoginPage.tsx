@@ -5,6 +5,7 @@ import Image from 'next/image';
 
 const LoginPage = ({ setCurrentView }) => {
   const [pin, setPin] = useState(['', '', '', '', '']);
+  const [activeFooterTab, setActiveFooterTab] = useState('Login');
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleLogin = () => {
@@ -39,6 +40,7 @@ const LoginPage = ({ setCurrentView }) => {
   };
   
   const handleFooterClick = (label: string) => {
+    setActiveFooterTab(label);
     if (label === 'Login') {
       handleLogin();
     } else {
@@ -50,7 +52,7 @@ const LoginPage = ({ setCurrentView }) => {
   const LoginFooter = () => {
     const navItems = [
       { label: 'Latest', icon: <LayoutGrid size={24} /> },
-      { label: 'Login', icon: <Lock size={24} />, primary: true },
+      { label: 'Login', icon: <Lock size={24} /> },
       { label: 'Scan QR', icon: <QrCode size={24} /> },
       { label: 'Balance', icon: <Wallet size={24} /> },
       { label: 'Applications', icon: <FileText size={24} /> },
@@ -64,7 +66,7 @@ const LoginPage = ({ setCurrentView }) => {
               key={item.label}
               onClick={() => handleFooterClick(item.label)}
               className={`flex flex-col items-center justify-center h-full w-1/5 transition-colors duration-200 ${
-                item.primary ? 'text-primary font-bold' : 'text-gray-500 font-normal'
+                activeFooterTab === item.label ? 'text-primary font-bold' : 'text-gray-500 font-normal'
               }`}
             >
               {item.icon}
@@ -86,8 +88,8 @@ const LoginPage = ({ setCurrentView }) => {
             height={40}
           />
         <div className="flex items-center space-x-4">
-          <MessageSquare size={24} className="text-gray-600" />
-          <Menu size={24} className="text-gray-600" />
+          <MessageSquare size={24} className="text-primary" />
+          <Menu size={24} className="text-primary" />
         </div>
       </header>
 
