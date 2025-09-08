@@ -13,7 +13,7 @@ const TransactLandingPage = ({ setCurrentView }) => {
 
   return (
     <div className="flex flex-col h-screen bg-white">
-      <header className="bg-white text-gray-800 p-4 flex items-center w-full shadow-md">
+      <header className="bg-white text-gray-800 p-4 flex items-center w-full border-b border-gray-200">
         <ArrowLeft size={24} className="cursor-pointer" onClick={() => setCurrentView('overview')} />
         <h1 className="text-2xl font-semibold ml-4">What would you like to do?</h1>
       </header>
