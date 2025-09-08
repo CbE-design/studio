@@ -55,7 +55,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
             alt="Logo"
             width={50}
             height={50}
-            className="mix-blend-multiply"
+            className="rounded-sm object-cover"
           />
           <span className="text-lg font-semibold text-primary-foreground">Van Schalkwyk Family Trust</span>
         </div>
