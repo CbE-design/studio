@@ -47,24 +47,24 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
   const formattedDate = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear().toString().slice(-2)}`;
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
-      <div className="bg-gradient-to-b from-[#009448] to-[#007E3A]">
-        <header className="bg-transparent text-primary-foreground p-4 flex justify-between items-center w-full flex-shrink-0">
-          <div className="flex items-center space-x-4">
-            <Image
-              src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/Nedbank_idvPPE6CB0_1.png?alt=media&token=aa008132-7cf7-4971-b859-e64a8ac3aa47"
-              alt="Logo"
-              width={28}
-              height={28}
-            />
-            <span className="text-lg font-semibold text-primary-foreground">Van Schalkwyk Family Trust</span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Bell size={24} className="text-primary-foreground" />
-            <MessageSquare size={24} className="text-primary-foreground" />
-          </div>
-        </header>
-        <div className="bg-transparent">
+    <div className="flex flex-col h-full">
+      <header className="bg-gradient-to-b from-[#009448] to-[#007E3A] text-primary-foreground p-4 flex justify-between items-center w-full flex-shrink-0">
+        <div className="flex items-center space-x-4">
+          <Image
+            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/Nedbank_idvPPE6CB0_1.png?alt=media&token=aa008132-7cf7-4971-b859-e64a8ac3aa47"
+            alt="Logo"
+            width={28}
+            height={28}
+          />
+          <span className="text-lg font-semibold text-primary-foreground">Van Schalkwyk Family Trust</span>
+        </div>
+        <div className="flex items-center space-x-4">
+          <Bell size={24} className="text-primary-foreground" />
+          <MessageSquare size={24} className="text-primary-foreground" />
+        </div>
+      </header>
+      <div className="flex-1 overflow-y-auto">
+        <div className="bg-gradient-to-b from-[#009448] to-[#007E3A]">
           <div ref={scrollContainerRef} onScroll={handleCarouselScroll} className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth">
             {overviewPagesData.map((page) => (
               <div key={page.id} className="w-full flex-shrink-0 snap-center">
@@ -112,25 +112,25 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
             <ChevronRight size={20} className={carouselIndex < overviewPagesData.length - 1 ? "text-white cursor-pointer" : "text-white/50"} onClick={() => scrollToPage(carouselIndex + 1)} />
           </div>
         </div>
-      </div>
-      <div className="flex-1 overflow-y-auto pb-16 bg-gray-100">
-        <div className="p-4">
-          <h2 className="text-lg font-bold mb-4 text-gray-800">My widgets</h2>
-          <div className="grid grid-cols-4 gap-4">
-            {widgets.map((widget) => (
-              <div key={widget.text} className="flex flex-col items-center text-center cursor-pointer" onClick={widget.onClick}>
-                <div className="relative bg-white p-4 rounded-xl shadow-md flex items-center justify-center w-16 h-16">
-                  {widget.icon}
-                  {widget.badge && (
-                    <div className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                      {widget.badge}
+        <div className="bg-gray-100">
+            <div className="p-4">
+            <h2 className="text-lg font-bold mb-4 text-gray-800">My widgets</h2>
+            <div className="grid grid-cols-4 gap-4">
+                {widgets.map((widget) => (
+                <div key={widget.text} className="flex flex-col items-center text-center cursor-pointer" onClick={widget.onClick}>
+                    <div className="relative bg-white p-4 rounded-xl shadow-md flex items-center justify-center w-16 h-16">
+                    {widget.icon}
+                    {widget.badge && (
+                        <div className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                        {widget.badge}
+                        </div>
+                    )}
                     </div>
-                  )}
+                    <span className="mt-2 text-xs text-gray-700">{widget.text}</span>
                 </div>
-                <span className="mt-2 text-xs text-gray-700">{widget.text}</span>
-              </div>
-            ))}
-          </div>
+                ))}
+            </div>
+            </div>
         </div>
       </div>
     </div>

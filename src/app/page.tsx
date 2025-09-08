@@ -631,8 +631,10 @@ const App = () => {
       {currentView === 'start' || (isLoading && currentView !== 'login') ? (
         <SplashScreen />
       ) : (
-        <div className="flex flex-col h-screen">
-          {renderCurrentView()}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <main className="flex-1 overflow-y-auto">
+            {renderCurrentView()}
+          </main>
           {currentView !== 'start' && currentView !== 'login' &&
             !isLoading &&
             !['paymentConfirmation', 'transactionDetail', 'transactLanding', 'payment', 'statement', 'statementAccount', 'statementMonth'].includes(currentView) && (
