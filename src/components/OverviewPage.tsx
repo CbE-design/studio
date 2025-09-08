@@ -53,8 +53,8 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
           <Image
             src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/Nedbank_idvPPE6CB0_1.png?alt=media&token=aa008132-7cf7-4971-b859-e64a8ac3aa47"
             alt="Logo"
-            width={50}
-            height={50}
+            width={32}
+            height={32}
           />
           <span className="text-lg font-semibold text-primary-foreground">Van Schalkwyk Family Trust</span>
         </div>
