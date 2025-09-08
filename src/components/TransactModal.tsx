@@ -56,7 +56,7 @@ const TransactModal = ({ onClose, onNavigate }) => {
                     <span className="text-white mt-2 text-sm">Transfer</span>
                 </div>
                 
-                <div className="flex flex-col items-center transform -translate-y-4" onClick={() => handleActionClick('payment')}>
+                <div className="flex flex-col items-center transform -translate-y-10" onClick={() => handleActionClick('payment')}>
                     <div className="bg-white rounded-full h-16 w-16 flex items-center justify-center text-gray-800 shadow-lg">
                         <PayIcon />
                     </div>
