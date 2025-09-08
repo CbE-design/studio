@@ -48,23 +48,23 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <header className="bg-primary text-primary-foreground p-4 flex justify-between items-center w-full flex-shrink-0">
-        <div className="flex items-center space-x-4">
-          <Image
-            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/Nedbank_idvPPE6CB0_1.png?alt=media&token=aa008132-7cf7-4971-b859-e64a8ac3aa47"
-            alt="Logo"
-            width={28}
-            height={28}
-          />
-          <span className="text-lg font-semibold text-primary-foreground">Van Schalkwyk Family Trust</span>
-        </div>
-        <div className="flex items-center space-x-4">
-          <Bell size={24} className="text-primary-foreground" />
-          <MessageSquare size={24} className="text-primary-foreground" />
-        </div>
-      </header>
-      <div className="flex-1 overflow-y-auto pb-16">
-        <div className="bg-primary">
+      <div className="bg-gradient-to-b from-[#009E4D] to-[#006745]">
+        <header className="bg-transparent text-primary-foreground p-4 flex justify-between items-center w-full flex-shrink-0">
+          <div className="flex items-center space-x-4">
+            <Image
+              src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/Nedbank_idvPPE6CB0_1.png?alt=media&token=aa008132-7cf7-4971-b859-e64a8ac3aa47"
+              alt="Logo"
+              width={28}
+              height={28}
+            />
+            <span className="text-lg font-semibold text-primary-foreground">Van Schalkwyk Family Trust</span>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Bell size={24} className="text-primary-foreground" />
+            <MessageSquare size={24} className="text-primary-foreground" />
+          </div>
+        </header>
+        <div className="bg-transparent">
           <div ref={scrollContainerRef} onScroll={handleCarouselScroll} className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth">
             {overviewPagesData.map((page) => (
               <div key={page.id} className="w-full flex-shrink-0 snap-center">
@@ -112,7 +112,9 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
             <ChevronRight size={20} className={carouselIndex < overviewPagesData.length - 1 ? "text-white cursor-pointer" : "text-white/50"} onClick={() => scrollToPage(carouselIndex + 1)} />
           </div>
         </div>
-        <div className="p-4 bg-gray-100">
+      </div>
+      <div className="flex-1 overflow-y-auto pb-16 bg-gray-100">
+        <div className="p-4">
           <h2 className="text-lg font-bold mb-4 text-gray-800">My widgets</h2>
           <div className="grid grid-cols-4 gap-4">
             {widgets.map((widget) => (
