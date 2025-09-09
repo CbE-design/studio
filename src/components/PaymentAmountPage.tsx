@@ -80,7 +80,7 @@ const PaymentAmountPage = ({ paymentDetails, setPaymentDetails, handlePaymentSub
       </header>
 
       {/* Scrollable Main Content */}
-      <main className="flex-1 overflow-y-auto bg-white">
+      <main className="flex-1 overflow-y-auto bg-white overflow-hidden">
         <div className="p-4">
             <h2 className="text-gray-500 mb-2 font-medium">From which account?</h2>
             
