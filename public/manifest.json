@@ -1,22 +1,21 @@
 {
-  "name": "Van Schalkwyk Trust Mobile",
-  "short_name": "VST Mobile",
-  "description": "Mobile banking for the Van Schalkwyk Family Trust",
-  "icons": [
-    {
-      "src": "https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/Nedbank_idvPPE6CB0_1.png?alt=media&token=aa008132-7cf7-4971-b859-e64a8ac3aa47",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/Nedbank_idvPPE6CB0_1.png?alt=media&token=aa008132-7cf7-4971-b859-e64a8ac3aa47",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff",
-  "start_url": "/",
-  "display": "standalone",
-  "orientation": "portrait"
+    "name": "Van Schalkwyk Trust Mobile",
+    "short_name": "VST Mobile",
+    "description": "Mobile banking for the Van Schalkwyk Family Trust",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#00703C",
+    "theme_color": "#00703C",
+    "icons": [
+        {
+            "src": "https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/NED.JO.png?alt=media&token=4070ec81-1e57-45d8-93e4-9977f97229c6",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/NED.JO.png?alt=media&token=4070ec81-1e57-45d8-93e4-9977f97229c6",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
 }
