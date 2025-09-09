@@ -76,7 +76,7 @@ const PaymentAmountPage = ({ paymentDetails, setPaymentDetails, handleReviewSubm
               autoFocus
             />
         </div>
-        <p className="text-xs mt-2 opacity-80">R10 000.00 daily payment limit remaining</p>
+        <p className="text-xs mt-2 opacity-80">R5 000 000.00 daily payment limit remaining</p>
       </header>
 
       {/* Scrollable Main Content */}
