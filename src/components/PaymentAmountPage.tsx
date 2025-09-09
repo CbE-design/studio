@@ -65,13 +65,13 @@ const PaymentAmountPage = ({ paymentDetails, setPaymentDetails, handlePaymentSub
         <p className="text-sm mb-2">{paymentDetails.accountNumber}</p>
         
         <label htmlFor="amount" className="text-sm font-light">Amount</label>
-        <div className="w-full text-4xl font-light border-b border-primary-foreground/50 py-2 text-center">
+        <div className="w-full text-4xl font-light border-b border-primary-foreground/50 py-2">
             <input
               type="text"
               id="amount"
               value={paymentDetails.amount}
               onChange={handleAmountChange}
-              className="bg-transparent outline-none w-auto text-center"
+              className="bg-transparent outline-none w-full text-left"
               placeholder="0.00"
               autoFocus
             />
