@@ -28,7 +28,7 @@ const BottomNavBar = ({ activeTab, onTabClick }) => {
             } ${item.label === 'Transact' ? 'relative -top-2' : ''}`}
           >
             {item.label === 'Transact' ? (
-              <div className="bg-primary text-white rounded-full p-3 shadow-lg">
+              <div className="bg-white text-gray-500 rounded-full p-3 shadow-lg border border-gray-200">
                 <Plus size={30} />
               </div>
             ) : (
