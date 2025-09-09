@@ -1,8 +1,8 @@
 'use client';
-import { ArrowLeft, X, User } from 'lucide-react';
+import { ArrowLeft, X, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const ReviewPaymentPage = ({ paymentDetails, fromAccountName, setCurrentView, handlePaymentSubmit }) => {
+const ReviewPaymentPage = ({ paymentDetails, fromAccountName, setCurrentView, handlePaymentSubmit, isLoading }) => {
   const paymentDate = new Date().toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'long',
@@ -63,8 +63,12 @@ const ReviewPaymentPage = ({ paymentDetails, fromAccountName, setCurrentView, ha
       </main>
 
       <footer className="bg-white border-t p-4">
-        <Button onClick={handlePaymentSubmit} className="w-full text-lg py-6">
-          Pay
+        <Button onClick={handlePaymentSubmit} disabled={isLoading} className="w-full text-lg py-6">
+          {isLoading ? (
+            <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+          ) : (
+            'Pay'
+          )}
         </Button>
       </footer>
     </div>

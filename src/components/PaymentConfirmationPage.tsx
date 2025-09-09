@@ -4,52 +4,9 @@ import { Check, Share2, Save, Download, Loader2, Mail, X } from 'lucide-react';
 import { generateProofOfPaymentPdf, GenerateProofOfPaymentInput } from '@/ai/flows/generate-proof-of-payment';
 import { sendEmail } from '@/ai/flows/send-email';
 
-const EmailDialog = ({ onSend, onCancel, isSending }) => {
-  const [email, setEmail] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (email) {
-      onSend(email);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white p-6 rounded-xl w-full max-w-sm">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold">Email Proof of Payment</h3>
-          <button onClick={onCancel}><X size={20} /></button>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">Recipient's Email</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full mt-1 p-3 border rounded-xl"
-            placeholder="example@email.com"
-            required
-          />
-          <div className="mt-4 flex justify-end space-x-2">
-            <button type="button" onClick={onCancel} className="bg-gray-200 text-gray-800 py-2 px-4 rounded-xl font-semibold">Cancel</button>
-            <button type="submit" disabled={isSending} className="bg-primary text-primary-foreground py-2 px-4 rounded-xl font-semibold disabled:opacity-50 flex items-center">
-              {isSending && <Loader2 size={16} className="mr-2 animate-spin" />}
-              {isSending ? 'Sending...' : 'Send'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
 
 const PaymentConfirmationPage = ({ lastPayment, onSaveRecipient, isRecipientSaved, onDone }) => {
   const [isDownloading, setIsDownloading] = useState(false);
-  const [showEmailDialog, setShowEmailDialog] = useState(false);
-  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   const getPdfBase64 = async () => {
     if (!lastPayment) return null;
@@ -72,116 +29,81 @@ const PaymentConfirmationPage = ({ lastPayment, onSaveRecipient, isRecipientSave
     return pdfBase64;
   }
 
-  const handleDownload = async () => {
+  const handleShare = async () => {
     setIsDownloading(true);
     try {
         const pdfBase64 = await getPdfBase64();
         if (pdfBase64) {
-          const link = document.createElement('a');
-          link.href = `data:application/pdf;base64,${pdfBase64}`;
-          link.download = 'ProofOfPayment.pdf';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
+          const blob = new Blob([Buffer.from(pdfBase64, 'base64')], { type: 'application/pdf' });
+          const file = new File([blob], 'ProofOfPayment.pdf', { type: 'application/pdf' });
+
+          if (navigator.share) {
+             await navigator.share({
+                title: 'Proof of Payment',
+                text: `Proof of payment for R${lastPayment.amount} to ${lastPayment.recipient}`,
+                files: [file],
+             });
+          } else {
+             // Fallback for browsers that don't support Web Share API
+             const link = document.createElement('a');
+             link.href = URL.createObjectURL(blob);
+             link.download = 'ProofOfPayment.pdf';
+             document.body.appendChild(link);
+             link.click();
+             document.body.removeChild(link);
+          }
         }
     } catch (error) {
-        console.error("Failed to generate or download PDF:", error);
+        console.error("Failed to generate or share PDF:", error);
         alert("Sorry, we couldn't generate the PDF. Please try again.");
     } finally {
         setIsDownloading(false);
     }
   };
 
-  const handleSendEmail = async (email: string) => {
-    setIsSendingEmail(true);
-    try {
-      const pdfBase64 = await getPdfBase64();
-      if (pdfBase64) {
-        await sendEmail({
-          to: email,
-          subject: `Proof of Payment from Van Schalkwyk Family Trust`,
-          body: `<p>Dear Recipient,</p><p>Please find attached the proof of payment for R${lastPayment.amount} from Van Schalkwyk Family Trust.</p><p>Reference: ${lastPayment.yourReference || 'N/A'}</p><p>Regards,<br/>Nedbank</p>`,
-          pdfBase64: pdfBase64,
-          pdfFilename: 'ProofOfPayment.pdf',
-        });
-        alert(`Email successfully sent to ${email}`);
-        setShowEmailDialog(false);
-      }
-    } catch (error) {
-      console.error("Failed to send email:", error);
-      alert("Sorry, we couldn't send the email. Please try again.");
-    } finally {
-      setIsSendingEmail(false);
-    }
-  }
 
   return (
-    <>
-      <div className="flex flex-col h-screen overflow-hidden bg-gray-100">
-        <header className="bg-white p-4 flex justify-between items-center w-full shadow-md">
-          <span className="text-lg font-semibold">Payment successful</span>
-          <Check size={24} className="text-green-500" />
-        </header>
-        <main className="flex-1 overflow-y-auto p-4">
-          <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md mx-auto">
-            <div className="text-center mb-6 pb-4 border-b">
-              <p className="text-3xl font-bold text-gray-900">-R {lastPayment.amount}</p>
-              <p className="text-lg font-semibold mt-2">{lastPayment.recipient}</p>
-              <p className="text-sm text-gray-500">{lastPayment.bankName} - ...{lastPayment.accountNumber.slice(-4)}</p>
-            </div>
-            <div className="space-y-3 text-left text-sm">
-              <div className="flex justify-between"><p className="text-gray-500">Date</p><p className="font-medium">{lastPayment.date.toLocaleDateString('en-ZA')}</p></div>
-              <div className="flex justify-between"><p className="text-gray-500">From account</p><p className="font-medium">{lastPayment.fromAccountName}</p></div>
-              <div className="flex justify-between"><p className="text-gray-500">Your reference</p><p className="font-medium">{lastPayment.yourReference || 'N/A'}</p></div>
-              <div className="flex justify-between"><p className="text-gray-500">Recipient's reference</p><p className="font-medium">{lastPayment.recipientsReference || 'N/A'}</p></div>
-            </div>
-            <div className="mt-6 space-y-3">
-              <button 
-                onClick={() => setShowEmailDialog(true)} 
-                className="w-full flex items-center justify-center bg-gray-200 text-gray-800 py-3 rounded-xl font-semibold"
-              >
-                <Mail size={18} className="mr-2" />
-                Email proof of payment
-              </button>
-              <button 
-                onClick={handleDownload} 
-                disabled={isDownloading}
-                className="w-full flex items-center justify-center bg-gray-200 text-gray-800 py-3 rounded-xl font-semibold disabled:opacity-50"
-              >
-                {isDownloading ? <Loader2 size={18} className="mr-2 animate-spin" /> : <Share2 size={18} className="mr-2" />}
-                {isDownloading ? 'Preparing...' : 'Share proof of payment'}
-              </button>
-              <button 
-                onClick={handleDownload} 
-                disabled={isDownloading}
-                className="w-full flex items-center justify-center bg-gray-200 text-gray-800 py-3 rounded-xl font-semibold disabled:opacity-50"
-              >
-                {isDownloading ? <Loader2 size={18} className="mr-2 animate-spin" /> : <Download size={18} className="mr-2" />}
-                {isDownloading ? 'Downloading...' : 'Download PDF'}
-              </button>
-              <button 
-                onClick={onSaveRecipient} 
-                disabled={isRecipientSaved} 
-                className={`w-full flex items-center justify-center py-3 rounded-xl font-semibold ${isRecipientSaved ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-200 text-gray-800'}`}
-              >
-                <Save size={18} className="mr-2" /> 
-                {isRecipientSaved ? 'Recipient Saved' : 'Save recipient'}
-              </button>
-            </div>
-          </div>
-        </main>
-        <footer className="p-4 bg-white border-t">
+    <div className="flex flex-col h-screen overflow-y-auto bg-white">
+      <header className="bg-primary text-primary-foreground p-6 flex flex-col items-start w-full min-h-[150px]">
+        <div className="flex justify-between w-full items-center">
+            <Check size={28} />
+        </div>
+        <h1 className="text-xl mt-4">R{lastPayment.amount} paid to {lastPayment.recipient}'s bank account</h1>
+      </header>
+      <main className="flex-1 p-6 space-y-6">
+        <div>
+            <p className="text-sm text-gray-500">Payment date</p>
+            <p className="text-base font-medium">{lastPayment.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+        </div>
+         <div>
+            <p className="text-sm text-gray-500">Bank name</p>
+            <p className="text-base font-medium">{lastPayment.bankName.toUpperCase()}</p>
+        </div>
+        <div>
+            <p className="text-sm text-gray-500">Account number</p>
+            <p className="text-base font-medium">{lastPayment.accountNumber}</p>
+        </div>
+         <div>
+            <p className="text-sm text-gray-500">Your reference</p>
+            <p className="text-base font-medium">{lastPayment.yourReference}</p>
+        </div>
+         <div>
+            <p className="text-sm text-gray-500">Recipient's reference</p>
+            <p className="text-base font-medium">{lastPayment.recipientsReference}</p>
+        </div>
+        <button 
+          onClick={handleShare} 
+          disabled={isDownloading}
+          className="w-full flex items-center justify-start text-primary py-3 font-semibold disabled:opacity-50 mt-8"
+        >
+          {isDownloading ? <Loader2 size={20} className="mr-2 animate-spin" /> : <Share2 size={20} className="mr-2" />}
+          {isDownloading ? 'Preparing...' : 'Share proof of payment'}
+        </button>
+      </main>
+       <footer className="p-4 bg-white border-t">
           <button onClick={onDone} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-semibold">Done</button>
         </footer>
-      </div>
-      {showEmailDialog && (
-        <EmailDialog 
-          onSend={handleSendEmail} 
-          onCancel={() => setShowEmailDialog(false)}
-          isSending={isSendingEmail}
-        />
-      )}
-    </>
+    </div>
   );
 };
 

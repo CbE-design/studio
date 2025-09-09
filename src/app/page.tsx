@@ -77,6 +77,7 @@ const App = () => {
   const [lastPayment, setLastPayment] = useState(null);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showBankModal, setShowBankModal] = useState(false);
   const [bankSearchQuery, setBankSearchQuery] = useState('');
   const [isRecipientSaved, setIsRecipientSaved] = useState(false);
@@ -299,11 +300,11 @@ const App = () => {
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
     if (!paymentDetails.recipient || !paymentDetails.amount || paymentDetails.bankName === 'Select bank' || !paymentDetails.accountNumber) return;
-    setIsLoading(true);
+    setIsProcessingPayment(true);
   
     const appId = 'van-schalkwyk-trust-mobile';
     if (!db || !userId) {
-      setIsLoading(false);
+      setIsProcessingPayment(false);
       return;
     }
     const baseUserRef = doc(db, `artifacts/${appId}/users/${userId}`);
@@ -313,7 +314,7 @@ const App = () => {
     const fromAccountData = allAccounts.find(acc => acc.id === paymentDetails.fromAccount);
     if (!fromAccountData) {
         console.error("Selected 'from' account not found");
-        setIsLoading(false);
+        setIsProcessingPayment(false);
         return;
     }
 
@@ -460,7 +461,7 @@ const App = () => {
       console.error("Error processing payment:", error);
       alert(`Payment failed: ${error.message}`);
     } finally {
-      setIsLoading(false);
+      setIsProcessingPayment(false);
     }
   };
   
@@ -624,6 +625,7 @@ const App = () => {
             fromAccountName={allAccounts.find(acc => acc.id === paymentDetails.fromAccount)?.name || ''}
             setCurrentView={setCurrentView}
             handlePaymentSubmit={handlePaymentSubmit}
+            isLoading={isProcessingPayment}
           />
         );
       case 'paymentType':
@@ -679,7 +681,7 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
-      {currentView === 'start' || (isLoading && currentView !== 'login') ? (
+      {currentView === 'start' || (isLoading && currentView !== 'login' && !isProcessingPayment) ? (
         <SplashScreen />
       ) : (
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -710,10 +712,3 @@ const App = () => {
 };
 
 export default App;
-    
-
-    
-
-
-
-
