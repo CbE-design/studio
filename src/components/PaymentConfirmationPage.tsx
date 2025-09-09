@@ -39,56 +39,34 @@ const PaymentConfirmationPage = ({ lastPayment, onSaveRecipient, isRecipientSave
     }
   }
 
+  const downloadFile = (file: File) => {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(file);
+    link.download = 'ProofOfPayment.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   const handleShare = async () => {
-    if (!navigator.share) {
-        alert("Web Share API is not supported in your browser.");
-        // Optional: Implement fallback download for unsupported browsers
-        const file = await getPdfFile();
-        if (file) {
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(file);
-            link.download = 'ProofOfPayment.pdf';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        return;
-    }
+    const file = await getPdfFile();
+    if (!file) return;
 
-    try {
-        // First, check if we can share without a file to get user intent immediately
-        if (navigator.canShare({ title: 'Proof of Payment' })) {
-             await navigator.share({ title: 'Proof of Payment' });
-             // This is a common pattern to keep user activation.
-             // If the above share is successful (or cancelled by user), we proceed.
-        }
-
-        const file = await getPdfFile();
-        if (file) {
-             if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    title: 'Proof of Payment',
-                    text: `Proof of payment for R${lastPayment.amount} to ${lastPayment.recipient}`,
-                    files: [file],
-                });
-             } else {
-                throw new Error("Sharing files is not supported.");
-             }
-        }
-    } catch (error) {
-        if (error.name !== 'AbortError') { // AbortError means user cancelled the share dialog
-            console.error("Failed to share:", error);
-            // Fallback for when sharing fails but PDF was generated
-            const file = await getPdfFile();
-            if (file) {
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(file);
-                link.download = 'ProofOfPayment.pdf';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+            await navigator.share({
+                title: 'Proof of Payment',
+                text: `Proof of payment for R${lastPayment.amount} to ${lastPayment.recipient}`,
+                files: [file],
+            });
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error("Share failed, falling back to download:", error);
+                downloadFile(file);
             }
         }
+    } else {
+        downloadFile(file);
     }
   };
 

@@ -43,52 +43,35 @@ const TransactionDetailPage = ({ selectedTransaction, setCurrentView }) => {
     }
   }
 
+  const downloadFile = (file: File) => {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(file);
+    link.download = 'ProofOfPayment.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   const handleShare = async () => {
-    if (!navigator.share) {
-        alert("Web Share API is not supported in your browser.");
-        const file = await getPdfFile();
-        if (file) {
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(file);
-            link.download = 'ProofOfPayment.pdf';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        return;
-    }
-    
-    try {
-        if (navigator.canShare({ title: 'Proof of Payment' })) {
-            await navigator.share({ title: 'Proof of Payment' });
-        }
-        
-        const file = await getPdfFile();
-        const paymentDetails = selectedTransaction.paymentDetails;
-        if (file) {
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    title: 'Proof of Payment',
-                    text: `Proof of payment for R${paymentDetails.amount} to ${paymentDetails.recipient}`,
-                    files: [file],
-                });
-            } else {
-                throw new Error("Sharing files is not supported.");
+    const file = await getPdfFile();
+    if (!file) return;
+    const paymentDetails = selectedTransaction.paymentDetails;
+
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+            await navigator.share({
+                title: 'Proof of Payment',
+                text: `Proof of payment for R${paymentDetails.amount} to ${paymentDetails.recipient}`,
+                files: [file],
+            });
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error("Share failed, falling back to download:", error);
+                downloadFile(file);
             }
         }
-    } catch (error) {
-        if (error.name !== 'AbortError') {
-            console.error("Failed to share:", error);
-            const file = await getPdfFile();
-            if (file) {
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(file);
-                link.download = 'ProofOfPayment.pdf';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-        }
+    } else {
+        downloadFile(file);
     }
   };
 
