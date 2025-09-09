@@ -84,8 +84,8 @@ const LoginPage = ({ setCurrentView }) => {
         <Image
             src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/NED.JO.png?alt=media&token=4070ec81-1e57-45d8-93e4-9977f97229c6"
             alt="Nedbank Logo"
-            width={50}
-            height={50}
+            width={32}
+            height={32}
           />
         <div className="flex items-center space-x-4">
           <MessageSquare size={24} className="text-primary" />
