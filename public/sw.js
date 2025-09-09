@@ -1,22 +1,33 @@
-// A simple service worker to enable PWA functionality.
-// This file is intentionally left simple for now.
-
-const CACHE_NAME = 'vst-mobile-cache-v1';
+const CACHE_NAME = 'v1';
 const urlsToCache = [
   '/',
   '/manifest.json',
+  // Add other critical assets here
 ];
 
 self.addEventListener('install', event => {
-  // Perform install steps
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Opened cache');
         return cache.addAll(urlsToCache);
       })
   );
   self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+  return self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
@@ -31,11 +42,6 @@ self.addEventListener('fetch', event => {
       }
     )
   );
-});
-
-self.addEventListener('activate', event => {
-  console.log('Service worker activating...');
-  event.waitUntil(self.clients.claim());
 });
 
 self.addEventListener('message', event => {
