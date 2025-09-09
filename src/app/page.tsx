@@ -594,7 +594,7 @@ const App = () => {
             setBankSearchQuery={setBankSearchQuery}
           />
         );
-       case 'paymentAmount':
+      case 'paymentAmount':
         return (
           <PaymentAmountPage
             paymentDetails={paymentDetails}
@@ -691,5 +691,6 @@ export default App;
     
 
     
+
 
 
