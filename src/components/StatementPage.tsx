@@ -16,7 +16,7 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
                 statementType: "eConfirm",
                 documentType: "Computer-generated invoice",
                 recipient: {
-                    name: "CORRIE DIRK VAN SCHALKWYK",
+                    name: "Corrie V Schalkwyk",
                     address: {
                         street: "123 Main Street",
                         suburb: "Sandton",
