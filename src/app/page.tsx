@@ -32,6 +32,7 @@ import PaymentAmountPage from '@/components/PaymentAmountPage';
 import PaymentTypePage from '@/components/PaymentTypePage';
 import RecipientsPage from '@/components/RecipientsPage';
 import PaymentConfirmationPage from '@/components/PaymentConfirmationPage';
+import ReviewPaymentPage from '@/components/ReviewPaymentPage';
 import BottomNavBar from '@/components/BottomNavBar';
 import TransactLandingPage from '@/components/TransactLandingPage';
 import StatementPage from '@/components/StatementPage';
@@ -71,7 +72,7 @@ const App = () => {
     recipientPhone: '',
     sendSms: false,
     saveRecipient: false,
-    fromAccount: 'current',
+    fromAccount: 'savvy',
   });
   const [lastPayment, setLastPayment] = useState(null);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -291,6 +292,10 @@ const App = () => {
     setCurrentView('paymentAmount');
   };
 
+  const handleReviewSubmit = () => {
+    setCurrentView('reviewPayment');
+  };
+
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
     if (!paymentDetails.recipient || !paymentDetails.amount || paymentDetails.bankName === 'Select bank' || !paymentDetails.accountNumber) return;
@@ -304,19 +309,27 @@ const App = () => {
     const baseUserRef = doc(db, `artifacts/${appId}/users/${userId}`);
   
     const paymentAmount = parseFloat(paymentDetails.amount);
-    let fromAccountInfo: any;
+    
+    const fromAccountData = allAccounts.find(acc => acc.id === paymentDetails.fromAccount);
+    if (!fromAccountData) {
+        console.error("Selected 'from' account not found");
+        setIsLoading(false);
+        return;
+    }
+
     let accountId: CalculateBankingFeesInput['accountId'];
-  
-    if (paymentDetails.fromAccount === 'current') {
-      fromAccountInfo = { ref: doc(baseUserRef, 'accounts', 'savvy'), balance: accountBalance, name: "Savvy Bundle Current Account" };
+    if (fromAccountData.name === 'Savvy Bundle Current Account') {
       accountId = 'GOLD_SAVVY_BUNDLE';
-    } else if (paymentDetails.fromAccount === 'second') {
-      fromAccountInfo = { ref: doc(baseUserRef, 'accounts', 'platinum1'), balance: secondAccountBalance, name: "Platinum Cheque" };
-      accountId = 'PLATINUM_CHEQUE';
-    } else { // 'third'
-      fromAccountInfo = { ref: doc(baseUserRef, 'accounts', 'platinum2'), balance: thirdAccountBalance, name: "Platinum Cheque" };
+    } else {
       accountId = 'PLATINUM_CHEQUE';
     }
+
+    const fromAccountInfo = {
+      ref: doc(baseUserRef, 'accounts', fromAccountData.id),
+      balance: fromAccountData.balance,
+      name: fromAccountData.name,
+    };
+    
     const fromAccountTransactionsRef = collection(fromAccountInfo.ref, 'transactions');
   
     try {
@@ -440,7 +453,7 @@ const App = () => {
         }
       }
       
-      setPaymentDetails({ recipient: '', bankName: 'Select bank', accountNumber: '', paymentMethod: 'Standard EFT', amount: '', yourReference: '', recipientsReference: '', recipientPhone: '', sendSms: false, saveRecipient: false, fromAccount: 'current' });
+      setPaymentDetails({ recipient: '', bankName: 'Select bank', accountNumber: '', paymentMethod: 'Standard EFT', amount: '', yourReference: '', recipientsReference: '', recipientPhone: '', sendSms: false, saveRecipient: false, fromAccount: 'savvy' });
       setCurrentView('paymentConfirmation');
   
     } catch (error) {
@@ -599,9 +612,18 @@ const App = () => {
           <PaymentAmountPage
             paymentDetails={paymentDetails}
             setPaymentDetails={setPaymentDetails}
-            handlePaymentSubmit={handlePaymentSubmit}
+            handleReviewSubmit={handleReviewSubmit}
             setCurrentView={setCurrentView}
             accounts={allAccounts}
+          />
+        );
+      case 'reviewPayment':
+        return (
+          <ReviewPaymentPage
+            paymentDetails={paymentDetails}
+            fromAccountName={allAccounts.find(acc => acc.id === paymentDetails.fromAccount)?.name || ''}
+            setCurrentView={setCurrentView}
+            handlePaymentSubmit={handlePaymentSubmit}
           />
         );
       case 'paymentType':
@@ -675,7 +697,7 @@ const App = () => {
           }
           {currentView !== 'start' && currentView !== 'login' &&
             !isLoading && !showTransactModal &&
-            !['paymentConfirmation', 'transactionDetail', 'transactLanding', 'payment', 'paymentType', 'paymentAmount', 'statement', 'statementAccount', 'statementMonth'].includes(currentView) && (
+            !['paymentConfirmation', 'transactionDetail', 'transactLanding', 'payment', 'paymentType', 'paymentAmount', 'reviewPayment', 'statement', 'statementAccount', 'statementMonth'].includes(currentView) && (
               <BottomNavBar 
                 activeTab={activeTab} 
                 onTabClick={handleTabClick} 
@@ -691,6 +713,7 @@ export default App;
     
 
     
+
 
 
 

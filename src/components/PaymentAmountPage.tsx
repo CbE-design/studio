@@ -36,7 +36,7 @@ const AccountCard = ({ account, isSelected, onClick }) => {
     );
 };
 
-const PaymentAmountPage = ({ paymentDetails, setPaymentDetails, handlePaymentSubmit, setCurrentView, accounts }) => {
+const PaymentAmountPage = ({ paymentDetails, setPaymentDetails, handleReviewSubmit, setCurrentView, accounts }) => {
   const isFormValid = paymentDetails.amount && parseFloat(paymentDetails.amount) > 0 && paymentDetails.yourReference;
 
   const handleAmountChange = (e) => {
@@ -145,7 +145,7 @@ const PaymentAmountPage = ({ paymentDetails, setPaymentDetails, handlePaymentSub
       {/* Fixed Footer */}
       <footer className="bg-white border-t p-4 z-10">
         <Button 
-          onClick={handlePaymentSubmit} 
+          onClick={handleReviewSubmit} 
           disabled={!isFormValid}
           className="w-full text-lg py-6"
         >
