@@ -15,11 +15,21 @@ const AccountCard = ({ account, isSelected, onClick }) => {
                 isSelected ? 'border-[#009650]' : 'border-gray-300'
             )}
         >
-            <div className="bg-white p-4 text-center h-28 flex flex-col justify-center">
-                <p className={`font-bold text-lg text-[#009650]`}>{account.name.split(' ')[0].toUpperCase()}</p>
-                <p className="text-sm text-gray-500">{account.name.replace(account.name.split(' ')[0], '')}</p>
+            <div className="bg-white p-4 text-center h-28 flex flex-col justify-center relative">
+                <p className="font-bold text-lg text-[#009650]">{account.name.split(' ')[0].toUpperCase()}</p>
+                <p className="text-sm text-[#009650]">{account.name.replace(account.name.split(' ')[0], '')}</p>
+                <div 
+                    className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2"
+                    style={{
+                        width: 0,
+                        height: 0,
+                        borderLeft: '12px solid transparent',
+                        borderRight: '12px solid transparent',
+                        borderTop: '12px solid white',
+                    }}
+                />
             </div>
-            <div className={cn("p-4 text-center h-20 flex items-center justify-center", isSelected ? 'bg-[#009650] text-white' : 'bg-gray-200 text-gray-800')}>
+            <div className={cn("p-4 text-center h-20 flex items-center justify-center bg-[#009650] text-white")}>
                 <p className="font-bold text-lg">{`R${account.balance.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}`}</p>
             </div>
         </div>
