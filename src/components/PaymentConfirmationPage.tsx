@@ -8,56 +8,87 @@ import { sendEmail } from '@/ai/flows/send-email';
 const PaymentConfirmationPage = ({ lastPayment, onSaveRecipient, isRecipientSaved, onDone }) => {
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const getPdfBase64 = async () => {
+  const getPdfFile = async (): Promise<File | null> => {
     if (!lastPayment) return null;
-    const paymentDate = new Date(lastPayment.date);
-    const formattedDate = `${paymentDate.getDate().toString().padStart(2, '0')}/${(paymentDate.getMonth() + 1).toString().padStart(2, '0')}/${paymentDate.getFullYear()}`;
-    
-    const details: GenerateProofOfPaymentInput = {
-        date: formattedDate,
-        transactionNumber: lastPayment.transactionNumber,
-        recipient: lastPayment.recipient,
-        amount: lastPayment.amount,
-        recipientsReference: lastPayment.recipientsReference,
-        yourReference: lastPayment.yourReference,
-        bankName: lastPayment.bankName,
-        accountNumber: lastPayment.accountNumber,
-        fromAccountName: lastPayment.fromAccountName,
-    };
+    setIsDownloading(true);
+    try {
+        const paymentDate = new Date(lastPayment.date);
+        const formattedDate = `${paymentDate.getDate().toString().padStart(2, '0')}/${(paymentDate.getMonth() + 1).toString().padStart(2, '0')}/${paymentDate.getFullYear()}`;
+        
+        const details: GenerateProofOfPaymentInput = {
+            date: formattedDate,
+            transactionNumber: lastPayment.transactionNumber,
+            recipient: lastPayment.recipient,
+            amount: lastPayment.amount,
+            recipientsReference: lastPayment.recipientsReference,
+            yourReference: lastPayment.yourReference,
+            bankName: lastPayment.bankName,
+            accountNumber: lastPayment.accountNumber,
+            fromAccountName: lastPayment.fromAccountName,
+        };
 
-    const { pdfBase64 } = await generateProofOfPaymentPdf(details);
-    return pdfBase64;
+        const { pdfBase64 } = await generateProofOfPaymentPdf(details);
+        const blob = new Blob([Buffer.from(pdfBase64, 'base64')], { type: 'application/pdf' });
+        return new File([blob], 'ProofOfPayment.pdf', { type: 'application/pdf' });
+    } catch (error) {
+        console.error("Failed to generate PDF:", error);
+        alert("Sorry, we couldn't generate the PDF. Please try again.");
+        return null;
+    } finally {
+        setIsDownloading(false);
+    }
   }
 
   const handleShare = async () => {
-    setIsDownloading(true);
-    try {
-        const pdfBase64 = await getPdfBase64();
-        if (pdfBase64) {
-          const blob = new Blob([Buffer.from(pdfBase64, 'base64')], { type: 'application/pdf' });
-          const file = new File([blob], 'ProofOfPayment.pdf', { type: 'application/pdf' });
+    if (!navigator.share) {
+        alert("Web Share API is not supported in your browser.");
+        // Optional: Implement fallback download for unsupported browsers
+        const file = await getPdfFile();
+        if (file) {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(file);
+            link.download = 'ProofOfPayment.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        return;
+    }
 
-          if (navigator.share) {
-             await navigator.share({
-                title: 'Proof of Payment',
-                text: `Proof of payment for R${lastPayment.amount} to ${lastPayment.recipient}`,
-                files: [file],
-             });
-          } else {
-             // Fallback for browsers that don't support Web Share API
-             const link = document.createElement('a');
-             link.href = URL.createObjectURL(blob);
-             link.download = 'ProofOfPayment.pdf';
-             document.body.appendChild(link);
-             link.click();
-             document.body.removeChild(link);
-          }
+    try {
+        // First, check if we can share without a file to get user intent immediately
+        if (navigator.canShare({ title: 'Proof of Payment' })) {
+             await navigator.share({ title: 'Proof of Payment' });
+             // This is a common pattern to keep user activation.
+             // If the above share is successful (or cancelled by user), we proceed.
+        }
+
+        const file = await getPdfFile();
+        if (file) {
+             if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: 'Proof of Payment',
+                    text: `Proof of payment for R${lastPayment.amount} to ${lastPayment.recipient}`,
+                    files: [file],
+                });
+             } else {
+                throw new Error("Sharing files is not supported.");
+             }
         }
     } catch (error) {
-        console.error("Failed to generate or share PDF:", error);
-        alert("Sorry, we couldn't generate the PDF. Please try again.");
-    } finally {
-        setIsDownloading(false);
+        if (error.name !== 'AbortError') { // AbortError means user cancelled the share dialog
+            console.error("Failed to share:", error);
+            // Fallback for when sharing fails but PDF was generated
+            const file = await getPdfFile();
+            if (file) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(file);
+                link.download = 'ProofOfPayment.pdf';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
     }
   };
 

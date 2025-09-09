@@ -11,51 +11,84 @@ const TransactionDetailPage = ({ selectedTransaction, setCurrentView }) => {
   const isDebit = selectedTransaction.amount.startsWith('-');
   const isPayment = selectedTransaction.paymentDetails && isDebit;
 
-  const handleShare = async () => {
-    if (!isPayment) return;
+  const getPdfFile = async (): Promise<File | null> => {
+    if (!isPayment) return null;
     setIsDownloading(true);
     try {
-      const paymentDetails = selectedTransaction.paymentDetails;
-      const paymentDate = paymentDetails.date?.toDate ? paymentDetails.date.toDate() : new Date(paymentDetails.date);
-      const formattedDate = `${paymentDate.getDate().toString().padStart(2, '0')}/${(paymentDate.getMonth() + 1).toString().padStart(2, '0')}/${paymentDate.getFullYear()}`;
+        const paymentDetails = selectedTransaction.paymentDetails;
+        const paymentDate = paymentDetails.date?.toDate ? paymentDetails.date.toDate() : new Date(paymentDetails.date);
+        const formattedDate = `${paymentDate.getDate().toString().padStart(2, '0')}/${(paymentDate.getMonth() + 1).toString().padStart(2, '0')}/${paymentDate.getFullYear()}`;
 
-      const details: GenerateProofOfPaymentInput = {
-          date: formattedDate,
-          transactionNumber: paymentDetails.transactionNumber,
-          recipient: paymentDetails.recipient,
-          amount: paymentDetails.amount,
-          recipientsReference: paymentDetails.recipientsReference,
-          yourReference: paymentDetails.yourReference,
-          bankName: paymentDetails.bankName,
-          accountNumber: paymentDetails.accountNumber,
-          fromAccountName: paymentDetails.fromAccountName,
-      };
+        const details: GenerateProofOfPaymentInput = {
+            date: formattedDate,
+            transactionNumber: paymentDetails.transactionNumber,
+            recipient: paymentDetails.recipient,
+            amount: paymentDetails.amount,
+            recipientsReference: paymentDetails.recipientsReference,
+            yourReference: paymentDetails.yourReference,
+            bankName: paymentDetails.bankName,
+            accountNumber: paymentDetails.accountNumber,
+            fromAccountName: paymentDetails.fromAccountName,
+        };
 
-      const { pdfBase64 } = await generateProofOfPaymentPdf(details);
-      
-      const blob = new Blob([Buffer.from(pdfBase64, 'base64')], { type: 'application/pdf' });
-      const file = new File([blob], 'ProofOfPayment.pdf', { type: 'application/pdf' });
-
-      if (navigator.share) {
-         await navigator.share({
-            title: 'Proof of Payment',
-            text: `Proof of payment for R${paymentDetails.amount} to ${paymentDetails.recipient}`,
-            files: [file],
-         });
-      } else {
-         const link = document.createElement('a');
-         link.href = URL.createObjectURL(blob);
-         link.download = 'ProofOfPayment.pdf';
-         document.body.appendChild(link);
-         link.click();
-         document.body.removeChild(link);
-      }
-
+        const { pdfBase64 } = await generateProofOfPaymentPdf(details);
+        const blob = new Blob([Buffer.from(pdfBase64, 'base64')], { type: 'application/pdf' });
+        return new File([blob], 'ProofOfPayment.pdf', { type: 'application/pdf' });
     } catch (error) {
-        console.error("Failed to generate or share PDF:", error);
+        console.error("Failed to generate PDF:", error);
         alert("Sorry, we couldn't generate the PDF. Please try again.");
+        return null;
     } finally {
         setIsDownloading(false);
+    }
+  }
+
+  const handleShare = async () => {
+    if (!navigator.share) {
+        alert("Web Share API is not supported in your browser.");
+        const file = await getPdfFile();
+        if (file) {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(file);
+            link.download = 'ProofOfPayment.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        return;
+    }
+    
+    try {
+        if (navigator.canShare({ title: 'Proof of Payment' })) {
+            await navigator.share({ title: 'Proof of Payment' });
+        }
+        
+        const file = await getPdfFile();
+        const paymentDetails = selectedTransaction.paymentDetails;
+        if (file) {
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: 'Proof of Payment',
+                    text: `Proof of payment for R${paymentDetails.amount} to ${paymentDetails.recipient}`,
+                    files: [file],
+                });
+            } else {
+                throw new Error("Sharing files is not supported.");
+            }
+        }
+    } catch (error) {
+        if (error.name !== 'AbortError') {
+            console.error("Failed to share:", error);
+            const file = await getPdfFile();
+            if (file) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(file);
+                link.download = 'ProofOfPayment.pdf';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
     }
   };
 
