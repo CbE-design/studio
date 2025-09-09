@@ -402,6 +402,14 @@ const App = () => {
           description: paymentReference,
           amount: `-R${paymentAmount.toFixed(2)}`,
           timestamp: serverTimestamp(),
+          // Store all details for proof of payment generation
+          paymentDetails: {
+            ...paymentDetails,
+            amount: paymentAmount.toFixed(2),
+            date: new Date().toISOString(), // Use ISO string for consistency
+            transactionNumber: `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}-${new Date().getDate().toString().padStart(2, '0')}/Nedbank/00${newTransactionRefNumber}`,
+            fromAccountName: fromAccountInfo.name
+          }
         };
         transaction.set(doc(fromAccountTransactionsRef), paymentTransaction);
   
@@ -422,16 +430,7 @@ const App = () => {
         transaction.set(counterRef, { value: newTransactionRefNumber }); // Use set to handle creation
   
         // Set last payment details for confirmation screen (outside transaction)
-        const paymentDate = new Date();
-        const formattedDate = `${paymentDate.getFullYear()}-${(paymentDate.getMonth() + 1).toString().padStart(2, '0')}-${paymentDate.getDate().toString().padStart(2, '0')}`;
-        setLastPayment({
-          ...paymentDetails,
-          amount: paymentAmount.toFixed(2),
-          date: paymentDate,
-          reference: paymentReference,
-          transactionNumber: `${formattedDate}/Nedbank/00${newTransactionRefNumber}`,
-          fromAccountName: fromAccountInfo.name,
-        });
+        setLastPayment(paymentTransaction.paymentDetails);
       });
   
       // This part runs only if the transaction was successful

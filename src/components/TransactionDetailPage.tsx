@@ -1,10 +1,63 @@
 'use client';
-import { ArrowLeft, MessageSquare } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, MessageSquare, Share2, Loader2 } from 'lucide-react';
+import { generateProofOfPaymentPdf, GenerateProofOfPaymentInput } from '@/ai/flows/generate-proof-of-payment';
 
 const TransactionDetailPage = ({ selectedTransaction, setCurrentView }) => {
-  if (!selectedTransaction) return null; // Or some fallback UI
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  if (!selectedTransaction) return null;
 
   const isDebit = selectedTransaction.amount.startsWith('-');
+  const isPayment = selectedTransaction.paymentDetails && isDebit;
+
+  const handleShare = async () => {
+    if (!isPayment) return;
+    setIsDownloading(true);
+    try {
+      const paymentDetails = selectedTransaction.paymentDetails;
+      const paymentDate = new Date(paymentDetails.date);
+      const formattedDate = `${paymentDate.getDate().toString().padStart(2, '0')}/${(paymentDate.getMonth() + 1).toString().padStart(2, '0')}/${paymentDate.getFullYear()}`;
+
+      const details: GenerateProofOfPaymentInput = {
+          date: formattedDate,
+          transactionNumber: paymentDetails.transactionNumber,
+          recipient: paymentDetails.recipient,
+          amount: paymentDetails.amount,
+          recipientsReference: paymentDetails.recipientsReference,
+          yourReference: paymentDetails.yourReference,
+          bankName: paymentDetails.bankName,
+          accountNumber: paymentDetails.accountNumber,
+          fromAccountName: paymentDetails.fromAccountName,
+      };
+
+      const { pdfBase64 } = await generateProofOfPaymentPdf(details);
+      
+      const blob = new Blob([Buffer.from(pdfBase64, 'base64')], { type: 'application/pdf' });
+      const file = new File([blob], 'ProofOfPayment.pdf', { type: 'application/pdf' });
+
+      if (navigator.share) {
+         await navigator.share({
+            title: 'Proof of Payment',
+            text: `Proof of payment for R${paymentDetails.amount} to ${paymentDetails.recipient}`,
+            files: [file],
+         });
+      } else {
+         const link = document.createElement('a');
+         link.href = URL.createObjectURL(blob);
+         link.download = 'ProofOfPayment.pdf';
+         document.body.appendChild(link);
+         link.click();
+         document.body.removeChild(link);
+      }
+
+    } catch (error) {
+        console.error("Failed to generate or share PDF:", error);
+        alert("Sorry, we couldn't generate the PDF. Please try again.");
+    } finally {
+        setIsDownloading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-gray-100">
@@ -37,6 +90,18 @@ const TransactionDetailPage = ({ selectedTransaction, setCurrentView }) => {
               <p className="font-medium">{selectedTransaction.description}</p>
             </div>
           </div>
+          {isPayment && (
+            <div className="mt-8 border-t pt-6">
+              <button 
+                onClick={handleShare} 
+                disabled={isDownloading}
+                className="w-full flex items-center justify-center text-primary py-3 font-semibold disabled:opacity-50"
+              >
+                {isDownloading ? <Loader2 size={20} className="mr-2 animate-spin" /> : <Share2 size={20} className="mr-2" />}
+                {isDownloading ? 'Preparing...' : 'Share proof of payment'}
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>
