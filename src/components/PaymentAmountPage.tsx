@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ArrowLeft, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,6 +39,8 @@ const AccountCard = ({ account, isSelected, onClick }) => {
 
 const PaymentAmountPage = ({ paymentDetails, setPaymentDetails, handlePaymentSubmit, setCurrentView, accounts }) => {
   const isFormValid = paymentDetails.amount && parseFloat(paymentDetails.amount) > 0 && paymentDetails.yourReference;
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
 
   const handleAmountChange = (e) => {
     const value = e.target.value;
@@ -51,27 +53,41 @@ const PaymentAmountPage = ({ paymentDetails, setPaymentDetails, handlePaymentSub
     setPaymentDetails(prev => ({ ...prev, fromAccount: accountId }));
   };
 
+  const handleScroll = () => {
+    if (scrollContainerRef.current && headerRef.current) {
+      const scrollTop = scrollContainerRef.current.scrollTop;
+      const headerHeight = headerRef.current.offsetHeight;
+
+      if (scrollTop > headerHeight) {
+        headerRef.current.style.transform = `translateY(-${headerHeight}px)`;
+      } else {
+        headerRef.current.style.transform = `translateY(0px)`;
+      }
+    }
+  };
+
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-gray-100">
-      {/* Header Section */}
-      <header className="bg-primary text-primary-foreground p-4 flex flex-col items-start flex-shrink-0">
-        <div className="flex justify-between w-full items-center mb-4">
+    <div className="h-screen overflow-hidden bg-gray-100 relative">
+      <header 
+        ref={headerRef}
+        className="bg-primary text-primary-foreground p-4 flex flex-col items-center flex-shrink-0 w-full absolute top-0 left-0 transition-transform duration-300 z-10"
+      >
+        <div className="flex justify-between w-full items-center mb-2">
           <ArrowLeft size={24} className="cursor-pointer" onClick={() => setCurrentView('payment')} />
           <h1 className="text-xl font-semibold">Pay {paymentDetails.recipient}</h1>
           <X size={24} className="cursor-pointer" onClick={() => setCurrentView('overview')} />
         </div>
         <p className="text-sm">{paymentDetails.bankName}</p>
-        <p className="text-sm mb-4">{paymentDetails.accountNumber}</p>
+        <p className="text-sm mb-2">{paymentDetails.accountNumber}</p>
         
         <label htmlFor="amount" className="text-sm font-light">Amount</label>
-        <div className="w-full text-4xl font-light border-b border-primary-foreground/50 py-2">
-            <span className="opacity-50 mr-1">R</span>
+        <div className="w-full text-4xl font-light border-b border-primary-foreground/50 py-2 text-center">
             <input
               type="text"
               id="amount"
               value={paymentDetails.amount}
               onChange={handleAmountChange}
-              className="bg-transparent outline-none w-auto"
+              className="bg-transparent outline-none w-auto text-center"
               placeholder="0.00"
               autoFocus
             />
@@ -80,7 +96,11 @@ const PaymentAmountPage = ({ paymentDetails, setPaymentDetails, handlePaymentSub
       </header>
 
       {/* Scrollable Main Content */}
-      <main className="flex-1 overflow-y-auto pb-24 bg-white">
+      <main 
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="absolute inset-0 overflow-y-auto pt-48 pb-24 bg-white" // pt value should be roughly the header height
+      >
         <div className="p-4">
             <h2 className="text-gray-500 mb-2 font-medium">From which account?</h2>
             
