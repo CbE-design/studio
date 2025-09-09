@@ -1,12 +1,12 @@
 'use client';
-import React, { useState, useRef, ChangeEvent, KeyboardEvent } from 'react';
-import { MessageSquare, Menu, LayoutGrid, Lock, QrCode, Wallet, FileText, ArrowRight, PlayCircle } from 'lucide-react';
+import React from 'react';
+import { MessageSquare, Menu, LayoutGrid, Lock, QrCode, Wallet, FileText, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 
 const LoginPage = ({ setCurrentView }) => {
-  const [pin, setPin] = useState(['', '', '', '', '']);
-  const [activeFooterTab, setActiveFooterTab] = useState('Login');
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [pin, setPin] = React.useState(['', '', '', '', '']);
+  const [activeFooterTab, setActiveFooterTab] = React.useState('Login');
+  const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
 
   const handleLogin = () => {
     if (pin.join('').length === 5) {
@@ -14,7 +14,7 @@ const LoginPage = ({ setCurrentView }) => {
     }
   };
 
-  const handlePinChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
+  const handlePinChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const { value } = e.target;
     if (/^[0-9]$/.test(value) || value === '') {
       const newPin = [...pin];
@@ -33,7 +33,7 @@ const LoginPage = ({ setCurrentView }) => {
     }
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>, index: number) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === 'Backspace' && pin[index] === '' && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
@@ -123,13 +123,13 @@ const LoginPage = ({ setCurrentView }) => {
 
         <div className="space-y-4">
             <div className="bg-gray-100 rounded-lg p-4 flex items-center">
-                <div className="bg-white rounded-lg p-2 mr-4">
+                <div className="bg-white rounded-lg mr-4 h-14 w-14 overflow-hidden">
                     <Image
                         src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/7daee036639379.57235d3dd1f02.jpg?alt=media&token=4dd801c5-bb8e-46cd-b2b1-c19539a91ec8"
                         alt="Award Logo"
-                        width={40}
-                        height={40}
-                        className="h-10 w-10"
+                        width={56}
+                        height={56}
+                        className="object-cover w-full h-full"
                     />
                 </div>
                 <div>
@@ -139,13 +139,13 @@ const LoginPage = ({ setCurrentView }) => {
             </div>
 
             <div className="bg-gray-100 rounded-lg p-4 flex items-center">
-                    <div className="bg-white rounded-lg p-2 mr-4">
+                    <div className="bg-white rounded-lg mr-4 h-14 w-14 overflow-hidden">
                          <Image
                             src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/7daee036639379.57235d3dd1f02.jpg?alt=media&token=4dd801c5-bb8e-46cd-b2b1-c19539a91ec8"
                             alt="Award Logo"
-                            width={40}
-                            height={40}
-                            className="h-10 w-10"
+                            width={56}
+                            height={56}
+                            className="object-cover w-full h-full"
                         />
                     </div>
                 <div>
