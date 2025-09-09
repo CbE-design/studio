@@ -38,6 +38,19 @@ const nextConfig: NextConfig = {
   },
   // This is required to allow requests from the development environment.
   allowedDevOrigins: ["*.cloudworkstations.dev"],
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, max-age=0',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
