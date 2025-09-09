@@ -45,6 +45,7 @@ import { sendPaymentNotification } from '@/ai/flows/send-payment-notification';
 import { sendSms } from '@/ai/flows/send-sms';
 import { calculateBankingFees, CalculateBankingFeesInput } from '@/ai/flows/calculate-banking-fees';
 import { generateStatementReference } from '@/ai/flows/generate-statement-reference';
+import PwaUpdater from '@/components/PwaUpdater';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('Overview');
@@ -680,6 +681,7 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
+      <PwaUpdater />
       {currentView === 'start' || (isLoading && currentView !== 'login' && !isProcessingPayment) ? (
         <SplashScreen />
       ) : (
