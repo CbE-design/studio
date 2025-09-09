@@ -123,8 +123,14 @@ const LoginPage = ({ setCurrentView }) => {
 
         <div className="space-y-4">
             <div className="bg-gray-100 rounded-lg p-4 flex items-center">
-                <div className="bg-primary/90 rounded-lg p-3 mr-4">
-                    <PlayCircle className="h-8 w-8 text-white" />
+                <div className="bg-white rounded-lg p-2 mr-4">
+                    <Image
+                        src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/7daee036639379.57235d3dd1f02.jpg?alt=media&token=4dd801c5-bb8e-46cd-b2b1-c19539a91ec8"
+                        alt="Award Logo"
+                        width={40}
+                        height={40}
+                        className="h-10 w-10"
+                    />
                 </div>
                 <div>
                     <h3 className="font-bold text-gray-800">Voted #1 retail bank 2024</h3>
@@ -133,8 +139,14 @@ const LoginPage = ({ setCurrentView }) => {
             </div>
 
             <div className="bg-gray-100 rounded-lg p-4 flex items-center">
-                    <div className="bg-primary/90 rounded-lg p-3 mr-4">
-                        <PlayCircle className="h-8 w-8 text-white" />
+                    <div className="bg-white rounded-lg p-2 mr-4">
+                         <Image
+                            src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/7daee036639379.57235d3dd1f02.jpg?alt=media&token=4dd801c5-bb8e-46cd-b2b1-c19539a91ec8"
+                            alt="Award Logo"
+                            width={40}
+                            height={40}
+                            className="h-10 w-10"
+                        />
                     </div>
                 <div>
                     <h3 className="font-bold text-gray-800">Customer Obsessed Enterprise Award</h3>
