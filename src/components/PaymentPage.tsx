@@ -30,7 +30,7 @@ const PaymentPage = ({ paymentDetails, setPaymentDetails, handleRecipientSubmit,
       
       <main className="flex-1 overflow-y-auto pb-32">
         <form onSubmit={(e) => { e.preventDefault(); handleRecipientSubmit(); }}>
-          <div className="p-4 bg-white min-h-[250px]">
+          <div className="p-4 bg-white min-h-[280px]">
             <label className="block">
               <span className="text-gray-500 text-sm">A new recipient</span>
               <input 
