@@ -16,7 +16,7 @@ const TransactionDetailPage = ({ selectedTransaction, setCurrentView }) => {
     setIsDownloading(true);
     try {
       const paymentDetails = selectedTransaction.paymentDetails;
-      const paymentDate = new Date(paymentDetails.date);
+      const paymentDate = paymentDetails.date?.toDate ? paymentDetails.date.toDate() : new Date(paymentDetails.date);
       const formattedDate = `${paymentDate.getDate().toString().padStart(2, '0')}/${(paymentDate.getMonth() + 1).toString().padStart(2, '0')}/${paymentDate.getFullYear()}`;
 
       const details: GenerateProofOfPaymentInput = {

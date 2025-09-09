@@ -406,7 +406,7 @@ const App = () => {
           paymentDetails: {
             ...paymentDetails,
             amount: paymentAmount.toFixed(2),
-            date: new Date().toISOString(), // Use ISO string for consistency
+            date: new Date(), // Use a Date object
             transactionNumber: `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}-${new Date().getDate().toString().padStart(2, '0')}/Nedbank/00${newTransactionRefNumber}`,
             fromAccountName: fromAccountInfo.name
           }

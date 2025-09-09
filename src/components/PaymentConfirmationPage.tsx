@@ -73,7 +73,7 @@ const PaymentConfirmationPage = ({ lastPayment, onSaveRecipient, isRecipientSave
       <main className="flex-1 p-6 space-y-6">
         <div>
             <p className="text-sm text-gray-500">Payment date</p>
-            <p className="text-base font-medium">{lastPayment.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            <p className="text-base font-medium">{new Date(lastPayment.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
         </div>
          <div>
             <p className="text-sm text-gray-500">Bank name</p>
