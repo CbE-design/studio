@@ -129,7 +129,7 @@ const LoginPage = ({ setCurrentView }) => {
                         alt="Award Logo"
                         width={56}
                         height={56}
-                        className="object-cover w-full h-full"
+                        className="object-center w-full h-full"
                     />
                 </div>
                 <div>
@@ -145,7 +145,7 @@ const LoginPage = ({ setCurrentView }) => {
                             alt="Award Logo"
                             width={56}
                             height={56}
-                            className="object-cover w-full h-full"
+                            className="object-center w-full h-full"
                         />
                     </div>
                 <div>
