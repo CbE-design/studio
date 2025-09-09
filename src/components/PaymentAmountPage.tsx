@@ -1,14 +1,12 @@
 'use client';
 import { useState } from 'react';
-import { ArrowLeft, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const AccountCard = ({ account, isSelected, onClick, isExpanded }) => {
-    const isMainCard = isSelected && !isExpanded;
-
+const AccountCard = ({ account, isSelected, onClick }) => {
     return (
         <div
             onClick={onClick}
@@ -17,23 +15,11 @@ const AccountCard = ({ account, isSelected, onClick, isExpanded }) => {
                 isSelected ? 'border-[#009650]' : 'border-gray-300'
             )}
         >
-            <div className="bg-white p-4 text-center">
+            <div className="bg-white p-4 text-center h-28 flex flex-col justify-center">
                 <p className={`font-bold text-lg text-[#009650]`}>{account.name.split(' ')[0].toUpperCase()}</p>
-                <p className="text-sm text-gray-500">{account.id}</p>
-                {isMainCard && (
-                    <div
-                        style={{
-                            width: 0,
-                            height: 0,
-                            borderLeft: '12px solid transparent',
-                            borderRight: '12px solid transparent',
-                            borderTop: '12px solid white',
-                        }}
-                        className="absolute bottom-[4.5rem] left-1/2 -translate-x-1/2 z-10"
-                    />
-                )}
+                <p className="text-sm text-gray-500">{account.name.replace(account.name.split(' ')[0], '')}</p>
             </div>
-            <div className={`p-4 text-center ${isSelected ? 'bg-[#009650] text-white' : 'bg-gray-200 text-gray-800'}`}>
+            <div className={cn("p-4 text-center h-20 flex items-center justify-center", isSelected ? 'bg-[#009650] text-white' : 'bg-gray-200 text-gray-800')}>
                 <p className="font-bold text-lg">{`R${account.balance.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}`}</p>
             </div>
         </div>
@@ -42,7 +28,6 @@ const AccountCard = ({ account, isSelected, onClick, isExpanded }) => {
 
 
 const PaymentAmountPage = ({ paymentDetails, setPaymentDetails, handlePaymentSubmit, setCurrentView, accounts }) => {
-  const [isAccountListExpanded, setIsAccountListExpanded] = useState(false);
   const isFormValid = paymentDetails.amount && parseFloat(paymentDetails.amount) > 0 && paymentDetails.yourReference;
 
   const handleAmountChange = (e) => {
@@ -51,19 +36,10 @@ const PaymentAmountPage = ({ paymentDetails, setPaymentDetails, handlePaymentSub
       setPaymentDetails({ ...paymentDetails, amount: value });
     }
   };
-  
-  const formatBalance = (balance) => {
-    return `R${balance.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}`;
-  }
 
   const handleAccountSelect = (accountId: string) => {
     setPaymentDetails(prev => ({ ...prev, fromAccount: accountId }));
-    setIsAccountListExpanded(false);
   };
-  
-  const selectedAccount = accounts.find(acc => acc.id === paymentDetails.fromAccount) || accounts[0];
-  const otherAccounts = accounts.filter(acc => acc.id !== paymentDetails.fromAccount);
-
 
   return (
     <div className="flex flex-col h-screen overflow-hidden bg-gray-100">
@@ -98,37 +74,16 @@ const PaymentAmountPage = ({ paymentDetails, setPaymentDetails, handlePaymentSub
         <div className="p-4">
             <h2 className="text-gray-500 mb-2 font-medium">From which account?</h2>
             
-            <div className="flex flex-col items-center space-y-4">
-                <AccountCard 
-                    account={selectedAccount} 
-                    isSelected={true} 
-                    onClick={() => setIsAccountListExpanded(!isAccountListExpanded)}
-                    isExpanded={false}
-                />
-
-                {isAccountListExpanded && (
-                     <div className="flex space-x-4 overflow-x-auto pb-2 w-full justify-center">
-                        {otherAccounts.map((account) => (
-                            <AccountCard 
-                                key={account.id}
-                                account={account}
-                                isSelected={false}
-                                onClick={() => handleAccountSelect(account.id)}
-                                isExpanded={true}
-                            />
-                        ))}
-                    </div>
-                )}
-               
-                <button
-                    onClick={() => setIsAccountListExpanded(!isAccountListExpanded)}
-                    className="flex items-center text-primary font-medium"
-                >
-                    <span>{isAccountListExpanded ? 'Show less' : 'Show other accounts'}</span>
-                    {isAccountListExpanded ? <ChevronUp size={20} className="ml-1" /> : <ChevronDown size={20} className="ml-1" />}
-                </button>
+            <div className="flex overflow-x-auto space-x-4 py-2">
+                {accounts.map((account) => (
+                    <AccountCard 
+                        key={account.id}
+                        account={account}
+                        isSelected={paymentDetails.fromAccount === account.id}
+                        onClick={() => handleAccountSelect(account.id)}
+                    />
+                ))}
             </div>
-
 
             <div className="mt-6">
                  <h2 className="text-gray-500 mb-4 font-medium">What is the payment for?</h2>
