@@ -95,11 +95,11 @@ const PaymentConfirmationPage = ({ lastPayment, onSaveRecipient, isRecipientSave
 
   return (
     <div className="flex flex-col h-screen overflow-y-auto bg-white">
-      <header className="bg-primary text-primary-foreground p-6 flex flex-col items-start w-full min-h-[150px]">
-        <div className="flex justify-between w-full items-center">
+      <header className="bg-primary text-primary-foreground p-6 flex flex-col items-center w-full min-h-[150px]">
+        <div className="flex justify-center w-full items-center">
             <Check size={28} />
         </div>
-        <h1 className="text-xl mt-4">R{lastPayment.amount} paid to {lastPayment.recipient}'s bank account</h1>
+        <h1 className="text-xl mt-4 text-center w-full">R{lastPayment.amount} paid to {lastPayment.recipient}'s bank account</h1>
       </header>
       <main className="flex-1 p-6 space-y-6">
         <div>
