@@ -18,6 +18,7 @@ import {
   getDoc,
   query,
   runTransaction,
+  collectionGroup,
 } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 
@@ -137,34 +138,35 @@ const App = () => {
   ];
 
   useEffect(() => {
-    const setupAuth = async () => {
-      await setPersistence(auth, browserLocalPersistence);
-      
-      const unsubscribe = onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          // User is signed in, see docs for a list of available properties
-          // https://firebase.google.com/docs/reference/js/firebase.User
-          setUserId(user.uid);
-          await fetchData(db, user.uid);
-          setCurrentView('login');
-        } else {
-          // User is signed out, so sign them in anonymously.
-          try {
-            const userCredential = await signInAnonymously(auth);
-            setUserId(userCredential.user.uid);
-            await fetchData(db, userCredential.user.uid);
-            setCurrentView('login');
-          } catch (error) {
-             console.error('Anonymous sign-in failed:', error);
-             setIsLoading(false);
-          }
+    const initializeApp = async () => {
+      try {
+        await setPersistence(auth, browserLocalPersistence);
+
+        let currentUser = auth.currentUser;
+        if (!currentUser) {
+          const userCredential = await signInAnonymously(auth);
+          currentUser = userCredential.user;
         }
-        // Stop listening to auth state changes after the first one.
-        unsubscribe(); 
-      });
+
+        const uid = currentUser.uid;
+        setUserId(uid);
+
+        // Run seeding and wait for it to complete
+        await seedInitialData(db, uid);
+        
+        // Now that seeding is done, fetch the data
+        await fetchData(db, uid);
+
+        // All data is loaded, move to the login screen
+        setCurrentView('login');
+      } catch (error) {
+        console.error("Initialization failed:", error);
+        // Handle error state if necessary
+        setIsLoading(false);
+      }
     };
 
-    setupAuth();
+    initializeApp();
   }, []);
 
 
@@ -231,59 +233,69 @@ const App = () => {
             
             batch.set(seedMarkerRef, { seeded: true, timestamp: serverTimestamp() });
             await batch.commit();
+            console.log("Seeding complete.");
         }
     } catch (error) {
         console.error("Error seeding data:", error);
     }
   };
 
-  const fetchData = async (db, uid) => {
-    const appId = 'van-schalkwyk-trust-mobile';
-    await seedInitialData(db, uid);
-    
-    const baseUserRef = doc(db, `artifacts/${appId}/users/${uid}`);
+  const fetchData = (db, uid) => {
+    return new Promise((resolve, reject) => {
+        const appId = 'van-schalkwyk-trust-mobile';
+        const baseUserRef = doc(db, `artifacts/${appId}/users/${uid}`);
 
-    const docRefs = {
-      account1: doc(baseUserRef, 'accounts', 'savvy'),
-      account2: doc(baseUserRef, 'accounts', 'platinum1'),
-      account3: doc(baseUserRef, 'accounts', 'platinum2'),
-    };
+        const docRefs = {
+            account1: doc(baseUserRef, 'accounts', 'savvy'),
+            account2: doc(baseUserRef, 'accounts', 'platinum1'),
+            account3: doc(baseUserRef, 'accounts', 'platinum2'),
+        };
 
-    const colRefs = {
-      trans1: collection(docRefs.account1, 'transactions'),
-      trans2: collection(docRefs.account2, 'transactions'),
-      trans3: collection(docRefs.account3, 'transactions'),
-      recipients: collection(baseUserRef, 'recipients'),
-      overviewPages: collection(baseUserRef, 'overviewPages'),
-    };
+        const colRefs = {
+            trans1: collection(docRefs.account1, 'transactions'),
+            trans2: collection(docRefs.account2, 'transactions'),
+            trans3: collection(docRefs.account3, 'transactions'),
+            recipients: collection(baseUserRef, 'recipients'),
+            overviewPages: collection(baseUserRef, 'overviewPages'),
+        };
 
-    onSnapshot(docRefs.account1, (docSnap) => docSnap.exists() && setAccountBalance(docSnap.data().balance));
-    onSnapshot(docRefs.account2, (docSnap) => docSnap.exists() && setSecondAccountBalance(docSnap.data().balance));
-    onSnapshot(docRefs.account3, (docSnap) => docSnap.exists() && setThirdAccountBalance(docSnap.data().balance));
+        let pendingListeners = 8; // Total number of listeners we're setting up
+        const checkDone = () => {
+            pendingListeners--;
+            if (pendingListeners === 0) {
+                setIsLoading(false);
+                resolve(true);
+            }
+        };
 
-    const processSnapshot = (snapshot) =>
-      snapshot.docs.map((d) => ({
-        ...d.data(),
-        id: d.id,
-        timestamp: d.data().timestamp?.toDate() || new Date(),
-      }));
+        onSnapshot(docRefs.account1, (docSnap) => { docSnap.exists() && setAccountBalance(docSnap.data().balance); checkDone(); }, reject);
+        onSnapshot(docRefs.account2, (docSnap) => { docSnap.exists() && setSecondAccountBalance(docSnap.data().balance); checkDone(); }, reject);
+        onSnapshot(docRefs.account3, (docSnap) => { docSnap.exists() && setThirdAccountBalance(docSnap.data().balance); checkDone(); }, reject);
 
-    onSnapshot(colRefs.trans1, (s) => setRealTimeTransactions(processSnapshot(s)));
-    onSnapshot(colRefs.trans2, (s) => setSecondRealTimeTransactions(processSnapshot(s)));
-    onSnapshot(colRefs.trans3, (s) => setThirdRealTimeTransactions(processSnapshot(s)));
-    onSnapshot(colRefs.recipients, (s) => setRecipients(processSnapshot(s)));
-    onSnapshot(query(colRefs.overviewPages), (s) => {
-      const pagesList = s.docs
-        .map((d) => ({
-          ...d.data(),
-          id: d.id,
-          content: JSON.parse(d.data().content),
-        }))
-        .sort((a, b) => a.order - b.order);
-      setOverviewPagesData(pagesList);
-      setIsLoading(false); 
+        const processSnapshot = (snapshot) =>
+            snapshot.docs.map((d) => ({
+                ...d.data(),
+                id: d.id,
+                timestamp: d.data().timestamp?.toDate() || new Date(),
+            }));
+
+        onSnapshot(colRefs.trans1, (s) => { setRealTimeTransactions(processSnapshot(s)); checkDone(); }, reject);
+        onSnapshot(colRefs.trans2, (s) => { setSecondRealTimeTransactions(processSnapshot(s)); checkDone(); }, reject);
+        onSnapshot(colRefs.trans3, (s) => { setThirdRealTimeTransactions(processSnapshot(s)); checkDone(); }, reject);
+        onSnapshot(colRefs.recipients, (s) => { setRecipients(processSnapshot(s)); checkDone(); }, reject);
+        onSnapshot(query(colRefs.overviewPages), (s) => {
+            const pagesList = s.docs
+                .map((d) => ({
+                    ...d.data(),
+                    id: d.id,
+                    content: JSON.parse(d.data().content),
+                }))
+                .sort((a, b) => a.order - b.order);
+            setOverviewPagesData(pagesList);
+            checkDone();
+        }, reject);
     });
-  };
+};
 
   const handleTransactionClick = (transaction) => {
     setSelectedTransaction(transaction);
