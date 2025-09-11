@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { Check, Share2, Save, Download, Loader2, Mail, X } from 'lucide-react';
@@ -107,6 +108,14 @@ const PaymentConfirmationPage = ({ lastPayment, onSaveRecipient, isRecipientSave
         >
           {isDownloading ? <Loader2 size={20} className="mr-2 animate-spin" /> : <Share2 size={20} className="mr-2" />}
           {isDownloading ? 'Preparing...' : 'Share proof of payment'}
+        </button>
+         <button 
+            onClick={onSaveRecipient}
+            disabled={isRecipientSaved}
+            className="w-full flex items-center justify-start text-primary py-3 font-semibold disabled:opacity-50"
+        >
+            <Save size={20} className="mr-2" />
+            {isRecipientSaved ? 'Recipient saved' : 'Save recipient'}
         </button>
       </main>
        <footer className="p-4 bg-white border-t">

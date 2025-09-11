@@ -449,6 +449,10 @@ const App = () => {
       });
   
       // This part runs only if the transaction was successful
+      if (paymentDetails.saveRecipient) {
+        await handleSaveRecipient(paymentDetails);
+      }
+
       if (paymentDetails.sendSms && paymentDetails.recipientPhone) {
         try {
           const notification = await sendPaymentNotification({
@@ -480,19 +484,27 @@ const App = () => {
   };
   
 
-  const handleSaveRecipient = async () => {
-    if (!lastPayment || !db || !userId || isRecipientSaved) return;
+  const handleSaveRecipient = async (details) => {
+    if (!details || !db || !userId) return;
     const appId = 'van-schalkwyk-trust-mobile';
     const baseUserRef = doc(db, `artifacts/${appId}/users/${userId}`);
     const recipientsColRef = collection(baseUserRef, 'recipients');
+    
+    // Check if recipient already exists
+    const alreadySaved = recipients.some(r => r.accountNumber === details.accountNumber);
+    if (alreadySaved) {
+        console.log("Recipient already saved.");
+        return;
+    }
+
     try {
       await addDoc(recipientsColRef, {
-        name: lastPayment.recipient,
-        bank: lastPayment.bankName,
-        accountNumber: lastPayment.accountNumber,
+        name: details.recipient,
+        bank: details.bankName,
+        accountNumber: details.accountNumber,
         lastPaid: serverTimestamp(),
       });
-      setIsRecipientSaved(true);
+      setIsRecipientSaved(true); // This might need adjustment if payment confirmation page logic changes
     } catch (error) {
       console.error("Error saving recipient:", error);
     }
@@ -664,7 +676,7 @@ const App = () => {
         return lastPayment ? (
           <PaymentConfirmationPage
             lastPayment={lastPayment}
-            onSaveRecipient={handleSaveRecipient}
+            onSaveRecipient={() => handleSaveRecipient(lastPayment)}
             isRecipientSaved={isRecipientSaved}
             onDone={() => setCurrentView('overview')}
           />
