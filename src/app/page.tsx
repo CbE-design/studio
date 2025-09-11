@@ -33,6 +33,7 @@ import PaymentPage from '@/components/PaymentPage';
 import PaymentAmountPage from '@/components/PaymentAmountPage';
 import PaymentTypePage from '@/components/PaymentTypePage';
 import RecipientsPage from '@/components/RecipientsPage';
+import RecipientDetailPage from '@/components/RecipientDetailPage';
 import PaymentConfirmationPage from '@/components/PaymentConfirmationPage';
 import ReviewPaymentPage from '@/components/ReviewPaymentPage';
 import BottomNavBar from '@/components/BottomNavBar';
@@ -79,6 +80,7 @@ const App = () => {
   });
   const [lastPayment, setLastPayment] = useState(null);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [selectedRecipient, setSelectedRecipient] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showBankModal, setShowBankModal] = useState(false);
@@ -142,32 +144,24 @@ const App = () => {
     const initializeApp = async () => {
       try {
         await setPersistence(auth, browserLocalPersistence);
-
         const userCredential = await signInAnonymously(auth);
         const uid = userCredential.user.uid;
         setUserId(uid);
 
-        // Seed data if it doesn't exist
+        // Seed data and then set up listeners
         await seedInitialData(db, uid);
-
-        // Setup snapshot listeners
         const unsubscribes = setupSnapshotListeners(db, uid);
         
-        // Move to login screen after a short delay to ensure listeners are active
-        setTimeout(() => {
-          setIsLoading(false);
-          setCurrentView('login');
-        }, 500); // Small delay to allow initial data population
+        setIsLoading(false);
+        setCurrentView('login');
 
         // Cleanup listeners on component unmount
         return () => unsubscribes.forEach(unsub => unsub());
-
       } catch (error) {
         console.error("Initialization failed:", error);
         setIsLoading(false); // Stop loading on error
       }
     };
-
     initializeApp();
   }, []);
 
@@ -293,6 +287,21 @@ const App = () => {
   const handleTransactionClick = (transaction) => {
     setSelectedTransaction(transaction);
     setCurrentView('transactionDetail');
+  };
+
+  const handleRecipientClick = (recipient) => {
+    setSelectedRecipient(recipient);
+    setCurrentView('recipientDetail');
+  };
+
+  const handlePayRecipient = (recipient) => {
+    setPaymentDetails(prev => ({
+      ...prev,
+      recipient: recipient.name,
+      bankName: recipient.bank,
+      accountNumber: recipient.accountNumber,
+    }));
+    setCurrentView('paymentAmount');
   };
 
   const handleRecipientSubmit = () => {
@@ -636,7 +645,21 @@ const App = () => {
       case 'paymentType':
         return <PaymentTypePage onSelect={handlePaymentTypeSelect} setCurrentView={setCurrentView} />;
       case 'recipients':
-        return <RecipientsPage recipients={recipients} setCurrentView={setCurrentView} />;
+        return (
+          <RecipientsPage 
+            recipients={recipients} 
+            setCurrentView={setCurrentView}
+            onRecipientClick={handleRecipientClick}
+          />
+        );
+      case 'recipientDetail':
+        return selectedRecipient ? (
+          <RecipientDetailPage
+            recipient={selectedRecipient}
+            setCurrentView={setCurrentView}
+            onPay={handlePayRecipient}
+          />
+        ) : null;
       case 'paymentConfirmation':
         return lastPayment ? (
           <PaymentConfirmationPage
@@ -705,7 +728,7 @@ const App = () => {
           }
           {currentView !== 'start' && currentView !== 'login' &&
             !isLoading && !showTransactModal &&
-            !['paymentConfirmation', 'transactionDetail', 'transactLanding', 'payment', 'paymentType', 'paymentAmount', 'reviewPayment', 'statement', 'statementAccount', 'statementMonth'].includes(currentView) && (
+            !['paymentConfirmation', 'transactionDetail', 'recipientDetail', 'transactLanding', 'payment', 'paymentType', 'paymentAmount', 'reviewPayment', 'statement', 'statementAccount', 'statementMonth'].includes(currentView) && (
               <BottomNavBar 
                 activeTab={activeTab} 
                 onTabClick={handleTabClick} 
@@ -718,5 +741,3 @@ const App = () => {
 };
 
 export default App;
-
-    

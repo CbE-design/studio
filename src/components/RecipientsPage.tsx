@@ -1,7 +1,8 @@
+
 'use client';
 import { ArrowLeft, UserPlus, Search } from 'lucide-react';
 
-const RecipientsPage = ({ recipients, setCurrentView }) => {
+const RecipientsPage = ({ recipients, setCurrentView, onRecipientClick }) => {
   const groupedRecipients = [...recipients]
     .sort((a, b) => a.name.localeCompare(b.name))
     .reduce((acc, recipient) => {
@@ -37,7 +38,11 @@ const RecipientsPage = ({ recipients, setCurrentView }) => {
             <div key={letter} id={letter} className="mb-4">
               <h3 className="text-sm font-bold text-gray-500 mb-2 pt-2">{letter}</h3>
               {groupedRecipients[letter].map((recipient) => (
-                <div key={recipient.id} className="flex flex-col p-4 border-b">
+                <div 
+                  key={recipient.id} 
+                  className="flex flex-col p-4 border-b cursor-pointer"
+                  onClick={() => onRecipientClick(recipient)}
+                >
                   <p className="text-sm font-semibold">{recipient.name}</p>
                   <p className="text-xs text-gray-500">{recipient.bank} - {recipient.accountNumber}</p>
                   <p className="text-xs text-gray-500 mt-1">
