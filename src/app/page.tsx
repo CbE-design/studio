@@ -504,7 +504,7 @@ const App = () => {
         accountNumber: details.accountNumber,
         lastPaid: serverTimestamp(),
       });
-      setIsRecipientSaved(true); // This might need adjustment if payment confirmation page logic changes
+      setIsRecipientSaved(true);
     } catch (error) {
       console.error("Error saving recipient:", error);
     }
@@ -753,3 +753,5 @@ const App = () => {
 };
 
 export default App;
+
+    
