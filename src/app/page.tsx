@@ -144,22 +144,28 @@ const App = () => {
     const initializeApp = async () => {
       try {
         await setPersistence(auth, browserLocalPersistence);
-        const userCredential = await signInAnonymously(auth);
-        const uid = userCredential.user.uid;
-        setUserId(uid);
-
-        // Seed data and then set up listeners
-        await seedInitialData(db, uid);
-        const unsubscribes = setupSnapshotListeners(db, uid);
         
-        setIsLoading(false);
-        setCurrentView('login');
-
-        // Cleanup listeners on component unmount
-        return () => unsubscribes.forEach(unsub => unsub());
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            const uid = user.uid;
+            setUserId(uid);
+            await seedInitialData(db, uid);
+            const unsubscribes = setupSnapshotListeners(db, uid);
+            setIsLoading(false);
+            setCurrentView('login');
+            // Cleanup on unmount
+            return () => unsubscribes.forEach(unsub => unsub());
+          } else {
+             // If no user, sign in anonymously, which will re-trigger this callback
+            signInAnonymously(auth).catch(error => {
+                console.error("Anonymous sign-in failed:", error);
+                setIsLoading(false);
+            });
+          }
+        });
       } catch (error) {
         console.error("Initialization failed:", error);
-        setIsLoading(false); // Stop loading on error
+        setIsLoading(false);
       }
     };
     initializeApp();
@@ -450,7 +456,17 @@ const App = () => {
   
       // This part runs only if the transaction was successful
       if (paymentDetails.saveRecipient) {
-        await handleSaveRecipient(paymentDetails);
+        const recipientsColRef = collection(baseUserRef, 'recipients');
+        const alreadySaved = recipients.some(r => r.accountNumber === paymentDetails.accountNumber);
+        if (!alreadySaved) {
+            await addDoc(recipientsColRef, {
+                name: paymentDetails.recipient,
+                bank: paymentDetails.bankName,
+                accountNumber: paymentDetails.accountNumber,
+                lastPaid: serverTimestamp(),
+            });
+            setIsRecipientSaved(true);
+        }
       }
 
       if (paymentDetails.sendSms && paymentDetails.recipientPhone) {
@@ -480,33 +496,6 @@ const App = () => {
       alert(`Payment failed: ${error.message}`);
     } finally {
       setIsProcessingPayment(false);
-    }
-  };
-  
-
-  const handleSaveRecipient = async (details) => {
-    if (!details || !db || !userId) return;
-    const appId = 'van-schalkwyk-trust-mobile';
-    const baseUserRef = doc(db, `artifacts/${appId}/users/${userId}`);
-    const recipientsColRef = collection(baseUserRef, 'recipients');
-    
-    // Check if recipient already exists
-    const alreadySaved = recipients.some(r => r.accountNumber === details.accountNumber);
-    if (alreadySaved) {
-        console.log("Recipient already saved.");
-        return;
-    }
-
-    try {
-      await addDoc(recipientsColRef, {
-        name: details.recipient,
-        bank: details.bankName,
-        accountNumber: details.accountNumber,
-        lastPaid: serverTimestamp(),
-      });
-      setIsRecipientSaved(true);
-    } catch (error) {
-      console.error("Error saving recipient:", error);
     }
   };
   
@@ -676,7 +665,15 @@ const App = () => {
         return lastPayment ? (
           <PaymentConfirmationPage
             lastPayment={lastPayment}
-            onSaveRecipient={() => handleSaveRecipient(lastPayment)}
+            onSaveRecipient={() => {
+              const recipientsColRef = collection(doc(db, `artifacts/van-schalkwyk-trust-mobile/users/${userId}`), 'recipients');
+              addDoc(recipientsColRef, {
+                  name: lastPayment.recipient,
+                  bank: lastPayment.bankName,
+                  accountNumber: lastPayment.accountNumber,
+                  lastPaid: serverTimestamp(),
+              }).then(() => setIsRecipientSaved(true));
+            }}
             isRecipientSaved={isRecipientSaved}
             onDone={() => setCurrentView('overview')}
           />
@@ -753,5 +750,3 @@ const App = () => {
 };
 
 export default App;
-
-    
