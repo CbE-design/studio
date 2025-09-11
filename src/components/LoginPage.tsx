@@ -123,13 +123,13 @@ const LoginPage = ({ setCurrentView }) => {
 
         <div className="space-y-4">
             <div className="bg-gray-100 rounded-lg p-4 flex items-center">
-                <div className="bg-white rounded-lg mr-4 h-16 w-16 overflow-hidden">
+                <div className="bg-white rounded-lg mr-4 h-16 w-16 overflow-hidden flex-shrink-0">
                     <Image
                         src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/7daee036639379.57235d3dd1f02.jpg?alt=media&token=4dd801c5-bb8e-46cd-b2b1-c19539a91ec8"
                         alt="Award Logo"
                         width={64}
                         height={64}
-                        className="object-center w-full h-full"
+                        className="object-cover w-full h-full"
                     />
                 </div>
                 <div>
@@ -139,13 +139,13 @@ const LoginPage = ({ setCurrentView }) => {
             </div>
 
             <div className="bg-gray-100 rounded-lg p-4 flex items-center">
-                    <div className="bg-white rounded-lg mr-4 h-16 w-16 overflow-hidden">
+                    <div className="bg-white rounded-lg mr-4 h-16 w-16 overflow-hidden flex-shrink-0">
                          <Image
                             src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/7daee036639379.57235d3dd1f02.jpg?alt=media&token=4dd801c5-bb8e-46cd-b2b1-c19539a91ec8"
                             alt="Award Logo"
                             width={64}
                             height={64}
-                            className="object-center w-full h-full"
+                            className="object-cover w-full h-full"
                         />
                     </div>
                 <div>
