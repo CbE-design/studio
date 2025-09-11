@@ -48,9 +48,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     
-    // --- ACTION REQUIRED ---
-    // Replace this placeholder URL with the actual public URL of your logo from Firebase Storage.
-    const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/nedbank-logo.png?alt=media&token=013c713a-a878-4328-b0a7-2b7b5e43a1f1'; // <-- REPLACE THIS URL
+    const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/NED.JO.png?alt=media&token=4070ec81-1e57-45d8-93e4-9977f97229c6';
     
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
