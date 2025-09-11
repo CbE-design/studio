@@ -51,28 +51,28 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     const logoUrl = 'https://i.ibb.co/gbv2MPtF/274c21be47b77228176e072b7bec2a8c.jpg';
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedJpg(logoImageBytes);
-    const logoDims = logoImage.scale(0.1); // Made logo bigger
+    const logoDims = logoImage.scale(0.15); // Made logo bigger
 
     const black = rgb(0, 0, 0);
     const margin = 50;
 
-    let y = height - margin; // Start y position higher up
+    let y = height - 40; // Start y position higher up
 
     // 1. Header with Logo (bigger and moved to top-left)
     page.drawImage(logoImage, {
-        x: margin,
+        x: 40, // Move more to the left
         y: y - logoDims.height,
         width: logoDims.width,
         height: logoDims.height,
     });
     
-    y -= (logoDims.height + 15); // Adjust y position after logo
+    y -= (logoDims.height); // Adjust y position after logo for line
 
-    // 2. Medium-thick black line under logo
+    // 2. Medium-thick black line under logo (thinner and closer)
     page.drawLine({
         start: { x: margin, y },
         end: { x: width - margin, y },
-        thickness: 1.5,
+        thickness: 1.0, // Made line thinner
         color: black,
     });
 
@@ -190,5 +190,3 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     return { pdfBase64 };
   }
 );
-
-    
