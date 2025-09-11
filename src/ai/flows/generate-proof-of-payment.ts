@@ -48,40 +48,39 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     
-    const logoUrl = 'https://i.ibb.co/gbv2MPtF/274c21be47b77228176e072b7bec2a8c.jpg';
+    const logoUrl = 'https://i.ibb.co/Ldn0sRk/nedbank-logo.png';
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
-    const logoImage = await pdfDoc.embedJpg(logoImageBytes);
-    const logoDims = logoImage.scale(0.15); // Made logo bigger
+    const logoImage = await pdfDoc.embedPng(logoImageBytes);
+    const logoDims = logoImage.scale(0.08);
 
     const black = rgb(0, 0, 0);
     const margin = 50;
+    let y = height - 60;
 
-    let y = height - 40; // Start y position higher up
-
-    // 1. Header with Logo (bigger and moved to top-left)
+    // 1. Header with Logo
     page.drawImage(logoImage, {
-        x: 40, // Move more to the left
-        y: y - logoDims.height,
+        x: margin,
+        y: y - logoDims.height + 15,
         width: logoDims.width,
         height: logoDims.height,
     });
     
-    y -= (logoDims.height); // Adjust y position after logo for line
+    y -= (logoDims.height + 5);
 
-    // 2. Medium-thick black line under logo (thinner and closer)
+    // 2. Thin line under logo
     page.drawLine({
         start: { x: margin, y },
         end: { x: width - margin, y },
-        thickness: 1.0, // Made line thinner
+        thickness: 0.5,
         color: black,
     });
 
-    y -= 30; // Space after the line
+    y -= 25;
 
     // 3. Title under the line on the left
     page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 12, color: black });
     
-    y -= 40; // Space after the title
+    y -= 30;
 
     // 4. Confirmation Text
     page.drawText('Nedbank Limited confirms that the following payment has been made:', { x: margin, y, font, size: 10, color: black });
@@ -104,7 +103,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
         y -= 15;
     });
 
-    y -= 20; // Space after the details table - REMOVED for next step
+    y -= 20;
 
     // 6. Beneficiary Details
     page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 11 });
@@ -133,7 +132,8 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     y -= 20;
     page.drawText('Paid from Account Holder', { x: detailsLeftColX, y, font, size: 10 });
     page.drawText(':', { x: detailsColonColX, y, font, size: 10 });
-    page.drawText("VAN SCHALKWYK FAMILY TRUST", { x: detailsRightColX, y, font, size: 10 });
+    // This value is hardcoded in the example image
+    page.drawText("CORRIE DIRK VAN SCHALKWYK", { x: detailsRightColX, y, font, size: 10 });
 
     y -= 40;
 
