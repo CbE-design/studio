@@ -52,7 +52,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    const logoDims = logoImage.scale(0.09); // Slightly increased size
+    const logoDims = logoImage.scale(0.05); // Resized logo to be much smaller
 
     const black = rgb(0, 0, 0);
     const margin = 50;
