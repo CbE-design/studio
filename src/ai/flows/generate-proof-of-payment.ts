@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Generates a Proof of Payment PDF document based on a specific design.
@@ -50,34 +51,43 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     const logoUrl = 'https://i.ibb.co/gbv2MPtF/274c21be47b77228176e072b7bec2a8c.jpg';
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedJpg(logoImageBytes);
-    const logoDims = logoImage.scale(0.05);
+    const logoDims = logoImage.scale(0.1); // Made logo bigger
 
     const black = rgb(0, 0, 0);
-
     const margin = 50;
-    let y = height - margin - 20;
 
-    // 1. Header with Logo
+    let y = height - margin; // Start y position higher up
+
+    // 1. Header with Logo (bigger and moved to top-left)
     page.drawImage(logoImage, {
         x: margin,
-        y: y - logoDims.height + 15,
+        y: y - logoDims.height,
         width: logoDims.width,
         height: logoDims.height,
     });
     
-    y -= 50;
+    y -= (logoDims.height + 15); // Adjust y position after logo
 
-    // 2. Title and separator line
+    // 2. Medium-thick black line under logo
+    page.drawLine({
+        start: { x: margin, y },
+        end: { x: width - margin, y },
+        thickness: 1.5,
+        color: black,
+    });
+
+    y -= 30; // Space after the line
+
+    // 3. Title under the line on the left
     page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 12, color: black });
-    y -= 15;
-    page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 0.5, color: rgb(0.5, 0.5, 0.5) });
-    y -= 25;
+    
+    y -= 40; // Space after the title
 
-    // 3. Confirmation Text
+    // 4. Confirmation Text
     page.drawText('Nedbank Limited confirms that the following payment has been made:', { x: margin, y, font, size: 10, color: black });
     y -= 25;
 
-    // 4. Payment Details Table
+    // 5. Payment Details Table
     const detailsLeftColX = margin;
     const detailsColonColX = 180;
     const detailsRightColX = 200;
@@ -96,7 +106,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
 
     y -= 20;
 
-    // 5. Beneficiary Details
+    // 6. Beneficiary Details
     page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 11 });
     y -= 20;
 
@@ -118,7 +128,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
 
     y -= 20;
 
-    // 6. Payer Details
+    // 7. Payer Details
     page.drawText('Payer details', { x: margin, y, font: boldFont, size: 11 });
     y -= 20;
     page.drawText('Paid from Account Holder', { x: detailsLeftColX, y, font, size: 10 });
@@ -127,7 +137,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
 
     y -= 40;
 
-    // 7. Disclaimers and Notes
+    // 8. Disclaimers and Notes
     const disclaimerText1 = 'Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on\nwww.nedbank.co.za and click on Verify payments.';
     page.drawText(disclaimerText1, { x: margin, y, font, size: 10, lineHeight: 12 });
     y -= 40;
@@ -147,7 +157,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     page.drawText(disclaimerText4, { x: margin, y, font, size: 8, lineHeight: 10 });
     y -= 110;
 
-    // 8. Security Code
+    // 9. Security Code
     page.drawText('Security Code', { x: detailsLeftColX, y, font, size: 10 });
     page.drawText(':', { x: detailsColonColX, y, font, size: 10 });
     const securityCode = 'DB85BE175B1E35A823EBD2CDE32DC8D542472D1A';
@@ -180,3 +190,5 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     return { pdfBase64 };
   }
 );
+
+    
