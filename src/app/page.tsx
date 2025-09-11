@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
@@ -142,27 +143,28 @@ const App = () => {
       try {
         await setPersistence(auth, browserLocalPersistence);
 
-        let currentUser = auth.currentUser;
-        if (!currentUser) {
-          const userCredential = await signInAnonymously(auth);
-          currentUser = userCredential.user;
-        }
-
-        const uid = currentUser.uid;
+        const userCredential = await signInAnonymously(auth);
+        const uid = userCredential.user.uid;
         setUserId(uid);
 
-        // Run seeding and wait for it to complete
+        // Seed data if it doesn't exist
         await seedInitialData(db, uid);
-        
-        // Now that seeding is done, fetch the data
-        await fetchData(db, uid);
 
-        // All data is loaded, move to the login screen
-        setCurrentView('login');
+        // Setup snapshot listeners
+        const unsubscribes = setupSnapshotListeners(db, uid);
+        
+        // Move to login screen after a short delay to ensure listeners are active
+        setTimeout(() => {
+          setIsLoading(false);
+          setCurrentView('login');
+        }, 500); // Small delay to allow initial data population
+
+        // Cleanup listeners on component unmount
+        return () => unsubscribes.forEach(unsub => unsub());
+
       } catch (error) {
         console.error("Initialization failed:", error);
-        // Handle error state if necessary
-        setIsLoading(false);
+        setIsLoading(false); // Stop loading on error
       }
     };
 
@@ -240,49 +242,39 @@ const App = () => {
     }
   };
 
-  const fetchData = (db, uid) => {
-    return new Promise((resolve, reject) => {
-        const appId = 'van-schalkwyk-trust-mobile';
-        const baseUserRef = doc(db, `artifacts/${appId}/users/${uid}`);
+  const setupSnapshotListeners = (db, uid) => {
+    const appId = 'van-schalkwyk-trust-mobile';
+    const baseUserRef = doc(db, `artifacts/${appId}/users/${uid}`);
 
-        const docRefs = {
-            account1: doc(baseUserRef, 'accounts', 'savvy'),
-            account2: doc(baseUserRef, 'accounts', 'platinum1'),
-            account3: doc(baseUserRef, 'accounts', 'platinum2'),
-        };
+    const docRefs = {
+        account1: doc(baseUserRef, 'accounts', 'savvy'),
+        account2: doc(baseUserRef, 'accounts', 'platinum1'),
+        account3: doc(baseUserRef, 'accounts', 'platinum2'),
+    };
 
-        const colRefs = {
-            trans1: collection(docRefs.account1, 'transactions'),
-            trans2: collection(docRefs.account2, 'transactions'),
-            trans3: collection(docRefs.account3, 'transactions'),
-            recipients: collection(baseUserRef, 'recipients'),
-            overviewPages: collection(baseUserRef, 'overviewPages'),
-        };
+    const colRefs = {
+        trans1: collection(docRefs.account1, 'transactions'),
+        trans2: collection(docRefs.account2, 'transactions'),
+        trans3: collection(docRefs.account3, 'transactions'),
+        recipients: collection(baseUserRef, 'recipients'),
+        overviewPages: collection(baseUserRef, 'overviewPages'),
+    };
 
-        let pendingListeners = 8; // Total number of listeners we're setting up
-        const checkDone = () => {
-            pendingListeners--;
-            if (pendingListeners === 0) {
-                setIsLoading(false);
-                resolve(true);
-            }
-        };
-
-        onSnapshot(docRefs.account1, (docSnap) => { docSnap.exists() && setAccountBalance(docSnap.data().balance); checkDone(); }, reject);
-        onSnapshot(docRefs.account2, (docSnap) => { docSnap.exists() && setSecondAccountBalance(docSnap.data().balance); checkDone(); }, reject);
-        onSnapshot(docRefs.account3, (docSnap) => { docSnap.exists() && setThirdAccountBalance(docSnap.data().balance); checkDone(); }, reject);
-
-        const processSnapshot = (snapshot) =>
-            snapshot.docs.map((d) => ({
-                ...d.data(),
-                id: d.id,
-                timestamp: d.data().timestamp?.toDate() || new Date(),
-            }));
-
-        onSnapshot(colRefs.trans1, (s) => { setRealTimeTransactions(processSnapshot(s)); checkDone(); }, reject);
-        onSnapshot(colRefs.trans2, (s) => { setSecondRealTimeTransactions(processSnapshot(s)); checkDone(); }, reject);
-        onSnapshot(colRefs.trans3, (s) => { setThirdRealTimeTransactions(processSnapshot(s)); checkDone(); }, reject);
-        onSnapshot(colRefs.recipients, (s) => { setRecipients(processSnapshot(s)); checkDone(); }, reject);
+    const processSnapshot = (snapshot) =>
+        snapshot.docs.map((d) => ({
+            ...d.data(),
+            id: d.id,
+            timestamp: d.data().timestamp?.toDate() || new Date(),
+        }));
+    
+    const unsubscribes = [
+        onSnapshot(docRefs.account1, (docSnap) => docSnap.exists() && setAccountBalance(docSnap.data().balance)),
+        onSnapshot(docRefs.account2, (docSnap) => docSnap.exists() && setSecondAccountBalance(docSnap.data().balance)),
+        onSnapshot(docRefs.account3, (docSnap) => docSnap.exists() && setThirdAccountBalance(docSnap.data().balance)),
+        onSnapshot(colRefs.trans1, (s) => setRealTimeTransactions(processSnapshot(s))),
+        onSnapshot(colRefs.trans2, (s) => setSecondRealTimeTransactions(processSnapshot(s))),
+        onSnapshot(colRefs.trans3, (s) => setThirdRealTimeTransactions(processSnapshot(s))),
+        onSnapshot(colRefs.recipients, (s) => setRecipients(processSnapshot(s))),
         onSnapshot(query(colRefs.overviewPages), (s) => {
             const pagesList = s.docs
                 .map((d) => ({
@@ -292,9 +284,10 @@ const App = () => {
                 }))
                 .sort((a, b) => a.order - b.order);
             setOverviewPagesData(pagesList);
-            checkDone();
-        }, reject);
-    });
+        })
+    ];
+    
+    return unsubscribes;
 };
 
   const handleTransactionClick = (transaction) => {
@@ -725,3 +718,5 @@ const App = () => {
 };
 
 export default App;
+
+    
