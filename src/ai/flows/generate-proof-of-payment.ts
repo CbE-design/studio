@@ -52,11 +52,11 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    const logoDims = logoImage.scale(0.05); // Resized logo to be much smaller
+    const logoDims = logoImage.scale(0.04); 
 
     const black = rgb(0, 0, 0);
     const margin = 50;
-    let y = height - 40; // Start higher up
+    let y = height - 40;
 
     // 1. Header with Logo (moved to top-left corner)
     page.drawImage(logoImage, {
@@ -192,5 +192,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     return { pdfBase64 };
   }
 );
+
+    
 
     
