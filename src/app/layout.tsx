@@ -17,7 +17,7 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#00703C" />
-        <link rel="apple-touch-icon" href="/logo192.png" />
+        <link rel="apple-touch-icon" href="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/app-icon-192.png?alt=media&token=d5b3c53b-3a5f-4a02-8a43-01c015f62438" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

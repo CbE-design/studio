@@ -1,21 +1,21 @@
 {
   "name": "Van Schalkwyk Trust Mobile",
   "short_name": "VST Mobile",
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#00703C",
-  "theme_color": "#00703C",
   "description": "Mobile banking for the Van Schalkwyk Family Trust",
   "icons": [
     {
-      "src": "https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/NED.JO_192.png?alt=media&token=69c59345-353d-4223-8995-658b4da035d8",
+      "src": "https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/app-icon-192.png?alt=media&token=d5b3c53b-3a5f-4a02-8a43-01c015f62438",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/NED.JO_512.png?alt=media&token=c222c668-1976-4d0f-a42e-152e9e623911",
+      "src": "https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.appspot.com/o/app-icon-512.png?alt=media&token=1d3b0c16-081b-48a3-958a-6b47c4308552",
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#00703C",
+  "background_color": "#00703C"
 }
