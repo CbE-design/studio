@@ -90,7 +90,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     // 5. Payment Details Table
     const detailsLeftColX = margin;
     const detailsColonColX = 180;
-    const detailsRightColX = 190;
+    const detailsRightColX = 195;
 
     const paymentDetailsData = [
         { label: 'Date of Payment', value: details.date },
