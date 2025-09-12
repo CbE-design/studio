@@ -52,7 +52,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    const logoDims = logoImage.scale(0.20); 
+    const logoDims = logoImage.scale(0.30); 
 
     const black = rgb(0, 0, 0);
     const margin = 50;
@@ -103,8 +103,6 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
         page.drawText(item.value, { x: detailsRightColX, y, font, size: 10 });
         y -= 15;
     });
-
-    y -= 15; 
 
     // 6. Beneficiary Details
     page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 11 });
@@ -191,7 +189,3 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     return { pdfBase64 };
   }
 );
-
-    
-
-    
