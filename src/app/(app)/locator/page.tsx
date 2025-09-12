@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { atmLocations } from '@/lib/data';
+import { atmLocations } from '@/app/lib/data';
 import { MapPin, Banknote, Landmark } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 

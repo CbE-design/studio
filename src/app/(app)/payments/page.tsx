@@ -1,6 +1,6 @@
 'use client';
 
-import { accounts, beneficiaries, formatCurrency } from "@/lib/data";
+import { accounts, beneficiaries, formatCurrency } from "@/app/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
