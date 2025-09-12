@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "atm-map",
+      "description": "A stylized map showing ATM locations.",
+      "imageUrl": "https://picsum.photos/seed/moneygo-map/1200/800",
+      "imageHint": "city map"
+    }
+  ]
 }
