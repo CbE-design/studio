@@ -142,33 +142,38 @@ const App = () => {
 
   useEffect(() => {
     const initializeApp = async () => {
-      try {
-        await setPersistence(auth, browserLocalPersistence);
-        
-        onAuthStateChanged(auth, async (user) => {
-          if (user) {
-            const uid = user.uid;
-            setUserId(uid);
-            await seedInitialData(db, uid);
-            const unsubscribes = setupSnapshotListeners(db, uid);
+      await setPersistence(auth, browserLocalPersistence);
+      
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const uid = user.uid;
+          setUserId(uid);
+          await seedInitialData(db, uid);
+          const unsubscribes = setupSnapshotListeners(db, uid);
+          setIsLoading(false);
+          setCurrentView('login');
+          // This cleanup function is for the snapshot listeners, not the auth listener.
+          return () => unsubscribes.forEach(unsub => unsub());
+        } else {
+          // No user found, attempt to sign in anonymously.
+          // This will re-trigger the onAuthStateChanged listener.
+          try {
+            await signInAnonymously(auth);
+          } catch (error) {
+            console.error("Anonymous sign-in failed:", error);
             setIsLoading(false);
-            setCurrentView('login');
-            // Cleanup on unmount
-            return () => unsubscribes.forEach(unsub => unsub());
-          } else {
-             // If no user, sign in anonymously, which will re-trigger this callback
-            signInAnonymously(auth).catch(error => {
-                console.error("Anonymous sign-in failed:", error);
-                setIsLoading(false);
-            });
           }
-        });
-      } catch (error) {
+        }
+      });
+
+      // Cleanup the auth state listener on component unmount
+      return () => unsubscribe();
+    };
+
+    initializeApp().catch(error => {
         console.error("Initialization failed:", error);
         setIsLoading(false);
-      }
-    };
-    initializeApp();
+    });
   }, []);
 
 
