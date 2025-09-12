@@ -52,7 +52,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    const logoDims = logoImage.scale(0.3); 
+    const logoDims = logoImage.scale(0.2); 
 
     const black = rgb(0, 0, 0);
     const margin = 50;
@@ -104,7 +104,6 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
         y -= 15;
     });
 
-    // Removed the extra spacing here
     y -= 15; 
 
     // 6. Beneficiary Details
@@ -194,9 +193,3 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
 );
 
     
-
-    
-
-    
-
-
