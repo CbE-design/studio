@@ -52,7 +52,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    const logoDims = logoImage.scale(0.2); 
+    const logoDims = logoImage.scale(0.08); 
 
     const black = rgb(0, 0, 0);
     const margin = 50;
@@ -90,7 +90,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     // 5. Payment Details Table
     const detailsLeftColX = margin;
     const detailsColonColX = 180;
-    const detailsRightColX = 200;
+    const detailsRightColX = 185; // Reduced from 200
 
     const paymentDetailsData = [
         { label: 'Date of Payment', value: details.date },
