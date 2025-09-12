@@ -48,11 +48,11 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     
-    const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/NED.JO.png?alt=media&token=4070ec81-1e57-45d8-93e4-9977f97229c6';
+    const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/Nedbank_idvPPE6CB0_1.png?alt=media&token=aa008132-7cf7-4971-b859-e64a8ac3aa47';
     
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    const logoDims = logoImage.scale(0.03); 
+    const logoDims = logoImage.scale(0.015); 
 
     const black = rgb(0, 0, 0);
     const margin = 50;
