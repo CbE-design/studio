@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 
@@ -29,10 +30,10 @@ export default function RootLayout({
             __html: `
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                  navigator.service-worker.register('/sw.js').then(function(registration) {
                     console.log('ServiceWorker registration successful with scope: ', registration.scope);
                     
-                    // Check for updates on page load
+                    // Force update on navigation
                     registration.update();
 
                     registration.addEventListener('updatefound', () => {
