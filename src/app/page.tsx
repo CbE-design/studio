@@ -7,6 +7,7 @@ import {
   User,
   browserLocalPersistence,
   setPersistence,
+  AuthError as FirebaseAuthError,
 } from 'firebase/auth';
 import {
   doc,
@@ -49,6 +50,7 @@ import { sendSms } from '@/ai/flows/send-sms';
 import { calculateBankingFees, CalculateBankingFeesInput } from '@/ai/flows/calculate-banking-fees';
 import { generateStatementReference } from '@/ai/flows/generate-statement-reference';
 import PwaUpdater from '@/components/PwaUpdater';
+import AuthError from '@/components/AuthError';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('Overview');
@@ -82,6 +84,7 @@ const App = () => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [selectedRecipient, setSelectedRecipient] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showBankModal, setShowBankModal] = useState(false);
   const [bankSearchQuery, setBankSearchQuery] = useState('');
@@ -146,6 +149,7 @@ const App = () => {
       
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
+          setAuthError(null);
           const uid = user.uid;
           setUserId(uid);
           await seedInitialData(db, uid);
@@ -155,12 +159,15 @@ const App = () => {
           // This cleanup function is for the snapshot listeners, not the auth listener.
           return () => unsubscribes.forEach(unsub => unsub());
         } else {
-          // No user found, attempt to sign in anonymously.
-          // This will re-trigger the onAuthStateChanged listener.
           try {
             await signInAnonymously(auth);
           } catch (error) {
             console.error("Anonymous sign-in failed:", error);
+            if ((error as FirebaseAuthError).code === 'auth/operation-not-allowed') {
+              setAuthError('ANONYMOUS_SIGN_IN_DISABLED');
+            } else {
+              setAuthError('UNKNOWN_ERROR');
+            }
             setIsLoading(false);
           }
         }
@@ -172,6 +179,7 @@ const App = () => {
 
     initializeApp().catch(error => {
         console.error("Initialization failed:", error);
+        setAuthError('UNKNOWN_ERROR');
         setIsLoading(false);
     });
   }, []);
@@ -720,6 +728,10 @@ const App = () => {
         return <SplashScreen />;
     }
   };
+
+  if (authError) {
+    return <AuthError errorCode={authError} />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
