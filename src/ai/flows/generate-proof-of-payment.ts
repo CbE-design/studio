@@ -53,7 +53,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    const logoDims = logoImage.scale(0.2); 
+    const logoDims = logoImage.scale(0.15); 
 
     const black = rgb(0, 0, 0);
     const margin = 50;
@@ -105,7 +105,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
         y -= 15;
     });
 
-    y -= 15; // Reduced gap here
+    y -= 15; // This is the gap being adjusted
 
     // 6. Beneficiary Details
     page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 11 });
@@ -127,7 +127,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
         y -= 15;
     });
 
-    y -= 15; // Reduced gap here
+    y -= 15; // This is the gap being adjusted
 
     // 7. Payer Details
     page.drawText('Payer details', { x: margin, y, font: boldFont, size: 11 });
