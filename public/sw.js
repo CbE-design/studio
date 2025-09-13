@@ -1,19 +1,25 @@
-self.addEventListener('install', (event) => {
+const CACHE_NAME = 'nedbank-pwa-cache-v1';
+const urlsToCache = [
+  '/',
+  '/manifest.json'
+];
+
+self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
-    caches.open('vst-mobile-cache-v1').then((cache) => {
-      return cache.addAll([
-        '/',
-        '/manifest.json',
-      ]);
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        return cache.addAll(urlsToCache);
+      })
   );
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
+    caches.match(event.request)
+      .then(response => {
+        return response || fetch(event.request);
+      })
   );
 });
 
