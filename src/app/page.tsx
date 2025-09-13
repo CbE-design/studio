@@ -557,6 +557,11 @@ const App = () => {
     setCurrentView('payment');
   };
 
+  const handleGoToStatement = (account) => {
+    setStatementAccount(account);
+    setCurrentView('statementMonth');
+  };
+
   const renderCurrentView = () => {
     switch (currentView) {
       case 'login':
@@ -577,34 +582,28 @@ const App = () => {
       case 'transactions':
         return (
           <TransactionsPage
-            accountName="Savvy Bundle Current Account"
-            currentBalance={accountBalance}
-            transactionsList={combinedTransactions}
-            backView="overview"
+            account={allAccounts.find(acc => acc.id === 'savvy')}
             setCurrentView={setCurrentView}
             handleTransactionClick={handleTransactionClick}
+            onGoToStatement={handleGoToStatement}
           />
         );
       case 'secondAccountTransactions':
         return (
           <TransactionsPage
-            accountName="Platinum Cheque"
-            currentBalance={secondAccountBalance}
-            transactionsList={secondCombinedTransactions}
-            backView="overview"
+            account={allAccounts.find(acc => acc.id === 'platinum1')}
             setCurrentView={setCurrentView}
             handleTransactionClick={handleTransactionClick}
+            onGoToStatement={handleGoToStatement}
           />
         );
       case 'thirdAccountTransactions':
         return (
           <TransactionsPage
-            accountName="Platinum Cheque"
-            currentBalance={thirdAccountBalance}
-            transactionsList={thirdCombinedTransactions}
-            backView="overview"
+            account={allAccounts.find(acc => acc.id === 'platinum2')}
             setCurrentView={setCurrentView}
             handleTransactionClick={handleTransactionClick}
+            onGoToStatement={handleGoToStatement}
           />
         );
       case 'failedTransactions':

@@ -1,7 +1,12 @@
-'use client';
-import { ArrowLeft, MessageSquare, ChevronRight, Search, Sliders } from 'lucide-react';
 
-const TransactionsPage = ({ accountName, currentBalance, transactionsList, backView, setCurrentView, handleTransactionClick }) => {
+'use client';
+import { ArrowLeft, MessageSquare, ChevronRight, Search, Sliders, FileBadge } from 'lucide-react';
+
+const TransactionsPage = ({ account, setCurrentView, handleTransactionClick, onGoToStatement }) => {
+  if (!account) return null;
+
+  const { name: accountName, balance: currentBalance, transactions: transactionsList } = account;
+
   const groupedTransactions = transactionsList.reduce((acc, transaction) => {
     const date = new Date(transaction.timestamp);
     if (isNaN(date.getTime())) return acc;
@@ -27,7 +32,7 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
       <div className="flex-shrink-0">
         <header className="bg-primary text-primary-foreground p-4 flex justify-between items-center w-full">
           <div className="flex items-center space-x-4">
-            <ArrowLeft size={24} className="cursor-pointer" onClick={() => setCurrentView(backView || 'overview')} />
+            <ArrowLeft size={24} className="cursor-pointer" onClick={() => setCurrentView('overview')} />
             <div className="flex flex-col">
               <span className="text-lg font-light">{accountName}</span>
               <p className="text-sm font-normal">R{currentBalance.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")}</p>
@@ -57,6 +62,14 @@ const TransactionsPage = ({ accountName, currentBalance, transactionsList, backV
                     onClick={() => setCurrentView('payment')}
                 >
                     <span className="text-base">Once-off payment</span>
+                    <ChevronRight size={20} />
+                </div>
+                <hr className="mx-5" />
+                <div 
+                    className="p-5 flex justify-between items-center cursor-pointer"
+                    onClick={() => onGoToStatement(account)}
+                >
+                    <span className="text-base">Statements and docs</span>
                     <ChevronRight size={20} />
                 </div>
             </div>
