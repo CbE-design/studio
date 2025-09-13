@@ -15,7 +15,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
           height="32"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="black"
+          stroke="hsl(var(--primary))"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -37,7 +37,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
           height="24"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="black"
+          stroke="hsl(var(--primary))"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -51,14 +51,14 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
       ),
       text: 'Applications'
     },
-    { icon: <Umbrella size={24} />, text: 'Insure', badge: 5 },
-    { icon: <Car size={24} />, text: 'Discs and fines' },
-    { icon: <ShoppingCart size={24} />, text: 'Shop', badge: 1 },
-    { icon: <GitPullRequest size={24} />, text: 'PayShap Request' },
-    { icon: <Banknote size={24} />, text: 'Quick Pay' },
-    { icon: <CreditCard size={24} />, text: 'Get cash' },
-    { icon: <Home size={24} />, text: 'Home loans' },
-    { icon: <FileBadge size={24} />, text: 'Statements and docs', onClick: () => setCurrentView('statementAccount') },
+    { icon: <Umbrella size={24} className="text-primary" />, text: 'Insure', badge: 5 },
+    { icon: <Car size={24} className="text-primary" />, text: 'Discs and fines' },
+    { icon: <ShoppingCart size={24} className="text-primary" />, text: 'Shop', badge: 1 },
+    { icon: <GitPullRequest size={24} className="text-primary" />, text: 'PayShap Request' },
+    { icon: <Banknote size={24} className="text-primary" />, text: 'Quick Pay' },
+    { icon: <CreditCard size={24} className="text-primary" />, text: 'Get cash' },
+    { icon: <Home size={24} className="text-primary" />, text: 'Home loans' },
+    { icon: <FileBadge size={24} className="text-primary" />, text: 'Statements and docs', onClick: () => setCurrentView('statementAccount') },
   ];
 
   return (
