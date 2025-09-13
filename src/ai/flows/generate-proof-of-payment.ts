@@ -141,13 +141,15 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     // 8. Disclaimers and Notes
     const disclaimerText1 = 'Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on\nwww.nedbank.co.za and click on Verify payments.';
     page.drawText(disclaimerText1, { x: margin, y, font, size: 10, lineHeight: 12 });
-    y -= 35; 
-
-    // Draw the new black line
+    
+    const gapBetweenParagraphs = 35; // The total gap we want
+    y -= gapBetweenParagraphs; // Move y down for the next paragraph
+    
+    // Draw the new black line in the middle of the gap
     page.drawLine({
-        start: { x: margin, y: y + 8 }, // Position the line in the middle of the gap
-        end: { x: width - margin, y: y + 8 },
-        thickness: 1.5, // Bolder line
+        start: { x: margin, y: y + (gapBetweenParagraphs / 2) },
+        end: { x: width - margin, y: y + (gapBetweenParagraphs / 2) },
+        thickness: 1.5, // Medium-bold line
         color: black,
     });
     
