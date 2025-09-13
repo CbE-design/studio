@@ -53,7 +53,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    const logoDims = logoImage.scale(0.3); 
+    const logoDims = logoImage.scale(0.25); 
 
     const black = rgb(0, 0, 0);
     const margin = 50;
@@ -105,7 +105,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
         y -= 15;
     });
 
-    y -= 25; // Gap before beneficiary details
+    y -= 15; // Gap before beneficiary details
 
     // 6. Beneficiary Details
     page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 11 });
@@ -127,7 +127,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
         y -= 15;
     });
 
-    y -= 25; // Adjusted gap for payer details
+    y -= 15; // Adjusted gap for payer details
 
     // 7. Payer Details
     page.drawText('Payer details', { x: margin, y, font: boldFont, size: 11 });
@@ -140,11 +140,12 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
 
     // 8. Disclaimers and Notes
     const disclaimerText1 = 'Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on\nwww.nedbank.co.za and click on Verify payments.';
-    const text1Height = font.heightAtSize(10, { lineHeight: 12 }) * 2; // Approximate height for 2 lines
+    const text1Height = font.heightAtSize(10, { lineHeight: 12 }) * 2; 
     page.drawText(disclaimerText1, { x: margin, y, font, size: 10, lineHeight: 12 });
-    y -= (text1Height + 10); // Move y down by height of text plus some padding
     
-    const lineY = y + 12; // Adjusted position for the line
+    y -= (text1Height + 5); 
+    
+    const lineY = y; 
     page.drawLine({
         start: { x: margin, y: lineY },
         end: { x: width - margin, y: lineY },
