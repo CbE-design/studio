@@ -53,7 +53,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    const logoDims = logoImage.scale(0.25); 
+    const logoDims = logoImage.scale(0.20); 
 
     const black = rgb(0, 0, 0);
     const margin = 50;
@@ -127,7 +127,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
         y -= 15;
     });
 
-    y -= 15; // Adjusted gap for payer details
+    y -= 15; // Gap before payer details
 
     // 7. Payer Details
     page.drawText('Payer details', { x: margin, y, font: boldFont, size: 11 });
@@ -143,7 +143,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     const text1Height = font.heightAtSize(10, { lineHeight: 12 }) * 2; 
     page.drawText(disclaimerText1, { x: margin, y, font, size: 10, lineHeight: 12 });
     
-    y -= (text1Height + 5); 
+    y -= (text1Height + 20); // Increased gap after the first paragraph
     
     const lineY = y; 
     page.drawLine({
@@ -153,7 +153,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
         color: black,
     });
     
-    y -= 15; // Space after the line
+    y -= 25; // Increased space after the line
     
     const disclaimerText2 = `This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this\npayment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for\nenquiries regarding the contents of this notification.\nNedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability\nfor any loss or damage whatsoever nature, arising from the use thereof.\nPayments may take up to three business days. Please check your account to verify the existence of the funds.`;
     page.drawText(disclaimerText2, { x: margin, y, font, size: 10, lineHeight: 12 });
