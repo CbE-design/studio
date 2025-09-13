@@ -141,7 +141,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     // 8. Disclaimers and Notes
     const disclaimerText1 = 'Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on\nwww.nedbank.co.za and click on Verify payments.';
     page.drawText(disclaimerText1, { x: margin, y, font, size: 10, lineHeight: 12 });
-    y -= 35; // Move up closer to the text above
+    y -= 45; 
 
     // Draw the new black line
     page.drawLine({
