@@ -11,6 +11,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { randomBytes } from 'crypto';
 
 const GenerateProofOfPaymentInputSchema = z.object({
   date: z.string().describe("The date of the payment, e.g., '06/10/2022'"),
@@ -52,7 +53,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    const logoDims = logoImage.scale(0.35); 
+    const logoDims = logoImage.scale(0.25); 
 
     const black = rgb(0, 0, 0);
     const margin = 50;
@@ -104,7 +105,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
         y -= 15;
     });
 
-    y -= 10; // Add a small gap here
+    y -= 15; // Reduced gap here
 
     // 6. Beneficiary Details
     page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 11 });
@@ -126,15 +127,14 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
         y -= 15;
     });
 
-    y -= 20;
+    y -= 15; // Reduced gap here
 
     // 7. Payer Details
     page.drawText('Payer details', { x: margin, y, font: boldFont, size: 11 });
     y -= 20;
     page.drawText('Paid from Account Holder', { x: detailsLeftColX, y, font, size: 10 });
     page.drawText(':', { x: detailsColonColX, y, font, size: 10 });
-    // This value is hardcoded in the example image
-    page.drawText("CORRIE DIRK VAN SCHALKWYK", { x: detailsRightColX, y, font, size: 10 });
+    page.drawText("VAN SCHALKWYK FAMILY TRUST", { x: detailsRightColX, y, font, size: 10 });
 
     y -= 40;
 
@@ -142,6 +142,15 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     const disclaimerText1 = 'Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on\nwww.nedbank.co.za and click on Verify payments.';
     page.drawText(disclaimerText1, { x: margin, y, font, size: 10, lineHeight: 12 });
     y -= 40;
+
+    // Draw the new black line
+    page.drawLine({
+        start: { x: margin, y },
+        end: { x: width - margin, y },
+        thickness: 1, // Medium bold line
+        color: black,
+    });
+    y -= 15;
     
     const disclaimerText2 = `This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this\npayment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for\nenquiries regarding the contents of this notification.\nNedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability\nfor any loss or damage whatsoever nature, arising from the use thereof.\nPayments may take up to three business days. Please check your account to verify the existence of the funds.`;
     page.drawText(disclaimerText2, { x: margin, y, font, size: 10, lineHeight: 12 });
@@ -161,7 +170,8 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     // 9. Security Code
     page.drawText('Security Code', { x: detailsLeftColX, y, font, size: 10 });
     page.drawText(':', { x: detailsColonColX, y, font, size: 10 });
-    const securityCode = 'DB85BE175B1E35A823EBD2CDE32DC8D542472D1A';
+    // Generate a unique security code
+    const securityCode = randomBytes(20).toString('hex').toUpperCase();
     page.drawText(securityCode, { x: detailsRightColX, y, font, size: 10 });
 
     y -= 40;
