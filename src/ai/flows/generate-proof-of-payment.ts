@@ -53,7 +53,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    const logoDims = logoImage.scale(0.15); 
+    const logoDims = logoImage.scale(0.2); 
 
     const black = rgb(0, 0, 0);
     const margin = 50;
@@ -105,7 +105,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
         y -= 15;
     });
 
-    y -= 15; // This is the gap being adjusted
+    y -= 25; // Adjusted gap
 
     // 6. Beneficiary Details
     page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 11 });
@@ -127,7 +127,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
         y -= 15;
     });
 
-    y -= 15; // This is the gap being adjusted
+    y -= 25; // Adjusted gap
 
     // 7. Payer Details
     page.drawText('Payer details', { x: margin, y, font: boldFont, size: 11 });
@@ -143,18 +143,17 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     page.drawText(disclaimerText1, { x: margin, y, font, size: 10, lineHeight: 12 });
     
     const gapBetweenParagraphs = 35; 
-    const lineY = y - (gapBetweenParagraphs / 2) - 10; // Position of the line
-    const text2Y = lineY - (gapBetweenParagraphs / 2); // Position of the second text block
+    const lineY = y - (gapBetweenParagraphs / 2) - 10;
+    const text2Y = lineY - (gapBetweenParagraphs / 2);
     
-    // Draw the new black line in the middle of the gap
     page.drawLine({
         start: { x: margin, y: lineY },
         end: { x: width - margin, y: lineY },
-        thickness: 1.5, // Medium-bold line
+        thickness: 1.5,
         color: black,
     });
 
-    y = text2Y; // Set y to the start of the next paragraph
+    y = text2Y;
     
     const disclaimerText2 = `This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this\npayment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for\nenquiries regarding the contents of this notification.\nNedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability\nfor any loss or damage whatsoever nature, arising from the use thereof.\nPayments may take up to three business days. Please check your account to verify the existence of the funds.`;
     page.drawText(disclaimerText2, { x: margin, y, font, size: 10, lineHeight: 12 });
