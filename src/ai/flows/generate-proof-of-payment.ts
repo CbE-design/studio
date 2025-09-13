@@ -53,7 +53,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     
     const logoImageBytes = await fetch(logoUrl).then((res) => res.arrayBuffer());
     const logoImage = await pdfDoc.embedPng(logoImageBytes);
-    const logoDims = logoImage.scale(0.2); 
+    const logoDims = logoImage.scale(0.3); 
 
     const black = rgb(0, 0, 0);
     const margin = 50;
@@ -105,7 +105,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
         y -= 15;
     });
 
-    y -= 25; // Adjusted gap
+    y -= 10; // Adjusted gap
 
     // 6. Beneficiary Details
     page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 11 });
@@ -140,11 +140,11 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
 
     // 8. Disclaimers and Notes
     const disclaimerText1 = 'Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on\nwww.nedbank.co.za and click on Verify payments.';
-    const { height: text1Height } = font.heightAtSize(10, { lineHeight: 12 });
+    const text1Height = font.heightAtSize(10, { lineHeight: 12 }) * 2; // Approximate height for 2 lines
     page.drawText(disclaimerText1, { x: margin, y, font, size: 10, lineHeight: 12 });
-    y -= (text1Height + 25);
+    y -= (text1Height + 12.5); // Move y down by height of text + half the desired gap
     
-    const lineY = y + 12;
+    const lineY = y; // The line will be drawn at the new y position
     page.drawLine({
         start: { x: margin, y: lineY },
         end: { x: width - margin, y: lineY },
@@ -152,7 +152,7 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
         color: black,
     });
     
-    y -= 12;
+    y -= 12.5; // Move y down by the other half of the gap
     
     const disclaimerText2 = `This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this\npayment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for\nenquiries regarding the contents of this notification.\nNedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability\nfor any loss or damage whatsoever nature, arising from the use thereof.\nPayments may take up to three business days. Please check your account to verify the existence of the funds.`;
     page.drawText(disclaimerText2, { x: margin, y, font, size: 10, lineHeight: 12 });
@@ -203,5 +203,3 @@ const generateProofOfPaymentPdfFlow = ai.defineFlow(
     return { pdfBase64 };
   }
 );
-
-    
