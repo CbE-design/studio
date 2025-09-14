@@ -49,6 +49,7 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
             const firstTxDate = sortedTransactions.length > 0 ? new Date(sortedTransactions[0].timestamp) : new Date();
             const lastTxDate = sortedTransactions.length > 0 ? new Date(sortedTransactions[sortedTransactions.length - 1].timestamp) : new Date();
 
+            // Correctly construct the flat input object matching the schema
             const input: GenerateStatementPdfInput = {
                 statementDate: new Date().toISOString().split('T')[0],
                 statementPeriod: {
