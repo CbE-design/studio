@@ -14,23 +14,26 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
     
     const calculations = useMemo(() => {
         let openingBalance = balance;
-        // Calculate opening balance by reversing all transactions
-        for (let i = sortedTransactions.length - 1; i >= 0; i--) {
-            const tx = sortedTransactions[i];
-            const amount = parseFloat(tx.amount.replace('R', '').replace(/ /g, ''));
-            openingBalance -= amount;
-        }
+        // Calculate opening balance by reversing all transactions for the current view
+        const transactionsInView = sortedTransactions.map(tx => ({
+            ...tx,
+            amountValue: parseFloat(tx.amount.replace('R', '').replace(/ /g, ''))
+        }));
+
+        const totalCredits = transactionsInView.filter(tx => tx.amountValue > 0).reduce((sum, tx) => sum + tx.amountValue, 0);
+        const totalDebits = transactionsInView.filter(tx => tx.amountValue < 0).reduce((sum, tx) => sum + tx.amountValue, 0);
+        
+        openingBalance = balance - (totalCredits + totalDebits);
 
         let totalFees = 0;
         
         let runningBalance = openingBalance;
-        const finalTransactions = sortedTransactions.map(tx => {
-            const amount = parseFloat(tx.amount.replace('R', '').replace(/ /g, ''));
-            runningBalance += amount;
+        const finalTransactions = transactionsInView.map(tx => {
+            runningBalance += tx.amountValue;
             if (tx.description.toLowerCase().includes('fee:')) {
-                totalFees += Math.abs(amount);
+                totalFees += Math.abs(tx.amountValue);
             }
-            return { ...tx, balance: runningBalance, amount: amount };
+            return { ...tx, balance: runningBalance };
         });
 
         return {
@@ -43,14 +46,14 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
     const handleDownloadPdf = async () => {
         setIsDownloading(true);
         try {
-            const firstTxDate = sortedTransactions.length > 0 ? new Date(sortedTransactions[0].timestamp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
-            const lastTxDate = sortedTransactions.length > 0 ? new Date(sortedTransactions[sortedTransactions.length - 1].timestamp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+            const firstTxDate = sortedTransactions.length > 0 ? new Date(sortedTransactions[0].timestamp) : new Date();
+            const lastTxDate = sortedTransactions.length > 0 ? new Date(sortedTransactions[sortedTransactions.length - 1].timestamp) : new Date();
 
             const input: GenerateStatementPdfInput = {
                 statementDate: new Date().toISOString().split('T')[0],
                 statementPeriod: {
-                    from: firstTxDate,
-                    to: lastTxDate,
+                    from: firstTxDate.toISOString().split('T')[0],
+                    to: lastTxDate.toISOString().split('T')[0],
                 },
                 openingBalance: calculations.openingBalance,
                 bankCharges: {
@@ -67,9 +70,9 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
                         transactionId: tx.id || null,
                         date: new Date(tx.timestamp).toISOString().split('T')[0],
                         description: tx.description,
-                        fees: isFee ? Math.abs(tx.amount) : 0.00,
-                        debit: !isFee && tx.amount < 0 ? Math.abs(tx.amount) : 0.00,
-                        credit: !isFee && tx.amount > 0 ? tx.amount : 0.00,
+                        fees: isFee ? Math.abs(tx.amountValue) : 0.00,
+                        debit: !isFee && tx.amountValue < 0 ? Math.abs(tx.amountValue) : 0.00,
+                        credit: !isFee && tx.amountValue > 0 ? tx.amountValue : 0.00,
                         balance: tx.balance,
                     }
                 })
@@ -171,8 +174,8 @@ const StatementPage = ({ accountName, transactions, balance, setCurrentView, pre
                                     <tr key={tx.id || index} className="border-b">
                                         <td className="p-2">{new Date(tx.timestamp).toLocaleDateString('en-GB')}</td>
                                         <td className="p-2">{tx.description}</td>
-                                        <td className="p-2 text-right">{tx.amount < 0 ? formatCurrency(Math.abs(tx.amount)) : ''}</td>
-                                        <td className="p-2 text-right">{tx.amount >= 0 ? formatCurrency(tx.amount) : ''}</td>
+                                        <td className="p-2 text-right">{tx.amountValue < 0 ? formatCurrency(Math.abs(tx.amountValue)) : ''}</td>
+                                        <td className="p-2 text-right">{tx.amountValue >= 0 ? formatCurrency(tx.amountValue) : ''}</td>
                                         <td className="p-2 text-right">{formatCurrency(tx.balance)}</td>
                                     </tr>
                                 )
