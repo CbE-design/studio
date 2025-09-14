@@ -1,6 +1,8 @@
 
 import type { Metadata } from 'next';
 import './globals.css';
+import { Toaster } from '@/components/ui/toaster';
+import PwaUpdater from '@/components/PwaUpdater';
 
 export const metadata: Metadata = {
   title: 'Van Schalkwyk Trust Mobile',
@@ -60,7 +62,9 @@ export default function RootLayout({
       </head>
       <body>
         <div className="container mx-auto max-w-lg bg-background min-h-screen">
+          <PwaUpdater />
           {children}
+          <Toaster />
         </div>
       </body>
     </html>
