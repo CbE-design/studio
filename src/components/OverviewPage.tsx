@@ -62,9 +62,10 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
   ];
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-[#009448] to-[#007E3A]">
-      <header className="bg-transparent text-primary-foreground p-4 flex justify-between items-center w-full flex-shrink-0">
-        <div className="flex items-center space-x-4">
+    <div className="flex flex-col h-screen bg-gray-50">
+      <header className="bg-primary text-primary-foreground p-4 flex justify-between items-center w-full flex-shrink-0 relative shadow-md">
+         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/20 to-transparent"></div>
+        <div className="flex items-center space-x-4 z-10">
           <Image
             src="https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/Nedbank_idvPPE6CB0_1.png?alt=media&token=aa008132-7cf7-4971-b859-e64a8ac3aa47"
             alt="Logo"
@@ -73,17 +74,17 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
           />
           <span className="text-lg font-medium text-primary-foreground">Van Schalkwyk Family Trust</span>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 z-10">
           <Bell size={24} className="text-primary-foreground" />
           <MessageSquare size={24} className="text-primary-foreground" />
         </div>
       </header>
       <div className="flex-1 overflow-y-auto">
-        <div>
+        <div className="bg-primary pb-2">
           <div ref={scrollContainerRef} onScroll={handleCarouselScroll} className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth">
             {overviewPagesData.map((page) => (
-              <div key={page.id} className="w-full flex-shrink-0 snap-center">
-                <div className="text-primary-foreground p-4">
+              <div key={page.id} className="w-full flex-shrink-0 snap-center px-4 pt-4">
+                <div className="bg-white/5 backdrop-blur-sm rounded-t-xl text-primary-foreground p-4 shadow-inner">
                   <div className="flex items-center space-x-2 mb-4">
                     <h1 className="text-lg font-extrabold text-primary-foreground font-libre-franklin">{page.title}</h1>
                     <Eye size={20} className="text-primary-foreground" />
@@ -92,7 +93,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
                     {page.content.filter(item => item.type === 'account' || item.type === 'item').map((item, itemIndex) => {
                       const value = item.balanceKey ? `R${balances[item.balanceKey].toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")}` : item.value;
                       return (
-                        <div key={itemIndex} className="cursor-pointer py-3 border-b border-green-600 last:border-b-0" onClick={getOnClickHandler(item.onClick)}>
+                        <div key={itemIndex} className="cursor-pointer py-3 border-b border-green-400/30 last:border-b-0" onClick={getOnClickHandler(item.onClick)}>
                           <div className="flex justify-between items-center">
                             <div>
                               <p className="text-sm font-light">{item.title}</p>
@@ -106,7 +107,7 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
                   </div>
                 </div>
                 {page.content.filter(item => item.type === 'action').map((item, itemIndex) => (
-                  <div key={itemIndex} className="bg-white/10 px-4 py-4 text-white">
+                  <div key={itemIndex} className="bg-black/10 backdrop-blur-sm px-4 py-4 text-white rounded-b-xl">
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-sm">{item.title}</p>
@@ -127,16 +128,16 @@ const OverviewPage = ({ userId, overviewPagesData, balances, carouselIndex, hand
             <ChevronRight size={20} className={carouselIndex < overviewPagesData.length - 1 ? "text-white cursor-pointer" : "text-white/50"} onClick={() => scrollToPage(carouselIndex + 1)} />
           </div>
         </div>
-        <div className="bg-gray-100">
+        <div className="bg-gray-50">
             <div className="p-4">
             <h2 className="text-lg font-bold mb-4 text-gray-800">My widgets</h2>
             <div className="grid grid-cols-4 gap-4">
                 {widgets.map((widget) => (
-                <div key={widget.text} className="flex flex-col items-center text-center cursor-pointer" onClick={widget.onClick}>
-                    <div className="relative bg-white p-4 rounded-xl shadow-md flex items-center justify-center w-16 h-16">
+                <div key={widget.text} className="flex flex-col items-center text-center cursor-pointer group" onClick={widget.onClick}>
+                    <div className="relative bg-white p-4 rounded-xl shadow-md transition-all duration-200 group-hover:shadow-lg group-hover:-translate-y-1 flex items-center justify-center w-16 h-16">
                     {widget.icon}
                     {widget.badge && (
-                        <div className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                        <div className="absolute top-0 right-0 transform translate-x-1/4 -translate-y-1/4 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">
                         {widget.badge}
                         </div>
                     )}
