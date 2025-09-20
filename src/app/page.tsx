@@ -2,14 +2,13 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogoWithName } from '@/components/logo';
 
 export default function SplashScreen() {
   const router = useRouter();
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.push('/dashboard');
+      router.push('/login');
     }, 2500); // 2.5 second delay
 
     return () => clearTimeout(timer); // Cleanup the timer

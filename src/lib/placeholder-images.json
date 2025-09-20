@@ -5,6 +5,18 @@
       "description": "A stylized map showing ATM locations.",
       "imageUrl": "https://picsum.photos/seed/moneygo-map/1200/800",
       "imageHint": "city map"
+    },
+    {
+      "id": "retail-bank-award",
+      "description": "Voted #1 retail bank 2024 award logo.",
+      "imageUrl": "https://picsum.photos/seed/retail-award/128/128",
+      "imageHint": "bank award"
+    },
+    {
+      "id": "customer-obsessed-award",
+      "description": "Customer Obsessed Enterprise Award logo.",
+      "imageUrl": "https://picsum.photos/seed/customer-award/128/128",
+      "imageHint": "enterprise award"
     }
   ]
 }
