@@ -2,15 +2,29 @@ import { cn } from "@/lib/utils";
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <div className={cn("flex items-center justify-center w-12 h-12 bg-primary rounded-lg", className)}>
-      <svg
-        className="w-8 h-8 text-primary-foreground"
-        viewBox="0 0 24 24"
-        fill="currentColor"
+    <div className={cn("flex items-center justify-center w-12 h-12 rounded-lg bg-white", className)}>
+       <svg
+        className="w-8 h-8 text-primary"
+        viewBox="0 0 50 50"
+        fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <path fillRule="evenodd" clipRule="evenodd" d="M12 2L3 7.5V16.5L12 22L21 16.5V7.5L12 2ZM5.18182 8.415L12 4.455L18.8182 8.415V15.585L12 19.545L5.18182 15.585V8.415Z" fill="#1A5D1A"/>
-        <path fillRule="evenodd" clipRule="evenodd" d="M12 4.455L5.18182 8.415V15.585L12 19.545L18.8182 15.585V8.415L12 4.455ZM9.43636 12.87L12 11.22L14.5636 12.87V15.585L12 14.28L9.43636 15.585V12.87ZM12 5.895L16.2273 8.415L13.6636 9.72L12 8.745L10.3364 9.72L7.77273 8.415L12 5.895Z" fill="white"/>
+        <path
+          d="M25.0002 0L50 14.4338V43.3013L25.0002 57.735L0 43.3013V14.4338L25.0002 0Z"
+          fill="#00573D"
+        ></path>
+        <path
+          d="M25.0002 4.81122L45.1925 16.8524V40.8825L25.0002 52.9238L4.80791 40.8825V16.8524L25.0002 4.81122Z"
+          fill="#009C6D"
+        ></path>
+        <path
+          d="M25 9.62244L4.80771 21.6636V36.0713L25 48.1125L45.1923 36.0713V21.6636L25 9.62244Z"
+          fill="#25A95A"
+        ></path>
+        <path
+          d="M25.0002 14.4338L45.1925 26.475V31.2862L25.0002 43.3274L4.80791 31.2862V26.475L25.0002 14.4338Z"
+          fill="#FFFFFF"
+        ></path>
       </svg>
     </div>
   );
@@ -18,9 +32,12 @@ export function Logo({ className }: { className?: string }) {
 
 export function LogoWithName({ className }: { className?: string }) {
   return (
-    <div className={cn("flex items-center gap-3", className)}>
+    <div className={cn("flex items-center gap-2", className)}>
       <Logo className="w-8 h-8" />
-      <span className="text-xl font-bold font-headline text-sidebar-foreground">MoneyGO</span>
+      <span className="text-xl font-bold font-headline text-sidebar-foreground">
+        <span className="text-white">NEDBANK</span>
+        <span style={{ color: '#F7C400' }}>MONEY</span>
+      </span>
     </div>
   );
 }
