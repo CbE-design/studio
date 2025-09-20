@@ -30,7 +30,7 @@ export function TransactModal({ isOpen, onClose }: TransactModalProps) {
           </div>
 
           {/* Pay Button */}
-          <div className="flex flex-col items-center relative -top-6">
+          <div className="flex flex-col items-center relative -top-8">
             <button className="bg-white rounded-full h-16 w-16 flex items-center justify-center shadow-lg text-gray-700">
               <CreditCard className="h-8 w-8" />
             </button>
