@@ -67,7 +67,7 @@ export default function RecipientDetailsPage() {
         <Button variant="ghost" size="icon" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>
-        <Button variant="link" className="text-[#009C6D] font-semibold text-base p-0 h-auto">
+        <Button variant="link" className="text-[#009C6D] font-semibold text-lg p-0 h-auto">
             Edit
         </Button>
       </header>
