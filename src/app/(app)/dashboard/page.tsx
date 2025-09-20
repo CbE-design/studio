@@ -1,4 +1,6 @@
 
+'use client';
+
 import {
   Bell,
   ChevronRight,
@@ -20,6 +22,14 @@ import {
 import { Logo } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import React from 'react';
 
 const accounts = [
   { name: 'Savvy Bundle Current Account', balance: 'R0.00' },
@@ -43,7 +53,57 @@ const widgets = [
   { icon: FileSearch, label: 'Statements and docs' },
 ];
 
+const slides = [
+  {
+    title: 'Accounts',
+    content: (
+      <div className="space-y-2">
+        {accounts.map((account, index) => (
+          <div key={index} className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
+            <div>
+              <p className="text-sm">{account.name}</p>
+              <p className="text-lg font-bold">{account.balance}</p>
+            </div>
+            <ChevronRight className="h-6 w-6" />
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    title: 'Rewards',
+    content: (
+       <div className="space-y-2">
+        <div className="flex flex-row justify-between items-center py-2">
+          <div>
+            <p className="text-sm">Greenbacks Rewards</p>
+            <p className="text-lg font-bold">GB 0</p>
+          </div>
+          <ChevronRight className="h-6 w-6" />
+        </div>
+      </div>
+    ),
+  },
+];
+
 export default function DashboardPage() {
+  const [api, setApi] = React.useState<any>()
+  const [current, setCurrent] = React.useState(0)
+  const [count, setCount] = React.useState(0)
+
+  React.useEffect(() => {
+    if (!api) {
+      return
+    }
+
+    setCount(api.scrollSnapList().length)
+    setCurrent(api.selectedScrollSnap())
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap())
+    })
+  }, [api])
+
   return (
     <div className="flex flex-col h-full bg-white text-black">
       {/* Header */}
@@ -58,23 +118,32 @@ export default function DashboardPage() {
             <MessageSquare className="h-6 w-6" />
           </div>
         </div>
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Accounts</h1>
-          <Eye className="h-6 w-6" />
-        </div>
-        
-        <div className="space-y-2">
-          {accounts.map((account, index) => (
-            <div key={index} className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
-              <div>
-                <p className="text-sm">{account.name}</p>
-                <p className="text-lg font-bold">{account.balance}</p>
-              </div>
-              <ChevronRight className="h-6 w-6" />
-            </div>
-          ))}
-        </div>
 
+        <Carousel setApi={setApi}>
+            <CarouselContent>
+              {slides.map((slide, index) => (
+                <CarouselItem key={index}>
+                  <div className="flex items-center justify-between">
+                    <h1 className="text-2xl font-bold">{slide.title}</h1>
+                    <Eye className="h-6 w-6" />
+                  </div>
+                  {slide.content}
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <div className="flex items-center justify-center gap-2 mt-4">
+                <CarouselPrevious className="static translate-y-0 text-white" variant="link" />
+                <div className="flex items-center gap-2">
+                {Array.from({ length: count }).map((_, index) => (
+                    <span
+                    key={index}
+                    className={`h-2 w-2 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
+                    />
+                ))}
+                </div>
+                <CarouselNext className="static translate-y-0 text-white" variant="link"/>
+            </div>
+        </Carousel>
       </header>
 
       {/* Scrollable Content */}
