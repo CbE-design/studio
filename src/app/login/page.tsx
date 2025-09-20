@@ -37,7 +37,7 @@ export default function LoginPage() {
             <h1 className="text-3xl font-headline">Welcome back, Corrie.</h1>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-4 pt-4">
             <label className="text-sm font-medium text-muted-foreground">App PIN</label>
             <div className="pt-2">
               <PinInput length={5} onComplete={handlePinComplete} />
@@ -89,8 +89,6 @@ export default function LoginPage() {
           </div>
         </div>
       </main>
-
-      <BottomNav />
     </div>
   );
 }

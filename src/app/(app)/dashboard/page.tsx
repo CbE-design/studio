@@ -1,71 +1,146 @@
-import { accounts, transactions, formatCurrency } from "@/app/lib/data";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { ArrowUpRight, ArrowDownLeft } from "lucide-react";
-import { cn } from "@/lib/utils";
+import {
+  Bell,
+  ChevronRight,
+  Eye,
+  MessageSquare,
+  BadgePercent,
+  FileText,
+  Shield,
+  Phone,
+  Car,
+  ShoppingCart,
+  Send,
+  Gift,
+  HandCoins,
+  AppWindow,
+  Home,
+  FileSearch,
+} from 'lucide-react';
+import { Logo } from '@/components/logo';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
+import Image from 'next/image';
+
+const accounts = [
+  { name: 'Savvy Bundle Current Account', balance: 'R0.00' },
+  { name: 'CURRENT ACCOUNT', balance: 'R0.83' },
+  { name: 'MyPockets(2/10)', balance: 'R4.00' },
+  { name: 'Savings Account', balance: 'R1250.00' },
+];
+
+const widgets = [
+  { icon: BadgePercent, label: 'Offers for you' },
+  { icon: FileText, label: 'Applications' },
+  { icon: Shield, label: 'Insure' },
+  { icon: Phone, label: 'Nedbank Connect', new: true },
+  { icon: Car, label: 'Discs and fines' },
+  { icon: ShoppingCart, label: 'Shop', count: 1 },
+  { icon: Send, label: 'PayShap' },
+  { icon: Gift, label: 'Latest' },
+  { icon: HandCoins, label: 'Quick Pay' },
+  { icon: AppWindow, label: 'Get cash' },
+  { icon: Home, label: 'Home loans' },
+  { icon: FileSearch, label: 'Statements and docs' },
+];
 
 export default function DashboardPage() {
-  const recentTransactions = transactions['1'].slice(0, 4);
-
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold font-headline">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back, here's an overview of your accounts.</p>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {accounts.map((account) => (
-          <Card key={account.id} className="shadow-lg hover:shadow-xl transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{account.name}</CardTitle>
-              <Badge variant={account.type === 'Credit' ? 'destructive' : 'secondary'}>{account.type}</Badge>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(account.balance)}</div>
-              <p className="text-xs text-muted-foreground">{account.accountNumber}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle>Recent Transactions</CardTitle>
-          <CardDescription>From your Primary Cheque Account.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentTransactions.map((tx) => (
-                <TableRow key={tx.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className={cn("p-2 rounded-full", tx.type === 'credit' ? 'bg-green-100 dark:bg-green-900' : 'bg-red-100 dark:bg-red-900')}>
-                        {tx.type === 'credit' ? <ArrowUpRight className="w-4 h-4 text-green-600 dark:text-green-300" /> : <ArrowDownLeft className="w-4 h-4 text-red-600 dark:text-red-300" />}
-                      </div>
-                      <div>
-                        <div className="font-medium">{tx.description}</div>
-                        <div className="text-sm text-muted-foreground">{tx.date}</div>
-                      </div>
+    <div className="flex flex-col h-full bg-white text-black">
+      {/* Header */}
+      <header className="bg-[#009C6D] text-white p-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Logo className="w-8 h-8" />
+            <span className="font-bold">Corrie</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Bell className="h-6 w-6" />
+            <MessageSquare className="h-6 w-6" />
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Accounts</h1>
+          <Eye className="h-6 w-6" />
+        </div>
+        <Carousel
+          opts={{
+            align: 'start',
+          }}
+          className="w-full"
+        >
+          <CarouselContent>
+            {accounts.map((account, index) => (
+              <CarouselItem key={index} className="basis-4/5 md:basis-1/2">
+                <div className="p-1">
+                  <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
+                    <div>
+                      <p className="text-sm">{account.name}</p>
+                      <p className="text-lg font-bold">{account.balance}</p>
                     </div>
-                  </TableCell>
-                  <TableCell className={cn("text-right font-mono", tx.type === 'credit' ? 'text-green-600' : 'text-foreground')}>
-                    {formatCurrency(tx.amount)}
-                  </TableCell>
-                </TableRow>
+                    <ChevronRight className="h-6 w-6" />
+                  </div>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <div className="absolute -bottom-4 left-0 right-0">
+            <div className="flex items-center justify-center gap-2">
+               <CarouselPrevious className="static translate-y-0 text-white border-none hover:bg-white/20 hover:text-white" />
+              {accounts.map((_, index) => (
+                <div
+                  key={index}
+                  className="h-2 w-2 rounded-full bg-white/50 data-[active]:bg-white"
+                />
               ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+               <CarouselNext className="static translate-y-0 text-white border-none hover:bg-white/20 hover:text-white" />
+            </div>
+          </div>
+        </Carousel>
+      </header>
+
+      {/* Scrollable Content */}
+      <main className="flex-1 overflow-y-auto bg-gray-50 p-4">
+        <Card className="mb-6 shadow-md border rounded-lg overflow-hidden">
+          <CardContent className="p-0">
+            <Image
+              src="https://picsum.photos/seed/nedbank-connect/600/100"
+              alt="Nedbank Connect Banner"
+              data-ai-hint="promotional banner"
+              width={600}
+              height={100}
+              className="w-full"
+            />
+          </CardContent>
+        </Card>
+
+        <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
+        <div className="grid grid-cols-4 gap-4 text-center">
+          {widgets.map((widget, index) => (
+            <div key={index} className="flex flex-col items-center gap-1 relative">
+              <div className="p-3 bg-white rounded-lg shadow-sm border">
+                <widget.icon className="h-8 w-8 text-[#009C6D]" />
+              </div>
+              <p className="text-xs text-gray-600">{widget.label}</p>
+              {widget.new && (
+                <div className="absolute top-0 right-0 -mt-1 -mr-1 px-1.5 py-0.5 text-xs font-semibold text-white bg-[#009C6D] rounded-full">
+                  New
+                </div>
+              )}
+              {widget.count && (
+                 <div className="absolute top-0 right-0 -mt-2 -mr-2 flex items-center justify-center h-5 w-5 text-xs font-semibold text-white bg-[#009C6D] rounded-full">
+                  {widget.count}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </main>
     </div>
   );
 }
