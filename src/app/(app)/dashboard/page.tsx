@@ -1,3 +1,4 @@
+
 import {
   Bell,
   ChevronRight,
@@ -18,13 +19,6 @@ import {
 } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/components/ui/carousel';
 import Image from 'next/image';
 
 const accounts = [
@@ -68,40 +62,19 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold">Accounts</h1>
           <Eye className="h-6 w-6" />
         </div>
-        <Carousel
-          opts={{
-            align: 'start',
-          }}
-          className="w-full"
-        >
-          <CarouselContent>
-            {accounts.map((account, index) => (
-              <CarouselItem key={index} className="basis-4/5 md:basis-1/2">
-                <div className="p-1">
-                  <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
-                    <div>
-                      <p className="text-sm">{account.name}</p>
-                      <p className="text-lg font-bold">{account.balance}</p>
-                    </div>
-                    <ChevronRight className="h-6 w-6" />
-                  </div>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <div className="absolute -bottom-4 left-0 right-0">
-            <div className="flex items-center justify-center gap-2">
-               <CarouselPrevious className="static translate-y-0 text-white border-none hover:bg-white/20 hover:text-white" />
-              {accounts.map((_, index) => (
-                <div
-                  key={index}
-                  className="h-2 w-2 rounded-full bg-white/50 data-[active]:bg-white"
-                />
-              ))}
-               <CarouselNext className="static translate-y-0 text-white border-none hover:bg-white/20 hover:text-white" />
+        
+        <div className="space-y-2">
+          {accounts.map((account, index) => (
+            <div key={index} className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
+              <div>
+                <p className="text-sm">{account.name}</p>
+                <p className="text-lg font-bold">{account.balance}</p>
+              </div>
+              <ChevronRight className="h-6 w-6" />
             </div>
-          </div>
-        </Carousel>
+          ))}
+        </div>
+
       </header>
 
       {/* Scrollable Content */}
