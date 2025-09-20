@@ -31,12 +31,13 @@ import {
 } from "@/components/ui/carousel";
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const accounts = [
-  { name: 'Savvy Bundle Current Account', balance: 'R0.00' },
-  { name: 'CURRENT ACCOUNT', balance: 'R0.83' },
-  { name: 'MyPockets(2/10)', balance: 'R4.00' },
-  { name: 'Savings Account', balance: 'R1250.00' },
+  { id: '1', name: 'Savvy Bundle Current Account', balance: 'R0.00' },
+  { id: '2', name: 'CURRENT ACCOUNT', balance: 'R0.83' },
+  { id: '3', name: 'MyPockets(2/10)', balance: 'R4.00' },
+  { id: '4', name: 'Savings Account', balance: 'R1250.00' },
 ];
 
 const widgets = [
@@ -60,13 +61,15 @@ const slides = [
     content: (
       <div className="space-y-2">
         {accounts.map((account, index) => (
-          <div key={index} className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
-            <div>
-              <p className="text-sm">{account.name}</p>
-              <p className="text-lg font-bold">{account.balance}</p>
+          <Link href={`/account/${account.id}`} key={account.id}>
+            <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0 cursor-pointer">
+              <div>
+                <p className="text-sm">{account.name}</p>
+                <p className="text-lg font-bold">{account.balance}</p>
+              </div>
+              <ChevronRight className="h-6 w-6" />
             </div>
-            <ChevronRight className="h-6 w-6" />
-          </div>
+          </Link>
         ))}
       </div>
     ),

@@ -3,46 +3,52 @@ import type { Account, Transaction, Beneficiary, AtmLocation } from './definitio
 export const accounts: Account[] = [
   {
     id: '1',
-    name: 'Primary Cheque Account',
+    name: 'Savvy Bundle Current Account',
     type: 'Cheque',
-    accountNumber: '**** **** **** 1234',
-    balance: 12540.75,
-    currency: 'USD',
+    accountNumber: '1234567890',
+    balance: 0.00,
+    currency: 'ZAR',
   },
   {
     id: '2',
-    name: 'Everyday Savings',
-    type: 'Savings',
-    accountNumber: '**** **** **** 5678',
-    balance: 8230.0,
-    currency: 'USD',
+    name: 'CURRENT ACCOUNT',
+    type: 'Cheque',
+    accountNumber: '1234066912',
+    balance: 0.83,
+    currency: 'ZAR',
   },
   {
     id: '3',
-    name: 'Platinum Credit Card',
-    type: 'Credit',
-    accountNumber: '**** **** **** 9012',
-    balance: -2150.5,
-    currency: 'USD',
+    name: 'MyPockets(2/10)',
+    type: 'Savings',
+    accountNumber: '1122334455',
+    balance: 4.00,
+    currency: 'ZAR',
+  },
+   {
+    id: '4',
+    name: 'Savings Account',
+    type: 'Savings',
+    accountNumber: '0987654321',
+    balance: 1250.00,
+    currency: 'ZAR',
   },
 ];
 
 export const transactions: { [key: string]: Transaction[] } = {
   '1': [
-    { id: 't1', date: '2024-07-28', description: 'Online Shopping - Amazon', amount: -120.5, type: 'debit' },
-    { id: 't2', date: '2024-07-27', description: 'Salary Deposit', amount: 5000.0, type: 'credit' },
-    { id: 't3', date: '2024-07-26', description: 'Grocery Store', amount: -75.25, type: 'debit' },
-    { id: 't4', date: '2024-07-25', description: 'Transfer to Savings', amount: -1000.0, type: 'debit' },
-    { id: 't5', date: '2024-07-24', description: 'Netflix Subscription', amount: -15.99, type: 'debit' },
-    { id: 't6', date: '2024-07-23', description: 'Gas Station', amount: -55.0, type: 'debit' },
+     { id: 't1', date: '2025-09-18', description: 'ONLINE PURCHASE', reference: '2069725774', amount: -1740.00, type: 'debit' },
+     { id: 't2', date: '2025-09-17', description: 'SALARY', reference: 'ACME CORP', amount: 25000.00, type: 'credit' },
   ],
   '2': [
-    { id: 't7', date: '2024-07-25', description: 'Transfer from Cheque', amount: 1000.0, type: 'credit' },
-    { id: 't8', date: '2024-07-15', description: 'Interest Payment', amount: 12.3, type: 'credit' },
+    { id: 't3', date: '2025-09-18', description: 'PAYMENT TO J DOE', reference: '2069725774', amount: -1740.00, type: 'debit' },
+    { id: 't4', date: '2025-09-15', description: 'TRANSFER FROM SAVINGS', reference: 'INTERNAL', amount: 500.00, type: 'credit' },
   ],
   '3': [
-    { id: 't9', date: '2024-07-26', description: 'Restaurant - The Grand', amount: -150.0, type: 'debit' },
-    { id: 't10', date: '2024-07-22', description: 'Payment Received', amount: 500.0, type: 'credit' },
+     { id: 't5', date: '2025-09-12', description: 'POCKET TRANSFER', reference: 'FOOD', amount: -250.00, type: 'debit' },
+  ],
+  '4': [
+     { id: 't6', date: '2025-09-10', description: 'MONTHLY SAVING', reference: 'AUTO-SAVE', amount: 1000.00, type: 'credit' },
   ],
 };
 
@@ -58,8 +64,8 @@ export const atmLocations: AtmLocation[] = [
   { id: 'a3', name: 'Eastside Mall', address: '789 Pine Ln, Anytown, USA', services: ['Withdrawal', 'Deposit'] },
 ];
 
-export function formatCurrency(amount: number, currency: string = 'USD') {
-  return new Intl.NumberFormat('en-US', {
+export function formatCurrency(amount: number, currency: string = 'ZAR') {
+  return new Intl.NumberFormat('en-ZA', {
     style: 'currency',
     currency: currency,
   }).format(amount);

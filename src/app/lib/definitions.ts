@@ -4,7 +4,7 @@ export type Account = {
   type: 'Cheque' | 'Savings' | 'Credit';
   accountNumber: string;
   balance: number;
-  currency: 'USD';
+  currency: 'USD' | 'ZAR';
 };
 
 export type Transaction = {
@@ -13,6 +13,7 @@ export type Transaction = {
   description: string;
   amount: number;
   type: 'debit' | 'credit';
+  reference: string;
 };
 
 export type Beneficiary = {
