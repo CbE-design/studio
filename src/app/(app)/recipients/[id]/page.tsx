@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
 import { beneficiaries } from '@/app/lib/data';
@@ -23,12 +24,23 @@ const BankIcon = () => (
     </svg>
 );
 
+const NoTransactionsIcon = () => (
+    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-6 text-[#009C6D]">
+        <path d="M42.6667 8H18.6667C16.8856 8 15.1793 8.70238 13.9289 9.95281C12.6785 11.2032 12 12.9095 12 14.6667V49.3333C12 51.0905 12.6785 52.7968 13.9289 54.0472C15.1793 55.2976 16.8856 56 18.6667 56H45.3333C47.1144 56 48.8207 55.2976 50.0711 54.0472C51.3215 52.7968 52 51.0905 52 49.3333V17.3333L42.6667 8Z" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M21.3333 26.6667H42.6667" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M21.3333 37.3333H42.6667" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M21.3333 48H32" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M42.6667 8V17.3333H52" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+);
+
 const tabs = ['Details', 'History'];
 
 export default function RecipientDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const recipientId = params.id as string;
+  const [activeTab, setActiveTab] = useState('Details');
 
   const recipient = beneficiaries.find(b => b.id === recipientId);
 
@@ -72,12 +84,13 @@ export default function RecipientDetailsPage() {
         
         <div className="border-b sticky top-[73px] z-10 bg-white -mx-4 px-4">
             <div className="flex">
-            {tabs.map((tab, index) => (
+            {tabs.map((tab) => (
                 <div
                 key={tab}
+                onClick={() => setActiveTab(tab)}
                 className={cn(
                     "py-3 text-base font-medium cursor-pointer text-gray-500 w-1/2 text-center",
-                    index === 0 && "text-[#009C6D] border-b-2 border-[#009C6D]"
+                    activeTab === tab && "text-[#009C6D] border-b-2 border-[#009C6D]"
                 )}
                 >
                 {tab}
@@ -86,35 +99,45 @@ export default function RecipientDetailsPage() {
             </div>
         </div>
 
-        <div className="py-6">
-            <h2 className="text-sm font-bold text-gray-500 mb-4">BANK ACCOUNT</h2>
+        {activeTab === 'Details' && (
+            <div className="py-6">
+                <h2 className="text-sm font-bold text-gray-500 mb-4">BANK ACCOUNT</h2>
 
-            <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                    <div className="relative flex-grow">
-                        <Label htmlFor="bank-name" className="text-gray-500 text-xs">Bank name</Label>
-                        <Input id="bank-name" value={recipient.bank} readOnly className="bg-gray-100 pr-10 text-gray-500" />
-                        <ChevronRight className="absolute right-3 top-1/2 -translate-y-[-2px] h-5 w-5 text-gray-400" />
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                        <div className="relative flex-grow">
+                            <Label htmlFor="bank-name" className="text-gray-500 text-xs">Bank name</Label>
+                            <Input id="bank-name" value={recipient.bank} readOnly className="bg-gray-100 pr-10 text-gray-500" />
+                            <ChevronRight className="absolute right-3 top-1/2 -translate-y-[-2px] h-5 w-5 text-gray-400" />
+                        </div>
+                        <BankIcon />
                     </div>
-                    <BankIcon />
-                </div>
 
-                <div>
-                    <Label htmlFor="account-number" className="text-gray-500 text-xs">Account number</Label>
-                    <Input id="account-number" value={recipient.accountNumber} readOnly className="bg-gray-100 text-gray-500" />
-                </div>
-                
-                <div>
-                    <Label htmlFor="your-reference" className="text-gray-500 text-xs">Your reference</Label>
-                    <Input id="your-reference" defaultValue="A De Klerk" className="bg-white" />
-                </div>
+                    <div>
+                        <Label htmlFor="account-number" className="text-gray-500 text-xs">Account number</Label>
+                        <Input id="account-number" value={recipient.accountNumber} readOnly className="bg-gray-100 text-gray-500" />
+                    </div>
+                    
+                    <div>
+                        <Label htmlFor="your-reference" className="text-gray-500 text-xs">Your reference</Label>
+                        <Input id="your-reference" defaultValue="A De Klerk" className="bg-white" />
+                    </div>
 
-                <div>
-                    <Label htmlFor="recipient-reference" className="text-gray-500 text-xs">Recipient's reference</Label>
-                    <Input id="recipient-reference" defaultValue="Corrie" className="bg-white" />
+                    <div>
+                        <Label htmlFor="recipient-reference" className="text-gray-500 text-xs">Recipient's reference</Label>
+                        <Input id="recipient-reference" defaultValue="Corrie" className="bg-white" />
+                    </div>
                 </div>
             </div>
-        </div>
+        )}
+
+        {activeTab === 'History' && (
+            <div className="flex flex-col items-center justify-center text-center h-full py-12">
+              <NoTransactionsIcon />
+              <h2 className="text-xl font-bold text-gray-800 mb-2">You don't have any transactions yet</h2>
+              <p className="text-gray-500">Your transaction history will appear once you have completed a transaction</p>
+            </div>
+        )}
       </main>
     </div>
   );
