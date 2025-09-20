@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -9,7 +10,7 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', label: 'Overview', icon: Home },
-  { href: '#', label: 'Cards', icon: CreditCard },
+  { href: '/cards', label: 'Cards', icon: CreditCard },
   { href: '#', label: 'Transact', icon: PlusCircle, isTransact: true },
   { href: '/recipients', label: 'Recipients', icon: Users },
   { href: '#', label: 'More', icon: MoreHorizontal },
