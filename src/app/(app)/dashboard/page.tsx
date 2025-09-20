@@ -30,6 +30,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import React from 'react';
+import { Button } from '@/components/ui/button';
 
 const accounts = [
   { name: 'Savvy Bundle Current Account', balance: 'R0.00' },
@@ -84,6 +85,27 @@ const slides = [
       </div>
     ),
   },
+  {
+    title: 'International banking and travel',
+    content: (
+      <div className="space-y-4">
+        <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
+          <div>
+            <p className="text-xs">Incoming and outgoing payments</p>
+            <p className="text-lg font-bold">International payments</p>
+          </div>
+          <Button variant="link" className="text-white font-bold">View</Button>
+        </div>
+        <div className="flex flex-row justify-between items-center py-2">
+          <div>
+            <p className="text-xs">Foreign Currency Accounts</p>
+            <p className="text-lg font-bold">Your currencies</p>
+          </div>
+          <ChevronRight className="h-6 w-6" />
+        </div>
+      </div>
+    ),
+  },
 ];
 
 export default function DashboardPage() {
@@ -124,8 +146,8 @@ export default function DashboardPage() {
               {slides.map((slide, index) => (
                 <CarouselItem key={index}>
                   <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-bold">{slide.title}</h1>
-                    <Eye className="h-6 w-6" />
+                    <h1 className="text-xl font-bold">{slide.title}</h1>
+                    { index === 0 && <Eye className="h-6 w-6" /> }
                   </div>
                   {slide.content}
                 </CarouselItem>
