@@ -126,6 +126,27 @@ const slides = [
       </div>
     ),
   },
+  {
+    title: 'Insurance',
+    content: (
+      <div className="space-y-4">
+        <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
+          <div>
+            <p className="text-xs">Insurance</p>
+            <p className="text-lg font-bold">My policies and applications</p>
+          </div>
+          <ChevronRight className="h-6 w-6" />
+        </div>
+        <div className="flex flex-row justify-between items-center py-2">
+          <div>
+            <p className="text-xs">Insurance</p>
+            <p className="text-lg font-bold">New policy</p>
+          </div>
+           <Button variant="link" className="font-bold" style={{ color: '#F7C400' }}>Get cover</Button>
+        </div>
+      </div>
+    ),
+  },
 ];
 
 export default function DashboardPage() {
