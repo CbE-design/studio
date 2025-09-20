@@ -53,7 +53,7 @@ export default function RecipientsPage() {
       <header className="bg-white text-gray-800 p-4 flex items-center justify-between shadow-sm sticky top-0 z-20 border-b">
         <h1 className="text-xl font-bold">Recipients</h1>
         <Button variant="ghost" size="icon">
-          <UserPlus className="h-6 w-6" />
+          <UserPlus className="h-8 w-8" />
         </Button>
       </header>
 
@@ -66,7 +66,7 @@ export default function RecipientsPage() {
               className={cn(
                 "py-3 w-full text-center text-sm font-medium",
                 activeTab === tab
-                  ? "text-[#009C6D] border-b-2 border-[#009C6D]"
+                  ? "text-primary border-b-2 border-primary"
                   : "text-gray-500"
               )}
             >
@@ -116,7 +116,7 @@ export default function RecipientsPage() {
         <ScrollArea className="h-full">
             <div className="flex flex-col items-center justify-center h-full px-2 text-xs text-gray-500 font-medium">
                 {alphabet.map(letter => (
-                    <a key={letter} href={`#${letter}`} className="py-0.5 hover:text-[#009C6D]" onClick={(e) => {
+                    <a key={letter} href={`#${letter}`} className="py-0.5 hover:text-primary" onClick={(e) => {
                       e.preventDefault();
                       const element = document.getElementById(letter);
                       if (element) {

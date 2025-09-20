@@ -86,22 +86,22 @@ export default function TransferPage() {
 
   return (
     <div className="flex flex-col h-screen">
-      <header className="bg-[#009C6D] text-white p-4 flex items-center">
+      <header className="bg-primary text-primary-foreground p-4 flex items-center">
         <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>
         <h1 className="text-xl font-bold">Transfer</h1>
       </header>
 
-      <div className="bg-[#009C6D] text-white p-4 space-y-2">
+      <div className="bg-primary text-primary-foreground p-4 space-y-2">
         <label className="text-sm">Amount</label>
         <input
           type="text"
           value={amount}
           onChange={handleAmountChange}
-          className="w-full bg-transparent text-4xl font-light border-b border-[#F7C400] focus:outline-none focus:border-b-2"
+          className="w-full bg-transparent text-4xl font-light border-b border-yellow-400 focus:outline-none focus:border-b-2"
         />
-        <p className="text-xs text-center text-white/80">R105 500.00 daily transfer limit remaining</p>
+        <p className="text-xs text-center text-primary-foreground/80">R105 500.00 daily transfer limit remaining</p>
       </div>
 
       <main className="flex-1 bg-gray-50 p-4 space-y-6 overflow-y-auto">

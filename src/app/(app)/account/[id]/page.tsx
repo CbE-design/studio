@@ -13,7 +13,7 @@ import { format } from 'date-fns';
 const FilterIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    className="h-6 w-6 text-[#009C6D]"
+    className="h-6 w-6 text-primary"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -55,7 +55,7 @@ export default function AccountDetailsPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="bg-[#009C6D] text-white p-4 sticky top-0 z-10 space-y-4">
+      <header className="bg-primary text-primary-foreground p-4 sticky top-0 z-10 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
@@ -88,7 +88,7 @@ export default function AccountDetailsPage() {
                 key={tab}
                 className={cn(
                   "py-3 text-sm font-medium cursor-pointer text-gray-500",
-                  index === 0 && "text-[#009C6D] border-b-2 border-[#009C6D]"
+                  index === 0 && "text-primary border-b-2 border-primary"
                 )}
               >
                 {tab}
@@ -117,7 +117,7 @@ export default function AccountDetailsPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input placeholder="Search" className="bg-white pl-10" />
             </div>
-            <div className="flex items-center gap-1 text-[#009C6D] font-medium">
+            <div className="flex items-center gap-1 text-primary font-medium">
               <span>Filter</span>
               <FilterIcon />
             </div>

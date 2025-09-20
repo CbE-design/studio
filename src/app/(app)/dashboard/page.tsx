@@ -124,7 +124,7 @@ const slides = [
           <div>
             <p className="text-lg font-bold">Save & Invest</p>
           </div>
-           <Button variant="link" className="font-bold" style={{ color: '#F7C400' }}>Explore options</Button>
+           <Button variant="link" className="font-bold text-yellow-400">Explore options</Button>
         </div>
       </div>
     ),
@@ -145,7 +145,7 @@ const slides = [
             <p className="text-xs">Insurance</p>
             <p className="text-lg font-bold">New policy</p>
           </div>
-           <Button variant="link" className="font-bold" style={{ color: '#F7C400' }}>Get cover</Button>
+           <Button variant="link" className="font-bold text-yellow-400">Get cover</Button>
         </div>
       </div>
     ),
@@ -173,7 +173,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col h-full bg-white text-black">
       {/* Header */}
-      <header className="bg-[#009C6D] text-white p-4 space-y-4 sticky top-0 z-10">
+      <header className="bg-primary text-primary-foreground p-4 space-y-4 sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Logo className="w-8 h-8" />
@@ -188,7 +188,7 @@ export default function DashboardPage() {
 
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto bg-gray-50">
-        <div className="bg-[#009C6D] text-white p-4">
+        <div className="bg-primary text-primary-foreground p-4">
             <Carousel setApi={setApi}>
                 <CarouselContent>
                 {slides.map((slide, index) => (
@@ -234,16 +234,16 @@ export default function DashboardPage() {
             {widgets.map((widget, index) => (
                 <div key={index} className="flex flex-col items-center gap-1 relative">
                 <div className="p-3 bg-white rounded-lg shadow-sm border">
-                    <widget.icon className="h-8 w-8 text-[#009C6D]" />
+                    <widget.icon className="h-8 w-8 text-primary" />
                 </div>
                 <p className="text-xs text-gray-600">{widget.label}</p>
                 {widget.new && (
-                    <div className="absolute top-0 right-0 -mt-1 -mr-1 px-1.5 py-0.5 text-xs font-semibold text-white bg-[#009C6D] rounded-full">
+                    <div className="absolute top-0 right-0 -mt-1 -mr-1 px-1.5 py-0.5 text-xs font-semibold text-white bg-primary rounded-full">
                     New
                     </div>
                 )}
                 {widget.count && (
-                    <div className="absolute top-0 right-0 -mt-2 -mr-2 flex items-center justify-center h-5 w-5 text-xs font-semibold text-white bg-[#009C6D] rounded-full">
+                    <div className="absolute top-0 right-0 -mt-2 -mr-2 flex items-center justify-center h-5 w-5 text-xs font-semibold text-white bg-primary rounded-full">
                     {widget.count}
                     </div>
                 )}

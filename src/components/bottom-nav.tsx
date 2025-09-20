@@ -36,7 +36,7 @@ export function BottomNav() {
               <button
                 key={item.label}
                 onClick={handleTransactClick}
-                className="flex flex-col items-center gap-1 text-muted-foreground hover:text-[#009C6D] transition-colors"
+                className="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
               >
                 <item.icon className="h-6 w-6" />
                 <span className="text-xs font-medium">{item.label}</span>
@@ -44,8 +44,8 @@ export function BottomNav() {
             ) : (
               <Link href={item.href} key={item.label}>
                 <div className={cn(
-                  "flex flex-col items-center gap-1 hover:text-[#009C6D] transition-colors",
-                  isActive(item.href) ? 'text-[#009C6D]' : 'text-muted-foreground'
+                  "flex flex-col items-center gap-1 hover:text-primary transition-colors",
+                  isActive(item.href) ? 'text-primary' : 'text-muted-foreground'
                 )}>
                   <item.icon className="h-6 w-6" />
                   <span className="text-xs font-medium">{item.label}</span>

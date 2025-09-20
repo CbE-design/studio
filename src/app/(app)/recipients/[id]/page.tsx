@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
 const BankIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-[#009C6D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 22h16"/>
         <path d="M2 18V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v9"/>
         <path d="M4 18v-5"/>
@@ -25,7 +25,7 @@ const BankIcon = () => (
 );
 
 const NoTransactionsIcon = () => (
-    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-6 text-[#009C6D]">
+    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-6 text-primary">
         <path d="M42.6667 8H18.6667C16.8856 8 15.1793 8.70238 13.9289 9.95281C12.6785 11.2032 12 12.9095 12 14.6667V49.3333C12 51.0905 12.6785 52.7968 13.9289 54.0472C15.1793 55.2976 16.8856 56 18.6667 56H45.3333C47.1144 56 48.8207 55.2976 50.0711 54.0472C51.3215 52.7968 52 51.0905 52 49.3333V17.3333L42.6667 8Z" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
         <path d="M21.3333 26.6667H42.6667" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
         <path d="M21.3333 37.3333H42.6667" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
@@ -67,15 +67,15 @@ export default function RecipientDetailsPage() {
         <Button variant="ghost" size="icon" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>
-        <Button variant="link" className="text-[#009C6D] font-semibold text-lg p-0 h-auto">
+        <Button variant="link" className="text-primary font-semibold text-lg p-0 h-auto">
             Edit
         </Button>
       </header>
       
       <main className="flex-1 overflow-y-auto px-4 pt-6">
         <div className="flex items-center gap-4 mb-6">
-          <Avatar className="h-16 w-16 border-2 border-[#009C6D]">
-            <AvatarFallback className="text-2xl bg-gray-100 text-[#009C6D] font-semibold">
+          <Avatar className="h-16 w-16 border-2 border-primary">
+            <AvatarFallback className="text-2xl bg-gray-100 text-primary font-semibold">
                 {getInitials(recipient.name)}
             </AvatarFallback>
           </Avatar>
@@ -90,7 +90,7 @@ export default function RecipientDetailsPage() {
                 onClick={() => setActiveTab(tab)}
                 className={cn(
                     "py-3 text-base font-medium cursor-pointer text-gray-500 w-1/2 text-center",
-                    activeTab === tab && "text-[#009C6D] border-b-2 border-[#009C6D]"
+                    activeTab === tab && "text-primary border-b-2 border-primary"
                 )}
                 >
                 {tab}

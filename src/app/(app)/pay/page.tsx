@@ -10,7 +10,7 @@ const paymentOptions = [
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-8 w-8 text-[#009C6D]"
+        className="h-8 w-8 text-primary"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -32,7 +32,7 @@ const paymentOptions = [
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-8 w-8 text-[#009C6D]"
+        className="h-8 w-8 text-primary"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -52,7 +52,7 @@ const paymentOptions = [
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-8 w-8 text-[#009C6D]"
+        className="h-8 w-8 text-primary"
         viewBox="0 0 24 24"
         fill="currentColor"
       >
@@ -73,7 +73,7 @@ const paymentOptions = [
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-8 w-8 text-[#009C6D]"
+        className="h-8 w-8 text-primary"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -95,7 +95,7 @@ const paymentOptions = [
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-8 w-8 text-[#009C6D]"
+        className="h-8 w-8 text-primary"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -119,7 +119,7 @@ const paymentOptions = [
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-8 w-8 text-[#009C6D]"
+        className="h-8 w-8 text-primary"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -142,7 +142,7 @@ export default function PayPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="bg-[#009C6D] text-white p-4 flex items-center shadow-md sticky top-0 z-10">
+      <header className="bg-primary text-primary-foreground p-4 flex items-center shadow-md sticky top-0 z-10">
         <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>

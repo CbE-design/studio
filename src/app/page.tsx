@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect } from 'react';
@@ -15,12 +16,12 @@ export default function SplashScreen() {
   }, [router]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-8 bg-gradient-to-b from-[#339655] to-[#01573A] text-white">
+    <main className="flex min-h-screen flex-col items-center justify-between p-8 bg-gradient-to-b from-green-400 to-primary text-white">
       <div className="flex-1 flex items-center justify-center">
          <div className="text-center animate-fade-in">
           <h1 className="text-4xl font-bold tracking-wider">
             <span className="text-white">NEDBANK</span>
-            <span style={{ color: '#F7C400' }}>MONEY</span>
+            <span className="text-yellow-400">MONEY</span>
             <sup className="text-sm">™</sup>
           </h1>
         </div>
