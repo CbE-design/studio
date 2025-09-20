@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { beneficiaries as allBeneficiaries } from '@/app/lib/data';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import Link from 'next/link';
 
 const tabs = ['Local', 'International', 'Bank-approved'];
 
@@ -73,12 +74,14 @@ export default function RecipientsPage() {
                 <div key={group}>
                   <h2 className="bg-gray-100 text-gray-600 font-bold p-2 my-2 -mx-4 px-4 sticky top-[197px]">{group === '#' ? '#' : group}</h2>
                   {groupedBeneficiaries[group].map(ben => (
-                    <div key={ben.id} className="py-3 border-b">
-                      <p className="font-semibold">{ben.name}</p>
-                      <p className="text-sm text-gray-500">
-                        {ben.bank ? `${ben.bank} - ${ben.accountNumber}` : ben.accountNumber}
-                      </p>
-                    </div>
+                    <Link href={`/recipients/${ben.id}`} key={ben.id} className="block hover:bg-gray-50">
+                        <div className="py-3 border-b">
+                        <p className="font-semibold">{ben.name}</p>
+                        <p className="text-sm text-gray-500">
+                            {ben.bank ? `${ben.bank} - ${ben.accountNumber}` : ben.accountNumber}
+                        </p>
+                        </div>
+                    </Link>
                   ))}
                 </div>
               ))}
