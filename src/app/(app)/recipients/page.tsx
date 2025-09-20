@@ -53,7 +53,7 @@ export default function RecipientsPage() {
       <header className="bg-white text-gray-800 p-4 flex items-center justify-between shadow-sm sticky top-0 z-20 border-b">
         <h1 className="text-xl font-bold">Recipients</h1>
         <Button variant="ghost" size="icon">
-          <UserPlus />
+          <UserPlus className="h-6 w-6" />
         </Button>
       </header>
 
