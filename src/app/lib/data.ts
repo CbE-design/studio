@@ -53,9 +53,13 @@ export const transactions: { [key: string]: Transaction[] } = {
 };
 
 export const beneficiaries: Beneficiary[] = [
-  { id: 'b1', name: 'John Doe - Electricity', bank: 'City Bank', accountNumber: '**** 1122' },
-  { id: 'b2', name: 'Jane Smith - Water', bank: 'State Bank', accountNumber: '**** 3344' },
-  { id: 'b3', name: 'Utility Co - Gas', bank: 'National Bank', accountNumber: '**** 5566' },
+  { id: 'b1', name: 'AD De Klerk', bank: 'CAPITEC BANK', accountNumber: '1727255311' },
+  { id: 'b2', name: 'A De Klerk', bank: 'AFRICAN BANK', accountNumber: '20033062645' },
+  { id: 'b3', name: 'Another A De Klerk', bank: 'AFRICAN BANK', accountNumber: '20033062645' },
+  { id: 'b4', name: '08498///96', bank: '', accountNumber: '' },
+  { id: 'b5', name: 'Capi Casino', bank: '', accountNumber: '0659272048' },
+  { id: 'b6', name: 'coreie', bank: '', accountNumber: '0608797671' },
+  { id: 'b7', name: 'DW De Klerk', bank: 'CAPITEC BANK', accountNumber: '1396248844' },
 ];
 
 export const atmLocations: AtmLocation[] = [
