@@ -26,8 +26,9 @@ export function PinInput({ length, onComplete }: PinInputProps) {
     }
     
     // On complete
-    if (newPin.join('').length === length) {
-        onComplete(newPin.join(''));
+    const completedPin = newPin.join('');
+    if (completedPin.length === length) {
+        onComplete(completedPin);
     }
   };
 
@@ -36,23 +37,36 @@ export function PinInput({ length, onComplete }: PinInputProps) {
       inputRefs.current[index - 1]?.focus();
     }
   };
+  
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.select();
+  };
+
 
   return (
-    <div className="flex justify-between gap-2">
-      {pin.map((digit, index) => (
-        <input
-          key={index}
-          ref={(el) => (inputRefs.current[index] = el)}
-          type="tel" // Use tel for numeric keyboard on mobile
-          maxLength={1}
-          value={digit}
-          onChange={(e) => handleChange(e, index)}
-          onKeyDown={(e) => handleKeyDown(e, index)}
-          className={cn(
-            'w-12 h-1 text-center bg-transparent border-b-2 focus:outline-none focus:border-primary transition-colors',
-            digit ? 'border-primary' : 'border-gray-300'
-          )}
-        />
+    <div className="flex justify-between gap-4">
+      {Array.from({ length }).map((_, index) => (
+        <div key={index} className="relative w-10 h-12 flex items-center justify-center">
+           <input
+            ref={(el) => (inputRefs.current[index] = el)}
+            type="password"
+            maxLength={1}
+            value={pin[index]}
+            onChange={(e) => handleChange(e, index)}
+            onKeyDown={(e) => handleKeyDown(e, index)}
+            onFocus={handleFocus}
+            className={cn(
+                'w-10 h-12 text-center text-2xl font-bold bg-transparent border-b-4 focus:outline-none transition-colors caret-transparent',
+                pin[index] ? 'border-primary' : 'border-gray-300 dark:border-gray-600',
+                'focus:border-primary'
+              )}
+            style={{ 
+              WebkitTextSecurity: 'disc',
+              MozTextSecurity: 'disc',
+              textSecurity: 'disc',
+            }}
+          />
+        </div>
       ))}
     </div>
   );

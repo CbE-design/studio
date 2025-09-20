@@ -39,7 +39,9 @@ export default function LoginPage() {
           
           <div className="space-y-4">
             <label className="text-sm font-medium text-muted-foreground">App PIN</label>
-            <PinInput length={5} onComplete={handlePinComplete} />
+            <div className="pt-2">
+              <PinInput length={5} onComplete={handlePinComplete} />
+            </div>
           </div>
 
           <Button variant="link" className="text-primary p-0 h-auto">
