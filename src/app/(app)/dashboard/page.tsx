@@ -173,7 +173,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col h-full bg-white text-black">
       {/* Header */}
-      <header className="bg-[#009C6D] text-white p-4 space-y-4">
+      <header className="bg-[#009C6D] text-white p-4 space-y-4 sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Logo className="w-8 h-8" />
@@ -184,69 +184,72 @@ export default function DashboardPage() {
             <MessageSquare className="h-6 w-6" />
           </div>
         </div>
-
-        <Carousel setApi={setApi}>
-            <CarouselContent>
-              {slides.map((slide, index) => (
-                <CarouselItem key={index}>
-                  <div className="flex items-center justify-between">
-                    <h1 className="text-xl font-bold">{slide.title}</h1>
-                    { index === 0 && <Eye className="h-6 w-6" /> }
-                  </div>
-                  {slide.content}
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <div className="flex items-center justify-center gap-2 mt-4">
-                <CarouselPrevious className="static translate-y-0 text-white" variant="link" />
-                <div className="flex items-center gap-2">
-                {Array.from({ length: count }).map((_, index) => (
-                    <span
-                    key={index}
-                    className={`h-2 w-2 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
-                    />
-                ))}
-                </div>
-                <CarouselNext className="static translate-y-0 text-white" variant="link"/>
-            </div>
-        </Carousel>
       </header>
 
       {/* Scrollable Content */}
-      <main className="flex-1 overflow-y-auto bg-gray-50 p-4">
-        <Card className="mb-6 shadow-md border rounded-lg overflow-hidden">
-          <CardContent className="p-0">
-            <Image
-              src="https://picsum.photos/seed/nedbank-connect/600/100"
-              alt="Nedbank Connect Banner"
-              data-ai-hint="promotional banner"
-              width={600}
-              height={100}
-              className="w-full"
-            />
-          </CardContent>
-        </Card>
+      <main className="flex-1 overflow-y-auto bg-gray-50">
+        <div className="bg-[#009C6D] text-white p-4">
+            <Carousel setApi={setApi}>
+                <CarouselContent>
+                {slides.map((slide, index) => (
+                    <CarouselItem key={index}>
+                    <div className="flex items-center justify-between">
+                        <h1 className="text-xl font-bold">{slide.title}</h1>
+                        { index === 0 && <Eye className="h-6 w-6" /> }
+                    </div>
+                    {slide.content}
+                    </CarouselItem>
+                ))}
+                </CarouselContent>
+                <div className="flex items-center justify-center gap-2 mt-4">
+                    <CarouselPrevious className="static translate-y-0 text-white" variant="link" />
+                    <div className="flex items-center gap-2">
+                    {Array.from({ length: count }).map((_, index) => (
+                        <span
+                        key={index}
+                        className={`h-2 w-2 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
+                        />
+                    ))}
+                    </div>
+                    <CarouselNext className="static translate-y-0 text-white" variant="link"/>
+                </div>
+            </Carousel>
+        </div>
+        <div className="p-4">
+            <Card className="mb-6 shadow-md border rounded-lg overflow-hidden">
+            <CardContent className="p-0">
+                <Image
+                src="https://picsum.photos/seed/nedbank-connect/600/100"
+                alt="Nedbank Connect Banner"
+                data-ai-hint="promotional banner"
+                width={600}
+                height={100}
+                className="w-full"
+                />
+            </CardContent>
+            </Card>
 
-        <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
-        <div className="grid grid-cols-4 gap-4 text-center">
-          {widgets.map((widget, index) => (
-            <div key={index} className="flex flex-col items-center gap-1 relative">
-              <div className="p-3 bg-white rounded-lg shadow-sm border">
-                <widget.icon className="h-8 w-8 text-[#009C6D]" />
-              </div>
-              <p className="text-xs text-gray-600">{widget.label}</p>
-              {widget.new && (
-                <div className="absolute top-0 right-0 -mt-1 -mr-1 px-1.5 py-0.5 text-xs font-semibold text-white bg-[#009C6D] rounded-full">
-                  New
+            <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
+            <div className="grid grid-cols-4 gap-4 text-center">
+            {widgets.map((widget, index) => (
+                <div key={index} className="flex flex-col items-center gap-1 relative">
+                <div className="p-3 bg-white rounded-lg shadow-sm border">
+                    <widget.icon className="h-8 w-8 text-[#009C6D]" />
                 </div>
-              )}
-              {widget.count && (
-                 <div className="absolute top-0 right-0 -mt-2 -mr-2 flex items-center justify-center h-5 w-5 text-xs font-semibold text-white bg-[#009C6D] rounded-full">
-                  {widget.count}
+                <p className="text-xs text-gray-600">{widget.label}</p>
+                {widget.new && (
+                    <div className="absolute top-0 right-0 -mt-1 -mr-1 px-1.5 py-0.5 text-xs font-semibold text-white bg-[#009C6D] rounded-full">
+                    New
+                    </div>
+                )}
+                {widget.count && (
+                    <div className="absolute top-0 right-0 -mt-2 -mr-2 flex items-center justify-center h-5 w-5 text-xs font-semibold text-white bg-[#009C6D] rounded-full">
+                    {widget.count}
+                    </div>
+                )}
                 </div>
-              )}
+            ))}
             </div>
-          ))}
         </div>
       </main>
     </div>

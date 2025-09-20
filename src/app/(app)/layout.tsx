@@ -7,10 +7,10 @@ export default function AppLayout({
 }>) {
   return (
     <div className="flex flex-col h-screen">
-        <main className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           {children}
-        </main>
-        <div className="md:hidden sticky bottom-0">
+        </div>
+        <div className="md:hidden sticky bottom-0 z-20">
          <BottomNav />
         </div>
     </div>
