@@ -1,3 +1,4 @@
+
 'use client';
 
 import { X, ArrowRightLeft, Receipt, CreditCard } from 'lucide-react';
@@ -19,6 +20,11 @@ export function TransactModal({ isOpen, onClose }: TransactModalProps) {
 
   const handlePayClick = () => {
     router.push('/pay');
+    onClose();
+  }
+
+  const handleBuyClick = () => {
+    router.push('/buy');
     onClose();
   }
 
@@ -55,7 +61,9 @@ export function TransactModal({ isOpen, onClose }: TransactModalProps) {
           
           {/* Buy Button */}
           <div className="flex flex-col items-center absolute translate-x-[9rem]">
-            <button className="bg-white rounded-full h-24 w-24 flex items-center justify-center shadow-lg text-ray-700">
+            <button 
+              onClick={handleBuyClick}
+              className="bg-white rounded-full h-24 w-24 flex items-center justify-center shadow-lg text-gray-700">
               <Receipt className="h-10 w-10" />
             </button>
             <span className="mt-2 text-white font-medium">Buy</span>
