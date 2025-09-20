@@ -193,9 +193,9 @@ export default function DashboardPage() {
                 <CarouselContent>
                 {slides.map((slide, index) => (
                     <CarouselItem key={index}>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 mb-2">
                         <h1 className="text-xl font-bold">{slide.title}</h1>
-                        { index === 0 && <Eye className="h-6 w-6" /> }
+                        <Eye className="h-6 w-6" />
                     </div>
                     {slide.content}
                     </CarouselItem>
