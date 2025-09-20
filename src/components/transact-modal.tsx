@@ -17,6 +17,11 @@ export function TransactModal({ isOpen, onClose }: TransactModalProps) {
     onClose();
   }
 
+  const handlePayClick = () => {
+    router.push('/pay');
+    onClose();
+  }
+
   return (
     <div 
       className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-end"
@@ -40,7 +45,9 @@ export function TransactModal({ isOpen, onClose }: TransactModalProps) {
 
           {/* Pay Button */}
           <div className="flex flex-col items-center relative -top-16">
-            <button className="bg-white rounded-full h-24 w-24 flex items-center justify-center shadow-lg text-gray-700">
+            <button 
+             onClick={handlePayClick}
+             className="bg-white rounded-full h-24 w-24 flex items-center justify-center shadow-lg text-gray-700">
               <CreditCard className="h-10 w-10" />
             </button>
             <span className="mt-2 text-white font-medium">Pay</span>
