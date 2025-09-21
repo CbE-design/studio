@@ -41,6 +41,16 @@ function ReviewPaymentContent() {
         fromAccount: searchParams.get('fromAccount'),
     };
 
+    const handlePay = () => {
+        const params = new URLSearchParams();
+        Object.entries(paymentDetails).forEach(([key, value]) => {
+            if (value) {
+                params.set(key, value);
+            }
+        });
+        router.push(`/pay/single/success?${params.toString()}`);
+    }
+
     return (
         <div className="flex flex-col h-screen bg-gray-50">
             <header className="bg-primary text-primary-foreground p-4 flex items-center justify-between sticky top-0 z-10">
@@ -74,7 +84,7 @@ function ReviewPaymentContent() {
             </main>
 
             <footer className="p-4 bg-white border-t sticky bottom-0">
-                <Button className="w-full bg-primary hover:bg-primary/90 font-bold text-lg h-12">
+                <Button onClick={handlePay} className="w-full bg-primary hover:bg-primary/90 font-bold text-lg h-12">
                     Pay
                 </Button>
             </footer>
