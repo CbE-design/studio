@@ -4,12 +4,13 @@
 import { useState, useEffect } from 'react';
 import { storage } from '@/app/lib/firebase';
 import { ref, uploadBytes, listAll, getDownloadURL } from 'firebase/storage';
-import { ArrowLeft, File, Upload, LoaderCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, File, Upload, LoaderCircle, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface UploadedFile {
   name: string;
@@ -21,34 +22,46 @@ export default function DocumentsPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [loadingFiles, setLoadingFiles] = useState(true);
+  const [storageError, setStorageError] = useState<string | null>(null);
   const { toast } = useToast();
   const router = useRouter();
 
-  const listFiles = async () => {
-    setLoadingFiles(true);
-    const listRef = ref(storage, 'documents/');
-    try {
-      const res = await listAll(listRef);
-      const files = await Promise.all(
-        res.items.map(async (itemRef) => {
-          const url = await getDownloadURL(itemRef);
-          return { name: itemRef.name, url };
-        })
+  const handleFirebaseError = (error: any) => {
+    console.error('Firebase Storage Error:', error);
+    if (error.code === 'storage/retry-limit-exceeded' || error.code === 'storage/unauthorized') {
+      setStorageError(
+        'Connection failed: Please check your Firebase Storage security rules. Go to your Firebase console > Storage > Rules and ensure they allow read and write access. For example: "allow read, write: if true;"'
       );
-      setUploadedFiles(files);
-    } catch (error) {
-      console.error('Error listing files:', error);
-      toast({
+    } else {
+       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to load your documents.',
+        description: 'An unexpected error occurred. Please try again.',
       });
-    } finally {
-      setLoadingFiles(false);
     }
   };
 
+
   useEffect(() => {
+    const listFiles = async () => {
+      setLoadingFiles(true);
+      setStorageError(null);
+      const listRef = ref(storage, 'documents/');
+      try {
+        const res = await listAll(listRef);
+        const files = await Promise.all(
+          res.items.map(async (itemRef) => {
+            const url = await getDownloadURL(itemRef);
+            return { name: itemRef.name, url };
+          })
+        );
+        setUploadedFiles(files);
+      } catch (error) {
+        handleFirebaseError(error);
+      } finally {
+        setLoadingFiles(false);
+      }
+    };
     listFiles();
   }, []);
 
@@ -78,6 +91,7 @@ export default function DocumentsPage() {
     }
 
     setUploading(true);
+    setStorageError(null);
     const storageRef = ref(storage, `documents/${file.name}`);
 
     try {
@@ -88,14 +102,17 @@ export default function DocumentsPage() {
       });
       setFile(null);
       // Refresh the file list
-      await listFiles();
+      const listRef = ref(storage, 'documents/');
+      const res = await listAll(listRef);
+      const files = await Promise.all(
+        res.items.map(async (itemRef) => {
+          const url = await getDownloadURL(itemRef);
+          return { name: itemRef.name, url };
+        })
+      );
+      setUploadedFiles(files);
     } catch (error) {
-      console.error('Upload error:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Upload Failed',
-        description: 'There was a problem uploading your file. Please try again.',
-      });
+      handleFirebaseError(error);
     } finally {
       setUploading(false);
     }
@@ -136,6 +153,13 @@ export default function DocumentsPage() {
           </CardContent>
         </Card>
 
+        {storageError && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{storageError}</AlertDescription>
+          </Alert>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle>My Documents</CardTitle>
@@ -166,7 +190,7 @@ export default function DocumentsPage() {
                 ))}
               </ul>
             ) : (
-              <p className="text-center text-gray-500 p-8">You haven't uploaded any documents yet.</p>
+              !storageError && <p className="text-center text-gray-500 p-8">You haven't uploaded any documents yet.</p>
             )}
           </CardContent>
         </Card>
