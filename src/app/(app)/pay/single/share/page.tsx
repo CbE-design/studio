@@ -1,9 +1,11 @@
 
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Mail, MessageSquare, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const shareOptions = [
   { icon: Mail, label: 'Email' },
@@ -11,8 +13,16 @@ const shareOptions = [
   { icon: Send, label: 'SMS' },
 ];
 
-export default function ShareProofOfPaymentPage() {
+function ShareProofOfPaymentContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const handleShare = (option: string) => {
+    // In a real app, this would trigger the native share functionality.
+    // For this prototype, we'll navigate to the proof of payment page.
+    const params = new URLSearchParams(searchParams.toString());
+    router.push(`/pay/single/proof?${params.toString()}`);
+  }
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -28,6 +38,7 @@ export default function ShareProofOfPaymentPage() {
           {shareOptions.map((option, index) => (
             <div
               key={option.label}
+              onClick={() => handleShare(option.label)}
               className={`flex items-center p-4 cursor-pointer hover:bg-gray-50 ${index < shareOptions.length - 1 ? 'border-b' : ''}`}
             >
               <option.icon className="h-6 w-6 mr-4 text-primary" />
@@ -38,4 +49,12 @@ export default function ShareProofOfPaymentPage() {
       </main>
     </div>
   );
+}
+
+export default function ShareProofOfPaymentPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <ShareProofOfPaymentContent />
+        </Suspense>
+    )
 }

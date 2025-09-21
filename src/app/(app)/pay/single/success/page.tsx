@@ -28,7 +28,13 @@ function PaymentSuccessContent() {
     };
     
     const handleShare = () => {
-        router.push('/pay/single/share');
+        const params = new URLSearchParams();
+        Object.entries(paymentDetails).forEach(([key, value]) => {
+            if (value) {
+                params.set(key, value);
+            }
+        });
+        router.push(`/pay/single/share?${params.toString()}`);
     };
 
     return (
