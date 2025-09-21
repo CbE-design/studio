@@ -1,34 +1,45 @@
 
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const paymentTypes = [
-  {
-    name: 'Standard EFT',
-    description: 'Clears within 48 hours',
-    enabled: true,
-  },
-  {
-    name: 'Instant Pay',
-    description: "Not available for recipient's bank",
-    enabled: false,
-  },
-  {
-    name: 'PayShap',
-    description: 'Clears immediately at a fee',
-    enabled: true,
-  },
-];
-
-export default function SelectPaymentTypePage() {
+function PaymentTypeSelector() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedBank = searchParams.get('bank') || '';
 
   const handleSelect = (paymentType: string) => {
-    router.push(`/pay/single?paymentType=${encodeURIComponent(paymentType)}`);
+    // We need to preserve the original bank query param when navigating back
+    const newSearchParams = new URLSearchParams();
+    newSearchParams.set('bank', selectedBank);
+    newSearchParams.set('paymentType', paymentType);
+    router.push(`/pay/single?${newSearchParams.toString()}`);
   };
+  
+  const isNedbank = selectedBank.toLowerCase() === 'nedbank';
+
+  const paymentTypes = [
+    {
+      name: 'Standard EFT',
+      description: 'Clears within 48 hours',
+      enabled: true,
+    },
+    {
+      name: 'Instant Pay',
+      description: isNedbank
+        ? "Not available for recipient's bank"
+        : 'Takes up to 30 minutes up to an hour to reflect',
+      enabled: !isNedbank,
+    },
+    {
+      name: 'PayShap',
+      description: 'Clears immediately at a fee',
+      enabled: true,
+    },
+  ];
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -57,4 +68,12 @@ export default function SelectPaymentTypePage() {
       </main>
     </div>
   );
+}
+
+export default function SelectPaymentTypePage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <PaymentTypeSelector />
+        </Suspense>
+    );
 }

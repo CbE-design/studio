@@ -113,7 +113,7 @@ export default function SinglePaymentPage() {
             <h2 className="font-semibold text-gray-800 pt-2">Payment type?</h2>
             <div className="space-y-2">
                  <Label htmlFor="payment-method" className="text-xs text-gray-500 font-semibold">Payment method</Label>
-                <div className="relative" onClick={() => router.push('/pay/single/select-payment-type')}>
+                <div className="relative" onClick={() => router.push(`/pay/single/select-payment-type?bank=${encodeURIComponent(bankName)}`)}>
                     <Input id="payment-method" value={paymentType} readOnly className="pr-10 border-primary cursor-pointer" />
                     <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 </div>
