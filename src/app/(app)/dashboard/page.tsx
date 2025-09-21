@@ -29,13 +29,11 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Announcements } from '@/components/announcements';
+import { db } from '@/app/lib/firebase';
+import { collection, getDocs, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
+import type { Account } from '@/app/lib/definitions';
+import { formatCurrency } from '@/app/lib/data';
 
-const accounts = [
-  { id: '1', name: 'Savvy Bundle Current Account', balance: 'R0.00' },
-  { id: '2', name: 'CURRENT ACCOUNT', balance: 'R0.83' },
-  { id: '3', name: 'MyPockets(2/10)', balance: 'R4.00' },
-  { id: '4', name: 'Savings Account', balance: 'R1250.00' },
-];
 
 const widgets = [
   { icon: BadgePercent, label: 'Offers for you' },
@@ -52,104 +50,134 @@ const widgets = [
   { icon: FileSearch, label: 'Statements and docs' },
 ];
 
-const slides = [
-  {
-    title: 'Accounts',
-    content: (
-      <div className="space-y-2">
-        {accounts.map((account, index) => (
-          <Link href={`/account/${account.id}`} key={account.id}>
-            <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0 cursor-pointer">
-              <div>
-                <p className="text-sm">{account.name}</p>
-                <p className="text-lg font-bold">{account.balance}</p>
-              </div>
-              <ChevronRight className="h-6 w-6" />
-            </div>
-          </Link>
-        ))}
-      </div>
-    ),
-  },
-  {
-    title: 'Rewards',
-    content: (
-       <div className="space-y-2">
-        <div className="flex flex-row justify-between items-center py-2">
-          <div>
-            <p className="text-sm">Greenbacks Rewards</p>
-            <p className="text-lg font-bold">GB 0</p>
-          </div>
-          <ChevronRight className="h-6 w-6" />
-        </div>
-      </div>
-    ),
-  },
-  {
-    title: 'International banking and travel',
-    content: (
-      <div className="space-y-4">
-        <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
-          <div>
-            <p className="text-xs">Incoming and outgoing payments</p>
-            <p className="text-lg font-bold">International payments</p>
-          </div>
-          <Button variant="link" className="text-white font-bold">View</Button>
-        </div>
-        <div className="flex flex-row justify-between items-center py-2">
-          <div>
-            <p className="text-xs">Foreign Currency Accounts</p>
-            <p className="text-lg font-bold">Your currencies</p>
-          </div>
-          <ChevronRight className="h-6 w-6" />
-        </div>
-      </div>
-    ),
-  },
-  {
-    title: 'Savings & Investments',
-    content: (
-      <div className="space-y-4">
-        <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
-          <div>
-            <p className="text-xs">Tax certificates</p>
-            <p className="text-lg font-bold">Tax certificates</p>
-          </div>
-          <ChevronRight className="h-6 w-6" />
-        </div>
-        <div className="flex flex-row justify-between items-center py-2">
-          <div>
-            <p className="text-lg font-bold">Save & Invest</p>
-          </div>
-           <Button variant="link" className="font-bold text-yellow-400">Explore options</Button>
-        </div>
-      </div>
-    ),
-  },
-  {
-    title: 'Insurance',
-    content: (
-      <div className="space-y-4">
-        <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
-          <div>
-            <p className="text-xs">Insurance</p>
-            <p className="text-lg font-bold">My policies and applications</p>
-          </div>
-          <ChevronRight className="h-6 w-6" />
-        </div>
-        <div className="flex flex-row justify-between items-center py-2">
-          <div>
-            <p className="text-xs">Insurance</p>
-            <p className="text-lg font-bold">New policy</p>
-          </div>
-           <Button variant="link" className="font-bold text-yellow-400">Get cover</Button>
-        </div>
-      </div>
-    ),
-  },
-];
+async function getAccounts(): Promise<Account[]> {
+  try {
+    const querySnapshot = await getDocs(collection(db, "accounts"));
+    return querySnapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        name: data.name || 'Unnamed Account',
+        type: data.type || 'Cheque',
+        accountNumber: data.accountNumber || 'N/A',
+        balance: data.balance !== undefined ? data.balance : 0,
+        currency: data.currency || 'ZAR',
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching accounts:", error);
+    return [];
+  }
+}
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const accounts = await getAccounts();
+
+  const slides = [
+    {
+      title: 'Accounts',
+      content: (
+        <div className="space-y-2">
+          {accounts.length > 0 ? (
+            accounts.map((account) => (
+              <Link href={`/account/${account.id}`} key={account.id}>
+                <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0 cursor-pointer">
+                  <div>
+                    <p className="text-sm">{account.name}</p>
+                    <p className="text-lg font-bold">{formatCurrency(account.balance, account.currency)}</p>
+                  </div>
+                  <ChevronRight className="h-6 w-6" />
+                </div>
+              </Link>
+            ))
+          ) : (
+             <div className="text-center py-4">
+                <p className="text-sm">No accounts found.</p>
+                <p className="text-xs text-white/80">Please add account data to your 'accounts' collection in Firestore.</p>
+              </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: 'Rewards',
+      content: (
+         <div className="space-y-2">
+          <div className="flex flex-row justify-between items-center py-2">
+            <div>
+              <p className="text-sm">Greenbacks Rewards</p>
+              <p className="text-lg font-bold">GB 0</p>
+            </div>
+            <ChevronRight className="h-6 w-6" />
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: 'International banking and travel',
+      content: (
+        <div className="space-y-4">
+          <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
+            <div>
+              <p className="text-xs">Incoming and outgoing payments</p>
+              <p className="text-lg font-bold">International payments</p>
+            </div>
+            <Button variant="link" className="text-white font-bold">View</Button>
+          </div>
+          <div className="flex flex-row justify-between items-center py-2">
+            <div>
+              <p className="text-xs">Foreign Currency Accounts</p>
+              <p className="text-lg font-bold">Your currencies</p>
+            </div>
+            <ChevronRight className="h-6 w-6" />
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: 'Savings & Investments',
+      content: (
+        <div className="space-y-4">
+          <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
+            <div>
+              <p className="text-xs">Tax certificates</p>
+              <p className="text-lg font-bold">Tax certificates</p>
+            </div>
+            <ChevronRight className="h-6 w-6" />
+          </div>
+          <div className="flex flex-row justify-between items-center py-2">
+            <div>
+              <p className="text-lg font-bold">Save & Invest</p>
+            </div>
+             <Button variant="link" className="font-bold text-yellow-400">Explore options</Button>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: 'Insurance',
+      content: (
+        <div className="space-y-4">
+          <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
+            <div>
+              <p className="text-xs">Insurance</p>
+              <p className="text-lg font-bold">My policies and applications</p>
+            </div>
+            <ChevronRight className="h-6 w-6" />
+          </div>
+          <div className="flex flex-row justify-between items-center py-2">
+            <div>
+              <p className="text-xs">Insurance</p>
+              <p className="text-lg font-bold">New policy</p>
+            </div>
+             <Button variant="link" className="font-bold text-yellow-400">Get cover</Button>
+          </div>
+        </div>
+      ),
+    },
+  ];
+
+
   return (
     <div className="flex flex-col h-full bg-white text-black">
       {/* Header */}

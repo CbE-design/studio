@@ -1,5 +1,7 @@
 import type { Account, Transaction, Beneficiary, AtmLocation } from './definitions';
 
+// Note: This data is now primarily for seeding/reference.
+// The dashboard and account pages fetch live data from Firestore.
 export const accounts: Account[] = [
   {
     id: '1',

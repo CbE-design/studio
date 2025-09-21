@@ -4,11 +4,16 @@
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, MessageSquare, ChevronRight, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { accounts, transactions, formatCurrency } from '@/app/lib/data';
+import { formatCurrency } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { format, toDate } from 'date-fns';
+import { useEffect, useState } from 'react';
+import { db } from '@/app/lib/firebase';
+import { doc, getDoc, collection, getDocs, Timestamp } from 'firebase/firestore';
+import type { Account, Transaction } from '@/app/lib/definitions';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const FilterIcon = () => (
   <svg
@@ -33,21 +38,110 @@ const FilterIcon = () => (
   </svg>
 );
 
-
 const tabs = ['Transactions', 'Debit orders', 'Scheduled', 'Card management', 'Statements'];
+
+const LoadingSkeleton = () => (
+  <div className="flex flex-col h-screen bg-gray-50">
+    <header className="bg-primary text-primary-foreground p-4 sticky top-0 z-10 space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="mr-2 -ml-2">
+            <ArrowLeft />
+          </Button>
+          <div>
+            <Skeleton className="h-6 w-48 bg-primary-foreground/20" />
+            <Skeleton className="h-4 w-32 mt-1 bg-primary-foreground/20" />
+          </div>
+        </div>
+        <MessageSquare className="h-6 w-6" />
+      </div>
+      <div className="flex justify-between text-center">
+        <div>
+          <p className="text-xs opacity-80">Current balance</p>
+          <Skeleton className="h-7 w-36 mx-auto mt-1 bg-primary-foreground/20" />
+        </div>
+        <div>
+          <p className="text-xs opacity-80">Available balance</p>
+          <Skeleton className="h-7 w-36 mx-auto mt-1 bg-primary-foreground/20" />
+        </div>
+      </div>
+    </header>
+    <div className="p-4 space-y-4">
+      <Skeleton className="h-10 w-full" />
+      <Skeleton className="h-40 w-full" />
+    </div>
+  </div>
+);
 
 export default function AccountDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const accountId = params.id as string;
 
-  const account = accounts.find(acc => acc.id === accountId);
-  const accountTransactions = transactions[accountId] || [];
+  const [account, setAccount] = useState<Account | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!account) {
+  useEffect(() => {
+    if (!accountId) return;
+
+    const fetchAccountData = async () => {
+      try {
+        setLoading(true);
+        const accountRef = doc(db, 'accounts', accountId);
+        const accountSnap = await getDoc(accountRef);
+
+        if (accountSnap.exists()) {
+          const data = accountSnap.data();
+          setAccount({
+            id: accountSnap.id,
+            name: data.name,
+            type: data.type,
+            accountNumber: data.accountNumber,
+            balance: data.balance,
+            currency: data.currency,
+          });
+
+          const transactionsRef = collection(db, 'accounts', accountId, 'transactions');
+          const transactionsSnap = await getDocs(transactionsRef);
+          const transactionsData = transactionsSnap.docs.map(doc => {
+            const txData = doc.data();
+            // Handle Firestore Timestamp
+            const date = txData.date instanceof Timestamp ? txData.date.toDate().toISOString() : txData.date;
+            return {
+              id: doc.id,
+              date: date,
+              description: txData.description,
+              amount: txData.amount,
+              type: txData.type,
+              reference: txData.reference,
+            };
+          });
+          setTransactions(transactionsData);
+
+        } else {
+          setError('Account not found');
+        }
+      } catch (err) {
+        console.error(err);
+        setError('Failed to fetch account details.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAccountData();
+  }, [accountId]);
+
+  if (loading) {
+    return <LoadingSkeleton />;
+  }
+
+  if (error || !account) {
     return (
       <div className="flex flex-col h-screen bg-gray-50 items-center justify-center">
-        <p className="text-xl text-gray-700">Account not found</p>
+        <p className="text-xl text-gray-700">{error || 'Account not found'}</p>
         <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
       </div>
     );
@@ -128,20 +222,26 @@ export default function AccountDetailsPage() {
           <div className="p-4 bg-gray-100">
             <h2 className="font-bold text-gray-600 text-sm">THIS WEEK</h2>
           </div>
-          {accountTransactions.map(tx => (
-            <div key={tx.id} className="flex justify-between items-center p-4 border-b">
-              <div>
-                <p className="text-sm">{format(new Date(tx.date), 'dd MMM yyyy')}</p>
-                <p className="text-sm text-gray-500">{tx.reference}</p>
+          {transactions.length > 0 ? (
+            transactions.map(tx => (
+              <div key={tx.id} className="flex justify-between items-center p-4 border-b">
+                <div>
+                  <p className="text-sm">{format(new Date(tx.date), 'dd MMM yyyy')}</p>
+                  <p className="text-sm text-gray-500">{tx.reference}</p>
+                </div>
+                <p className={cn(
+                  "font-semibold",
+                  tx.type === 'debit' ? 'text-gray-800' : 'text-green-600'
+                )}>
+                  {formatCurrency(tx.amount, account.currency)}
+                </p>
               </div>
-              <p className={cn(
-                "font-semibold",
-                tx.type === 'debit' ? 'text-gray-800' : 'text-green-600'
-              )}>
-                {formatCurrency(tx.amount, account.currency)}
-              </p>
-            </div>
-          ))}
+            ))
+          ) : (
+             <div className="text-center p-8 text-gray-500">
+                <p>No transactions found for this account.</p>
+             </div>
+          )}
         </div>
       </main>
     </div>
