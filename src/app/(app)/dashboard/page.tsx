@@ -1,6 +1,4 @@
 
-'use client';
-
 import {
   Bell,
   ChevronRight,
@@ -26,13 +24,11 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
-import React from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { Announcements } from '@/components/announcements';
 
 const accounts = [
   { id: '1', name: 'Savvy Bundle Current Account', balance: 'R0.00' },
@@ -154,23 +150,6 @@ const slides = [
 ];
 
 export default function DashboardPage() {
-  const [api, setApi] = React.useState<any>()
-  const [current, setCurrent] = React.useState(0)
-  const [count, setCount] = React.useState(0)
-
-  React.useEffect(() => {
-    if (!api) {
-      return
-    }
-
-    setCount(api.scrollSnapList().length)
-    setCurrent(api.selectedScrollSnap())
-
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap())
-    })
-  }, [api])
-
   return (
     <div className="flex flex-col h-full bg-white text-black">
       {/* Header */}
@@ -178,7 +157,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Logo className="w-8 h-8" />
-            <span className="font-bold text-lg">Van Schalkwyk Family Trust</span>
+            <span className="font-bold text-xl">Van Schalkwyk Family Trust</span>
           </div>
           <div className="flex items-center gap-4">
             <Bell className="h-6 w-6" />
@@ -190,7 +169,7 @@ export default function DashboardPage() {
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto bg-gray-50">
         <div className="bg-primary text-primary-foreground p-4">
-            <Carousel setApi={setApi}>
+            <Carousel>
                 <CarouselContent>
                 {slides.map((slide, index) => (
                     <CarouselItem key={index}>
@@ -202,22 +181,11 @@ export default function DashboardPage() {
                     </CarouselItem>
                 ))}
                 </CarouselContent>
-                <div className="flex items-center justify-center gap-2 mt-4">
-                    <CarouselPrevious className="static translate-y-0 text-white" variant="link" />
-                    <div className="flex items-center gap-2">
-                    {Array.from({ length: count }).map((_, index) => (
-                        <span
-                        key={index}
-                        className={`h-2 w-2 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
-                        />
-                    ))}
-                    </div>
-                    <CarouselNext className="static translate-y-0 text-white" variant="link"/>
-                </div>
             </Carousel>
         </div>
         <div className="p-4">
-            <Card className="mb-6 shadow-md border rounded-lg overflow-hidden">
+            <Announcements />
+            <Card className="my-6 shadow-md border rounded-lg overflow-hidden">
             <CardContent className="p-0">
                 <Image
                 src="https://picsum.photos/seed/nedbank-connect/600/100"
