@@ -35,18 +35,18 @@ import { formatCurrency } from '@/app/lib/data';
 
 
 const widgets = [
-  { icon: BadgePercent, label: 'Offers for you' },
-  { icon: FileText, label: 'Applications' },
-  { icon: Shield, label: 'Insure' },
-  { icon: Phone, label: 'Nedbank Connect', new: true },
-  { icon: Car, label: 'Discs and fines' },
-  { icon: ShoppingCart, label: 'Shop', count: 1 },
-  { icon: Send, label: 'PayShap' },
-  { icon: Gift, label: 'Latest' },
-  { icon: HandCoins, label: 'Quick Pay' },
-  { icon: AppWindow, label: 'Get cash' },
-  { icon: Home, label: 'Home loans' },
-  { icon: FileSearch, label: 'Statements and docs' },
+  { icon: BadgePercent, label: 'Offers for you', href: '#' },
+  { icon: FileText, label: 'Applications', href: '#' },
+  { icon: Shield, label: 'Insure', href: '#' },
+  { icon: Phone, label: 'Nedbank Connect', new: true, href: '#' },
+  { icon: Car, label: 'Discs and fines', href: '#' },
+  { icon: ShoppingCart, label: 'Shop', count: 1, href: '#' },
+  { icon: Send, label: 'PayShap', href: '#' },
+  { icon: Gift, label: 'Latest', href: '#' },
+  { icon: HandCoins, label: 'Quick Pay', href: '#' },
+  { icon: AppWindow, label: 'Get cash', href: '#' },
+  { icon: Home, label: 'Home loans', href: '#' },
+  { icon: FileSearch, label: 'Statements and docs', href: '/documents' },
 ];
 
 async function getAccounts(): Promise<Account[]> {
@@ -234,7 +234,8 @@ export default async function DashboardPage() {
             <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
             <div className="grid grid-cols-4 gap-4 text-center">
             {widgets.map((widget, index) => (
-                <div key={index} className="flex flex-col items-center gap-1 relative">
+              <Link href={widget.href} key={index}>
+                <div className="flex flex-col items-center gap-1 relative cursor-pointer">
                 <div className={cn("p-3 rounded-lg shadow-sm border", index % 2 === 0 ? 'bg-primary/10' : 'bg-white')}>
                     <widget.icon className="h-8 w-8 text-primary" />
                 </div>
@@ -250,6 +251,7 @@ export default async function DashboardPage() {
                     </div>
                 )}
                 </div>
+              </Link>
             ))}
             </div>
         </div>
