@@ -1,4 +1,4 @@
-import type { Account, Transaction, Beneficiary, AtmLocation } from './definitions';
+import type { Account, Transaction, Beneficiary, AtmLocation, Bank } from './definitions';
 
 // Note: This data is now primarily for seeding/reference.
 // The dashboard and account pages fetch live data from Firestore.
@@ -70,6 +70,46 @@ export const atmLocations: AtmLocation[] = [
   { id: 'a3', name: 'Eastside Mall', address: '789 Pine Ln, Anytown, USA', services: ['Withdrawal', 'Deposit'] },
 ];
 
+export const banks: Bank[] = [
+    { name: 'Nedbank', popular: true },
+    { name: 'Absa Bank', popular: true },
+    { name: 'Capitec Bank', popular: true },
+    { name: 'Access Bank (South Africa) Ltd', popular: false },
+    { name: 'African Bank', popular: false },
+    { name: 'African Bank Business', popular: false },
+    { name: 'African Bank Incorp. Ubank', popular: false },
+    { name: 'Albaraka Bank', popular: false },
+    { name: 'Bank Zero', popular: false },
+    { name: 'Bidvest Bank', popular: false },
+    { name: 'Capitec Business', popular: false },
+    { name: 'Citibank N.A.', popular: false },
+    { name: 'Discovery Bank', popular: false },
+    { name: 'BNL Mutual Bank', popular: false },
+    { name: 'FinBond Mutual Bank', popular: false },
+    { name: 'First National Bank', popular: true },
+    { name: 'HBZ Bank Limited', popular: false },
+    { name: 'HSBC Bank plc', popular: false },
+    { name: 'Investec Bank Limited', popular: false },
+    { name: 'JP Morgan Chase', popular: false },
+    { name: 'Nedbank - Peoples Mortgage Ltd', popular: false },
+    { name: 'Nedbank (Bond Accounts)', popular: false },
+    { name: 'Nedbank Incorp. FSC', popular: false },
+    { name: 'Nedbank Ltd Incorp. GBS Bank', popular: false },
+    { name: 'Nedbank Ltd Incorp. Pep Bank', popular: false },
+    { name: 'Olympus Mobile', popular: false },
+    { name: 'OM Bank Limited', popular: false },
+    { name: 'Peoples Bank Ltd Inc NBS', popular: false },
+    { name: 'S.A. Reserve Bank', popular: false },
+    { name: 'Sasfin Bank', popular: false },
+    { name: 'South African PostBank SOC Ltd', popular: false },
+    { name: 'Standard Bank of South Africa', popular: true },
+    { name: 'Standard Chartered Bank', popular: false },
+    { name: 'State Bank of India', popular: false },
+    { name: 'TymeBank', popular: false },
+    { name: 'Unibank Limited', popular: false },
+    { name: 'VBS Mutual Bank', popular: false },
+];
+
 export function formatCurrency(amount: number, currency: string = 'ZAR') {
   const formatted = new Intl.NumberFormat('en-ZA', {
     style: 'currency',
@@ -78,11 +118,11 @@ export function formatCurrency(amount: number, currency: string = 'ZAR') {
   }).format(amount);
 
   // Replace comma with a space for thousands separator, but leave the decimal comma if present
-  const parts = formatted.split('.');
+  const parts = formatted.split(',');
   if (parts.length > 1) {
-    const integerPart = parts[0].replace(/,/g, ' ');
-    return `${integerPart}.${parts[1]}`;
+    const integerPart = parts[0].replace(/\s/g, ' ');
+    return `${integerPart},${parts[1]}`;
   } else {
-    return formatted.replace(/,/g, ' ');
+    return formatted.replace(/\s/g, ' ');
   }
 }

@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useMemo, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, ChevronRight, User, Users, Landmark, Smartphone, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,19 +11,7 @@ import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-export default function SinglePaymentPage() {
-  const router = useRouter();
-
-  const [bankName, setBankName] = useState('');
-  const [accountNumber, setAccountNumber] = useState('');
-  const [recipientName, setRecipientName] = useState('');
-  const [saveRecipient, setSaveRecipient] = useState(false);
-  
-  const isFormValid = useMemo(() => {
-    return bankName && accountNumber && recipientName;
-  }, [bankName, accountNumber, recipientName]);
-
-  const BankIcon = () => (
+const BankIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 22h16"/>
         <path d="M2 18V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v9"/>
@@ -35,6 +23,27 @@ export default function SinglePaymentPage() {
         <path d="m2 9 10-4 10 4"/>
     </svg>
   );
+
+export default function SinglePaymentPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [bankName, setBankName] = useState('');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [recipientName, setRecipientName] = useState('');
+  const [saveRecipient, setSaveRecipient] = useState(false);
+  
+  useEffect(() => {
+    const selectedBank = searchParams.get('bank');
+    if (selectedBank) {
+      setBankName(decodeURIComponent(selectedBank));
+    }
+  }, [searchParams]);
+
+  const isFormValid = useMemo(() => {
+    return bankName && accountNumber && recipientName;
+  }, [bankName, accountNumber, recipientName]);
+
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -80,8 +89,14 @@ export default function SinglePaymentPage() {
             <h2 className="font-semibold text-gray-800">To which account?</h2>
             <div className="space-y-2">
                 <Label htmlFor="bank-name" className="text-xs text-gray-500 font-semibold">Bank name</Label>
-                <div className="relative">
-                    <Input id="bank-name" value={bankName} onChange={e => setBankName(e.target.value)} placeholder="Select bank" className="pr-10" />
+                <div className="relative" onClick={() => router.push('/pay/single/select-bank')}>
+                    <Input 
+                      id="bank-name" 
+                      value={bankName} 
+                      readOnly 
+                      placeholder="Select bank" 
+                      className="pr-10 cursor-pointer"
+                    />
                     <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 </div>
             </div>

@@ -29,3 +29,8 @@ export type AtmLocation = {
   address: string;
   services: string[];
 };
+
+export type Bank = {
+  name: string;
+  popular: boolean;
+};
