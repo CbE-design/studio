@@ -4,6 +4,7 @@
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const paymentOptions = [
   {
@@ -27,6 +28,7 @@ const paymentOptions = [
     ),
     title: 'Single payment',
     description: 'Make a once-off payment or pay a saved recipient.',
+    href: '/pay/single',
   },
   {
     icon: (
@@ -47,6 +49,7 @@ const paymentOptions = [
     ),
     title: 'Send money',
     description: 'Send money to anyone with a South African cellphone number.',
+    href: '#',
   },
   {
     icon: (
@@ -68,6 +71,7 @@ const paymentOptions = [
     ),
     title: 'PayShap Request',
     description: 'Request and make payments with PayShap.',
+    href: '#',
   },
   {
     icon: (
@@ -90,6 +94,7 @@ const paymentOptions = [
     ),
     title: 'Bill payments',
     description: 'Add and manage your monthly bills. Earn great rewards.',
+    href: '#',
   },
   {
     icon: (
@@ -114,6 +119,7 @@ const paymentOptions = [
     ),
     title: 'Government payment',
     description: 'Complete and view government payments.',
+    href: '#',
   },
   {
     icon: (
@@ -134,6 +140,7 @@ const paymentOptions = [
     ),
     title: 'International payments',
     description: 'View, receive and make payments, or send money internationally.',
+    href: '#',
   },
 ];
 
@@ -154,19 +161,20 @@ export default function PayPage() {
           
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             {paymentOptions.map((option, index) => (
-              <div
-                key={option.title}
-                className={`flex items-center p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
-                  index < paymentOptions.length - 1 ? 'border-b border-gray-200' : ''
-                }`}
-              >
-                <div className="mr-4">{option.icon}</div>
-                <div className="flex-1">
-                  <h2 className="font-semibold text-gray-800 text-lg">{option.title}</h2>
-                  <p className="text-gray-500 text-sm">{option.description}</p>
+              <Link href={option.href || '#'} key={option.title}>
+                <div
+                  className={`flex items-center p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
+                    index < paymentOptions.length - 1 ? 'border-b border-gray-200' : ''
+                  }`}
+                >
+                  <div className="mr-4">{option.icon}</div>
+                  <div className="flex-1">
+                    <h2 className="font-semibold text-gray-800 text-lg">{option.title}</h2>
+                    <p className="text-gray-500 text-sm">{option.description}</p>
+                  </div>
+                  <ChevronRight className="h-6 w-6 text-gray-400" />
                 </div>
-                <ChevronRight className="h-6 w-6 text-gray-400" />
-              </div>
+              </Link>
             ))}
           </div>
         </div>
