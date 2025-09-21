@@ -125,7 +125,7 @@ export default function DocumentsPage() {
       </header>
 
       <main className="flex-1 overflow-y-auto p-6 space-y-8">
-        {storageError && (
+        {storageError ? (
           <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-800">
             <AlertTriangle className="h-5 w-5 !text-red-800" />
             <AlertTitle className="font-bold">Action Required: Fix Firebase Storage Rules</AlertTitle>
@@ -140,66 +140,68 @@ export default function DocumentsPage() {
                 <li>Replace the existing rules with: <code>allow read, write: if true;</code></li>
                 <li>Click <strong>Publish</strong>.</li>
               </ol>
+               <p className="mt-4">After publishing the new rules, please refresh this page.</p>
             </AlertDescription>
           </Alert>
-        )}
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Upload New Document</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center space-x-4">
-                <Input id="pdf-upload" type="file" accept="application/pdf" onChange={handleFileChange} className="flex-1" disabled={!!storageError} />
-                 <Button onClick={handleUpload} disabled={uploading || !file || !!storageError}>
-                    {uploading ? (
-                        <>
-                        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                        Uploading...
-                        </>
-                    ) : (
-                        <>
-                        <Upload className="mr-2 h-4 w-4" />
-                        Upload PDF
-                        </>
-                    )}
-                </Button>
-            </div>
-            {file && <p className="text-sm text-gray-500">Selected: {file.name}</p>}
-          </CardContent>
-        </Card>
+        ) : (
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload New Document</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-4">
+                    <Input id="pdf-upload" type="file" accept="application/pdf" onChange={handleFileChange} className="flex-1" />
+                     <Button onClick={handleUpload} disabled={uploading || !file}>
+                        {uploading ? (
+                            <>
+                            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                            Uploading...
+                            </>
+                        ) : (
+                            <>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Upload PDF
+                            </>
+                        )}
+                    </Button>
+                </div>
+                {file && <p className="text-sm text-gray-500">Selected: {file.name}</p>}
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>My Documents</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loadingFiles && !storageError ? (
-              <div className="flex items-center justify-center p-8">
-                <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : uploadedFiles.length > 0 ? (
-              <ul className="space-y-2">
-                {uploadedFiles.map((uploadedFile) => (
-                  <li key={uploadedFile.name} className="flex items-center justify-between p-3 bg-white rounded-md border hover:bg-gray-50">
-                    <a
-                      href={uploadedFile.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center text-primary hover:underline"
-                    >
-                      <File className="mr-2 h-5 w-5" />
-                      <span>{uploadedFile.name}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              !storageError && <p className="text-center text-gray-500 p-8">You haven't uploaded any documents yet.</p>
-            )}
-            {storageError && <p className="text-center text-destructive p-8">Document list cannot be loaded due to a connection error.</p>}
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>My Documents</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loadingFiles ? (
+                  <div className="flex items-center justify-center p-8">
+                    <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                ) : uploadedFiles.length > 0 ? (
+                  <ul className="space-y-2">
+                    {uploadedFiles.map((uploadedFile) => (
+                      <li key={uploadedFile.name} className="flex items-center justify-between p-3 bg-white rounded-md border hover:bg-gray-50">
+                        <a
+                          href={uploadedFile.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center text-primary hover:underline"
+                        >
+                          <File className="mr-2 h-5 w-5" />
+                          <span>{uploadedFile.name}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-center text-gray-500 p-8">You haven't uploaded any documents yet.</p>
+                )}
+              </CardContent>
+            </Card>
+          </>
+        )}
       </main>
     </div>
   );
