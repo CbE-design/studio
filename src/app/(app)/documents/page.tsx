@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface UploadedFile {
   name: string;
@@ -28,15 +28,13 @@ export default function DocumentsPage() {
 
   const handleFirebaseError = (error: any) => {
     console.error('Firebase Storage Error:', error);
-    let message = 'An unexpected error occurred with Firebase Storage. Please check the console.';
-    if (error.code === 'storage/retry-limit-exceeded' || error.code === 'storage/unauthorized') {
-        message = "Could not connect to Firebase Storage. This is often due to security rules. Please go to your Firebase Console, navigate to Storage > Rules, and ensure your rules allow read and write access. For development, you can use: `allow read, write: if true;`";
-    }
+    let message = "Could not connect to Firebase Storage. This is often due to security rules not allowing access. Please go to your Firebase Console, navigate to Storage > Rules, and update your rules to `allow read, write: if true;` for development.";
     setStorageError(message);
     toast({
       variant: 'destructive',
-      title: 'Storage Error',
-      description: 'Could not connect to Firebase Storage.',
+      title: 'Storage Connection Error',
+      description: 'Could not connect to Firebase Storage. Please check the on-page instructions.',
+      duration: 10000,
     });
   };
 
@@ -127,14 +125,33 @@ export default function DocumentsPage() {
       </header>
 
       <main className="flex-1 overflow-y-auto p-6 space-y-8">
+        {storageError && (
+          <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-800">
+            <AlertTriangle className="h-5 w-5 !text-red-800" />
+            <AlertTitle className="font-bold">Action Required: Fix Firebase Storage Rules</AlertTitle>
+            <AlertDescription>
+              <p className="mb-2">Your app cannot connect to Firebase Storage. This is usually caused by incorrect security rules in your Firebase project.</p>
+              <p className="font-semibold">To fix this, please follow these steps:</p>
+              <ol className="list-decimal list-inside space-y-1 mt-1 text-sm">
+                <li>Go to the <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="underline font-bold">Firebase Console</a>.</li>
+                <li>Select your project.</li>
+                <li>Navigate to <strong>Storage</strong> in the "Build" section.</li>
+                <li>Click on the <strong>Rules</strong> tab.</li>
+                <li>Replace the existing rules with: <code>allow read, write: if true;</code></li>
+                <li>Click <strong>Publish</strong>.</li>
+              </ol>
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <Card>
           <CardHeader>
             <CardTitle>Upload New Document</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center space-x-4">
-                <Input id="pdf-upload" type="file" accept="application/pdf" onChange={handleFileChange} className="flex-1" />
-                 <Button onClick={handleUpload} disabled={uploading || !file}>
+                <Input id="pdf-upload" type="file" accept="application/pdf" onChange={handleFileChange} className="flex-1" disabled={!!storageError} />
+                 <Button onClick={handleUpload} disabled={uploading || !file || !!storageError}>
                     {uploading ? (
                         <>
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -152,19 +169,12 @@ export default function DocumentsPage() {
           </CardContent>
         </Card>
 
-        {storageError && (
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>{storageError}</AlertDescription>
-          </Alert>
-        )}
-
         <Card>
           <CardHeader>
             <CardTitle>My Documents</CardTitle>
           </CardHeader>
           <CardContent>
-            {loadingFiles ? (
+            {loadingFiles && !storageError ? (
               <div className="flex items-center justify-center p-8">
                 <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
               </div>
@@ -181,16 +191,13 @@ export default function DocumentsPage() {
                       <File className="mr-2 h-5 w-5" />
                       <span>{uploadedFile.name}</span>
                     </a>
-                    {/* Note: Delete functionality would require additional logic */}
-                    {/* <Button variant="ghost" size="icon" className="text-gray-400 hover:text-destructive">
-                      <Trash2 className="h-4 w-4" />
-                    </Button> */}
                   </li>
                 ))}
               </ul>
             ) : (
               !storageError && <p className="text-center text-gray-500 p-8">You haven't uploaded any documents yet.</p>
             )}
+            {storageError && <p className="text-center text-destructive p-8">Document list cannot be loaded due to a connection error.</p>}
           </CardContent>
         </Card>
       </main>
