@@ -221,7 +221,7 @@ export default async function DashboardPage() {
             <Card className="my-6 shadow-md border rounded-lg overflow-hidden">
             <CardContent className="p-0">
                 <Image
-                src="https://picsum.photos/seed/nedbank-connect/600/100"
+                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/Screenshot_2025-09-21-05-29-50-22_ccee45d3a323cb0330d71aa2e13568e6~2.jpg?alt=media&token=7708ee45-0a82-4711-aab5-6818776094f3"
                 alt="Nedbank Connect Banner"
                 data-ai-hint="promotional banner"
                 width={600}
