@@ -28,17 +28,12 @@ export default function DocumentsPage() {
 
   const handleFirebaseError = (error: any) => {
     console.error('Firebase Storage Error:', error);
-    if (error.code === 'storage/retry-limit-exceeded' || error.code === 'storage/unauthorized') {
-      setStorageError(
-        'Connection failed: Please check your Firebase Storage security rules. Go to your Firebase console > Storage > Rules and ensure they allow read and write access. For example: "allow read, write: if true;"'
-      );
-    } else {
-       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'An unexpected error occurred. Please try again.',
-      });
-    }
+    setStorageError('An unexpected error occurred with Firebase Storage. Please check the console and your security rules.');
+    toast({
+      variant: 'destructive',
+      title: 'Storage Error',
+      description: 'Could not connect to Firebase Storage.',
+    });
   };
 
 

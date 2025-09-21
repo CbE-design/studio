@@ -23,11 +23,7 @@ export function Announcements() {
           setError(null);
         }
       } catch (e: any) {
-        if (e.code === 'permission-denied' || e.message.includes('Could not reach Cloud Firestore backend')) {
-             setError('Connection failed: You need to set up Firestore security rules. Go to your Firebase console > Firestore Database > Rules and set them to allow reads: "allow read: if true;"');
-        } else {
-            setError(`An error occurred: ${e.message}`);
-        }
+        setError(`An error occurred while fetching announcements. Please check your Firestore connection and rules.`);
         console.error(e);
       } finally {
         setLoading(false);
