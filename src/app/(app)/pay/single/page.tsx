@@ -3,7 +3,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, ChevronRight, User, Users, Landmark, Smartphone, Info } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Users, Landmark, Smartphone, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,11 +32,16 @@ export default function SinglePaymentPage() {
   const [accountNumber, setAccountNumber] = useState('');
   const [recipientName, setRecipientName] = useState('');
   const [saveRecipient, setSaveRecipient] = useState(false);
+  const [paymentType, setPaymentType] = useState('Standard EFT');
   
   useEffect(() => {
     const selectedBank = searchParams.get('bank');
     if (selectedBank) {
       setBankName(decodeURIComponent(selectedBank));
+    }
+    const selectedPaymentType = searchParams.get('paymentType');
+    if (selectedPaymentType) {
+      setPaymentType(decodeURIComponent(selectedPaymentType));
     }
   }, [searchParams]);
 
@@ -108,8 +113,8 @@ export default function SinglePaymentPage() {
             <h2 className="font-semibold text-gray-800 pt-2">Payment type?</h2>
             <div className="space-y-2">
                  <Label htmlFor="payment-method" className="text-xs text-gray-500 font-semibold">Payment method</Label>
-                <div className="relative">
-                    <Input id="payment-method" value="Standard EFT" readOnly className="pr-10 border-primary" />
+                <div className="relative" onClick={() => router.push('/pay/single/select-payment-type')}>
+                    <Input id="payment-method" value={paymentType} readOnly className="pr-10 border-primary cursor-pointer" />
                     <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 </div>
             </div>
