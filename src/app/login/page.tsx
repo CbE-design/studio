@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { PinInput } from '@/components/pin-input';
-import { Logo } from '@/components/logo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { MessageSquare, Menu, ArrowRight } from 'lucide-react';
@@ -25,7 +24,13 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col h-screen bg-background">
       <header className="flex items-center justify-between p-4">
-        <Logo className="w-8 h-8 bg-transparent" />
+        <Image 
+          src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
+          alt="Nedbank Logo"
+          width={32}
+          height={32}
+          className="w-8 h-8"
+        />
         <div className="flex items-center gap-4">
           <MessageSquare className="text-primary" />
           <Menu className="text-primary" />
