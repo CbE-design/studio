@@ -1,6 +1,7 @@
+
 'use client';
 
-import { accounts, beneficiaries, formatCurrency } from "@/app/lib/data";
+import { formatCurrency } from "@/app/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,9 +9,48 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
+import type { Account, Beneficiary } from "@/app/lib/definitions";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/app/lib/firebase";
+import { beneficiaries } from "@/app/lib/data";
+
 
 export default function PaymentsPage() {
   const { toast } = useToast();
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchAccounts() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "accounts"));
+        const fetchedAccounts = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                name: data.name,
+                type: data.type,
+                accountNumber: data.accountNumber,
+                balance: data.balance,
+                currency: data.currency,
+            } as Account;
+        });
+        setAccounts(fetchedAccounts);
+      } catch (error) {
+        console.error("Error fetching accounts: ", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Could not fetch accounts from the database.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAccounts();
+  }, [toast]);
+
 
   const handlePayment = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,6 +64,25 @@ export default function PaymentsPage() {
     e.currentTarget.reset();
   };
   
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold font-headline">Payments</h1>
+          <p className="text-muted-foreground">Transfer funds and pay your bills.</p>
+        </div>
+        <Card className="shadow-lg">
+          <CardContent className="p-4 md:p-6">
+            <div className="animate-pulse">
+                <div className="h-10 bg-gray-200 rounded-md w-full mb-4"></div>
+                <div className="h-96 bg-gray-200 rounded-md w-full"></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -55,7 +114,7 @@ export default function PaymentsPage() {
                           <SelectContent>
                             {accounts.map(acc => (
                               <SelectItem key={acc.id} value={acc.id}>
-                                {acc.name} ({formatCurrency(acc.balance)})
+                                {acc.name} ({formatCurrency(acc.balance, acc.currency)})
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -70,7 +129,7 @@ export default function PaymentsPage() {
                           <SelectContent>
                             {accounts.map(acc => (
                               <SelectItem key={acc.id} value={acc.id}>
-                                {acc.name} ({formatCurrency(acc.balance)})
+                                {acc.name} ({formatCurrency(acc.balance, acc.currency)})
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -109,7 +168,7 @@ export default function PaymentsPage() {
                         <SelectContent>
                           {accounts.filter(a => a.type !== 'Credit').map(acc => (
                             <SelectItem key={acc.id} value={acc.id}>
-                              {acc.name} ({formatCurrency(acc.balance)})
+                              {acc.name} ({formatCurrency(acc.balance, acc.currency)})
                             </SelectItem>
                           ))}
                         </SelectContent>
