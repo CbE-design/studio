@@ -1,129 +1,121 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ChevronRight, UserPlus, Users, X } from 'lucide-react';
+import { ArrowLeft, ChevronRight, User, Users, Landmark, Smartphone, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { Switch } from '@/components/ui/switch';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
-const tabs = [
-    { name: 'New recipient', icon: UserPlus },
-    { name: 'Saved recipient', icon: Users }
-];
+const BankIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 22h16"/>
+        <path d="M2 18V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v9"/>
+        <path d="M4 18v-5"/>
+        <path d="M8 18v-5"/>
+        <path d="M12 18v-5"/>
+        <path d="M16 18v-5"/>
+        <path d="M20 18v-5"/>
+        <path d="m2 9 10-4 10 4"/>
+    </svg>
+);
+
 
 export default function SinglePaymentPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('New recipient');
 
   const [bankName, setBankName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [recipientName, setRecipientName] = useState('');
-  const [recipientRef, setRecipientRef] = useState('');
-  const [myRef, setMyRef] = useState('');
-  const [amount, setAmount] = useState('');
+  const [saveRecipient, setSaveRecipient] = useState(false);
   
   const isFormValid = useMemo(() => {
-    return bankName && accountNumber && recipientName && recipientRef && myRef && parseFloat(amount) > 0;
-  }, [bankName, accountNumber, recipientName, recipientRef, myRef, amount]);
-
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9.]/g, '');
-    setAmount(value);
-  };
-
-  const formattedAmount = useMemo(() => {
-    if (!amount) return 'R 0.00';
-    const num = parseFloat(amount);
-    return `R ${num.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  }, [amount]);
+    return bankName && accountNumber && recipientName;
+  }, [bankName, accountNumber, recipientName]);
 
 
   return (
-    <div className="flex flex-col h-screen bg-white">
-      <header className="bg-white text-gray-800 p-4 flex items-center shadow-sm sticky top-0 z-10 border-b">
-        <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
+    <div className="flex flex-col h-screen bg-gray-50">
+      <header className="bg-primary text-primary-foreground p-4 flex items-center sticky top-0 z-10">
+        <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>
-        <h1 className="text-xl font-bold">Pay</h1>
+        <h1 className="text-2xl font-semibold">Whom would you like to pay?</h1>
       </header>
       
       <main className="flex-1 overflow-y-auto p-4 space-y-6">
-        <div className="flex bg-gray-100 rounded-lg p-1">
-          {tabs.map(tab => (
-            <button
-              key={tab.name}
-              onClick={() => setActiveTab(tab.name)}
-              className={cn(
-                'w-1/2 py-2.5 rounded-md text-sm font-semibold transition-colors flex items-center justify-center gap-2',
-                activeTab === tab.name
-                  ? 'bg-white text-gray-800 shadow'
-                  : 'bg-transparent text-gray-500'
-              )}
-            >
-              <tab.icon className="h-5 w-5" />
-              {tab.name}
-            </button>
-          ))}
+        <div className="bg-white p-4 rounded-lg shadow-sm border space-y-4">
+            <div>
+                <Label htmlFor="recipient-name" className="text-xs text-gray-500 font-semibold">A new recipient</Label>
+                <Input id="recipient-name" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Enter name and surname" className="mt-1" />
+            </div>
+
+            <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                <Users className="h-5 w-5 mr-3 text-primary" />
+                <span className="flex-1 text-gray-700">Select from saved recipients</span>
+            </div>
+             <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                <Landmark className="h-5 w-5 mr-3 text-primary" />
+                <span className="flex-1 text-gray-700">Select from bank-approved recipients</span>
+            </div>
+             <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                <Smartphone className="h-5 w-5 mr-3 text-primary" />
+                <span className="flex-1 text-gray-700">Select from phone contacts</span>
+            </div>
         </div>
         
-        {activeTab === 'New recipient' && (
-            <div className="space-y-4">
-                 <div className="space-y-2">
-                    <Label htmlFor="bank-name" className="text-gray-500 text-xs">Bank name</Label>
-                    <Input id="bank-name" value={bankName} onChange={e => setBankName(e.target.value)} placeholder="Select or type bank name" />
+        <div className="space-y-2">
+            <h2 className="font-semibold text-gray-800">How would you like to pay?</h2>
+            <div className="flex justify-center">
+                <div className="bg-primary text-primary-foreground p-4 rounded-lg flex flex-col items-center justify-center w-36 h-28 cursor-pointer shadow-md">
+                    <BankIcon />
+                    <span className="text-sm text-center mt-2">Pay to a bank account</span>
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="account-number" className="text-gray-500 text-xs">Account number</Label>
-                    <Input id="account-number" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="Enter account number" />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="recipient-name" className="text-gray-500 text-xs">Recipient name</Label>
-                    <Input id="recipient-name" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Who are you paying?" />
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="recipient-ref" className="text-gray-500 text-xs">Their reference</Label>
-                    <Input id="recipient-ref" value={recipientRef} onChange={e => setRecipientRef(e.target.value)} placeholder="For the recipient's statement" />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="my-ref" className="text-gray-500 text-xs">My reference</Label>
-                    <Input id="my-ref" value={myRef} onChange={e => setMyRef(e.target.value)} placeholder="For your statement" />
-                </div>
-            </div>
-        )}
-        
-        <div className="space-y-2 pt-4">
-             <label className="text-sm font-semibold text-gray-700">Amount</label>
-             <div className="relative">
-                <input
-                    type="text"
-                    value={formattedAmount}
-                    readOnly
-                    className="w-full bg-transparent text-4xl font-light border-b-2 border-primary focus:outline-none pb-1"
-                />
-                 <input
-                    type="number"
-                    value={amount}
-                    onChange={handleAmountChange}
-                    className="absolute inset-0 opacity-0 w-full h-full"
-                />
             </div>
         </div>
 
-        <div className="space-y-2">
-            <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 border rounded-lg">
-                <div>
-                    <p className="font-semibold">Standard EFT</p>
-                    <p className="text-sm text-gray-500">Immediate or delayed payment</p>
+        <div className="bg-white p-4 rounded-lg shadow-sm border space-y-4">
+            <h2 className="font-semibold text-gray-800">To which account?</h2>
+            <div className="space-y-2">
+                <Label htmlFor="bank-name" className="text-xs text-gray-500 font-semibold">Bank name</Label>
+                <div className="relative">
+                    <Input id="bank-name" value={bankName} onChange={e => setBankName(e.target.value)} placeholder="Select bank" className="pr-10" />
+                    <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 </div>
-                <ChevronRight className="h-5 w-5 text-gray-400" />
             </div>
+            <div className="space-y-2">
+                <Label htmlFor="account-number" className="text-xs text-gray-500 font-semibold">Account number</Label>
+                <Input id="account-number" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="" />
+            </div>
+
+            <h2 className="font-semibold text-gray-800 pt-2">Payment type?</h2>
+            <div className="space-y-2">
+                 <Label htmlFor="payment-method" className="text-xs text-gray-500 font-semibold">Payment method</Label>
+                <div className="relative">
+                    <Input id="payment-method" value="Standard EFT" readOnly className="pr-10 border-primary" />
+                    <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                </div>
+            </div>
+        </div>
+
+        <Alert className="bg-primary/10 border-none text-gray-700">
+            <Info className="h-5 w-5 text-primary" />
+            <AlertDescription className="text-xs">
+                Before you click Next, please make sure that your recipient's account information is correct. Nedbank doesn't validate account numbers or refund payments to a wrong recipient.
+            </AlertDescription>
+        </Alert>
+        
+        <div className="bg-white p-4 rounded-lg shadow-sm border flex items-center justify-between">
+            <Label htmlFor="save-recipient" className="font-semibold text-gray-800">Save recipient</Label>
+            <Switch id="save-recipient" checked={saveRecipient} onCheckedChange={setSaveRecipient} />
         </div>
 
       </main>
-      <footer className="p-4 bg-white border-t">
+      <footer className="p-4 bg-white border-t sticky bottom-0">
         <Button 
             className={cn("w-full font-bold", isFormValid ? 'bg-primary hover:bg-primary/90' : 'bg-gray-300 hover:bg-gray-400 text-gray-600')}
             disabled={!isFormValid}
