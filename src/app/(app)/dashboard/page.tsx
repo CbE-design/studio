@@ -17,7 +17,6 @@ import {
   Home,
   FileSearch,
 } from 'lucide-react';
-import { Logo } from '@/components/logo';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import {
@@ -184,7 +183,13 @@ export default async function DashboardPage() {
       <header className="bg-primary text-primary-foreground p-4 space-y-4 sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Logo className="w-8 h-8" />
+            <Image 
+              src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
+              alt="Nedbank Logo"
+              width={32}
+              height={32}
+              className="w-8 h-8"
+            />
             <span className="font-bold text-xl">Van Schalkwyk Family Trust</span>
           </div>
           <div className="flex items-center gap-4">
