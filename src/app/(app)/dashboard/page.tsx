@@ -32,6 +32,7 @@ import {
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 const accounts = [
   { id: '1', name: 'Savvy Bundle Current Account', balance: 'R0.00' },
@@ -177,7 +178,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Logo className="w-8 h-8" />
-            <span className="font-bold">Corrie</span>
+            <span className="font-bold text-lg">Van Schalkwyk Family Trust</span>
           </div>
           <div className="flex items-center gap-4">
             <Bell className="h-6 w-6" />
@@ -233,7 +234,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-4 gap-4 text-center">
             {widgets.map((widget, index) => (
                 <div key={index} className="flex flex-col items-center gap-1 relative">
-                <div className="p-3 bg-white rounded-lg shadow-sm border">
+                <div className={cn("p-3 rounded-lg shadow-sm border", index % 2 === 0 ? 'bg-primary/10' : 'bg-white')}>
                     <widget.icon className="h-8 w-8 text-primary" />
                 </div>
                 <p className="text-xs text-gray-600">{widget.label}</p>
