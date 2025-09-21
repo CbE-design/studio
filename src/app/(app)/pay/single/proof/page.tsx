@@ -3,10 +3,12 @@
 
 import { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import Image from 'next/image';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null | undefined }) => (
     <tr className="align-top">
@@ -35,17 +37,37 @@ function ProofOfPaymentContent() {
         securityCode: 'C21B1B7B3907076CC96E059072746A551A9B39AE', // from image
     };
 
+    const handleDownloadPdf = () => {
+        const input = document.getElementById('proof-of-payment');
+        if (input) {
+            html2canvas(input, { scale: 2 }).then((canvas) => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save('proof-of-payment.pdf');
+            });
+        }
+    };
+
     return (
       <div className="flex flex-col h-screen bg-gray-100 text-sm">
-        <header className="bg-white p-4 flex items-center shadow-sm sticky top-0 z-10 border-b">
-          <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
-            <ArrowLeft />
+        <header className="bg-white p-4 flex items-center justify-between shadow-sm sticky top-0 z-10 border-b">
+          <div className="flex items-center">
+            <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
+                <ArrowLeft />
+            </Button>
+            <h1 className="font-semibold">Proof of Payment</h1>
+          </div>
+          <Button onClick={handleDownloadPdf} variant="outline" size="sm">
+            <Download className="mr-2 h-4 w-4" />
+            Download PDF
           </Button>
-          <h1 className="font-semibold">Proof of Payment</h1>
         </header>
         
         <main className="flex-1 overflow-y-auto p-4">
-            <div className="bg-white p-6 max-w-2xl mx-auto shadow-md">
+            <div id="proof-of-payment" className="bg-white p-6 max-w-2xl mx-auto shadow-md">
                 <Image 
                     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
                     alt="Nedbank Logo"
