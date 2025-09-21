@@ -55,14 +55,14 @@ const LoadingSkeleton = () => (
         </div>
         <MessageSquare className="h-6 w-6" />
       </div>
-      <div className="flex justify-between text-center">
-        <div>
+      <div className="flex justify-between">
+        <div className="text-left">
           <p className="text-xs opacity-80">Current balance</p>
-          <Skeleton className="h-7 w-36 mx-auto mt-1 bg-primary-foreground/20" />
+          <Skeleton className="h-7 w-36 mt-1 bg-primary-foreground/20" />
         </div>
-        <div>
+        <div className="text-right">
           <p className="text-xs opacity-80">Available balance</p>
-          <Skeleton className="h-7 w-36 mx-auto mt-1 bg-primary-foreground/20" />
+          <Skeleton className="h-7 w-36 mt-1 bg-primary-foreground/20" />
         </div>
       </div>
     </header>
@@ -162,12 +162,12 @@ export default function AccountDetailsPage() {
           </div>
           <MessageSquare className="h-6 w-6" />
         </div>
-        <div className="flex justify-between text-center">
-          <div>
+        <div className="flex justify-between">
+          <div className="text-left">
             <p className="text-xs opacity-80">Current balance</p>
             <p className="text-lg font-semibold">{formatCurrency(account.balance, account.currency)}</p>
           </div>
-          <div>
+          <div className="text-right">
             <p className="text-xs opacity-80">Available balance</p>
             <p className="text-lg font-semibold">{formatCurrency(account.balance, account.currency)}</p>
           </div>
