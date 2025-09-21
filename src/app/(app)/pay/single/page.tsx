@@ -31,6 +31,8 @@ export default function SinglePaymentPage() {
   const [bankName, setBankName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [recipientName, setRecipientName] = useState('');
+  const [yourReference, setYourReference] = useState('');
+  const [recipientReference, setRecipientReference] = useState('');
   const [saveRecipient, setSaveRecipient] = useState(false);
   const [paymentType, setPaymentType] = useState('Standard EFT');
   
@@ -44,6 +46,20 @@ export default function SinglePaymentPage() {
       setPaymentType(decodeURIComponent(selectedPaymentType));
     }
   }, [searchParams]);
+
+  const handleNext = () => {
+    const params = new URLSearchParams({
+        bankName,
+        accountNumber,
+        recipientName,
+        yourReference,
+        recipientReference,
+        paymentType,
+        amount: '1.00', // Hardcoded for now as per image
+        fromAccount: 'Platinum Cheque', // Hardcoded for now
+    });
+    router.push(`/pay/single/review?${params.toString()}`);
+  }
 
   const isFormValid = useMemo(() => {
     return bankName && accountNumber && recipientName;
@@ -110,6 +126,16 @@ export default function SinglePaymentPage() {
                 <Input id="account-number" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="" />
             </div>
 
+             <div className="space-y-2">
+                <Label htmlFor="your-reference" className="text-xs text-gray-500 font-semibold">Your reference (optional)</Label>
+                <Input id="your-reference" value={yourReference} onChange={e => setYourReference(e.target.value)} />
+            </div>
+
+            <div className="space-y-2">
+                <Label htmlFor="recipient-reference" className="text-xs text-gray-500 font-semibold">Recipient's reference (optional)</Label>
+                <Input id="recipient-reference" value={recipientReference} onChange={e => setRecipientReference(e.target.value)} />
+            </div>
+
             <h2 className="font-semibold text-gray-800 pt-2">Payment type?</h2>
             <div className="space-y-2">
                  <Label htmlFor="payment-method" className="text-xs text-gray-500 font-semibold">Payment method</Label>
@@ -137,6 +163,7 @@ export default function SinglePaymentPage() {
         <Button 
             className={cn("w-full font-bold", isFormValid ? 'bg-primary hover:bg-primary/90' : 'bg-gray-300 hover:bg-gray-400 text-gray-600')}
             disabled={!isFormValid}
+            onClick={handleNext}
         >
           Next
         </Button>
