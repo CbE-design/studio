@@ -162,7 +162,7 @@ export default function AccountDetailsPage() {
           </div>
           <MessageSquare className="h-6 w-6" />
         </div>
-        <div className="flex justify-start gap-8">
+        <div className="flex justify-between">
           <div className="text-left">
             <p className="text-xs opacity-80">Current balance</p>
             <p className="text-lg font-semibold">{formatCurrency(account.balance, account.currency)}</p>
