@@ -71,8 +71,18 @@ export const atmLocations: AtmLocation[] = [
 ];
 
 export function formatCurrency(amount: number, currency: string = 'ZAR') {
-  return new Intl.NumberFormat('en-ZA', {
+  const formatted = new Intl.NumberFormat('en-ZA', {
     style: 'currency',
     currency: currency,
+    currencyDisplay: 'symbol',
   }).format(amount);
+
+  // Replace comma with a space for thousands separator, but leave the decimal comma if present
+  const parts = formatted.split('.');
+  if (parts.length > 1) {
+    const integerPart = parts[0].replace(/,/g, ' ');
+    return `${integerPart}.${parts[1]}`;
+  } else {
+    return formatted.replace(/,/g, ' ');
+  }
 }
