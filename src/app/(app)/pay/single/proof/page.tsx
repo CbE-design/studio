@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import Image from 'next/image';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null | undefined }) => (
     <tr className="align-top">
@@ -18,24 +19,53 @@ const DetailRow = ({ label, value }: { label: string; value: string | null | und
     </tr>
 );
 
+const LoadingSkeleton = () => (
+    <div className="bg-white p-6 max-w-2xl mx-auto shadow-md font-sans" style={{ fontSize: '10px' }}>
+        <Skeleton className="h-8 w-8 mb-4" />
+        <Skeleton className="h-6 w-1/2 mb-1" />
+        <hr className="mb-3"/>
+        <Skeleton className="h-4 w-full mb-4" />
+        <div className="space-y-2 mb-4">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+        </div>
+        <Skeleton className="h-5 w-1/4 mb-1" />
+        <div className="space-y-2 mb-4">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+        </div>
+         <Skeleton className="h-5 w-1/4 mb-1" />
+         <div className="space-y-2 mb-4">
+            <Skeleton className="h-4 w-2/3" />
+        </div>
+    </div>
+);
+
 
 function ProofOfPaymentContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const now = new Date();
+    const [paymentDetails, setPaymentDetails] = useState<any>(null);
 
-    const paymentDetails = {
-        dateOfPayment: format(now, 'dd/MM/yyyy'),
-        referenceNumber: `${format(now, 'yyyyMMdd')}${Math.random().toString().substring(2, 12)}`,
-        recipient: searchParams.get('recipientName'),
-        amount: `R${parseFloat(searchParams.get('amount') || '0').toFixed(2)}`,
-        recipientReference: searchParams.get('recipientReference'),
-        bank: searchParams.get('bankName'),
-        accountNumber: searchParams.get('accountNumber')?.replace(/.(?=.{4})/g, '*'),
-        channel: 'Internet payment',
-        payer: 'CORRIE DIRK VAN SCHALKWYK',
-        securityCode: 'C21B1B7B3907076CC96E059072746A551A9B39AE', // from image
-    };
+    useEffect(() => {
+        const now = new Date();
+        const generateRandomSuffix = () => Math.random().toString().substring(2, 12);
+        
+        setPaymentDetails({
+            dateOfPayment: format(now, 'dd/MM/yyyy'),
+            referenceNumber: `${format(now, 'yyyyMMdd')}${generateRandomSuffix()}`,
+            recipient: searchParams.get('recipientName'),
+            amount: `R${parseFloat(searchParams.get('amount') || '0').toFixed(2)}`,
+            recipientReference: searchParams.get('recipientReference'),
+            bank: searchParams.get('bankName'),
+            accountNumber: searchParams.get('accountNumber')?.replace(/.(?=.{4})/g, '*'),
+            channel: 'Internet payment',
+            payer: 'CORRIE DIRK VAN SCHALKWYK',
+            securityCode: 'C21B1B7B3907076CC96E059072746A551A9B39AE', // from image
+        });
+    }, [searchParams]);
 
     const handleDownloadPdf = () => {
         const input = document.getElementById('proof-of-payment');
@@ -60,87 +90,89 @@ function ProofOfPaymentContent() {
             </Button>
             <h1 className="font-semibold">Proof of Payment</h1>
           </div>
-          <Button onClick={handleDownloadPdf} variant="outline" size="sm">
+          <Button onClick={handleDownloadPdf} variant="outline" size="sm" disabled={!paymentDetails}>
             <Download className="mr-2 h-4 w-4" />
             Download PDF
           </Button>
         </header>
         
         <main className="flex-1 overflow-y-auto p-4">
-            <div id="proof-of-payment" className="bg-white p-6 max-w-2xl mx-auto shadow-md font-sans" style={{ fontSize: '10px' }}>
-                <Image 
-                    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
-                    alt="Nedbank Logo"
-                    width={32}
-                    height={32}
-                    className="mb-4"
-                />
+            {!paymentDetails ? <LoadingSkeleton /> : (
+                <div id="proof-of-payment" className="bg-white p-6 max-w-2xl mx-auto shadow-md font-sans" style={{ fontSize: '10px' }}>
+                    <Image 
+                        src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
+                        alt="Nedbank Logo"
+                        width={32}
+                        height={32}
+                        className="mb-4"
+                    />
 
-                <h2 className="text-base font-bold mb-1">Notification of Payment</h2>
-                <hr className="mb-3"/>
-                <p className="mb-4">Nedbank Limited confirms that the following payment has been made:</p>
+                    <h2 className="text-base font-bold mb-1">Notification of Payment</h2>
+                    <hr className="mb-3"/>
+                    <p className="mb-4">Nedbank Limited confirms that the following payment has been made:</p>
 
-                <table className="w-full mb-4 text-xs">
-                    <tbody>
-                        <DetailRow label="Date of Payment" value={paymentDetails.dateOfPayment} />
-                        <DetailRow label="Reference Number" value={paymentDetails.referenceNumber} />
-                    </tbody>
-                </table>
+                    <table className="w-full mb-4 text-xs">
+                        <tbody>
+                            <DetailRow label="Date of Payment" value={paymentDetails.dateOfPayment} />
+                            <DetailRow label="Reference Number" value={paymentDetails.referenceNumber} />
+                        </tbody>
+                    </table>
 
-                <h3 className="font-bold mb-1 text-sm">Beneficiary details</h3>
-                <table className="w-full mb-4 text-xs">
-                     <tbody>
-                        <DetailRow label="Recipient" value={paymentDetails.recipient} />
-                        <DetailRow label="Amount" value={paymentDetails.amount} />
-                        <DetailRow label="Recipient Reference" value={paymentDetails.recipientReference} />
-                        <DetailRow label="Bank" value={paymentDetails.bank} />
-                        <DetailRow label="Account Number" value={paymentDetails.accountNumber} />
-                        <DetailRow label="Channel" value={paymentDetails.channel} />
-                    </tbody>
-                </table>
-                
-                <h3 className="font-bold mb-1 text-sm">Payer details</h3>
-                 <table className="w-full mb-4 text-xs">
-                     <tbody>
-                        <DetailRow label="Paid from Account Holder" value={paymentDetails.payer} />
-                    </tbody>
-                </table>
+                    <h3 className="font-bold mb-1 text-sm">Beneficiary details</h3>
+                    <table className="w-full mb-4 text-xs">
+                        <tbody>
+                            <DetailRow label="Recipient" value={paymentDetails.recipient} />
+                            <DetailRow label="Amount" value={paymentDetails.amount} />
+                            <DetailRow label="Recipient Reference" value={paymentDetails.recipientReference} />
+                            <DetailRow label="Bank" value={paymentDetails.bank} />
+                            <DetailRow label="Account Number" value={paymentDetails.accountNumber} />
+                            <DetailRow label="Channel" value={paymentDetails.channel} />
+                        </tbody>
+                    </table>
+                    
+                    <h3 className="font-bold mb-1 text-sm">Payer details</h3>
+                    <table className="w-full mb-4 text-xs">
+                        <tbody>
+                            <DetailRow label="Paid from Account Holder" value={paymentDetails.payer} />
+                        </tbody>
+                    </table>
 
-                <p className="text-gray-600 text-[9px] mb-4">
-                    Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.
-                </p>
-
-                <hr className="mb-3"/>
-                
-                <div className="text-[9px] text-gray-500 space-y-2 mb-4">
-                    <p>
-                        This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please check with the payer for enquiries regarding the contents of this notification.
-                        Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability for any loss or damage whatsoever or nature, arising from the use thereof.
-                        Payments may take up to three business days. Please check your account to verify the existence of the funds.
+                    <p className="text-gray-600 text-[9px] mb-4">
+                        Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.
                     </p>
-                    <p>
-                        <strong>Note:</strong> We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.
+
+                    <hr className="mb-3"/>
+                    
+                    <div className="text-[9px] text-gray-500 space-y-2 mb-4">
+                        <p>
+                            This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please check with the payer for enquiries regarding the contents of this notification.
+                            Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability for any loss or damage whatsoever or nature, arising from the use thereof.
+                            Payments may take up to three business days. Please check your account to verify the existence of the funds.
+                        </p>
+                        <p>
+                            <strong>Note:</strong> We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.
+                        </p>
+                    </div>
+
+                    <h4 className="font-bold text-[9px] mb-1">Nedbank Limited email disclaimer</h4>
+                    <p className="text-[9px] text-gray-500 mb-4">
+                        This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately. You should not copy or disclose its contents to any other person. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.
+                    </p>
+                    
+                    <table className="w-full mb-4 text-xs">
+                        <tbody>
+                            <DetailRow label="Security Code" value={paymentDetails.securityCode} />
+                        </tbody>
+                    </table>
+
+                    <hr className="mb-3"/>
+
+                    <p className="text-[8px] text-gray-500">
+                        Nedbank Limited Reg No 1951/000009/06. VAT Reg No 4320116074. 135 Rivonia Road, Sandown, Sandton, 2196, South Africa.
+                        We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCRCP16).
                     </p>
                 </div>
-
-                <h4 className="font-bold text-[9px] mb-1">Nedbank Limited email disclaimer</h4>
-                <p className="text-[9px] text-gray-500 mb-4">
-                    This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately. You should not copy or disclose its contents to any other person. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.
-                </p>
-                
-                <table className="w-full mb-4 text-xs">
-                    <tbody>
-                        <DetailRow label="Security Code" value={paymentDetails.securityCode} />
-                    </tbody>
-                </table>
-
-                <hr className="mb-3"/>
-
-                <p className="text-[8px] text-gray-500">
-                    Nedbank Limited Reg No 1951/000009/06. VAT Reg No 4320116074. 135 Rivonia Road, Sandown, Sandton, 2196, South Africa.
-                    We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCRCP16).
-                </p>
-            </div>
+            )}
         </main>
       </div>
     );
