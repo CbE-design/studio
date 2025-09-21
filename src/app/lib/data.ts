@@ -111,18 +111,22 @@ export const banks: Bank[] = [
 ];
 
 export function formatCurrency(amount: number, currency: string = 'ZAR') {
-  const formatted = new Intl.NumberFormat('en-ZA', {
-    style: 'currency',
-    currency: currency,
-    currencyDisplay: 'symbol',
-  }).format(amount);
+    const formatted = new Intl.NumberFormat('en-ZA', {
+        style: 'currency',
+        currency: currency,
+        currencyDisplay: 'symbol',
+    }).format(amount);
 
-  // Replace comma with a space for thousands separator, but leave the decimal comma if present
-  const parts = formatted.split(',');
-  if (parts.length > 1) {
-    const integerPart = parts[0].replace(/\s/g, ' ');
-    return `${integerPart},${parts[1]}`;
-  } else {
-    return formatted.replace(/\s/g, ' ');
-  }
+    // The 'en-ZA' locale should use a comma for decimals and spaces for thousands.
+    // However, some environments might default to a non-breaking space (U+00A0)
+    // which can cause wrapping issues or be visually inconsistent.
+    // This regex ensures all thousands separators are regular spaces (U+0020).
+    const [integerPart, decimalPart] = formatted.split(',');
+    const sanitizedInteger = integerPart.replace(/\s/g, ' ');
+
+    if (decimalPart !== undefined) {
+        return `${sanitizedInteger},${decimalPart}`;
+    }
+
+    return sanitizedInteger;
 }
