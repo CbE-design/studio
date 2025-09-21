@@ -11,20 +11,6 @@ import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-const BankIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 22h16"/>
-        <path d="M2 18V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v9"/>
-        <path d="M4 18v-5"/>
-        <path d="M8 18v-5"/>
-        <path d="M12 18v-5"/>
-        <path d="M16 18v-5"/>
-        <path d="M20 18v-5"/>
-        <path d="m2 9 10-4 10 4"/>
-    </svg>
-);
-
-
 export default function SinglePaymentPage() {
   const router = useRouter();
 
@@ -37,6 +23,18 @@ export default function SinglePaymentPage() {
     return bankName && accountNumber && recipientName;
   }, [bankName, accountNumber, recipientName]);
 
+  const BankIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 22h16"/>
+        <path d="M2 18V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v9"/>
+        <path d="M4 18v-5"/>
+        <path d="M8 18v-5"/>
+        <path d="M12 18v-5"/>
+        <path d="M16 18v-5"/>
+        <path d="M20 18v-5"/>
+        <path d="m2 9 10-4 10 4"/>
+    </svg>
+  );
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
