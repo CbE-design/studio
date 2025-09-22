@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, MessageSquare, ChevronRight, Search } from 'lucide-react';
+import { ArrowLeft, MessageSquare, ChevronRight, Search, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,7 @@ import { db } from '@/app/lib/firebase';
 import { doc, getDoc, collection, getDocs, Timestamp } from 'firebase/firestore';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
 
 const FilterIcon = () => (
   <svg
@@ -203,6 +204,12 @@ export default function AccountDetailsPage() {
                 <p>Once-off payments</p>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
             </div>
+            <Link href={`/account/${accountId}/statement`}>
+              <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 border-b">
+                <p>View Statement</p>
+                <FileText className="h-5 w-5 text-gray-400" />
+              </div>
+            </Link>
         </div>
         
         <div className="p-4 space-y-4 bg-gray-50">
@@ -247,3 +254,5 @@ export default function AccountDetailsPage() {
     </div>
   );
 }
+
+    
