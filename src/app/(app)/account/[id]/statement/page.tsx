@@ -151,7 +151,7 @@ const StatementComponent = ({ account, transactions }: { account: Account, trans
                     <p className="font-bold text-gray-500">see money differently</p>
                     <p className="text-[6px] text-gray-500 text-right w-1/2">
                         We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCRCP16).
-                    </nedbank>
+                    </p>
                     <Image src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" alt="Nedbank Logo" width={40} height={40} />
                     <p>Page 1 of 2</p>
                 </div>
@@ -221,7 +221,7 @@ const StatementComponent = ({ account, transactions }: { account: Account, trans
                     <p className="font-bold text-gray-500">see money differently</p>
                     <p className="text-[6px] text-gray-500 text-right w-1/2">
                         We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCRCP16).
-                    </nedbank>
+                    </p>
                     <Image src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" alt="Nedbank Logo" width={40} height={40} />
                     <p>Page 2 of 2</p>
                 </div>
@@ -364,5 +364,3 @@ export default function StatementPage() {
         </div>
     );
 }
-
-    
