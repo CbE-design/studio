@@ -50,12 +50,13 @@ const InsureIcon = () => (
   />
 );
 const NedbankConnectIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
-    <path d="M17 2H7C4 2 2 4 2 7V17C2 20 4 22 7 22H17C20 22 22 20 22 17V7C22 4 20 2 17 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M11.97 12.29H8.57001C8.24001 12.29 7.97001 12.56 7.97001 12.89V16.29C7.97001 16.62 8.24001 16.89 8.57001 16.89H11.97C12.3 16.89 12.57 16.62 12.57 16.29V12.89C12.57 12.56 12.3 12.29 11.97 12.29Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M12.57 14.59L13.97 13.19C14.26 12.9 14.26 12.42 13.97 12.13L12.57 10.73" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M16 8.5H15.5H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <Image
+    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758631700022.jpg?alt=media&token=148194a4-0b1a-4ea4-929e-956599069261"
+    alt="Nedbank Connect icon"
+    width={48}
+    height={48}
+    className="h-12 w-12"
+  />
 );
 const DiscsAndFinesIcon = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
