@@ -48,9 +48,17 @@ function PaymentSuccessContent() {
             const formData = new FormData();
             formData.append('fromAccountId', paymentDetails.fromAccountId);
             formData.append('amount', paymentDetails.amount);
-            if (paymentDetails.recipientName) formData.append('recipientName', paymentDetails.recipientName);
-            if (paymentDetails.yourReference) formData.append('yourReference', paymentDetails.yourReference);
-            if (paymentDetails.recipientReference) formData.append('recipientReference', paymentDetails.recipientReference);
+
+            // Only append optional fields if they exist and are not null
+            if (paymentDetails.recipientName) {
+                formData.append('recipientName', paymentDetails.recipientName);
+            }
+            if (paymentDetails.yourReference) {
+                formData.append('yourReference', paymentDetails.yourReference);
+            }
+            if (paymentDetails.recipientReference) {
+                formData.append('recipientReference', paymentDetails.recipientReference);
+            }
 
             try {
                 const result = await createTransactionAction(formData);
