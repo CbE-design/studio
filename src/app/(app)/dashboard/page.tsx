@@ -86,14 +86,13 @@ const PayShapIcon = () => (
   />
 );
 const QuickPayIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
-    <path d="M22 13V15C22 18.87 18.87 22 15 22H9C5.13 22 2 18.87 2 15V9C2 5.13 5.13 2 9 2H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M22 6V4C22 2.9 21.1 2 20 2H18C16.9 2 16 2.9 16 4V6C16 7.1 16.9 8 18 8H20C21.1 8 22 7.1 22 6Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M18.5 15C18.5 15.83 17.83 16.5 17 16.5H12.5C12.22 16.5 12 16.28 12 16V13C12 12.72 12.22 12.5 12.5 12.5H17C17.83 12.5 18.5 13.17 18.5 14C18.5 14.83 17.83 15.5 17 15.5H12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M15.5 12.5V16.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M9 13.75H10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M9 9.75H13.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <Image
+    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758635889725.jpg?alt=media&token=7ac2249c-b95f-43b6-83e6-80a4fd291ab2"
+    alt="Quick Pay icon"
+    width={48}
+    height={48}
+    className="h-12 w-12"
+  />
 );
 const GetCashIcon = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
