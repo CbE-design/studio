@@ -24,7 +24,7 @@ import { formatCurrency } from '@/app/lib/data';
 // Custom SVG Icons
 const OffersIcon = () => (
   <Image
-    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758620108103.jpg?alt=media&token=e5f39562-e54b-4144-b792-93e6764a6ee6"
+    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758622591390.jpg?alt=media&token=2f681462-7001-4654-9754-436e2c8f0ffe"
     alt="Offers for you icon"
     width={32}
     height={32}
