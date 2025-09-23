@@ -41,12 +41,13 @@ const ApplicationsIcon = () => (
   />
 );
 const InsureIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
-    <path d="M12 21C12.55 21 13 20.55 13 20V19C13 18.45 12.55 18 12 18C11.45 18 11 18.45 11 19V20C11 20.55 11.45 21 12 21Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M21.66 12.44C21.41 11.02 20.52 9.78997 19.21 9.01997C17.9 8.24997 16.28 7.99997 14.77 8.32997C13.26 8.65997 11.95 9.54003 11.07 10.79C10.19 12.04 9.81003 13.57 10.02 15.08C10.23 16.59 11.02 17.96 12.24 18.88C13.46 19.8 15.01 20.2 16.54 20C18.07 19.8 19.45 19 20.46 17.76" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M16.81 8.98999C17.82 7.15999 17.01 4.88999 15.18 3.87999C13.35 2.86999 11.08 3.67999 10.07 5.50999" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M3 12.44C3.82 9.35 6.54 7.23 9.71 7.23C9.97 7.23 10.23 7.25 10.48 7.29" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <Image
+    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758630016360.jpg?alt=media&token=a946409a-39bd-47d1-ac07-9a00dca954cb"
+    alt="Insure icon"
+    width={48}
+    height={48}
+    className="h-12 w-12"
+  />
 );
 const NedbankConnectIcon = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
@@ -129,7 +130,7 @@ const StatementsIcon = () => (
 const widgets = [
   { icon: OffersIcon, label: 'Offers for you', href: '#' },
   { icon: ApplicationsIcon, label: 'Applications', href: '#' },
-  { icon: InsureIcon, label: 'Insure', count: 5, href: '#' },
+  { icon: InsureIcon, label: 'Insure', href: '#' },
   { icon: NedbankConnectIcon, label: 'Nedbank Connect', new: true, href: '#' },
   { icon: DiscsAndFinesIcon, label: 'Discs and fines', href: '#' },
   { icon: ShopIcon, label: 'Shop', href: '#' },
