@@ -103,10 +103,9 @@ export default function StatementPage() {
         setGeneratingPdf(true);
 
         try {
-            // Fetch the PDF template via our new API route proxy
             const existingPdfBytes = await fetch('/api/pdf-template').then(res => {
                 if (!res.ok) {
-                    throw new Error(`Failed to fetch PDF: ${res.status} ${res.statusText}`);
+                    throw new Error(`Failed to fetch PDF template: ${res.status} ${res.statusText}`);
                 }
                 return res.arrayBuffer();
             });
@@ -116,9 +115,9 @@ export default function StatementPage() {
             const firstPage = pdfDoc.getPages()[0];
             const { width, height } = firstPage.getSize();
 
-            const formatCurrency = (amount: number) => new Intl.NumberFormat('en-ZA', {
+            const formatCurrency = (amount: number, currency: string) => new Intl.NumberFormat('en-ZA', {
                 style: 'currency',
-                currency: account.currency,
+                currency: currency,
             }).format(amount);
 
             // Add Account Details
@@ -136,12 +135,12 @@ export default function StatementPage() {
                 size: 12,
                 color: rgb(0, 0, 0),
             });
-            firstPage.drawText(`Current Balance: ${formatCurrency(account.balance)}`, {
+            firstPage.drawText(`Current Balance: ${formatCurrency(account.balance, account.currency)}`, {
                 x: 50,
                 y: height - 90,
                 font: helveticaFont,
                 size: 12,
-                color: rgb(0.1, 0.5, 0.1), // Green for balance
+                color: rgb(0.1, 0.5, 0.1),
             });
             
             // Add Transactions Header
@@ -156,10 +155,11 @@ export default function StatementPage() {
             let yPosition = height - 140;
             const y_margin = 40;
             transactions.forEach(tx => {
-                if (yPosition < y_margin) return; // Stop if we run out of space
+                if (yPosition < y_margin) return; 
                 const date = format(new Date(tx.date), 'yyyy-MM-dd');
-                const description = tx.description.substring(0, 40); // Truncate description
-                const amount = tx.type === 'debit' ? `-${formatCurrency(tx.amount)}` : `+${formatCurrency(tx.amount)}`;
+                const description = tx.description.substring(0, 40); 
+                const amountText = formatCurrency(tx.amount, account.currency);
+                const transactionText = tx.type === 'debit' ? `-${amountText}` : `+${amountText}`;
                 const textColor = tx.type === 'debit' ? rgb(0.8, 0, 0) : rgb(0, 0.5, 0);
                 
                 firstPage.drawText(`${date} - ${description}`, {
@@ -169,7 +169,7 @@ export default function StatementPage() {
                     size: 10,
                     color: rgb(0.2, 0.2, 0.2),
                 });
-                 firstPage.drawText(amount, {
+                 firstPage.drawText(transactionText, {
                     x: width - 150,
                     y: yPosition,
                     font: helveticaFont,
@@ -194,7 +194,7 @@ export default function StatementPage() {
             toast({
               variant: 'destructive',
               title: 'PDF Generation Failed',
-              description: error.message || 'An unknown error occurred.',
+              description: error.message || 'An unknown error occurred while trying to generate the PDF.',
             });
         } finally {
             setGeneratingPdf(false);
