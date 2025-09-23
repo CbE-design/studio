@@ -68,11 +68,13 @@ const DiscsAndFinesIcon = () => (
   />
 );
 const ShopIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
-    <path d="M2 3H4.37C5.26 3 6.01 3.58 6.27 4.44L8.74 13.54C8.93 14.24 9.54 14.73 10.27 14.73H18.44C19.18 14.73 19.81 14.21 20.03 13.49L21.78 7.49C22.08 6.48 21.28 5.52 20.24 5.52H6.83" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M18.6899 17.81C18.6899 18.51 18.1299 19.07 17.4299 19.07C16.7299 19.07 16.1699 18.51 16.1699 17.81C16.1699 17.11 16.7299 16.55 17.4299 16.55C18.1299 16.55 18.6899 17.11 18.6899 17.81Z" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M10.12 17.81C10.12 18.51 9.56 19.07 8.86 19.07C8.16 19.07 7.6 18.51 7.6 17.81C7.6 17.11 8.16 16.55 8.86 16.55C9.56 16.55 10.12 17.11 10.12 17.81Z" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <Image
+    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758633570031.jpg?alt=media&token=b776f61f-926e-48ab-9f7c-9b18821c8b02"
+    alt="Shop icon"
+    width={48}
+    height={48}
+    className="h-12 w-12"
+  />
 );
 const PayShapIcon = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
