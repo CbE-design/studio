@@ -190,7 +190,7 @@ export default async function DashboardPage() {
               height={32}
               className="w-8 h-8"
             />
-            <span className="font-bold text-xl">Van Schalkwyk Family Trust</span>
+            <span className="font-bold text-xl">Spot Buy And Sell</span>
           </div>
           <div className="flex items-center gap-4">
             <Bell className="h-6 w-6" />

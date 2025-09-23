@@ -62,7 +62,7 @@ function ProofOfPaymentContent() {
           bank: searchParams.get('bankName'),
           accountNumber: searchParams.get('accountNumber')?.replace(/.(?=.{4})/g, '*'),
           channel: 'Internet payment',
-          payer: 'VAN SCHALKWYK FAMILY TRUST',
+          payer: 'SPOT BUY AND SELL',
           securityCode: 'B1AEF1A32330C0E8BB99D508DAF75E3A0B051D48',
       });
     }, [searchParams]);
