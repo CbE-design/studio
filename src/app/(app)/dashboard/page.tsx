@@ -104,7 +104,7 @@ const GetCashIcon = () => (
   />
 );
 const HomeLoansIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-12 w-12">
     <path d="M22 11V17C22 20 20 22 17 22H7C4 22 2 20 2 17V11C2 10.4 2.4 10 3 10H21C21.6 10 22 10.4 22 11Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M20 10V6C20 3.79 18.21 2 16 2H8C5.79 2 4 3.79 4 6V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M15 15.5H9C8.45 15.5 8 15.05 8 14.5V13.5C8 12.95 8.45 12.5 9 12.5H15C15.55 12.5 16 12.95 16 13.5V14.5C16 15.05 15.55 15.5 15 15.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -115,7 +115,7 @@ const HomeLoansIcon = () => (
   </svg>
 );
 const StatementsIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-12 w-12">
     <path d="M22 10V15C22 20 20 22 15 22H9C4 22 2 20 2 15V9C2 4 4 2 9 2H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M22 10H18C15 10 14 9 14 6V2L22 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M7 13H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
