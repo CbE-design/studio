@@ -217,7 +217,7 @@ export default async function DashboardPage() {
             </Carousel>
         </div>
         <div className="p-4">
-            <Announcements />
+            {/* <Announcements /> */}
             <Card className="my-6 shadow-md border rounded-lg overflow-hidden">
             <CardContent className="p-0">
                 <Image
