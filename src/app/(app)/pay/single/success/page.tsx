@@ -1,11 +1,13 @@
 
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Check, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import { createTransactionAction } from '@/app/lib/actions';
+import { useToast } from '@/hooks/use-toast';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null }) => (
     <div className="py-4 border-b last:border-b-0">
@@ -17,8 +19,11 @@ const DetailRow = ({ label, value }: { label: string; value: string | null }) =>
 function PaymentSuccessContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const { toast } = useToast();
+    const transactionRecorded = useRef(false);
 
     const paymentDetails = {
+        fromAccountId: searchParams.get('fromAccountId'),
         bankName: searchParams.get('bankName'),
         accountNumber: searchParams.get('accountNumber'),
         recipientName: searchParams.get('recipientName'),
@@ -26,6 +31,41 @@ function PaymentSuccessContent() {
         recipientReference: searchParams.get('recipientReference'),
         amount: searchParams.get('amount'),
     };
+
+    useEffect(() => {
+        if (transactionRecorded.current || !paymentDetails.fromAccountId) return;
+        
+        const recordTransaction = async () => {
+            const formData = new FormData();
+            Object.entries(paymentDetails).forEach(([key, value]) => {
+                if (value) {
+                    formData.append(key, value);
+                }
+            });
+
+            try {
+                const result = await createTransactionAction(formData);
+                if (result?.message !== 'Transaction created successfully.') {
+                   throw new Error(result.message || 'An unknown error occurred.');
+                }
+                toast({
+                    title: "Transaction Recorded",
+                    description: "The transaction has been saved to your account history.",
+                });
+
+            } catch (error) {
+                console.error("Failed to record transaction:", error);
+                toast({
+                    variant: 'destructive',
+                    title: "Recording Failed",
+                    description: "Could not save the transaction to your history.",
+                });
+            }
+        };
+
+        recordTransaction();
+        transactionRecorded.current = true;
+    }, [searchParams, paymentDetails, toast]);
     
     const handleShare = () => {
         const params = new URLSearchParams();

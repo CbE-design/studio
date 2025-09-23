@@ -31,6 +31,7 @@ function ReviewPaymentContent() {
     const searchParams = useSearchParams();
 
     const paymentDetails = {
+        fromAccountId: searchParams.get('fromAccountId'),
         bankName: searchParams.get('bankName'),
         accountNumber: searchParams.get('accountNumber'),
         recipientName: searchParams.get('recipientName'),

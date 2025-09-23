@@ -10,6 +10,17 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { db } from '@/app/lib/firebase';
+import { collection, getDocs, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
+import type { Account } from '@/app/lib/definitions';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 
 const BankIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -28,6 +39,10 @@ export default function SinglePaymentPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [fromAccount, setFromAccount] = useState<string>('');
+  const [amount, setAmount] = useState('1.00');
+
   const [bankName, setBankName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [recipientName, setRecipientName] = useState('');
@@ -36,6 +51,28 @@ export default function SinglePaymentPage() {
   const [saveRecipient, setSaveRecipient] = useState(false);
   const [paymentType, setPaymentType] = useState('Standard EFT');
   
+  useEffect(() => {
+    async function fetchAccounts() {
+        const querySnapshot = await getDocs(collection(db, "accounts"));
+        const fetchedAccounts = querySnapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            name: data.name,
+            type: data.type,
+            accountNumber: data.accountNumber,
+            balance: data.balance,
+            currency: data.currency,
+          };
+        });
+        setAccounts(fetchedAccounts);
+        if (fetchedAccounts.length > 0) {
+            setFromAccount(fetchedAccounts[0].id);
+        }
+    }
+    fetchAccounts();
+  }, []);
+
   useEffect(() => {
     const selectedBank = searchParams.get('bank');
     if (selectedBank) {
@@ -48,22 +85,24 @@ export default function SinglePaymentPage() {
   }, [searchParams]);
 
   const handleNext = () => {
+    const selectedAccount = accounts.find(acc => acc.id === fromAccount);
     const params = new URLSearchParams({
+        fromAccountId: fromAccount,
         bankName,
         accountNumber,
         recipientName,
         yourReference,
         recipientReference,
         paymentType,
-        amount: '1.00', // Hardcoded for now as per image
-        fromAccount: 'Platinum Cheque', // Hardcoded for now
+        amount,
+        fromAccount: selectedAccount?.name || 'Unknown Account',
     });
     router.push(`/pay/single/review?${params.toString()}`);
   }
 
   const isFormValid = useMemo(() => {
-    return bankName && accountNumber && recipientName;
-  }, [bankName, accountNumber, recipientName]);
+    return fromAccount && parseFloat(amount) > 0 && bankName && accountNumber && recipientName;
+  }, [fromAccount, amount, bankName, accountNumber, recipientName]);
 
 
   return (
@@ -76,6 +115,26 @@ export default function SinglePaymentPage() {
       </header>
       
       <main className="flex-1 overflow-y-auto p-4 space-y-6">
+        <div className="bg-white p-4 rounded-lg shadow-sm border space-y-4">
+             <div>
+                <Label htmlFor="from-account" className="text-xs text-gray-500 font-semibold">From account</Label>
+                <Select value={fromAccount} onValueChange={setFromAccount}>
+                    <SelectTrigger id="from-account" className="mt-1">
+                        <SelectValue placeholder="Select an account" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {accounts.map(account => (
+                            <SelectItem key={account.id} value={account.id}>{account.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+             <div>
+                <Label htmlFor="amount" className="text-xs text-gray-500 font-semibold">Amount</Label>
+                <Input id="amount" value={amount} onChange={e => setAmount(e.target.value)} type="number" placeholder="1.00" className="mt-1" />
+            </div>
+        </div>
+
         <div className="bg-white p-4 rounded-lg shadow-sm border space-y-4">
             <div>
                 <Label htmlFor="recipient-name" className="text-xs text-gray-500 font-semibold">A new recipient</Label>

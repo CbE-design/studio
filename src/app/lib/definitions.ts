@@ -9,6 +9,7 @@ export type Account = {
 
 export type Transaction = {
   id: string;
+  fromAccountId?: string;
   date: string;
   description: string;
   amount: number;

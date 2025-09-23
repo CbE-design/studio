@@ -2,6 +2,9 @@
 
 import { z } from 'zod';
 import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
+import { db } from './firebase';
+import { collection, addDoc, doc, updateDoc, increment, getDoc, runTransaction } from 'firebase/firestore';
+import { revalidatePath } from 'next/cache';
 
 const FormSchema = z.object({
   income: z.coerce.number().positive({ message: 'Please enter a valid income.' }),
@@ -51,4 +54,69 @@ export async function getFinancialTipsAction(prevState: State, formData: FormDat
         errors: {},
     }
   }
+}
+
+
+const TransactionSchema = z.object({
+    fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
+    amount: z.coerce.number().positive({ message: 'Amount must be positive.' }),
+    recipientName: z.string().optional(),
+    yourReference: z.string().optional(),
+    recipientReference: z.string().optional(),
+});
+
+
+export async function createTransactionAction(formData: FormData) {
+    const validatedFields = TransactionSchema.safeParse({
+        fromAccountId: formData.get('fromAccountId'),
+        amount: formData.get('amount'),
+        recipientName: formData.get('recipientName'),
+        yourReference: formData.get('yourReference'),
+        recipientReference: formData.get('recipientReference'),
+    });
+
+    if (!validatedFields.success) {
+        console.error('Validation failed:', validatedFields.error.flatten().fieldErrors);
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: 'Invalid fields. Failed to create transaction.',
+        };
+    }
+    
+    const { fromAccountId, amount, recipientName, yourReference, recipientReference } = validatedFields.data;
+    
+    const newTransaction = {
+        date: new Date().toISOString(),
+        description: `Payment to ${recipientName || 'recipient'}`,
+        amount: -Math.abs(amount), // Ensure it's a negative value for debit
+        type: 'debit' as const,
+        reference: yourReference || recipientReference || 'Single Payment',
+    };
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const fromAccountRef = doc(db, 'accounts', fromAccountId);
+            const accountDoc = await transaction.get(fromAccountRef);
+
+            if (!accountDoc.exists()) {
+                throw new Error("Account not found");
+            }
+
+            // Update account balance
+            transaction.update(fromAccountRef, {
+                balance: increment(newTransaction.amount),
+            });
+            
+            // Add new transaction
+            const transactionsRef = collection(db, 'accounts', fromAccountId, 'transactions');
+            transaction.set(doc(transactionsRef), newTransaction);
+        });
+
+        revalidatePath(`/account/${fromAccountId}`);
+        return { message: 'Transaction created successfully.' };
+
+    } catch (error) {
+        console.error('Transaction failed: ', error);
+        return { message: 'Failed to create transaction.' };
+    }
 }
