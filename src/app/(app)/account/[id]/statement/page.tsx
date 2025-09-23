@@ -103,9 +103,8 @@ export default function StatementPage() {
         setGeneratingPdf(true);
 
         try {
-            const pdfUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/templates%2FFebruary2023.pdf?alt=media&token=06231415-0e28-473f-96e0-c18630fc3744';
-            
-            const existingPdfBytes = await fetch(pdfUrl).then(res => {
+            // Fetch the PDF template via our new API route proxy
+            const existingPdfBytes = await fetch('/api/pdf-template').then(res => {
                 if (!res.ok) {
                     throw new Error(`Failed to fetch PDF: ${res.status} ${res.statusText}`);
                 }
@@ -191,7 +190,7 @@ export default function StatementPage() {
 
         } catch (error: any) {
             console.error("Failed to generate PDF:", error);
-            setError("Could not generate the PDF. Please ensure the template URL is correct and your Firebase Storage rules allow public access.");
+            setError("Could not generate the PDF. Please try again.");
             toast({
               variant: 'destructive',
               title: 'PDF Generation Failed',
@@ -238,5 +237,3 @@ export default function StatementPage() {
         </div>
     );
 }
-
-    
