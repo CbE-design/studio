@@ -45,23 +45,16 @@ function PaymentSuccessContent() {
                 return;
             }
             
-            const formData = new FormData();
-            formData.append('fromAccountId', paymentDetails.fromAccountId);
-            formData.append('amount', paymentDetails.amount);
-
-            // Only append optional fields if they exist and are not null
-            if (paymentDetails.recipientName) {
-                formData.append('recipientName', paymentDetails.recipientName);
-            }
-            if (paymentDetails.yourReference) {
-                formData.append('yourReference', paymentDetails.yourReference);
-            }
-            if (paymentDetails.recipientReference) {
-                formData.append('recipientReference', paymentDetails.recipientReference);
-            }
+            const transactionData = {
+                fromAccountId: paymentDetails.fromAccountId,
+                amount: paymentDetails.amount,
+                recipientName: paymentDetails.recipientName || undefined,
+                yourReference: paymentDetails.yourReference || undefined,
+                recipientReference: paymentDetails.recipientReference || undefined,
+            };
 
             try {
-                const result = await createTransactionAction(formData);
+                const result = await createTransactionAction(transactionData);
                 if (result?.message !== 'Transaction created successfully.') {
                    throw new Error(result.message || 'An unknown error occurred.');
                 }

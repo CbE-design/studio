@@ -4,7 +4,7 @@
 import { z } from 'zod';
 import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
 import { db } from './firebase';
-import { collection, addDoc, doc, updateDoc, increment, getDoc, runTransaction } from 'firebase/firestore';
+import { collection, doc, runTransaction, increment } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
 
 const FormSchema = z.object({
@@ -66,15 +66,10 @@ const TransactionSchema = z.object({
     recipientReference: z.string().optional(),
 });
 
+type TransactionInput = z.infer<typeof TransactionSchema>;
 
-export async function createTransactionAction(formData: FormData) {
-    const validatedFields = TransactionSchema.safeParse({
-        fromAccountId: formData.get('fromAccountId'),
-        amount: formData.get('amount'),
-        recipientName: formData.get('recipientName'),
-        yourReference: formData.get('yourReference'),
-        recipientReference: formData.get('recipientReference'),
-    });
+export async function createTransactionAction(data: TransactionInput) {
+    const validatedFields = TransactionSchema.safeParse(data);
 
     if (!validatedFields.success) {
         console.error('Validation failed:', validatedFields.error.flatten().fieldErrors);
@@ -94,7 +89,7 @@ export async function createTransactionAction(formData: FormData) {
     const newTransaction = {
         date: new Date().toISOString(),
         description: `Payment to ${recipientName || 'recipient'}`,
-        amount: -Math.abs(numericAmount), // Ensure it's a negative value for debit
+        amount: -Math.abs(numericAmount),
         type: 'debit' as const,
         reference: yourReference || recipientReference || 'Single Payment',
     };
@@ -108,12 +103,10 @@ export async function createTransactionAction(formData: FormData) {
                 throw new Error("Account not found");
             }
 
-            // Update account balance
             transaction.update(fromAccountRef, {
                 balance: increment(newTransaction.amount),
             });
             
-            // Add new transaction
             const transactionsRef = collection(db, 'accounts', fromAccountId, 'transactions');
             transaction.set(doc(transactionsRef), newTransaction);
         });
