@@ -95,13 +95,13 @@ const QuickPayIcon = () => (
   />
 );
 const GetCashIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
-    <path d="M6 10V18C6 20.21 7.79 22 10 22H14C16.21 22 18 20.21 18 18V10C18 7.79 16.21 6 14 6H10C7.79 6 6 7.79 6 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M10 10.5V12.5C10 13.6 10.9 14.5 12 14.5C13.1 14.5 14 13.6 14 12.5V10.5C14 9.4 13.1 8.5 12 8.5C10.9 8.5 10 9.4 10 10.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M2 12H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M18 12H22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M10.75 2H13.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <Image
+    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758636434590.jpg?alt=media&token=9a2b5c0a-b399-4780-981a-3bd21e8d55e9"
+    alt="Get cash icon"
+    width={48}
+    height={48}
+    className="h-12 w-12"
+  />
 );
 const HomeLoansIcon = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
