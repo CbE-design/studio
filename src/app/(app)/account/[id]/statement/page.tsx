@@ -9,8 +9,9 @@ import { collection, doc, getDoc, getDocs, Timestamp } from 'firebase/firestore'
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, LoaderCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { format, toDate } from 'date-fns';
+import { format } from 'date-fns';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { useToast } from '@/hooks/use-toast';
 
 const StatementLoadingSkeleton = () => (
   <div className="p-4">
@@ -19,10 +20,7 @@ const StatementLoadingSkeleton = () => (
   </div>
 );
 
-const StatementComponent = ({ account, transactions }: { account: Account, transactions: Transaction[] }) => {
-    // This component is now just a placeholder for the PDF generation, 
-    // as the visual display is handled by the PDF itself.
-    // We can show a simple preview or message.
+const StatementComponent = ({ account }: { account: Account }) => {
     return (
         <div className="bg-white p-8 rounded-lg shadow-md text-center">
             <h2 className="text-xl font-bold mb-4">Statement Ready for Download</h2>
@@ -47,6 +45,7 @@ export default function StatementPage() {
     const [loading, setLoading] = useState(true);
     const [generatingPdf, setGeneratingPdf] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { toast } = useToast();
 
     useEffect(() => {
         if (!accountId) return;
@@ -82,7 +81,7 @@ export default function StatementPage() {
                   reference: txData.reference,
                 };
               });
-              setTransactions(transactionsData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+              setTransactions(transactionsData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     
             } else {
               setError('Account not found');
@@ -99,13 +98,20 @@ export default function StatementPage() {
     }, [accountId]);
 
     const handleDownloadPdf = async () => {
-        if (!account || transactions.length === 0) return;
+        if (!account) return;
 
         setGeneratingPdf(true);
 
         try {
             const pdfUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/templates%2FFebruary2023.pdf?alt=media&token=06231415-0e28-473f-96e0-c18630fc3744';
-            const existingPdfBytes = await fetch(pdfUrl, { mode: 'cors' }).then(res => res.arrayBuffer());
+            
+            const existingPdfBytes = await fetch(pdfUrl).then(res => {
+                if (!res.ok) {
+                    throw new Error(`Failed to fetch PDF: ${res.status} ${res.statusText}`);
+                }
+                return res.arrayBuffer();
+            });
+
             const pdfDoc = await PDFDocument.load(existingPdfBytes);
             const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
             const firstPage = pdfDoc.getPages()[0];
@@ -124,36 +130,52 @@ export default function StatementPage() {
                 size: 12,
                 color: rgb(0, 0, 0),
             });
-            firstPage.drawText(`Current Balance: ${formatCurrency(account.balance)}`, {
+            firstPage.drawText(`Statement Date: ${format(new Date(), 'yyyy-MM-dd')}`, {
                 x: 50,
                 y: height - 70,
                 font: helveticaFont,
                 size: 12,
                 color: rgb(0, 0, 0),
             });
+            firstPage.drawText(`Current Balance: ${formatCurrency(account.balance)}`, {
+                x: 50,
+                y: height - 90,
+                font: helveticaFont,
+                size: 12,
+                color: rgb(0.1, 0.5, 0.1), // Green for balance
+            });
             
-            // Add Transactions
+            // Add Transactions Header
             firstPage.drawText('Transactions', {
                 x: 50,
-                y: height - 100,
+                y: height - 120,
                 font: helveticaFont,
                 size: 14,
                 color: rgb(0, 0, 0),
             });
 
-            let yPosition = height - 120;
+            let yPosition = height - 140;
+            const y_margin = 40;
             transactions.forEach(tx => {
-                if (yPosition < 50) return; // Stop if we run out of space
-                const date = format(toDate(tx.date), 'yyyy-MM-dd');
-                const description = tx.description;
-                const amount = tx.type === 'debit' ? `-${formatCurrency(tx.amount)}` : formatCurrency(tx.amount);
+                if (yPosition < y_margin) return; // Stop if we run out of space
+                const date = format(new Date(tx.date), 'yyyy-MM-dd');
+                const description = tx.description.substring(0, 40); // Truncate description
+                const amount = tx.type === 'debit' ? `-${formatCurrency(tx.amount)}` : `+${formatCurrency(tx.amount)}`;
+                const textColor = tx.type === 'debit' ? rgb(0.8, 0, 0) : rgb(0, 0.5, 0);
                 
-                firstPage.drawText(`${date} - ${description} - ${amount}`, {
+                firstPage.drawText(`${date} - ${description}`, {
                     x: 60,
                     y: yPosition,
                     font: helveticaFont,
                     size: 10,
                     color: rgb(0.2, 0.2, 0.2),
+                });
+                 firstPage.drawText(amount, {
+                    x: width - 150,
+                    y: yPosition,
+                    font: helveticaFont,
+                    size: 10,
+                    color: textColor,
                 });
                 yPosition -= 15;
             });
@@ -162,14 +184,19 @@ export default function StatementPage() {
             const blob = new Blob([pdfBytes], { type: 'application/pdf' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `statement-${account.id}.pdf`;
+            link.download = `statement-${account.id}-${new Date().toISOString().split('T')[0]}.pdf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to generate PDF:", error);
-            setError("Could not download or generate the PDF. Please check the template URL and Firebase Storage rules.");
+            setError("Could not generate the PDF. Please ensure the template URL is correct and your Firebase Storage rules allow public access.");
+            toast({
+              variant: 'destructive',
+              title: 'PDF Generation Failed',
+              description: error.message || 'An unknown error occurred.',
+            });
         } finally {
             setGeneratingPdf(false);
         }
@@ -201,13 +228,15 @@ export default function StatementPage() {
 
             <main className="flex-1 overflow-y-auto p-4">
                 {loading && <StatementLoadingSkeleton />}
-                {error && <p className="p-4 text-red-500">{error}</p>}
+                {error && <p className="p-4 text-red-500 bg-red-50 rounded-md">{error}</p>}
                 {!loading && !error && account && (
                     <div className="max-w-4xl mx-auto my-4">
-                        <StatementComponent account={account} transactions={transactions} />
+                        <StatementComponent account={account} />
                     </div>
                 )}
             </main>
         </div>
     );
 }
+
+    
