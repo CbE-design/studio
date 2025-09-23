@@ -1,3 +1,4 @@
+
 import type { Account, Transaction, Beneficiary, AtmLocation, Bank } from './definitions';
 
 // Note: This data is now primarily for seeding/reference.
@@ -111,20 +112,26 @@ export const banks: Bank[] = [
 ];
 
 export function formatCurrency(amount: number, currency: string = 'ZAR') {
+  const isNegative = amount < 0;
+  const absAmount = Math.abs(amount);
+
   const formatter = new Intl.NumberFormat('en-ZA', {
-    style: 'currency',
-    currency: currency,
-    currencyDisplay: 'symbol',
-    // By setting useGrouping to false, we can manually control separators.
-    useGrouping: false, 
+    style: 'decimal', // Use decimal style to avoid currency symbol for now
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   });
 
-  // Format without thousands separators, e.g., "R2000000.00"
-  const formatted = formatter.format(amount); 
-  
-  // Manually insert spaces for thousands.
-  // This regex finds the position to insert a space.
-  const parts = formatted.replace(/([0-9,])(?=([0-9]{3})+(?![0-9]))/g, "$1 ");
+  const formattedNumber = formatter.format(absAmount).replace(/,/g, ' '); // Replace comma with space
 
-  return parts;
+  // Determine the currency symbol
+  let symbol = 'R';
+  if (currency === 'USD') {
+    symbol = '$';
+  }
+  
+  if (isNegative) {
+    return `${symbol}-${formattedNumber}`;
+  }
+  
+  return `${symbol}${formattedNumber}`;
 }
