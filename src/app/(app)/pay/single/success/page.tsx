@@ -33,15 +33,15 @@ function PaymentSuccessContent() {
     };
 
     useEffect(() => {
-        if (transactionRecorded.current || !paymentDetails.fromAccountId) return;
+        if (transactionRecorded.current || !paymentDetails.fromAccountId || !paymentDetails.amount) return;
         
         const recordTransaction = async () => {
             const formData = new FormData();
-            Object.entries(paymentDetails).forEach(([key, value]) => {
-                if (value) {
-                    formData.append(key, value);
-                }
-            });
+            formData.append('fromAccountId', paymentDetails.fromAccountId!);
+            formData.append('amount', paymentDetails.amount!);
+            if (paymentDetails.recipientName) formData.append('recipientName', paymentDetails.recipientName);
+            if (paymentDetails.yourReference) formData.append('yourReference', paymentDetails.yourReference);
+            if (paymentDetails.recipientReference) formData.append('recipientReference', paymentDetails.recipientReference);
 
             try {
                 const result = await createTransactionAction(formData);
