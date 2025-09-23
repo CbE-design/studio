@@ -236,7 +236,7 @@ export default async function DashboardPage() {
             {widgets.map((widget, index) => (
               <Link href={widget.href} key={index}>
                 <div className="flex flex-col items-center gap-1 relative cursor-pointer">
-                <div className={cn("p-3 rounded-lg shadow-sm border", index % 2 === 0 ? 'bg-primary/10' : 'bg-white')}>
+                <div className="p-3 rounded-lg shadow-sm border bg-white">
                     <widget.icon className="h-8 w-8 text-primary" />
                 </div>
                 <p className="text-xs text-gray-600">{widget.label}</p>
