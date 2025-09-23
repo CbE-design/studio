@@ -26,9 +26,9 @@ const OffersIcon = () => (
     <Image 
         src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2FScreenshot_2025-09-23-09-23-02-88_ccee45d3a323cb0330d71aa2e13568e6~2.jpg?alt=media&token=a5760886-d835-481a-a064-d0eb85d28769"
         alt="Offers for you icon"
-        width={32}
-        height={32}
-        className="h-8 w-8"
+        width={40}
+        height={40}
+        className="h-10 w-10"
     />
 );
 const ApplicationsIcon = () => (
