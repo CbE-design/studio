@@ -23,13 +23,13 @@ import { formatCurrency } from '@/app/lib/data';
 
 // Custom SVG Icons
 const OffersIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
-    <path d="M16.88 7.12C16.88 5.74 15.76 4.62 14.38 4.62H9.62C8.24 4.62 7.12 5.74 7.12 7.12" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M12 14.38V12" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M14.38 4.62C13.5 4.62 12.75 4.12 12.37 3.5C11.88 2.62 11 2.25 10.12 2.25H8.38" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M21 14.5V12.1C21 10.2 20.37 8.44 19.23 7.12C18.66 6.44 17.84 5.96 16.88 5.74V7.12C16.88 7.82 16.59 8.48 16.1 8.97C15.61 9.46 14.95 9.75 14.25 9.75H9.75C9.05 9.75 8.39 9.46 7.9 8.97C7.41 8.48 7.12 7.82 7.12 7.12V5.74C6.16 5.96 5.34 6.44 4.77 7.12C3.63 8.44 3 10.2 3 12.1V14.5C3 15.63 3.32 16.71 3.91 17.61L4.12 18H19.88L20.09 17.61C20.68 16.71 21 15.63 21 14.5Z" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M19.88 18H4.12C3.5 18 3 18.5 3 19.12V19.88C3 20.5 3.5 21 4.12 21H19.88C20.5 21 21 20.5 21 19.88V19.12C21 18.5 20.5 18 19.88 18Z" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+    <Image 
+        src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2FScreenshot_2025-09-23-09-23-02-88_ccee45d3a323cb0330d71aa2e13568e6~2.jpg?alt=media&token=a5760886-d835-481a-a064-d0eb85d28769"
+        alt="Offers for you icon"
+        width={32}
+        height={32}
+        className="h-8 w-8"
+    />
 );
 const ApplicationsIcon = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
