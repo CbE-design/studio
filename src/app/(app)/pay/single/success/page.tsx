@@ -33,12 +33,21 @@ function PaymentSuccessContent() {
     };
 
     useEffect(() => {
-        if (transactionRecorded.current || !paymentDetails.fromAccountId || !paymentDetails.amount) return;
+        if (transactionRecorded.current) return;
         
         const recordTransaction = async () => {
+            if (!paymentDetails.fromAccountId || !paymentDetails.amount) {
+                 toast({
+                    variant: 'destructive',
+                    title: "Recording Failed",
+                    description: "Missing required details to save the transaction.",
+                });
+                return;
+            }
+            
             const formData = new FormData();
-            formData.append('fromAccountId', paymentDetails.fromAccountId!);
-            formData.append('amount', paymentDetails.amount!);
+            formData.append('fromAccountId', paymentDetails.fromAccountId);
+            formData.append('amount', paymentDetails.amount);
             if (paymentDetails.recipientName) formData.append('recipientName', paymentDetails.recipientName);
             if (paymentDetails.yourReference) formData.append('yourReference', paymentDetails.yourReference);
             if (paymentDetails.recipientReference) formData.append('recipientReference', paymentDetails.recipientReference);
@@ -58,7 +67,7 @@ function PaymentSuccessContent() {
                 toast({
                     variant: 'destructive',
                     title: "Recording Failed",
-                    description: "Could not save the transaction to your history.",
+                    description: error instanceof Error ? error.message : "Could not save the transaction to your history.",
                 });
             }
         };

@@ -60,7 +60,7 @@ export async function getFinancialTipsAction(prevState: State, formData: FormDat
 
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
-    amount: z.coerce.number().positive({ message: 'Amount must be positive.' }),
+    amount: z.string().min(1, { message: 'Amount is required.' }),
     recipientName: z.string().optional(),
     yourReference: z.string().optional(),
     recipientReference: z.string().optional(),
@@ -86,10 +86,15 @@ export async function createTransactionAction(formData: FormData) {
     
     const { fromAccountId, amount, recipientName, yourReference, recipientReference } = validatedFields.data;
     
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+        return { message: 'Invalid amount.' };
+    }
+
     const newTransaction = {
         date: new Date().toISOString(),
         description: `Payment to ${recipientName || 'recipient'}`,
-        amount: -Math.abs(amount), // Ensure it's a negative value for debit
+        amount: -Math.abs(numericAmount), // Ensure it's a negative value for debit
         type: 'debit' as const,
         reference: yourReference || recipientReference || 'Single Payment',
     };
