@@ -59,13 +59,13 @@ const NedbankConnectIcon = () => (
   />
 );
 const DiscsAndFinesIcon = () => (
-  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
-    <path d="M15 5H9C6.5 5 6 6.5 6 9V12C6 14.5 6.5 16 9 16H15C17.5 16 18 14.5 18 12V9C18 6.5 17.5 5 15 5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M6 10.5H3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M18 10.5H21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M8.5 19.5C9.32843 19.5 10 18.8284 10 18C10 17.1716 9.32843 16.5 8.5 16.5C7.67157 16.5 7 17.1716 7 18C7 18.8284 7.67157 19.5 8.5 19.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M15.5 19.5C16.3284 19.5 17 18.8284 17 18C17 17.1716 16.3284 16.5 15.5 16.5C14.6716 16.5 14 17.1716 14 18C14 18.8284 14.6716 19.5 15.5 19.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <Image
+    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2FScreenshot_2025-09-23-09-23-02-88_ccee45d3a323cb0330d71aa2e13568e6~7.jpg?alt=media&token=e3f4b17f-c75c-4cf7-b95b-37e3783bfb11"
+    alt="Discs and fines icon"
+    width={48}
+    height={48}
+    className="h-12 w-12"
+  />
 );
 const ShopIcon = () => (
   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
