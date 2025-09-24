@@ -103,80 +103,76 @@ export default function StatementPage() {
         setGeneratingPdf(true);
 
         try {
-            const existingPdfBytes = await fetch('/api/pdf-template').then(res => {
-                if (!res.ok) {
-                    throw new Error(`Failed to fetch PDF template: ${res.status} ${res.statusText}`);
-                }
-                return res.arrayBuffer();
-            });
-
-            const pdfDoc = await PDFDocument.load(existingPdfBytes);
-            const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
-            const firstPage = pdfDoc.getPages()[0];
-            const { width, height } = firstPage.getSize();
+            const pdfDoc = await PDFDocument.create();
+            const page = pdfDoc.addPage();
+            const { width, height } = page.getSize();
+            const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+            const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+            const margin = 50;
 
             const formatCurrency = (amount: number, currency: string) => new Intl.NumberFormat('en-ZA', {
                 style: 'currency',
                 currency: currency,
             }).format(amount);
 
-            // Add Account Details
-            firstPage.drawText(`Account: ${account.name} (${account.accountNumber})`, {
-                x: 50,
-                y: height - 50,
-                font: helveticaFont,
-                size: 12,
-                color: rgb(0, 0, 0),
+            let y = height - margin;
+
+            // Header
+            page.drawText('Bank Statement', {
+                x: margin,
+                y: y,
+                font: boldFont,
+                size: 24,
+                color: rgb(0.10, 0.28, 0.54), // primary color
             });
-            firstPage.drawText(`Statement Date: ${format(new Date(), 'yyyy-MM-dd')}`, {
-                x: 50,
-                y: height - 70,
-                font: helveticaFont,
-                size: 12,
-                color: rgb(0, 0, 0),
-            });
-            firstPage.drawText(`Current Balance: ${formatCurrency(account.balance, account.currency)}`, {
-                x: 50,
-                y: height - 90,
-                font: helveticaFont,
-                size: 12,
-                color: rgb(0.1, 0.5, 0.1),
+            y -= 40;
+
+            // Account Details
+            page.drawText('Account Details', { x: margin, y, font: boldFont, size: 14 });
+            y -= 20;
+            page.drawText(`Account Holder: SPOT BUY AND SELL`, { x: margin, y, font, size: 10 });
+            y -= 15;
+            page.drawText(`Account: ${account.name} (${account.accountNumber})`, { x: margin, y, font, size: 10 });
+            y -= 15;
+            page.drawText(`Statement Date: ${format(new Date(), 'dd MMMM yyyy')}`, { x: margin, y, font, size: 10 });
+            y -= 15;
+            page.drawText(`Current Balance: ${formatCurrency(account.balance, account.currency)}`, { x: margin, y, font: boldFont, size: 12, color: rgb(0.15, 0.65, 0.38) });
+            y -= 40;
+
+            // Transactions Header
+            page.drawText('Transactions', { x: margin, y, font: boldFont, size: 14 });
+            y -= 20;
+
+            const tableTop = y;
+            const rowHeight = 20;
+            const tableBottomMargin = margin + 20;
+            
+            // Draw Table Header
+            page.drawText('Date', { x: margin, y, font: boldFont, size: 10 });
+            page.drawText('Description', { x: margin + 80, y, font: boldFont, size: 10 });
+            page.drawText('Amount', { x: width - margin - 100, y, font: boldFont, size: 10 });
+            y -= rowHeight;
+            page.drawLine({
+                start: { x: margin, y: y + 10 },
+                end: { x: width - margin, y: y + 10 },
+                thickness: 1,
+                color: rgb(0.8, 0.8, 0.8),
             });
             
-            // Add Transactions Header
-            firstPage.drawText('Transactions', {
-                x: 50,
-                y: height - 120,
-                font: helveticaFont,
-                size: 14,
-                color: rgb(0, 0, 0),
-            });
-
-            let yPosition = height - 140;
-            const y_margin = 40;
+            // Draw Transactions
             transactions.forEach(tx => {
-                if (yPosition < y_margin) return; 
-                const date = format(new Date(tx.date), 'yyyy-MM-dd');
-                const description = tx.description.substring(0, 40); 
-                const amountText = formatCurrency(tx.amount, account.currency);
-                const transactionText = tx.type === 'debit' ? `-${amountText}` : `+${amountText}`;
-                const textColor = tx.type === 'debit' ? rgb(0.8, 0, 0) : rgb(0, 0.5, 0);
+                if (y < tableBottomMargin) return;
                 
-                firstPage.drawText(`${date} - ${description}`, {
-                    x: 60,
-                    y: yPosition,
-                    font: helveticaFont,
-                    size: 10,
-                    color: rgb(0.2, 0.2, 0.2),
-                });
-                 firstPage.drawText(transactionText, {
-                    x: width - 150,
-                    y: yPosition,
-                    font: helveticaFont,
-                    size: 10,
-                    color: textColor,
-                });
-                yPosition -= 15;
+                const date = format(new Date(tx.date), 'dd MMM yyyy');
+                const description = tx.description.substring(0, 50); 
+                const amountText = formatCurrency(tx.amount, account.currency);
+                const textColor = tx.type === 'debit' ? rgb(0.8, 0.1, 0.1) : rgb(0.1, 0.5, 0.1);
+                
+                page.drawText(date, { x: margin, y, font, size: 9 });
+                page.drawText(description, { x: margin + 80, y, font, size: 9 });
+                page.drawText(amountText, { x: width - margin - 100, y, font, size: 9, color: textColor });
+                
+                y -= rowHeight;
             });
             
             const pdfBytes = await pdfDoc.save();
