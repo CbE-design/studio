@@ -26,86 +26,86 @@ const OffersIcon = () => (
   <Image
     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758622591390.jpg?alt=media&token=2f681462-7001-4654-9754-436e2c8f0ffe"
     alt="Offers for you icon"
-    width={48}
-    height={48}
-    className="h-12 w-12"
+    width={56}
+    height={56}
+    className="h-14 w-14"
   />
 );
 const ApplicationsIcon = () => (
   <Image
     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758629149375.jpg?alt=media&token=485765e5-456f-412c-8da5-751ff5991dd5"
     alt="Applications icon"
-    width={48}
-    height={48}
-    className="h-12 w-12"
+    width={56}
+    height={56}
+    className="h-14 w-14"
   />
 );
 const InsureIcon = () => (
   <Image
     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758630016360.jpg?alt=media&token=a946409a-39bd-47d1-ac07-9a00dca954cb"
     alt="Insure icon"
-    width={48}
-    height={48}
-    className="h-12 w-12"
+    width={56}
+    height={56}
+    className="h-14 w-14"
   />
 );
 const NedbankConnectIcon = () => (
   <Image
     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758631700022.jpg?alt=media&token=148194a4-0b1a-4ea4-929e-956599069261"
     alt="Nedbank Connect icon"
-    width={48}
-    height={48}
-    className="h-12 w-12"
+    width={56}
+    height={56}
+    className="h-14 w-14"
   />
 );
 const DiscsAndFinesIcon = () => (
   <Image
     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2FScreenshot_2025-09-23-09-23-02-88_ccee45d3a323cb0330d71aa2e13568e6~7.jpg?alt=media&token=e3f4b17f-c75c-4cf7-b95b-37e3783bfb11"
     alt="Discs and fines icon"
-    width={48}
-    height={48}
-    className="h-12 w-12"
+    width={56}
+    height={56}
+    className="h-14 w-14"
   />
 );
 const ShopIcon = () => (
   <Image
     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758633570031.jpg?alt=media&token=b776f61f-926e-48ab-9f7c-9b18821c8b02"
     alt="Shop icon"
-    width={48}
-    height={48}
-    className="h-12 w-12"
+    width={56}
+    height={56}
+    className="h-14 w-14"
   />
 );
 const PayShapIcon = () => (
   <Image
     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758635261879.jpg?alt=media&token=c6e6272c-58fc-4a13-bc26-12f5c77ceb7e"
     alt="PayShap icon"
-    width={48}
-    height={48}
-    className="h-12 w-12"
+    width={56}
+    height={56}
+    className="h-14 w-14"
   />
 );
 const QuickPayIcon = () => (
   <Image
     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758635889725.jpg?alt=media&token=7ac2249c-b95f-43b6-83e6-80a4fd291ab2"
     alt="Quick Pay icon"
-    width={48}
-    height={48}
-    className="h-12 w-12"
+    width={56}
+    height={56}
+    className="h-14 w-14"
   />
 );
 const GetCashIcon = () => (
   <Image
     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758636434590.jpg?alt=media&token=9a2b5c0a-b399-4780-981a-3bd21e8d55e9"
     alt="Get cash icon"
-    width={48}
-    height={48}
-    className="h-12 w-12"
+    width={56}
+    height={56}
+    className="h-14 w-14"
   />
 );
 const StatementsIcon = () => (
-  <div className="h-12 w-12 flex items-center justify-center">
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-8 w-8">
+  <div className="h-14 w-14 flex items-center justify-center">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-10 w-10">
       <path d="M22 10V15C22 20 20 22 15 22H9C4 22 2 20 2 15V9C2 4 4 2 9 2H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
       <path d="M22 10H18C15 10 14 9 14 6V2L22 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
       <path d="M7 13H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -316,18 +316,13 @@ export default async function DashboardPage() {
             {widgets.map((widget, index) => (
               <Link href={widget.href} key={index}>
                 <div className="flex flex-col items-center gap-1 relative cursor-pointer">
-                <div className="p-3 rounded-lg shadow-sm border bg-white">
+                <div className="p-2 rounded-lg shadow-sm border bg-white flex items-center justify-center">
                     <widget.icon />
                 </div>
                 <p className="text-xs text-gray-600">{widget.label}</p>
                 {widget.new && (
                     <div className="absolute top-0 right-0 -mt-1 -mr-1 px-1.5 py-0.5 text-xs font-semibold text-white bg-green-500 rounded-md">
                     New
-                    </div>
-                )}
-                {widget.count && (
-                    <div className="absolute top-0 right-0 -mt-2 -mr-2 flex items-center justify-center h-5 w-5 text-xs font-semibold text-white bg-primary rounded-full">
-                    {widget.count}
                     </div>
                 )}
                 </div>
