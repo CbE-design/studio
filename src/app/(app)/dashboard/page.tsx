@@ -285,7 +285,7 @@ export default async function DashboardPage() {
                 <CarouselContent>
                 {slides.map((slide, index) => (
                     <CarouselItem key={index}>
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-4">
                         <h1 className="text-xl font-bold">{slide.title}</h1>
                         <Eye className="h-6 w-6" />
                     </div>
