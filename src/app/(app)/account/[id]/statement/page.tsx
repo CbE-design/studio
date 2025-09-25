@@ -117,7 +117,7 @@ export default function StatementPage() {
             }).format(amount);
             
             // Draw text directly on the page, ensuring all values are strings
-            page.drawText('SPOT BUY AND SELL', { x: 72, y: height - 158, font, size: 10, color: textColor });
+            page.drawText('Corrie', { x: 72, y: height - 158, font, size: 10, color: textColor });
             page.drawText(account.name || '', { x: 72, y: height - 180, font, size: 10, color: textColor });
             page.drawText(account.accountNumber || '', { x: 72, y: height - 202, font, size: 10, color: textColor });
             page.drawText(format(new Date(), 'dd MMMM yyyy'), { x: 450, y: height - 158, font, size: 10, color: textColor });
