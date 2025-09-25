@@ -8,13 +8,13 @@ import { formatCurrency } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { format, toDate } from 'date-fns';
-import { useEffect, useState } from 'react';
-import { db } from '@/app/lib/firebase';
-import { doc, getDoc, collection, getDocs, Timestamp } from 'firebase/firestore';
+import { format } from 'date-fns';
+import { useMemo } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import { useDoc, useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { doc, collection, query } from 'firebase/firestore';
 
 const FilterIcon = () => (
   <svg
@@ -78,71 +78,40 @@ export default function AccountDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const accountId = params.id as string;
+  const firestore = useFirestore();
+  const { user, isUserLoading } = useUser();
 
-  const [account, setAccount] = useState<Account | null>(null);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const accountRef = useMemoFirebase(() => {
+    if (!firestore || !user?.uid || !accountId) return null;
+    return doc(firestore, 'users', user.uid, 'bankAccounts', accountId);
+  }, [firestore, user?.uid, accountId]);
 
-  useEffect(() => {
-    if (!accountId) return;
+  const { data: account, isLoading: isAccountLoading, error: accountError } = useDoc<Account>(accountRef);
 
-    const fetchAccountData = async () => {
-      try {
-        setLoading(true);
-        const accountRef = doc(db, 'accounts', accountId);
-        const accountSnap = await getDoc(accountRef);
+  const transactionsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid || !accountId) return null;
+    return query(collection(firestore, 'users', user.uid, 'bankAccounts', accountId, 'transactions'));
+  }, [firestore, user?.uid, accountId]);
 
-        if (accountSnap.exists()) {
-          const data = accountSnap.data();
-          setAccount({
-            id: accountSnap.id,
-            name: data.name,
-            type: data.type,
-            accountNumber: data.accountNumber,
-            balance: data.balance,
-            currency: data.currency,
-          });
+  const { data: transactions, isLoading: isTransactionsLoading, error: transactionsError } = useCollection<Transaction>(transactionsQuery);
 
-          const transactionsRef = collection(db, 'accounts', accountId, 'transactions');
-          const transactionsSnap = await getDocs(transactionsRef);
-          const transactionsData = transactionsSnap.docs.map(doc => {
-            const txData = doc.data();
-            // Handle Firestore Timestamp
-            const date = txData.date instanceof Timestamp ? txData.date.toDate().toISOString() : txData.date;
-            return {
-              id: doc.id,
-              date: date,
-              description: txData.description,
-              amount: txData.amount,
-              type: txData.type,
-              reference: txData.reference,
-            };
-          });
-          setTransactions(transactionsData);
+  const sortedTransactions = useMemo(() => {
+    if (!transactions) return [];
+    return [...transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [transactions]);
 
-        } else {
-          setError('Account not found');
-        }
-      } catch (err) {
-        console.error(err);
-        setError('Failed to fetch account details.');
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchAccountData();
-  }, [accountId]);
+  const isLoading = isUserLoading || isAccountLoading || isTransactionsLoading;
+  const error = accountError || transactionsError;
 
-  if (loading) {
+  if (isLoading) {
     return <LoadingSkeleton />;
   }
 
   if (error || !account) {
     return (
-      <div className="flex flex-col h-screen bg-gray-50 items-center justify-center">
-        <p className="text-xl text-gray-700">{error || 'Account not found'}</p>
+      <div className="flex flex-col h-screen bg-gray-50 items-center justify-center p-4 text-center">
+        <p className="text-xl text-destructive-foreground bg-destructive p-4 rounded-md">{error?.message || 'Account not found. It may not exist or you may not have permission to view it.'}</p>
         <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
       </div>
     );
@@ -229,12 +198,12 @@ export default function AccountDetailsPage() {
           <div className="p-4 bg-gray-100">
             <h2 className="font-bold text-gray-600 text-sm">THIS WEEK</h2>
           </div>
-          {transactions.length > 0 ? (
-            transactions.map(tx => (
+          {sortedTransactions.length > 0 ? (
+            sortedTransactions.map(tx => (
               <div key={tx.id} className="flex justify-between items-center p-4 border-b">
                 <div>
-                  <p className="text-sm">{format(new Date(tx.date), 'dd MMM yyyy')}</p>
-                  <p className="text-sm text-gray-500">{tx.reference}</p>
+                  <p className="text-sm font-semibold">{tx.description}</p>
+                  <p className="text-sm text-gray-500">{format(new Date(tx.date), 'dd MMM yyyy')}</p>
                 </div>
                 <p className={cn(
                   "font-semibold",

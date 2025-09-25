@@ -5,6 +5,7 @@ export type Account = {
   accountNumber: string;
   balance: number;
   currency: 'USD' | 'ZAR';
+  userId?: string;
 };
 
 export type Transaction = {

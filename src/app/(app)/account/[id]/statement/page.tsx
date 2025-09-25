@@ -2,16 +2,17 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
-import { db } from '@/app/lib/firebase';
-import { collection, doc, getDoc, getDocs, Timestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, LoaderCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { useToast } from '@/hooks/use-toast';
+import { useUser, useDoc, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc, collection, query } from 'firebase/firestore';
+
 
 const StatementLoadingSkeleton = () => (
   <div className="p-4">
@@ -40,62 +41,32 @@ export default function StatementPage() {
     const params = useParams();
     const accountId = params.id as string;
   
-    const [account, setAccount] = useState<Account | null>(null);
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [loading, setLoading] = useState(true);
     const [generatingPdf, setGeneratingPdf] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const { toast } = useToast();
+    const firestore = useFirestore();
+    const { user, isUserLoading } = useUser();
 
-    useEffect(() => {
-        if (!accountId) return;
+    const accountRef = useMemoFirebase(() => {
+        if (!firestore || !user?.uid || !accountId) return null;
+        return doc(firestore, 'users', user.uid, 'bankAccounts', accountId);
+    }, [firestore, user?.uid, accountId]);
+
+    const { data: account, isLoading: isAccountLoading, error: accountError } = useDoc<Account>(accountRef);
+
+    const transactionsQuery = useMemoFirebase(() => {
+        if (!firestore || !user?.uid || !accountId) return null;
+        return query(collection(firestore, 'users', user.uid, 'bankAccounts', accountId, 'transactions'));
+    }, [firestore, user?.uid, accountId]);
+
+    const { data: transactions, isLoading: isTransactionsLoading, error: transactionsError } = useCollection<Transaction>(transactionsQuery);
     
-        const fetchAccountData = async () => {
-          try {
-            setLoading(true);
-            const accountRef = doc(db, 'accounts', accountId);
-            const accountSnap = await getDoc(accountRef);
+    const sortedTransactions = useMemo(() => {
+        if (!transactions) return [];
+        return [...transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }, [transactions]);
     
-            if (accountSnap.exists()) {
-              const data = accountSnap.data();
-              setAccount({
-                id: accountSnap.id,
-                name: data.name,
-                type: data.type,
-                accountNumber: data.accountNumber,
-                balance: data.balance,
-                currency: data.currency,
-              });
-    
-              const transactionsRef = collection(db, 'accounts', accountId, 'transactions');
-              const transactionsSnap = await getDocs(transactionsRef);
-              const transactionsData = transactionsSnap.docs.map(doc => {
-                const txData = doc.data();
-                const date = txData.date instanceof Timestamp ? txData.date.toDate().toISOString() : txData.date;
-                return {
-                  id: doc.id,
-                  date: date,
-                  description: txData.description,
-                  amount: txData.amount,
-                  type: txData.type,
-                  reference: txData.reference,
-                };
-              });
-              setTransactions(transactionsData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-    
-            } else {
-              setError('Account not found');
-            }
-          } catch (err) {
-            console.error(err);
-            setError('Failed to fetch account details.');
-          } finally {
-            setLoading(false);
-          }
-        };
-    
-        fetchAccountData();
-    }, [accountId]);
+    const isLoading = isUserLoading || isAccountLoading || isTransactionsLoading;
+    const error = accountError || transactionsError;
 
     const handleDownloadPdf = async () => {
         if (!account) return;
@@ -117,7 +88,7 @@ export default function StatementPage() {
             }).format(amount);
             
             // Draw text directly on the page, ensuring all values are strings
-            page.drawText('Corrie', { x: 72, y: height - 158, font, size: 10, color: textColor });
+            page.drawText(user?.displayName || 'Valued Customer', { x: 72, y: height - 158, font, size: 10, color: textColor });
             page.drawText(account.name || '', { x: 72, y: height - 180, font, size: 10, color: textColor });
             page.drawText(account.accountNumber || '', { x: 72, y: height - 202, font, size: 10, color: textColor });
             page.drawText(format(new Date(), 'dd MMMM yyyy'), { x: 450, y: height - 158, font, size: 10, color: textColor });
@@ -126,7 +97,7 @@ export default function StatementPage() {
             const maxTransactions = 10;
             let yPosition = height - 280;
 
-            transactions.slice(0, maxTransactions).forEach((tx) => {
+            sortedTransactions.slice(0, maxTransactions).forEach((tx) => {
                 page.drawText(format(new Date(tx.date), 'dd MMM yyyy'), { x: 72, y: yPosition, font, size: 9, color: textColor });
                 page.drawText(tx.description || '', { x: 150, y: yPosition, font, size: 9, color: textColor });
                 page.drawText(tx.reference || '', { x: 300, y: yPosition, font, size: 9, color: textColor });
@@ -145,7 +116,6 @@ export default function StatementPage() {
 
         } catch (error: any) {
             console.error("Failed to generate PDF:", error);
-            setError(error.message || "Could not generate the PDF. Please try again.");
             toast({
               variant: 'destructive',
               title: 'PDF Generation Failed',
@@ -166,7 +136,7 @@ export default function StatementPage() {
                 </Button>
                 <h1 className="font-semibold">Bank Statement</h1>
               </div>
-              <Button onClick={handleDownloadPdf} variant="outline" size="sm" disabled={loading || generatingPdf || !account}>
+              <Button onClick={handleDownloadPdf} variant="outline" size="sm" disabled={isLoading || generatingPdf || !account}>
                 {generatingPdf ? (
                     <>
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -182,9 +152,9 @@ export default function StatementPage() {
             </header>
 
             <main className="flex-1 overflow-y-auto p-4">
-                {loading && <StatementLoadingSkeleton />}
-                {error && <p className="p-4 text-red-500 bg-red-50 rounded-md">{error}</p>}
-                {!loading && !error && account && (
+                {isLoading && <StatementLoadingSkeleton />}
+                {error && <p className="p-4 text-red-500 bg-red-50 rounded-md">{error.message}</p>}
+                {!isLoading && !error && account && (
                     <div className="max-w-4xl mx-auto my-4">
                         <StatementComponent account={account} />
                     </div>

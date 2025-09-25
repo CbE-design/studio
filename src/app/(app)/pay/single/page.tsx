@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, ChevronRight, Users, Landmark, Smartphone, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,8 +10,6 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { db } from '@/app/lib/firebase';
-import { collection, getDocs, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import type { Account } from '@/app/lib/definitions';
 import {
   Select,
@@ -20,6 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query } from 'firebase/firestore';
 
 
 const BankIcon = () => (
@@ -38,8 +38,9 @@ const BankIcon = () => (
 export default function SinglePaymentPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const firestore = useFirestore();
+  const { user } = useUser();
 
-  const [accounts, setAccounts] = useState<Account[]>([]);
   const [fromAccount, setFromAccount] = useState<string>('');
   const [amount, setAmount] = useState('1.00');
 
@@ -51,29 +52,23 @@ export default function SinglePaymentPage() {
   const [saveRecipient, setSaveRecipient] = useState(false);
   const [paymentType, setPaymentType] = useState('Standard EFT');
   
-  useEffect(() => {
-    async function fetchAccounts() {
-        const querySnapshot = await getDocs(collection(db, "accounts"));
-        const fetchedAccounts = querySnapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            name: data.name,
-            type: data.type,
-            accountNumber: data.accountNumber,
-            balance: data.balance,
-            currency: data.currency,
-          };
-        });
-        setAccounts(fetchedAccounts);
-        if (fetchedAccounts.length > 0) {
-            setFromAccount(fetchedAccounts[0].id);
-        }
-    }
-    fetchAccounts();
-  }, []);
+  const accountsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
+  }, [firestore, user?.uid]);
 
-  useEffect(() => {
+  const { data: accounts, isLoading: isLoadingAccounts } = useCollection<Account>(accountsQuery);
+
+
+  // Set default from account when accounts are loaded
+  useState(() => {
+    if (accounts && accounts.length > 0 && !fromAccount) {
+      setFromAccount(accounts[0].id);
+    }
+  });
+
+  // Update state from URL params
+  useState(() => {
     const selectedBank = searchParams.get('bank');
     if (selectedBank) {
       setBankName(decodeURIComponent(selectedBank));
@@ -82,12 +77,18 @@ export default function SinglePaymentPage() {
     if (selectedPaymentType) {
       setPaymentType(decodeURIComponent(selectedPaymentType));
     }
-  }, [searchParams]);
+  });
 
   const handleNext = () => {
-    const selectedAccount = accounts.find(acc => acc.id === fromAccount);
+    if (!user) {
+      // Handle case where user is not logged in
+      console.error("User not authenticated");
+      return;
+    }
+    const selectedAccount = accounts?.find(acc => acc.id === fromAccount);
     const params = new URLSearchParams({
         fromAccountId: fromAccount,
+        userId: user.uid, // Pass user ID
         bankName,
         accountNumber,
         recipientName,
@@ -118,12 +119,12 @@ export default function SinglePaymentPage() {
         <div className="bg-white p-4 rounded-lg shadow-sm border space-y-4">
              <div>
                 <Label htmlFor="from-account" className="text-xs text-gray-500 font-semibold">From account</Label>
-                <Select value={fromAccount} onValueChange={setFromAccount}>
+                <Select value={fromAccount} onValueChange={setFromAccount} disabled={isLoadingAccounts}>
                     <SelectTrigger id="from-account" className="mt-1">
-                        <SelectValue placeholder="Select an account" />
+                        <SelectValue placeholder={isLoadingAccounts ? "Loading accounts..." : "Select an account"} />
                     </SelectTrigger>
                     <SelectContent>
-                        {accounts.map(account => (
+                        {accounts?.map(account => (
                             <SelectItem key={account.id} value={account.id}>{account.name}</SelectItem>
                         ))}
                     </SelectContent>

@@ -7,6 +7,8 @@ import { db } from './firebase';
 import { collection, doc, runTransaction, increment } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
 
+// This action is not used in the current app state, but we'll keep it for potential future use.
+// To make it work, it would need access to the authenticated user's ID.
 const FormSchema = z.object({
   income: z.coerce.number().positive({ message: 'Please enter a valid income.' }),
   spendingHabits: z.string().min(10, { message: 'Please describe your spending habits in more detail (at least 10 characters).' }),
@@ -60,6 +62,7 @@ export async function getFinancialTipsAction(prevState: State, formData: FormDat
 
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
+    userId: z.string().min(1, { message: 'User ID is required.'}),
     amount: z.string().min(1, { message: 'Amount is required.' }),
     recipientName: z.string().optional(),
     yourReference: z.string().optional(),
@@ -79,7 +82,7 @@ export async function createTransactionAction(data: TransactionInput) {
         };
     }
     
-    const { fromAccountId, amount, recipientName, yourReference, recipientReference } = validatedFields.data;
+    const { fromAccountId, userId, amount, recipientName, yourReference, recipientReference } = validatedFields.data;
     
     const numericAmount = parseFloat(amount);
     if (isNaN(numericAmount) || numericAmount <= 0) {
@@ -92,22 +95,25 @@ export async function createTransactionAction(data: TransactionInput) {
         amount: -Math.abs(numericAmount),
         type: 'debit' as const,
         reference: yourReference || recipientReference || 'Single Payment',
+        bankAccountId: fromAccountId, // Link back to the bank account
     };
 
     try {
         await runTransaction(db, async (transaction) => {
-            const fromAccountRef = doc(db, 'accounts', fromAccountId);
+            const fromAccountRef = doc(db, 'users', userId, 'bankAccounts', fromAccountId);
             const accountDoc = await transaction.get(fromAccountRef);
 
             if (!accountDoc.exists()) {
                 throw new Error("Account not found");
             }
 
+            // Decrement the balance
             transaction.update(fromAccountRef, {
                 balance: increment(newTransaction.amount),
             });
             
-            const transactionsRef = collection(db, 'accounts', fromAccountId, 'transactions');
+            // Create the new transaction in the subcollection
+            const transactionsRef = collection(db, 'users', userId, 'bankAccounts', fromAccountId, 'transactions');
             transaction.set(doc(transactionsRef), newTransaction);
         });
 

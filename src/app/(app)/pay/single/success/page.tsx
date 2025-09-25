@@ -24,6 +24,7 @@ function PaymentSuccessContent() {
 
     const paymentDetails = {
         fromAccountId: searchParams.get('fromAccountId'),
+        userId: searchParams.get('userId'),
         bankName: searchParams.get('bankName'),
         accountNumber: searchParams.get('accountNumber'),
         recipientName: searchParams.get('recipientName'),
@@ -36,7 +37,7 @@ function PaymentSuccessContent() {
         if (transactionRecorded.current) return;
         
         const recordTransaction = async () => {
-            if (!paymentDetails.fromAccountId || !paymentDetails.amount) {
+            if (!paymentDetails.fromAccountId || !paymentDetails.amount || !paymentDetails.userId) {
                  toast({
                     variant: 'destructive',
                     title: "Recording Failed",
@@ -47,6 +48,7 @@ function PaymentSuccessContent() {
             
             const transactionData = {
                 fromAccountId: paymentDetails.fromAccountId,
+                userId: paymentDetails.userId,
                 amount: paymentDetails.amount,
                 recipientName: paymentDetails.recipientName || undefined,
                 yourReference: paymentDetails.yourReference || undefined,

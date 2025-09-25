@@ -1,12 +1,12 @@
 
 'use client';
 
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import type { Account } from '@/app/lib/definitions';
 import { formatCurrency } from '@/app/lib/data';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
-import { collection, query } from 'firebase/firestore';
+import { collection, query, where } from 'firebase/firestore';
 import { Skeleton } from './ui/skeleton';
 
 const AccountSkeleton = () => (
@@ -30,15 +30,19 @@ const AccountSkeleton = () => (
 
 export function Accounts() {
   const firestore = useFirestore();
+  const { user, isUserLoading } = useUser();
 
   const accountsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'accounts'));
-  }, [firestore]);
+    // Wait until the user is loaded and authenticated
+    if (!firestore || !user?.uid) return null;
+    // Query for accounts belonging to the current user
+    return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
+  }, [firestore, user?.uid]);
 
-  const { data: accounts, isLoading } = useCollection<Account>(accountsQuery);
+  const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
 
-  if (isLoading) {
+  // Show skeleton while user is logging in OR accounts are fetching
+  if (isUserLoading || isAccountsLoading) {
     return <AccountSkeleton />;
   }
 
@@ -59,11 +63,9 @@ export function Accounts() {
       ) : (
          <div className="text-center py-4">
             <p className="text-sm">No accounts found.</p>
-            <p className="text-xs text-white/80">Please add account data to your 'accounts' collection in Firestore.</p>
+            <p className="text-xs text-white/80">You can add account data under your user document in Firestore.</p>
           </div>
       )}
     </div>
   );
 }
-
-    
