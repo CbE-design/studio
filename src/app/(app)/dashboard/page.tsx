@@ -261,15 +261,15 @@ export default async function DashboardPage() {
       {/* Header */}
       <header className="bg-primary text-primary-foreground p-4 space-y-4 sticky top-0 z-10">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Image 
               src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
               alt="Nedbank Logo"
-              width={28}
-              height={28}
-              className="w-7 h-7"
+              width={24}
+              height={24}
+              className="w-6 h-6"
             />
-            <span className="font-bold text-lg">Corrie</span>
+            <span className="font-semibold text-base">Corrie</span>
           </div>
           <div className="flex items-center gap-4">
             <Bell className="h-5 w-5" />
