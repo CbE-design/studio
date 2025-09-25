@@ -116,10 +116,10 @@ export default function StatementPage() {
                 currency: account.currency,
             }).format(amount);
             
-            // Draw text directly on the page
+            // Draw text directly on the page, ensuring all values are strings
             page.drawText('SPOT BUY AND SELL', { x: 72, y: height - 158, font, size: 10, color: textColor });
-            page.drawText(account.name, { x: 72, y: height - 180, font, size: 10, color: textColor });
-            page.drawText(account.accountNumber, { x: 72, y: height - 202, font, size: 10, color: textColor });
+            page.drawText(account.name || '', { x: 72, y: height - 180, font, size: 10, color: textColor });
+            page.drawText(account.accountNumber || '', { x: 72, y: height - 202, font, size: 10, color: textColor });
             page.drawText(format(new Date(), 'dd MMMM yyyy'), { x: 450, y: height - 158, font, size: 10, color: textColor });
             page.drawText(formatCurrency(account.balance), { x: 450, y: height - 180, font, size: 10, color: textColor });
             
@@ -128,8 +128,8 @@ export default function StatementPage() {
 
             transactions.slice(0, maxTransactions).forEach((tx) => {
                 page.drawText(format(new Date(tx.date), 'dd MMM yyyy'), { x: 72, y: yPosition, font, size: 9, color: textColor });
-                page.drawText(tx.description, { x: 150, y: yPosition, font, size: 9, color: textColor });
-                page.drawText(tx.reference, { x: 300, y: yPosition, font, size: 9, color: textColor });
+                page.drawText(tx.description || '', { x: 150, y: yPosition, font, size: 9, color: textColor });
+                page.drawText(tx.reference || '', { x: 300, y: yPosition, font, size: 9, color: textColor });
                 page.drawText(formatCurrency(tx.amount), { x: 450, y: yPosition, font, size: 9, color: textColor });
                 yPosition -= 20;
             });
