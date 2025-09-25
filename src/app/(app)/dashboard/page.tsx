@@ -125,7 +125,7 @@ const widgets = [
   { icon: PayShapIcon, label: 'PayShap', href: '#' },
   { icon: QuickPayIcon, label: 'Quick Pay', href: '#' },
   { icon: GetCashIcon, label: 'Get cash', href: '#' },
-  { icon: StatementsIcon, label: 'Statements and docs', href: '/documents', isLarge: true },
+  { icon: StatementsIcon, label: 'Statements and docs', href: '/documents' },
 ];
 
 async function getAccounts(): Promise<Account[]> {
@@ -316,8 +316,7 @@ export default async function DashboardPage() {
               <Link href={widget.href} key={index}>
                 <div className="flex flex-col items-center gap-1 relative cursor-pointer">
                 <div className={cn(
-                  "rounded-lg shadow-sm border bg-white flex items-center justify-center",
-                  widget.isLarge ? "p-0" : "p-2"
+                  "rounded-lg shadow-sm border bg-white flex items-center justify-center p-2"
                 )}>
                     <widget.icon />
                 </div>
