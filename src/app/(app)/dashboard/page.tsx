@@ -160,7 +160,7 @@ export default async function DashboardPage() {
           {accounts.length > 0 ? (
             accounts.map((account) => (
               <Link href={`/account/${account.id}`} key={account.id}>
-                <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0 cursor-pointer">
+                <div className="flex flex-row justify-between items-center p-3 bg-white/10 border border-white/20 rounded-lg cursor-pointer hover:bg-white/20">
                   <div>
                     <p className="text-sm font-normal normal-case">{account.name}</p>
                     <p className="text-base font-normal">{formatCurrency(account.balance, account.currency)}</p>
