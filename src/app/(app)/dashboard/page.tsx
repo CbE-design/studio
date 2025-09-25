@@ -285,13 +285,12 @@ export default async function DashboardPage() {
             <AccountsCarousel slides={slides} />
         </div>
         <div className="p-4">
-            {/* <Announcements /> */}
             <Card className="my-6 shadow-md rounded-lg overflow-hidden">
             <CardContent className="p-0">
                 <Image
-                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20250923_163159.jpg?alt=media&token=b1caabb5-8e57-43f7-bfc5-0a8284c983c0"
-                alt="Pay your bills and earn rewards banner"
-                data-ai-hint="promotional banner"
+                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
+                alt="Advertisement banner"
+                data-ai-hint="advertisement banner"
                 width={600}
                 height={100}
                 className="w-full"
