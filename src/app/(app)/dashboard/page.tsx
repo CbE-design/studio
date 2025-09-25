@@ -161,8 +161,8 @@ export default async function DashboardPage() {
               <Link href={`/account/${account.id}`} key={account.id}>
                 <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0 cursor-pointer">
                   <div>
-                    <p className="text-sm">{account.name}</p>
-                    <p className="text-lg font-bold">{formatCurrency(account.balance, account.currency)}</p>
+                    <p className="text-sm font-normal normal-case">{account.name}</p>
+                    <p className="text-lg font-normal">{formatCurrency(account.balance, account.currency)}</p>
                   </div>
                   <ChevronRight className="h-6 w-6" />
                 </div>
