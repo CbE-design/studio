@@ -20,6 +20,7 @@ import { db } from '@/app/lib/firebase';
 import { collection, getDocs, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import type { Account } from '@/app/lib/definitions';
 import { formatCurrency } from '@/app/lib/data';
+import { AccountsCarousel } from '@/components/accounts-carousel';
 
 // Custom SVG Icons
 const OffersIcon = () => (
@@ -184,7 +185,7 @@ export default async function DashboardPage() {
           <div className="flex flex-row justify-between items-center py-2">
             <div>
               <p className="text-sm">Greenbacks Rewards</p>
-              <p className="text-lg font-bold">GB 0</p>
+              <p className="text-base font-normal">GB 0</p>
             </div>
             <ChevronRight className="h-6 w-6" />
           </div>
@@ -198,14 +199,14 @@ export default async function DashboardPage() {
           <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
             <div>
               <p className="text-xs">Incoming and outgoing payments</p>
-              <p className="text-lg font-bold">International payments</p>
+              <p className="text-base font-normal">International payments</p>
             </div>
             <Button variant="link" className="text-white font-bold">View</Button>
           </div>
           <div className="flex flex-row justify-between items-center py-2">
             <div>
               <p className="text-xs">Foreign Currency Accounts</p>
-              <p className="text-lg font-bold">Your currencies</p>
+              <p className="text-base font-normal">Your currencies</p>
             </div>
             <ChevronRight className="h-6 w-6" />
           </div>
@@ -219,13 +220,13 @@ export default async function DashboardPage() {
           <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
             <div>
               <p className="text-xs">Tax certificates</p>
-              <p className="text-lg font-bold">Tax certificates</p>
+              <p className="text-base font-normal">Tax certificates</p>
             </div>
             <ChevronRight className="h-6 w-6" />
           </div>
           <div className="flex flex-row justify-between items-center py-2">
             <div>
-              <p className="text-lg font-bold">Save & Invest</p>
+              <p className="text-base font-normal">Save & Invest</p>
             </div>
              <Button variant="link" className="font-bold text-yellow-400">Explore options</Button>
           </div>
@@ -239,14 +240,14 @@ export default async function DashboardPage() {
           <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
             <div>
               <p className="text-xs">Insurance</p>
-              <p className="text-lg font-bold">My policies and applications</p>
+              <p className="text-base font-normal">My policies and applications</p>
             </div>
             <ChevronRight className="h-6 w-6" />
           </div>
           <div className="flex flex-row justify-between items-center py-2">
             <div>
               <p className="text-xs">Insurance</p>
-              <p className="text-lg font-bold">New policy</p>
+              <p className="text-base font-normal">New policy</p>
             </div>
              <Button variant="link" className="font-bold text-yellow-400">Get cover</Button>
           </div>
@@ -281,19 +282,7 @@ export default async function DashboardPage() {
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto bg-gray-50">
         <div className="bg-primary text-primary-foreground p-4">
-            <Carousel>
-                <CarouselContent>
-                {slides.map((slide, index) => (
-                    <CarouselItem key={index}>
-                    <div className="flex items-center gap-2 mb-4">
-                        <h1 className="text-xl font-bold">{slide.title}</h1>
-                        <Eye className="h-6 w-6" />
-                    </div>
-                    {slide.content}
-                    </CarouselItem>
-                ))}
-                </CarouselContent>
-            </Carousel>
+            <AccountsCarousel slides={slides} />
         </div>
         <div className="p-4">
             {/* <Announcements /> */}
