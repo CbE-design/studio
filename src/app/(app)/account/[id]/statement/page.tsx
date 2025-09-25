@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, LoaderCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 import { useToast } from '@/hooks/use-toast';
 
 const StatementLoadingSkeleton = () => (
@@ -103,33 +103,30 @@ export default function StatementPage() {
         setGeneratingPdf(true);
 
         try {
-            // Fetch the PDF template from our API route
             const existingPdfBytes = await fetch('/api/pdf-template').then(res => res.arrayBuffer());
             const pdfDoc = await PDFDocument.load(existingPdfBytes);
 
             const form = pdfDoc.getForm();
             
-            // Fill form fields
-            form.getTextField('Account Holder').setText('SPOT BUY AND SELL');
-            form.getTextField('Account Name').setText(account.name);
-            form.getTextField('Account Number').setText(account.accountNumber);
-            form.getTextField('Statement Date').setText(format(new Date(), 'dd MMMM yyyy'));
+            form.getTextField('account_holder').setText('SPOT BUY AND SELL');
+            form.getTextField('account_name').setText(account.name);
+            form.getTextField('account_number').setText(account.accountNumber);
+            form.getTextField('statement_date').setText(format(new Date(), 'dd MMMM yyyy'));
             
             const formatCurrency = (amount: number) => new Intl.NumberFormat('en-ZA', {
                 style: 'currency',
                 currency: account.currency,
             }).format(amount);
 
-            form.getTextField('Current Balance').setText(formatCurrency(account.balance));
+            form.getTextField('current_balance').setText(formatCurrency(account.balance));
 
-            // Fill transactions
-            const maxTransactions = 10; // Adjust based on your template
+            const maxTransactions = 10;
             transactions.slice(0, maxTransactions).forEach((tx, index) => {
                 const i = index + 1;
-                form.getTextField(`Date ${i}`).setText(format(new Date(tx.date), 'dd MMM yyyy'));
-                form.getTextField(`Description ${i}`).setText(tx.description);
-                form.getTextField(`Reference ${i}`).setText(tx.reference);
-                const amountField = form.getTextField(`Amount ${i}`);
+                form.getTextField(`date_${i}`).setText(format(new Date(tx.date), 'dd MMM yyyy'));
+                form.getTextField(`description_${i}`).setText(tx.description);
+                form.getTextField(`reference_${i}`).setText(tx.reference);
+                const amountField = form.getTextField(`amount_${i}`);
                 amountField.setText(formatCurrency(tx.amount));
             });
 
