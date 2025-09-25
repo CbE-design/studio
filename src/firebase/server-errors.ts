@@ -1,4 +1,3 @@
-'use server';
 
 // NOTE: This is a simplified, server-only version of the client-side error.
 // It does not attempt to access client-side Firebase SDK features like getAuth().
