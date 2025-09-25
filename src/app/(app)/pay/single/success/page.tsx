@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Check, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { createTransactionAction } from '@/app/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null }) => (
@@ -24,7 +23,6 @@ function PaymentSuccessContent() {
 
     const paymentDetails = {
         fromAccountId: searchParams.get('fromAccountId'),
-        userId: searchParams.get('userId'),
         bankName: searchParams.get('bankName'),
         accountNumber: searchParams.get('accountNumber'),
         recipientName: searchParams.get('recipientName'),
@@ -36,8 +34,9 @@ function PaymentSuccessContent() {
     useEffect(() => {
         if (transactionRecorded.current) return;
         
+        // This is a mock action. In a real app, this would be a server action.
         const recordTransaction = async () => {
-            if (!paymentDetails.fromAccountId || !paymentDetails.amount || !paymentDetails.userId) {
+            if (!paymentDetails.fromAccountId || !paymentDetails.amount) {
                  toast({
                     variant: 'destructive',
                     title: "Recording Failed",
@@ -46,33 +45,18 @@ function PaymentSuccessContent() {
                 return;
             }
             
-            const transactionData = {
+            console.log("Recording transaction:", {
                 fromAccountId: paymentDetails.fromAccountId,
-                userId: paymentDetails.userId,
                 amount: paymentDetails.amount,
                 recipientName: paymentDetails.recipientName || undefined,
                 yourReference: paymentDetails.yourReference || undefined,
                 recipientReference: paymentDetails.recipientReference || undefined,
-            };
+            });
 
-            try {
-                const result = await createTransactionAction(transactionData);
-                if (result?.message !== 'Transaction created successfully.') {
-                   throw new Error(result.message || 'An unknown error occurred.');
-                }
-                toast({
-                    title: "Transaction Recorded",
-                    description: "The transaction has been saved to your account history.",
-                });
-
-            } catch (error) {
-                console.error("Failed to record transaction:", error);
-                toast({
-                    variant: 'destructive',
-                    title: "Recording Failed",
-                    description: error instanceof Error ? error.message : "Could not save the transaction to your history.",
-                });
-            }
+            toast({
+                title: "Transaction Recorded",
+                description: "The transaction has been logged to the console.",
+            });
         };
 
         recordTransaction();

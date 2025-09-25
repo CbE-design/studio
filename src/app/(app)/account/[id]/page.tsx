@@ -4,7 +4,7 @@
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, MessageSquare, ChevronRight, Search, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { formatCurrency } from '@/app/lib/data';
+import { accounts, transactions, formatCurrency } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -13,8 +13,6 @@ import { useMemo } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
-import { useDoc, useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
-import { doc, collection, query } from 'firebase/firestore';
 
 const FilterIcon = () => (
   <svg
@@ -78,40 +76,18 @@ export default function AccountDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const accountId = params.id as string;
-  const firestore = useFirestore();
-  const { user, isUserLoading } = useUser();
-
-  const accountRef = useMemoFirebase(() => {
-    if (!firestore || !user?.uid || !accountId) return null;
-    return doc(firestore, 'users', user.uid, 'bankAccounts', accountId);
-  }, [firestore, user?.uid, accountId]);
-
-  const { data: account, isLoading: isAccountLoading, error: accountError } = useDoc<Account>(accountRef);
-
-  const transactionsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid || !accountId) return null;
-    return query(collection(firestore, 'users', user.uid, 'bankAccounts', accountId, 'transactions'));
-  }, [firestore, user?.uid, accountId]);
-
-  const { data: transactions, isLoading: isTransactionsLoading, error: transactionsError } = useCollection<Transaction>(transactionsQuery);
-
+  
+  const account = accounts.find(acc => acc.id === accountId);
+  const accountTransactions = transactions[accountId] || [];
+  
   const sortedTransactions = useMemo(() => {
-    if (!transactions) return [];
-    return [...transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [transactions]);
+    return [...accountTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [accountTransactions]);
 
-
-  const isLoading = isUserLoading || isAccountLoading || isTransactionsLoading;
-  const error = accountError || transactionsError;
-
-  if (isLoading) {
-    return <LoadingSkeleton />;
-  }
-
-  if (error || !account) {
+  if (!account) {
     return (
       <div className="flex flex-col h-screen bg-gray-50 items-center justify-center p-4 text-center">
-        <p className="text-xl text-destructive-foreground bg-destructive p-4 rounded-md">{error?.message || 'Account not found. It may not exist or you may not have permission to view it.'}</p>
+        <p className="text-xl text-destructive-foreground bg-destructive p-4 rounded-md">Account not found.</p>
         <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
       </div>
     );

@@ -2,7 +2,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, LoaderCircle } from 'lucide-react';
@@ -10,8 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { useToast } from '@/hooks/use-toast';
-import { useUser, useDoc, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc, collection, query } from 'firebase/firestore';
+import { accounts, transactions } from '@/app/lib/data';
 
 
 const StatementLoadingSkeleton = () => (
@@ -43,30 +42,16 @@ export default function StatementPage() {
   
     const [generatingPdf, setGeneratingPdf] = useState(false);
     const { toast } = useToast();
-    const firestore = useFirestore();
-    const { user, isUserLoading } = useUser();
-
-    const accountRef = useMemoFirebase(() => {
-        if (!firestore || !user?.uid || !accountId) return null;
-        return doc(firestore, 'users', user.uid, 'bankAccounts', accountId);
-    }, [firestore, user?.uid, accountId]);
-
-    const { data: account, isLoading: isAccountLoading, error: accountError } = useDoc<Account>(accountRef);
-
-    const transactionsQuery = useMemoFirebase(() => {
-        if (!firestore || !user?.uid || !accountId) return null;
-        return query(collection(firestore, 'users', user.uid, 'bankAccounts', accountId, 'transactions'));
-    }, [firestore, user?.uid, accountId]);
-
-    const { data: transactions, isLoading: isTransactionsLoading, error: transactionsError } = useCollection<Transaction>(transactionsQuery);
     
+    const account = accounts.find(acc => acc.id === accountId);
+    const accountTransactions = transactions[accountId] || [];
+
     const sortedTransactions = useMemo(() => {
-        if (!transactions) return [];
-        return [...transactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }, [transactions]);
+        return [...accountTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }, [accountTransactions]);
     
-    const isLoading = isUserLoading || isAccountLoading || isTransactionsLoading;
-    const error = accountError || transactionsError;
+    const isLoading = false; // Replace with actual loading state if any
+    const error = !account ? new Error('Account not found') : null;
 
     const handleDownloadPdf = async () => {
         if (!account) return;
@@ -88,7 +73,7 @@ export default function StatementPage() {
             }).format(amount);
             
             // Draw text directly on the page, ensuring all values are strings
-            page.drawText(user?.displayName || 'Valued Customer', { x: 72, y: height - 158, font, size: 10, color: textColor });
+            page.drawText('Valued Customer', { x: 72, y: height - 158, font, size: 10, color: textColor });
             page.drawText(account.name || '', { x: 72, y: height - 180, font, size: 10, color: textColor });
             page.drawText(account.accountNumber || '', { x: 72, y: height - 202, font, size: 10, color: textColor });
             page.drawText(format(new Date(), 'dd MMMM yyyy'), { x: 450, y: height - 158, font, size: 10, color: textColor });

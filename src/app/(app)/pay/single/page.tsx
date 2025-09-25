@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import type { Account } from '@/app/lib/definitions';
+import { accounts as allAccounts } from '@/app/lib/data';
 import {
   Select,
   SelectContent,
@@ -18,8 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query } from 'firebase/firestore';
 
 
 const BankIcon = () => (
@@ -38,10 +37,8 @@ const BankIcon = () => (
 export default function SinglePaymentPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const firestore = useFirestore();
-  const { user } = useUser();
 
-  const [fromAccount, setFromAccount] = useState<string>('');
+  const [fromAccount, setFromAccount] = useState<string>(allAccounts.length > 0 ? allAccounts[0].id : '');
   const [amount, setAmount] = useState('1.00');
 
   const [bankName, setBankName] = useState('');
@@ -52,21 +49,6 @@ export default function SinglePaymentPage() {
   const [saveRecipient, setSaveRecipient] = useState(false);
   const [paymentType, setPaymentType] = useState('Standard EFT');
   
-  const accountsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
-  }, [firestore, user?.uid]);
-
-  const { data: accounts, isLoading: isLoadingAccounts } = useCollection<Account>(accountsQuery);
-
-
-  // Set default from account when accounts are loaded
-  useState(() => {
-    if (accounts && accounts.length > 0 && !fromAccount) {
-      setFromAccount(accounts[0].id);
-    }
-  });
-
   // Update state from URL params
   useState(() => {
     const selectedBank = searchParams.get('bank');
@@ -80,15 +62,9 @@ export default function SinglePaymentPage() {
   });
 
   const handleNext = () => {
-    if (!user) {
-      // Handle case where user is not logged in
-      console.error("User not authenticated");
-      return;
-    }
-    const selectedAccount = accounts?.find(acc => acc.id === fromAccount);
+    const selectedAccount = allAccounts?.find(acc => acc.id === fromAccount);
     const params = new URLSearchParams({
         fromAccountId: fromAccount,
-        userId: user.uid, // Pass user ID
         bankName,
         accountNumber,
         recipientName,
@@ -119,12 +95,12 @@ export default function SinglePaymentPage() {
         <div className="bg-white p-4 rounded-lg shadow-sm border space-y-4">
              <div>
                 <Label htmlFor="from-account" className="text-xs text-gray-500 font-semibold">From account</Label>
-                <Select value={fromAccount} onValueChange={setFromAccount} disabled={isLoadingAccounts}>
+                <Select value={fromAccount} onValueChange={setFromAccount}>
                     <SelectTrigger id="from-account" className="mt-1">
-                        <SelectValue placeholder={isLoadingAccounts ? "Loading accounts..." : "Select an account"} />
+                        <SelectValue placeholder={"Select an account"} />
                     </SelectTrigger>
                     <SelectContent>
-                        {accounts?.map(account => (
+                        {allAccounts?.map(account => (
                             <SelectItem key={account.id} value={account.id}>{account.name}</SelectItem>
                         ))}
                     </SelectContent>

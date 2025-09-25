@@ -8,30 +8,19 @@ import { PinInput } from '@/components/pin-input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { MessageSquare, Menu, ArrowRight } from 'lucide-react';
-import { useAuth } from '@/firebase';
-import { signInAnonymously } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 
 export default function LoginPage() {
   const router = useRouter();
-  const auth = useAuth();
   const { toast } = useToast();
   const retailBankAward = PlaceHolderImages.find(img => img.id === 'retail-bank-award');
   const customerObsessedAward = PlaceHolderImages.find(img => img.id === 'customer-obsessed-award');
 
   const handlePinComplete = async (pin: string) => {
     // In a real app, you would verify the pin
-    // For this demo, we'll just sign in the user anonymously
-    try {
-      await signInAnonymously(auth);
+    // For this demo, we'll just navigate to the dashboard
+    if (pin) {
       router.push('/dashboard');
-    } catch (error) {
-       console.error("Anonymous sign-in failed:", error);
-       toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: 'Could not log in. Please try again.',
-       });
     }
   };
 
