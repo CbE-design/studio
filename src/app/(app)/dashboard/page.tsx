@@ -316,7 +316,7 @@ export default async function DashboardPage() {
               <Link href={widget.href} key={index}>
                 <div className="flex flex-col items-center gap-1 relative cursor-pointer">
                 <div className={cn(
-                  "rounded-lg shadow-sm border bg-white flex items-center justify-center p-2"
+                  "rounded-lg shadow-sm border bg-white flex items-center justify-center"
                 )}>
                     <widget.icon />
                 </div>
