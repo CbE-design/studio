@@ -10,11 +10,8 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { db } from '@/app/lib/firebase';
-import type { Account } from '@/app/lib/definitions';
-import { formatCurrency } from '@/app/lib/data';
 import { AccountsCarousel } from '@/components/accounts-carousel';
-import { getDocsWithContextualError } from '@/app/lib/data-fetching';
+import { Accounts } from '@/components/accounts';
 
 // Custom SVG Icons
 const OffersIcon = () => (
@@ -123,55 +120,11 @@ const widgets = [
   { icon: StatementsIcon, label: 'Statements and docs', href: '/documents' },
 ];
 
-async function getAccounts(): Promise<Account[]> {
-  try {
-    const accountDocs = await getDocsWithContextualError(db, "accounts");
-    return accountDocs.map((data: any) => {
-      return {
-        id: data.id,
-        name: data.name || 'Unnamed Account',
-        type: data.type || 'Cheque',
-        accountNumber: data.accountNumber || 'N/A',
-        balance: data.balance !== undefined ? data.balance : 0,
-        currency: data.currency || 'ZAR',
-      };
-    });
-  } catch (error) {
-    console.error("Error fetching accounts:", error);
-    // In a real app, you might want to re-throw the error or handle it differently
-    // For now, we return an empty array to prevent the page from crashing.
-    return [];
-  }
-}
-
 export default async function DashboardPage() {
-  const accounts = await getAccounts();
-
   const slides = [
     {
       title: 'Accounts',
-      content: (
-        <div className="space-y-4">
-          {accounts.length > 0 ? (
-            accounts.map((account) => (
-              <Link href={`/account/${account.id}`} key={account.id}>
-                <div className="flex flex-row justify-between items-center p-3 bg-white/10 border border-white/20 rounded-lg cursor-pointer hover:bg-white/20">
-                  <div>
-                    <p className="text-sm font-normal normal-case">{account.name}</p>
-                    <p className="text-base font-normal">{formatCurrency(account.balance, account.currency)}</p>
-                  </div>
-                  <ChevronRight className="h-6 w-6" />
-                </div>
-              </Link>
-            ))
-          ) : (
-             <div className="text-center py-4">
-                <p className="text-sm">No accounts found.</p>
-                <p className="text-xs text-white/80">Please add account data to your 'accounts' collection in Firestore.</p>
-              </div>
-          )}
-        </div>
-      ),
+      content: <Accounts />,
     },
     {
       title: 'Rewards',
@@ -329,3 +282,5 @@ export default async function DashboardPage() {
     </div>
   );
 }
+
+    
