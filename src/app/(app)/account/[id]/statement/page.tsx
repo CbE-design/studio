@@ -103,77 +103,37 @@ export default function StatementPage() {
         setGeneratingPdf(true);
 
         try {
-            const pdfDoc = await PDFDocument.create();
-            const page = pdfDoc.addPage();
-            const { width, height } = page.getSize();
-            const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-            const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-            const margin = 50;
+            // Fetch the PDF template from our API route
+            const existingPdfBytes = await fetch('/api/pdf-template').then(res => res.arrayBuffer());
+            const pdfDoc = await PDFDocument.load(existingPdfBytes);
 
-            const formatCurrency = (amount: number, currency: string) => new Intl.NumberFormat('en-ZA', {
+            const form = pdfDoc.getForm();
+            
+            // Fill form fields
+            form.getTextField('Account Holder').setText('SPOT BUY AND SELL');
+            form.getTextField('Account Name').setText(account.name);
+            form.getTextField('Account Number').setText(account.accountNumber);
+            form.getTextField('Statement Date').setText(format(new Date(), 'dd MMMM yyyy'));
+            
+            const formatCurrency = (amount: number) => new Intl.NumberFormat('en-ZA', {
                 style: 'currency',
-                currency: currency,
+                currency: account.currency,
             }).format(amount);
 
-            let y = height - margin;
+            form.getTextField('Current Balance').setText(formatCurrency(account.balance));
 
-            // Header
-            page.drawText('Bank Statement', {
-                x: margin,
-                y: y,
-                font: boldFont,
-                size: 24,
-                color: rgb(0.10, 0.28, 0.54), // primary color
+            // Fill transactions
+            const maxTransactions = 10; // Adjust based on your template
+            transactions.slice(0, maxTransactions).forEach((tx, index) => {
+                const i = index + 1;
+                form.getTextField(`Date ${i}`).setText(format(new Date(tx.date), 'dd MMM yyyy'));
+                form.getTextField(`Description ${i}`).setText(tx.description);
+                form.getTextField(`Reference ${i}`).setText(tx.reference);
+                const amountField = form.getTextField(`Amount ${i}`);
+                amountField.setText(formatCurrency(tx.amount));
             });
-            y -= 40;
 
-            // Account Details
-            page.drawText('Account Details', { x: margin, y, font: boldFont, size: 14 });
-            y -= 20;
-            page.drawText(`Account Holder: SPOT BUY AND SELL`, { x: margin, y, font, size: 10 });
-            y -= 15;
-            page.drawText(`Account: ${account.name} (${account.accountNumber})`, { x: margin, y, font, size: 10 });
-            y -= 15;
-            page.drawText(`Statement Date: ${format(new Date(), 'dd MMMM yyyy')}`, { x: margin, y, font, size: 10 });
-            y -= 15;
-            page.drawText(`Current Balance: ${formatCurrency(account.balance, account.currency)}`, { x: margin, y, font: boldFont, size: 12, color: rgb(0.15, 0.65, 0.38) });
-            y -= 40;
-
-            // Transactions Header
-            page.drawText('Transactions', { x: margin, y, font: boldFont, size: 14 });
-            y -= 20;
-
-            const tableTop = y;
-            const rowHeight = 20;
-            const tableBottomMargin = margin + 20;
-            
-            // Draw Table Header
-            page.drawText('Date', { x: margin, y, font: boldFont, size: 10 });
-            page.drawText('Description', { x: margin + 80, y, font: boldFont, size: 10 });
-            page.drawText('Amount', { x: width - margin - 100, y, font: boldFont, size: 10 });
-            y -= rowHeight;
-            page.drawLine({
-                start: { x: margin, y: y + 10 },
-                end: { x: width - margin, y: y + 10 },
-                thickness: 1,
-                color: rgb(0.8, 0.8, 0.8),
-            });
-            
-            // Draw Transactions
-            transactions.forEach(tx => {
-                if (y < tableBottomMargin) return;
-                
-                const date = format(new Date(tx.date), 'dd MMM yyyy');
-                const description = tx.description.substring(0, 50); 
-                const amountText = formatCurrency(tx.amount, account.currency);
-                const textColor = tx.type === 'debit' ? rgb(0.8, 0.1, 0.1) : rgb(0.1, 0.5, 0.1);
-                
-                page.drawText(date, { x: margin, y, font, size: 9 });
-                page.drawText(description, { x: margin + 80, y, font, size: 9 });
-                page.drawText(amountText, { x: width - margin - 100, y, font, size: 9, color: textColor });
-                
-                y -= rowHeight;
-            });
+            form.flatten();
             
             const pdfBytes = await pdfDoc.save();
             const blob = new Blob([pdfBytes], { type: 'application/pdf' });
