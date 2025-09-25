@@ -300,25 +300,36 @@ export default async function DashboardPage() {
             </Card>
 
             <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
-            <div className="grid grid-cols-4 gap-4 text-center">
-            {widgets.map((widget, index) => (
-              <Link href={widget.href} key={index}>
-                <div className="flex flex-col items-center gap-1 relative cursor-pointer">
-                <div className={cn(
-                  "rounded-lg shadow-sm border bg-white flex items-center justify-center h-14 w-14"
-                )}>
-                    <widget.icon />
+            <Card className="shadow-md rounded-lg">
+              <CardContent className="p-0">
+                <div className="divide-y divide-gray-200">
+                  {widgets.map((widget, index) => (
+                    <Link href={widget.href} key={index}>
+                      <div className="flex items-center p-3 cursor-pointer hover:bg-gray-50 transition-colors">
+                        <div className="mr-4">
+                           <div className={cn(
+                              "rounded-lg flex items-center justify-center h-12 w-12 bg-gray-100"
+                            )}>
+                                <widget.icon />
+                            </div>
+                        </div>
+                        <div className="flex-1 flex items-center justify-between">
+                          <p className="text-base font-medium text-gray-700">{widget.label}</p>
+                          <div className="flex items-center">
+                            {widget.new && (
+                              <span className="mr-2 px-2 py-0.5 text-xs font-semibold text-white bg-green-500 rounded-full">
+                                New
+                              </span>
+                            )}
+                            <ChevronRight className="h-5 w-5 text-gray-400" />
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
-                <p className="text-xs text-gray-600">{widget.label}</p>
-                {widget.new && (
-                    <div className="absolute top-0 right-0 -mt-1 -mr-1 px-1.5 py-0.5 text-xs font-semibold text-white bg-green-500 rounded-md">
-                    New
-                    </div>
-                )}
-                </div>
-              </Link>
-            ))}
-            </div>
+              </CardContent>
+            </Card>
         </div>
       </main>
     </div>
