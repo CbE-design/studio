@@ -7,20 +7,14 @@ import {
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-// import { Announcements } from '@/components/announcements';
 import { db } from '@/app/lib/firebase';
-import { collection, getDocs, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import type { Account } from '@/app/lib/definitions';
 import { formatCurrency } from '@/app/lib/data';
 import { AccountsCarousel } from '@/components/accounts-carousel';
+import { getDocsWithContextualError } from '@/app/lib/data-fetching';
 
 // Custom SVG Icons
 const OffersIcon = () => (
@@ -131,11 +125,10 @@ const widgets = [
 
 async function getAccounts(): Promise<Account[]> {
   try {
-    const querySnapshot = await getDocs(collection(db, "accounts"));
-    return querySnapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => {
-      const data = doc.data();
+    const accountDocs = await getDocsWithContextualError(db, "accounts");
+    return accountDocs.map((data: any) => {
       return {
-        id: doc.id,
+        id: data.id,
         name: data.name || 'Unnamed Account',
         type: data.type || 'Cheque',
         accountNumber: data.accountNumber || 'N/A',
@@ -145,6 +138,8 @@ async function getAccounts(): Promise<Account[]> {
     });
   } catch (error) {
     console.error("Error fetching accounts:", error);
+    // In a real app, you might want to re-throw the error or handle it differently
+    // For now, we return an empty array to prevent the page from crashing.
     return [];
   }
 }
