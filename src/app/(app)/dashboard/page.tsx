@@ -156,7 +156,7 @@ export default async function DashboardPage() {
     {
       title: 'Accounts',
       content: (
-        <div className="space-y-2">
+        <div className="space-y-4">
           {accounts.length > 0 ? (
             accounts.map((account) => (
               <Link href={`/account/${account.id}`} key={account.id}>
