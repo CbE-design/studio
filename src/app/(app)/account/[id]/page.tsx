@@ -157,7 +157,7 @@ export default function AccountDetailsPage() {
               <ArrowLeft />
             </Button>
             <div>
-              <h1 className="text-xl font-bold uppercase">{account.name}</h1>
+              <h1 className="text-xl font-normal normal-case">{account.name}</h1>
               <p className="text-sm opacity-80">{account.accountNumber}</p>
             </div>
           </div>

@@ -14,7 +14,7 @@ export const accounts: Account[] = [
   },
   {
     id: '2',
-    name: 'CURRENT ACCOUNT',
+    name: 'Current Account',
     type: 'Cheque',
     accountNumber: '1234066912',
     balance: -5891.10,
