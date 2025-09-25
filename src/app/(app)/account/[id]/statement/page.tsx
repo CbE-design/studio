@@ -107,30 +107,45 @@ export default function StatementPage() {
             const pdfDoc = await PDFDocument.load(existingPdfBytes);
 
             const form = pdfDoc.getForm();
-            
-            form.getTextField('account_holder').setText('SPOT BUY AND SELL');
-            form.getTextField('account_name').setText(account.name);
-            form.getTextField('account_number').setText(account.accountNumber);
-            form.getTextField('statement_date').setText(format(new Date(), 'dd MMMM yyyy'));
-            
-            const formatCurrency = (amount: number) => new Intl.NumberFormat('en-ZA', {
-                style: 'currency',
-                currency: account.currency,
-            }).format(amount);
 
-            form.getTextField('current_balance').setText(formatCurrency(account.balance));
-
-            const maxTransactions = 10;
-            transactions.slice(0, maxTransactions).forEach((tx, index) => {
-                const i = index + 1;
-                form.getTextField(`date_${i}`).setText(format(new Date(tx.date), 'dd MMM yyyy'));
-                form.getTextField(`description_${i}`).setText(tx.description);
-                form.getTextField(`reference_${i}`).setText(tx.reference);
-                const amountField = form.getTextField(`amount_${i}`);
-                amountField.setText(formatCurrency(tx.amount));
+            // --- Diagnostic Logging ---
+            const fields = form.getFields();
+            console.log('Available PDF fields:');
+            fields.forEach(field => {
+                const type = field.constructor.name;
+                const name = field.getName();
+                console.log(`${type}: ${name}`);
             });
+            // -------------------------
+            
+            try {
+              form.getTextField('account_holder').setText('SPOT BUY AND SELL');
+              form.getTextField('account_name').setText(account.name);
+              form.getTextField('account_number').setText(account.accountNumber);
+              form.getTextField('statement_date').setText(format(new Date(), 'dd MMMM yyyy'));
+              
+              const formatCurrency = (amount: number) => new Intl.NumberFormat('en-ZA', {
+                  style: 'currency',
+                  currency: account.currency,
+              }).format(amount);
 
-            form.flatten();
+              form.getTextField('current_balance').setText(formatCurrency(account.balance));
+
+              const maxTransactions = 10;
+              transactions.slice(0, maxTransactions).forEach((tx, index) => {
+                  const i = index + 1;
+                  form.getTextField(`date_${i}`).setText(format(new Date(tx.date), 'dd MMM yyyy'));
+                  form.getTextField(`description_${i}`).setText(tx.description);
+                  form.getTextField(`reference_${i}`).setText(tx.reference);
+                  const amountField = form.getTextField(`amount_${i}`);
+                  amountField.setText(formatCurrency(tx.amount));
+              });
+
+              form.flatten();
+            } catch (fieldError: any) {
+              console.error("Error filling PDF fields:", fieldError);
+              throw new Error(`Failed to fill PDF. The field '${fieldError.message.split('"')[1]}' might be incorrect. Check the console log for a list of available fields.`);
+            }
             
             const pdfBytes = await pdfDoc.save();
             const blob = new Blob([pdfBytes], { type: 'application/pdf' });
@@ -143,11 +158,12 @@ export default function StatementPage() {
 
         } catch (error: any) {
             console.error("Failed to generate PDF:", error);
-            setError("Could not generate the PDF. Please try again.");
+            setError(error.message || "Could not generate the PDF. Please try again.");
             toast({
               variant: 'destructive',
               title: 'PDF Generation Failed',
               description: error.message || 'An unknown error occurred while trying to generate the PDF.',
+              duration: 10000,
             });
         } finally {
             setGeneratingPdf(false);
