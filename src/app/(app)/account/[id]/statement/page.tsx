@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, LoaderCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { useToast } from '@/hooks/use-toast';
 
 const StatementLoadingSkeleton = () => (
@@ -106,46 +106,33 @@ export default function StatementPage() {
             const existingPdfBytes = await fetch('/api/pdf-template').then(res => res.arrayBuffer());
             const pdfDoc = await PDFDocument.load(existingPdfBytes);
 
-            const form = pdfDoc.getForm();
+            const page = pdfDoc.getPages()[0];
+            const { width, height } = page.getSize();
+            const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+            const textColor = rgb(0.1, 0.1, 0.1);
 
-            // --- Diagnostic Logging ---
-            const fields = form.getFields();
-            console.log('Available PDF fields:');
-            fields.forEach(field => {
-                const type = field.constructor.name;
-                const name = field.getName();
-                console.log(`${type}: ${name}`);
-            });
-            // -------------------------
+            const formatCurrency = (amount: number) => new Intl.NumberFormat('en-ZA', {
+                style: 'currency',
+                currency: account.currency,
+            }).format(amount);
             
-            try {
-              form.getTextField('account_holder').setText('SPOT BUY AND SELL');
-              form.getTextField('account_name').setText(account.name);
-              form.getTextField('account_number').setText(account.accountNumber);
-              form.getTextField('statement_date').setText(format(new Date(), 'dd MMMM yyyy'));
-              
-              const formatCurrency = (amount: number) => new Intl.NumberFormat('en-ZA', {
-                  style: 'currency',
-                  currency: account.currency,
-              }).format(amount);
+            // Draw text directly on the page
+            page.drawText('SPOT BUY AND SELL', { x: 72, y: height - 158, font, size: 10, color: textColor });
+            page.drawText(account.name, { x: 72, y: height - 180, font, size: 10, color: textColor });
+            page.drawText(account.accountNumber, { x: 72, y: height - 202, font, size: 10, color: textColor });
+            page.drawText(format(new Date(), 'dd MMMM yyyy'), { x: 450, y: height - 158, font, size: 10, color: textColor });
+            page.drawText(formatCurrency(account.balance), { x: 450, y: height - 180, font, size: 10, color: textColor });
+            
+            const maxTransactions = 10;
+            let yPosition = height - 280;
 
-              form.getTextField('current_balance').setText(formatCurrency(account.balance));
-
-              const maxTransactions = 10;
-              transactions.slice(0, maxTransactions).forEach((tx, index) => {
-                  const i = index + 1;
-                  form.getTextField(`date_${i}`).setText(format(new Date(tx.date), 'dd MMM yyyy'));
-                  form.getTextField(`description_${i}`).setText(tx.description);
-                  form.getTextField(`reference_${i}`).setText(tx.reference);
-                  const amountField = form.getTextField(`amount_${i}`);
-                  amountField.setText(formatCurrency(tx.amount));
-              });
-
-              form.flatten();
-            } catch (fieldError: any) {
-              console.error("Error filling PDF fields:", fieldError);
-              throw new Error(`Failed to fill PDF. The field '${fieldError.message.split('"')[1]}' might be incorrect. Check the console log for a list of available fields.`);
-            }
+            transactions.slice(0, maxTransactions).forEach((tx) => {
+                page.drawText(format(new Date(tx.date), 'dd MMM yyyy'), { x: 72, y: yPosition, font, size: 9, color: textColor });
+                page.drawText(tx.description, { x: 150, y: yPosition, font, size: 9, color: textColor });
+                page.drawText(tx.reference, { x: 300, y: yPosition, font, size: 9, color: textColor });
+                page.drawText(formatCurrency(tx.amount), { x: 450, y: yPosition, font, size: 9, color: textColor });
+                yPosition -= 20;
+            });
             
             const pdfBytes = await pdfDoc.save();
             const blob = new Blob([pdfBytes], { type: 'application/pdf' });
