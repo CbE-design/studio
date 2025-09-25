@@ -16,7 +16,7 @@ export default function SplashScreen() {
   }, [router]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-8 bg-gradient-to-b from-green-400 to-primary text-white">
+    <main className="gradient-background flex min-h-screen flex-col items-center justify-between p-8 text-white">
       <div className="flex-1 flex items-center justify-center">
          <div className="text-center animate-fade-in">
           <h1 className="text-4xl font-bold tracking-wider">

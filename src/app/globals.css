@@ -83,6 +83,12 @@
   }
 }
 
+@layer components {
+  .gradient-background {
+    background: linear-gradient(to bottom right, #009038, #01713f);
+  }
+}
+
 @layer utilities {
   @keyframes fade-in {
     from { opacity: 0; transform: scale(0.95); }
