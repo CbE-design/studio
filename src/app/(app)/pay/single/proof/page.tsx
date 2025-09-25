@@ -62,7 +62,7 @@ function ProofOfPaymentContent() {
           bank: searchParams.get('bankName'),
           accountNumber: `...${searchParams.get('accountNumber')?.slice(-5)}`,
           channel: 'Internet payment',
-          payer: 'SPOT BUY AND SELL',
+          payer: 'Corrie',
           securityCode: 'B1AEF1A32330C0E8BB99D508DAF75E3A0B051D48',
       });
     }, [searchParams]);
@@ -107,7 +107,7 @@ function ProofOfPaymentContent() {
                         className="mb-4"
                     />
 
-                    <h2 className="text-sm font-bold mb-1">Notification of Payment</h2>
+                    <h2 className="text-[10px] font-bold mb-1">Notification of Payment</h2>
                     <hr className="mb-3 border-gray-400"/>
                     <p className="mb-3">Nedbank Limited confirms that the following payment has been made:</p>
 
@@ -118,7 +118,7 @@ function ProofOfPaymentContent() {
                         </tbody>
                     </table>
 
-                    <h3 className="font-bold mb-1 text-xs">Beneficiary details</h3>
+                    <h3 className="font-bold mb-1 text-[9.5px]">Beneficiary details</h3>
                     <table className="w-full mb-3">
                         <tbody>
                             <DetailRow label="Recipient" value={paymentDetails.recipient} />
@@ -130,7 +130,7 @@ function ProofOfPaymentContent() {
                         </tbody>
                     </table>
                     
-                    <h3 className="font-bold mb-1 text-xs">Payer details</h3>
+                    <h3 className="font-bold mb-1 text-[9.5px]">Payer details</h3>
                     <table className="w-full mb-4">
                         <tbody>
                             <DetailRow label="Paid from Account Holder" value={paymentDetails.payer} />
