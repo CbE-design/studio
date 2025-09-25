@@ -182,7 +182,7 @@ export default async function DashboardPage() {
       title: 'Rewards',
       content: (
          <div className="space-y-2">
-          <div className="flex flex-row justify-between items-center py-2">
+          <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
             <div>
               <p className="text-sm">Greenbacks Rewards</p>
               <p className="text-base font-normal">GB 0</p>
@@ -203,7 +203,7 @@ export default async function DashboardPage() {
             </div>
             <Button variant="link" className="text-white font-bold">View</Button>
           </div>
-          <div className="flex flex-row justify-between items-center py-2">
+          <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
             <div>
               <p className="text-xs">Foreign Currency Accounts</p>
               <p className="text-base font-normal">Your currencies</p>
@@ -224,7 +224,7 @@ export default async function DashboardPage() {
             </div>
             <ChevronRight className="h-6 w-6" />
           </div>
-          <div className="flex flex-row justify-between items-center py-2">
+          <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
             <div>
               <p className="text-base font-normal">Save & Invest</p>
             </div>
@@ -244,7 +244,7 @@ export default async function DashboardPage() {
             </div>
             <ChevronRight className="h-6 w-6" />
           </div>
-          <div className="flex flex-row justify-between items-center py-2">
+          <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
             <div>
               <p className="text-xs">Insurance</p>
               <p className="text-base font-normal">New policy</p>
