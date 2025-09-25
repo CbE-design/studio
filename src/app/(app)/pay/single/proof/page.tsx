@@ -60,7 +60,7 @@ function ProofOfPaymentContent() {
           amount: `R${parseFloat(searchParams.get('amount') || '0').toFixed(2)}`,
           recipientReference: searchParams.get('recipientReference'),
           bank: searchParams.get('bankName'),
-          accountNumber: searchParams.get('accountNumber')?.replace(/.(?=.{4})/g, '*'),
+          accountNumber: `...${searchParams.get('accountNumber')?.slice(-5)}`,
           channel: 'Internet payment',
           payer: 'SPOT BUY AND SELL',
           securityCode: 'B1AEF1A32330C0E8BB99D508DAF75E3A0B051D48',
