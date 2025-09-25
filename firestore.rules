@@ -3,172 +3,123 @@
  *
  * Core Philosophy:
  * This ruleset enforces a strict user-ownership model. All data is nested under
- * /users/{userId}, and only the authenticated user can read or write their own data.
+ * the /users/{userId} path, ensuring that only the authenticated user can
+ * access their own data.
  *
  * Data Structure:
- * - /users/{userId}: Stores user profiles. Only the user can read/write their profile.
- * - /users/{userId}/bankAccounts/{bankAccountId}: Stores bank accounts. Only the user can manage their bank accounts.
- * - /users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId}: Stores transactions. Only the user can access their transaction history.
- * - /users/{userId}/beneficiaries/{beneficiaryId}: Stores beneficiaries. Only the user can manage their beneficiaries.
- * - /users/{userId}/scheduledPayments/{scheduledPaymentId}: Stores scheduled payments. Only the user can manage their scheduled payments.
- * - /users/{userId}/financialTips/{financialTipId}: Stores financial tips. Only the user can access their financial tips.
- * - /atms/{atmId}: Stores ATM locations. This collection is publicly readable.
- * - /categories/{categoryId}: Stores transaction categories. This collection is publicly readable.
+ * - /users/{userId}: Stores user profiles.
+ * - /users/{userId}/bankAccounts/{bankAccountId}: Stores bank accounts owned by the user.
+ * - /users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId}: Stores transactions for a specific bank account.
+ * - /users/{userId}/beneficiaries/{beneficiaryId}: Stores beneficiaries associated with the user.
  *
  * Key Security Decisions:
- * - User listing is disallowed.
- * - ATMs and Categories are publicly readable.
- * - All other collections enforce strict user ownership.
+ * - Users can only access their own data.
+ * - Path-based ownership is enforced for all user-related data (bank accounts,
+ *   transactions, beneficiaries).
+ * - No listing of the /users collection is allowed to prevent data leakage.
+ * - Data validation is minimized in this prototype to focus on authorization.
  *
  * Denormalization for Authorization:
- * - The `userId` field is duplicated within the `BankAccount`, `Beneficiary`, `ScheduledPayment` and `FinancialTip` documents. This denormalization enables direct access to these documents based on the `userId` without requiring additional `get()` calls, improving rule efficiency and preventing excessive reads.
+ * The data model is structured such that ownership can be derived directly
+ * from the path. This avoids costly `get()` calls to parent documents to
+ * determine authorization. For example, the rule for
+ * `/users/{userId}/bankAccounts/{bankAccountId}` only needs to check that
+ * `request.auth.uid == userId` to grant access, without needing to read the
+ * user document.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Helper function to check if the user is signed in.
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if the authenticated user is the owner of the resource.
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Helper function to check if the authenticated user is the owner of the resource and the resource exists.
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
     /**
-     * @description Enforces user-level access control for user profiles. Only the authenticated user can read or write their own profile.
+     * @description Protects the /users collection. Only the user themselves can read/write their profile.
      * @path /users/{userId}
-     * @allow (create) - Authenticated user with matching user ID can create their profile.
-     * @allow (get, list, update, delete) - Authenticated user with matching user ID can read or modify their profile.
-     * @deny (create) - Authenticated user with non-matching user ID cannot create a profile.
-     * @deny (get, list, update, delete) - Authenticated user with non-matching user ID cannot read or modify another user's profile.
-     * @principle Enforces document ownership for writes.
+     * @allow (create) User A can create their own profile: `request.auth.uid == 'user_a'` and `request.resource.data.id == 'user_a'`
+     * @allow (get) User A can get their own profile: `request.auth.uid == 'user_a'`
+     * @allow (update) User A can update their own profile: `request.auth.uid == 'user_a'`
+     * @allow (delete) User A can delete their own profile: `request.auth.uid == 'user_a'`
+     * @deny (create) User A cannot create a profile for User B: `request.auth.uid == 'user_a'` and `request.resource.data.id == 'user_b'`
+     * @deny (get) User A cannot get User B's profile: `request.auth.uid == 'user_a'`
+     * @principle Enforces user-ownership for profile data.
      */
     match /users/{userId} {
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
-      }
       allow get: if isOwner(userId);
       allow list: if false;
       allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isOwner(userId) && resource.data.id == userId;
-      allow delete: if isOwner(userId) && resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Enforces user-level access control for bank accounts. Only the authenticated user can manage their bank accounts.
+     * @description Protects the /users/{userId}/bankAccounts collection. Only the user themselves can read/write their bank accounts.
      * @path /users/{userId}/bankAccounts/{bankAccountId}
-     * @allow (create) - Authenticated user with matching user ID can create a bank account.
-     * @allow (get, list, update, delete) - Authenticated user with matching user ID can read or modify their bank accounts.
-     * @deny (create) - Authenticated user with non-matching user ID cannot create a bank account.
-     * @deny (get, list, update, delete) - Authenticated user with non-matching user ID cannot read or modify another user's bank accounts.
-     * @principle Enforces document ownership for writes.
+     * @allow (create) User A can create a bank account under their profile: `request.auth.uid == 'user_a'`
+     * @allow (get) User A can get a bank account under their profile: `request.auth.uid == 'user_a'`
+     * @allow (update) User A can update a bank account under their profile: `request.auth.uid == 'user_a'`
+     * @allow (delete) User A can delete a bank account under their profile: `request.auth.uid == 'user_a'`
+     * @deny (create) User A cannot create a bank account under User B's profile: `request.auth.uid == 'user_a'` for `/users/user_b/bankAccounts/bank_account_1`
+     * @deny (get) User A cannot get a bank account under User B's profile: `request.auth.uid == 'user_a'` for `/users/user_b/bankAccounts/bank_account_1`
+     * @principle Enforces user-ownership for bank account data.
      */
     match /users/{userId}/bankAccounts/{bankAccountId} {
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
-      }
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isOwner(userId) && resource.data.userId == userId;
-      allow delete: if isOwner(userId) && resource.data.userId == userId;
-    }
-
-    /**
-     * @description Enforces user-level access control for transactions. Only the authenticated user can access their transaction history.
-     * @path /users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId}
-     * @allow (create) - Authenticated user with matching user ID can create a transaction.
-     * @allow (get, list, update, delete) - Authenticated user with matching user ID can read or modify their transaction history.
-     * @deny (create) - Authenticated user with non-matching user ID cannot create a transaction.
-     * @deny (get, list, update, delete) - Authenticated user with non-matching user ID cannot read or modify another user's transaction history.
-     * @principle Enforces document ownership for writes.
-     */
-    match /users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId} {
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
-      }
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
-      allow delete: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Enforces user-level access control for beneficiaries. Only the authenticated user can manage their beneficiaries.
+     * @description Protects the /users/{userId}/bankAccounts/{bankAccountId}/transactions collection. Only the user themselves can read/write their transactions.
+     * @path /users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId}
+     * @allow (create) User A can create a transaction under their bank account: `request.auth.uid == 'user_a'`
+     * @allow (get) User A can get a transaction under their bank account: `request.auth.uid == 'user_a'`
+     * @allow (update) User A can update a transaction under their bank account: `request.auth.uid == 'user_a'`
+     * @allow (delete) User A can delete a transaction under their bank account: `request.auth.uid == 'user_a'`
+     * @deny (create) User A cannot create a transaction under User B's bank account: `request.auth.uid == 'user_a'` for `/users/user_b/bankAccounts/bank_account_1/transactions/transaction_1`
+     * @deny (get) User A cannot get a transaction under User B's bank account: `request.auth.uid == 'user_a'` for `/users/user_b/bankAccounts/bank_account_1/transactions/transaction_1`
+     * @principle Enforces user-ownership for transaction data.
+     */
+    match /users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Protects the /users/{userId}/beneficiaries collection. Only the user themselves can read/write their beneficiaries.
      * @path /users/{userId}/beneficiaries/{beneficiaryId}
-     * @allow (create) - Authenticated user with matching user ID can create a beneficiary.
-     * @allow (get, list, update, delete) - Authenticated user with matching user ID can read or modify their beneficiaries.
-     * @deny (create) - Authenticated user with non-matching user ID cannot create a beneficiary.
-     * @deny (get, list, update, delete) - Authenticated user with non-matching user ID cannot read or modify another user's beneficiaries.
-     * @principle Enforces document ownership for writes.
+     * @allow (create) User A can create a beneficiary under their profile: `request.auth.uid == 'user_a'`
+     * @allow (get) User A can get a beneficiary under their profile: `request.auth.uid == 'user_a'`
+     * @allow (update) User A can update a beneficiary under their profile: `request.auth.uid == 'user_a'`
+     * @allow (delete) User A can delete a beneficiary under their profile: `request.auth.uid == 'user_a'`
+     * @deny (create) User A cannot create a beneficiary under User B's profile: `request.auth.uid == 'user_a'` for `/users/user_b/beneficiaries/beneficiary_1`
+     * @deny (get) User A cannot get a beneficiary under User B's profile: `request.auth.uid == 'user_a'` for `/users/user_b/beneficiaries/beneficiary_1`
+     * @principle Enforces user-ownership for beneficiary data.
      */
     match /users/{userId}/beneficiaries/{beneficiaryId} {
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
-      }
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isOwner(userId) && resource.data.userId == userId;
-      allow delete: if isOwner(userId) && resource.data.userId == userId;
-    }
-
-    /**
-     * @description Enforces user-level access control for scheduled payments. Only the authenticated user can manage their scheduled payments.
-     * @path /users/{userId}/scheduledPayments/{scheduledPaymentId}
-     * @allow (create) - Authenticated user with matching user ID can create a scheduled payment.
-     * @allow (get, list, update, delete) - Authenticated user with matching user ID can read or modify their scheduled payments.
-     * @deny (create) - Authenticated user with non-matching user ID cannot create a scheduled payment.
-     * @deny (get, list, update, delete) - Authenticated user with non-matching user ID cannot read or modify another user's scheduled payments.
-     * @principle Enforces document ownership for writes.
-     */
-    match /users/{userId}/scheduledPayments/{scheduledPaymentId} {
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
-      }
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isOwner(userId) && resource.data.userId == userId;
-      allow delete: if isOwner(userId) && resource.data.userId == userId;
-    }
-
-    /**
-     * @description Enforces user-level access control for financial tips. Only the authenticated user can access their financial tips.
-     * @path /users/{userId}/financialTips/{financialTipId}
-     * @allow (create) - Authenticated user with matching user ID can create a financial tip.
-     * @allow (get, list, update, delete) - Authenticated user with matching user ID can read or modify their financial tips.
-     * @deny (create) - Authenticated user with non-matching user ID cannot create a financial tip.
-     * @deny (get, list, update, delete) - Authenticated user with non-matching user ID cannot read or modify another user's financial tips.
-     * @principle Enforces document ownership for writes.
-     */
-    match /users/{userId}/financialTips/{financialTipId} {
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
-      }
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isOwner(userId) && resource.data.userId == userId;
-      allow delete: if isOwner(userId) && resource.data.userId == userId;
-    }
-
-    /**
-     * @description Allows public read access to ATM locations. No write access is allowed.
-     * @path /atms/{atmId}
-     * @allow (get, list) - Any user (authenticated or not) can read ATM locations.
-     * @deny (create, update, delete) - No user can create, update, or delete ATM locations.
-     * @principle Allows public read access for a global resource.
-     */
-    match /atms/{atmId} {
-      allow get, list: if true;
-      allow create, update, delete: if false;
-    }
-
-    /**
-     * @description Allows public read access to transaction categories. No write access is allowed.
-     * @path /categories/{categoryId}
-     * @allow (get, list) - Any user (authenticated or not) can read transaction categories.
-     * @deny (create, update, delete) - No user can create, update, or delete transaction categories.
-     * @principle Allows public read access for a global resource.
-     */
-    match /categories/{categoryId} {
-      allow get, list: if true;
-      allow create, update, delete: if false;
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
     }
   }
 }

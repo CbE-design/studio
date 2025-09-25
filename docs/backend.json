@@ -4,7 +4,7 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "BankAccount",
       "type": "object",
-      "description": "Represents a bank account belonging to a user.",
+      "description": "Represents a bank account owned by a user.",
       "properties": {
         "id": {
           "type": "string",
@@ -16,26 +16,31 @@
         },
         "accountNumber": {
           "type": "string",
-          "description": "The account number."
+          "description": "The bank account number."
         },
-        "accountType": {
+        "accountName": {
           "type": "string",
-          "description": "Type of bank account (e.g., savings, checking)."
+          "description": "The name of the bank account."
+        },
+        "bankName": {
+          "type": "string",
+          "description": "The name of the bank."
         },
         "balance": {
           "type": "number",
-          "description": "Current balance of the account."
+          "description": "The current balance of the bank account."
         },
         "currency": {
           "type": "string",
-          "description": "Currency of the account (e.g., ZAR)."
+          "description": "The currency of the bank account."
         }
       },
       "required": [
         "id",
         "userId",
         "accountNumber",
-        "accountType",
+        "accountName",
+        "bankName",
         "balance",
         "currency"
       ]
@@ -54,186 +59,36 @@
           "type": "string",
           "description": "Reference to BankAccount. (Relationship: BankAccount 1:N Transaction)"
         },
-        "date": {
+        "transactionDate": {
           "type": "string",
-          "description": "Date and time of the transaction.",
+          "description": "The date and time of the transaction.",
           "format": "date-time"
         },
         "description": {
           "type": "string",
-          "description": "Description of the transaction."
+          "description": "A description of the transaction."
         },
         "amount": {
           "type": "number",
-          "description": "Amount of the transaction."
+          "description": "The amount of the transaction."
         },
-        "type": {
+        "transactionType": {
           "type": "string",
-          "description": "Type of transaction (e.g., debit, credit)."
+          "description": "The type of transaction (e.g., debit, credit)."
         },
-        "categoryId": {
+        "category": {
           "type": "string",
-          "description": "Reference to Category. (Relationship: Category 1:N Transaction)"
+          "description": "The category of the transaction (e.g., food, shopping)."
         }
       },
       "required": [
         "id",
         "bankAccountId",
-        "date",
+        "transactionDate",
         "description",
         "amount",
-        "type"
-      ]
-    },
-    "Beneficiary": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Beneficiary",
-      "type": "object",
-      "description": "Represents a beneficiary for payments.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the beneficiary."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N Beneficiary)"
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the beneficiary."
-        },
-        "accountNumber": {
-          "type": "string",
-          "description": "Account number of the beneficiary."
-        },
-        "bankName": {
-          "type": "string",
-          "description": "Name of the beneficiary's bank."
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "name",
-        "accountNumber",
-        "bankName"
-      ]
-    },
-    "ScheduledPayment": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "ScheduledPayment",
-      "type": "object",
-      "description": "Represents a scheduled payment to a beneficiary.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the scheduled payment."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N ScheduledPayment)"
-        },
-        "beneficiaryId": {
-          "type": "string",
-          "description": "Reference to Beneficiary. (Relationship: Beneficiary 1:N ScheduledPayment)"
-        },
-        "bankAccountId": {
-          "type": "string",
-          "description": "Reference to BankAccount. (Relationship: BankAccount 1:N ScheduledPayment)"
-        },
-        "amount": {
-          "type": "number",
-          "description": "Amount to be paid."
-        },
-        "frequency": {
-          "type": "string",
-          "description": "Frequency of payment (e.g., weekly, monthly)."
-        },
-        "nextPaymentDate": {
-          "type": "string",
-          "description": "Date of the next scheduled payment.",
-          "format": "date-time"
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "beneficiaryId",
-        "bankAccountId",
-        "amount",
-        "frequency",
-        "nextPaymentDate"
-      ]
-    },
-    "Atm": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Atm",
-      "type": "object",
-      "description": "Represents an ATM location.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the ATM."
-        },
-        "latitude": {
-          "type": "number",
-          "description": "Latitude of the ATM location."
-        },
-        "longitude": {
-          "type": "number",
-          "description": "Longitude of the ATM location."
-        },
-        "address": {
-          "type": "string",
-          "description": "Address of the ATM."
-        },
-        "bankName": {
-          "type": "string",
-          "description": "Name of the bank operating the ATM."
-        }
-      },
-      "required": [
-        "id",
-        "latitude",
-        "longitude",
-        "address",
-        "bankName"
-      ]
-    },
-    "FinancialTip": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "FinancialTip",
-      "type": "object",
-      "description": "Represents a personalized financial tip for the user.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the financial tip."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N FinancialTip)"
-        },
-        "tipText": {
-          "type": "string",
-          "description": "Text of the financial tip."
-        },
-        "tipCategory": {
-          "type": "string",
-          "description": "Category of the financial tip (e.g., budgeting, saving)."
-        },
-        "relevanceScore": {
-          "type": "number",
-          "description": "A score indicating how relevant the tip is to the user."
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "tipText",
-        "tipCategory",
-        "relevanceScore"
+        "transactionType",
+        "category"
       ]
     },
     "User": {
@@ -248,16 +103,24 @@
         },
         "firstName": {
           "type": "string",
-          "description": "First name of the user."
+          "description": "The user's first name."
         },
         "lastName": {
           "type": "string",
-          "description": "Last name of the user."
+          "description": "The user's last name."
         },
         "email": {
           "type": "string",
-          "description": "Email address of the user.",
+          "description": "The user's email address.",
           "format": "email"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The user's phone number."
+        },
+        "address": {
+          "type": "string",
+          "description": "The user's address."
         }
       },
       "required": [
@@ -267,29 +130,39 @@
         "email"
       ]
     },
-    "Category": {
+    "Beneficiary": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Category",
+      "title": "Beneficiary",
       "type": "object",
-      "description": "Represents a category for transactions.",
+      "description": "Represents a beneficiary to whom the user can send money.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the category."
+          "description": "Unique identifier for the beneficiary."
         },
-        "name": {
+        "userId": {
           "type": "string",
-          "description": "Name of the category (e.g., Groceries, Dining)."
+          "description": "Reference to User. (Relationship: User 1:N Beneficiary)"
         },
-        "description": {
+        "accountNumber": {
           "type": "string",
-          "description": "Description of the category."
+          "description": "The beneficiary's account number."
+        },
+        "bankName": {
+          "type": "string",
+          "description": "The beneficiary's bank name."
+        },
+        "beneficiaryName": {
+          "type": "string",
+          "description": "The name of the beneficiary."
         }
       },
       "required": [
         "id",
-        "name",
-        "description"
+        "userId",
+        "accountNumber",
+        "bankName",
+        "beneficiaryName"
       ]
     }
   },
@@ -308,7 +181,7 @@
           "schema": {
             "$ref": "#/backend/entities/User"
           },
-          "description": "Stores user profiles. User ID is used as the document ID.",
+          "description": "Stores user profiles.  Access is restricted to the user themselves.",
           "params": [
             {
               "name": "userId",
@@ -324,7 +197,7 @@
           "schema": {
             "$ref": "#/backend/entities/BankAccount"
           },
-          "description": "Stores bank accounts associated with a user. Includes denormalized 'userId' field for authorization independence.",
+          "description": "Stores bank accounts owned by the user. Enables atomic operations and simplifies security rules based on path-based ownership.",
           "params": [
             {
               "name": "userId",
@@ -344,7 +217,7 @@
           "schema": {
             "$ref": "#/backend/entities/Transaction"
           },
-          "description": "Stores transactions for a specific bank account.",
+          "description": "Stores transactions associated with a specific bank account owned by the user.  Enables atomic operations and simplifies security rules based on path-based ownership.",
           "params": [
             {
               "name": "userId",
@@ -368,7 +241,7 @@
           "schema": {
             "$ref": "#/backend/entities/Beneficiary"
           },
-          "description": "Stores beneficiaries associated with a user. Includes denormalized 'userId' field for authorization independence.",
+          "description": "Stores beneficiaries associated with the user.  Enables atomic operations and simplifies security rules based on path-based ownership.",
           "params": [
             {
               "name": "userId",
@@ -380,80 +253,8 @@
             }
           ]
         }
-      },
-      {
-        "path": "/users/{userId}/scheduledPayments/{scheduledPaymentId}",
-        "definition": {
-          "entityName": "ScheduledPayment",
-          "schema": {
-            "$ref": "#/backend/entities/ScheduledPayment"
-          },
-          "description": "Stores scheduled payments for a user. Includes denormalized 'userId' field for authorization independence.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "scheduledPaymentId",
-              "description": "The unique identifier of the scheduled payment."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/financialTips/{financialTipId}",
-        "definition": {
-          "entityName": "FinancialTip",
-          "schema": {
-            "$ref": "#/backend/entities/FinancialTip"
-          },
-          "description": "Stores financial tips for a user. Includes denormalized 'userId' field for authorization independence.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "financialTipId",
-              "description": "The unique identifier of the financial tip."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/atms/{atmId}",
-        "definition": {
-          "entityName": "Atm",
-          "schema": {
-            "$ref": "#/backend/entities/Atm"
-          },
-          "description": "Stores ATM locations.",
-          "params": [
-            {
-              "name": "atmId",
-              "description": "The unique identifier of the ATM."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/categories/{categoryId}",
-        "definition": {
-          "entityName": "Category",
-          "schema": {
-            "$ref": "#/backend/entities/Category"
-          },
-          "description": "Stores transaction categories.",
-          "params": [
-            {
-              "name": "categoryId",
-              "description": "The unique identifier of the category."
-            }
-          ]
-        }
       }
     ],
-    "reasoning": "The Firestore structure is designed to follow best practices for security, scalability, and debuggability, with a focus on Authorization Independence. User-owned data is stored under the `/users/{userId}` path. This approach provides clear ownership and simplifies security rules. BankAccounts, Beneficiaries, ScheduledPayments, and FinancialTips are all stored as subcollections under the user's document to establish a clear 1:N relationship. This allows for simple path-based security rules. Transactions are stored under BankAccounts to further refine the data model and access control. ATMs and Categories are stored at the root level, as these are global resources and not user-specific.\n\n**Authorization Independence (CRITICAL):** Authorization is achieved by leveraging the hierarchical structure for user-owned resources. For instance, access to `/users/{userId}/bankAccounts/{bankAccountId}` is implicitly granted to the user with `userId`. The `userId` field is duplicated within the `BankAccount`, `Beneficiary`, `ScheduledPayment` and `FinancialTip` documents to allow direct access without requiring `get()` calls in the security rules to verify ownership.\n\n**QAPs (Rules are not Filters):** Segregation of user-specific data under `/users/{userId}` allows for efficient and secure list operations. Rules can easily restrict access to only the data owned by the authenticated user. ATMs and Categories, being global resources, can be queried and listed without user-specific restrictions, although additional filtering criteria can be applied if needed.\n\n**Invariants:** The structure supports the integrity of ownership by enforcing path-based ownership. Timestamps (although not explicitly present in the schema) can be easily added to documents and secured using rules to prevent modification. Denormalized data (like `userId` in subcollections) is managed to maintain Authorization Independence."
+    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability. It leverages path-based ownership for user-related data and segregates data based on access requirements.\n\n1.  **Users Collection:** Stores user profiles. Access is restricted to the user themselves.\n2.  **BankAccounts Collection:** Bank accounts are stored as a subcollection of the user document (`/users/{userId}/bankAccounts/{bankAccountId}`). This enforces ownership and simplifies security rules.  Authorization Independence is maintained because access control is determined solely by the path and the `userId` derived from `request.auth.uid`.  No `get()` calls are needed to check ownership.\n3.  **Transactions Collection:** Transactions are stored as a subcollection of the bank account (`/users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId}`).  Similar to bank accounts, this structure provides strong ownership and simplifies security rules. Authorization Independence is maintained as access is determined by the nested path and the `userId` which implicitly authorizes the user. No `get()` calls needed.\n4.  **Beneficiaries Collection:** Beneficiaries are stored as a subcollection of the user document (`/users/{userId}/beneficiaries/{beneficiaryId}`). This enforces ownership and simplifies security rules.  Authorization Independence is maintained because access control is determined solely by the path and the `userId` derived from `request.auth.uid`.  No `get()` calls are needed to check ownership.\n\n**Authorization Independence:** This is achieved by nesting BankAccounts, Transactions, and Beneficiaries under the /users/{userId} path. Security rules can then rely solely on `request.auth.uid == userId` to grant access, without needing to read parent documents.\n\n**Query Access Patterns (QAPs):**\n\n*   **List BankAccounts for User:**  Securely list bank accounts using `/users/{userId}/bankAccounts`. Rules will check `request.auth.uid == userId`.\n*   **List Transactions for BankAccount:** Securely list transactions using `/users/{userId}/bankAccounts/{bankAccountId}/transactions`. Rules will check `request.auth.uid == userId`.\n*   **List Beneficiaries for User:** Securely list beneficiaries using `/users/{userId}/beneficiaries`. Rules will check `request.auth.uid == userId`.\n\nThe design adheres to structural segregation by storing private user data (bank accounts, transactions, beneficiaries) under user-specific paths, ensuring uniform security requirements within each collection."
   }
 }
