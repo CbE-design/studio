@@ -1,0 +1,235 @@
+/**
+ * @file Firestore Security Rules
+ * @description This ruleset enforces a strict user-ownership model for financial data,
+ *              with public read access to ATM and Category information.
+ *
+ * Data Structure:
+ * - All user-specific data (bank accounts, beneficiaries, scheduled payments, financial tips)
+ *   is nested under `/users/{userId}`.
+ * - Global data (ATMs, categories) resides at the root level.
+ *
+ * Key Security Decisions:
+ * - User data is strictly segregated and only accessible to the authenticated user.
+ * - Authorization Independence is achieved by denormalizing the `userId` field into
+ *   BankAccount, Beneficiary, ScheduledPayment, and FinancialTip documents, which
+ *   avoids costly `get()` calls during authorization.
+ * - Listing of user documents is allowed by default for the owner.
+ * - ATM and Category data are publicly readable.
+ *
+ * Denormalization for Authorization:
+ * - The `userId` field is duplicated within the BankAccount, Beneficiary, ScheduledPayment,
+ *   and FinancialTip documents to allow direct access without requiring `get()` calls
+ *   in the security rules to verify ownership. This is critical for Authorization Independence
+ *   and efficient rule evaluation.
+ *
+ * Structural Segregation:
+ * - Private user data is stored under `/users/{userId}`, while public ATM and Category
+ *   data is stored at the root level. This segregation simplifies access control and
+ *   improves query performance.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Secures the `/users/{userId}` document, ensuring only the authenticated user
+     *              can read or write their own profile. Allows self-creation.
+     * @path /users/{userId}
+     * @allow (create) - Authenticated user creates their own profile with matching user ID.
+     * @allow (get, update, delete) - Authenticated user reads, updates, or deletes their own profile.
+     * @deny (create) - Authenticated user attempts to create a profile with a mismatched user ID.
+     * @deny (get, update, delete) - Authenticated user attempts to access another user's profile.
+     * @principle Enforces document ownership for all operations. Allows self-creation of user profiles.
+     */
+    match /users/{userId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(userId) {
+        return isSignedIn() && request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secures bank accounts under `/users/{userId}/bankAccounts/{bankAccountId}`,
+     *              allowing only the owner to manage their accounts.
+     * @path /users/{userId}/bankAccounts/{bankAccountId}
+     * @allow (create) - Authenticated user creates a bank account under their profile. Requires userId match.
+     * @allow (get, list, update, delete) - Authenticated user manages their own bank accounts.
+     * @deny (create, update, delete) - Authenticated user attempts to access or modify another user's bank accounts.
+     * @principle Enforces document ownership for all bank account operations.
+     */
+    match /users/{userId}/bankAccounts/{bankAccountId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(userId) {
+        return isSignedIn() && request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secures transactions under `/users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId}`,
+     *              allowing only the owner to manage transactions for their accounts.
+     * @path /users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId}
+     * @allow (create) - Authenticated user creates a transaction under their bank account.
+     * @allow (get, list, update, delete) - Authenticated user manages their own transactions.
+     * @deny (create, update, delete) - Authenticated user attempts to access or modify another user's transactions.
+     * @principle Enforces document ownership for all transaction operations.
+     */
+    match /users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(userId) {
+        return isSignedIn() && request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secures beneficiaries under `/users/{userId}/beneficiaries/{beneficiaryId}`,
+     *              allowing only the owner to manage their beneficiaries.
+     * @path /users/{userId}/beneficiaries/{beneficiaryId}
+     * @allow (create) - Authenticated user creates a beneficiary under their profile. Requires userId match.
+     * @allow (get, list, update, delete) - Authenticated user manages their own beneficiaries.
+     * @deny (create, update, delete) - Authenticated user attempts to access or modify another user's beneficiaries.
+     * @principle Enforces document ownership for all beneficiary operations.
+     */
+    match /users/{userId}/beneficiaries/{beneficiaryId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(userId) {
+        return isSignedIn() && request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secures scheduled payments under `/users/{userId}/scheduledPayments/{scheduledPaymentId}`,
+     *              allowing only the owner to manage their scheduled payments.
+     * @path /users/{userId}/scheduledPayments/{scheduledPaymentId}
+     * @allow (create) - Authenticated user creates a scheduled payment under their profile. Requires userId match.
+     * @allow (get, list, update, delete) - Authenticated user manages their own scheduled payments.
+     * @deny (create, update, delete) - Authenticated user attempts to access or modify another user's scheduled payments.
+     * @principle Enforces document ownership for all scheduled payment operations.
+     */
+    match /users/{userId}/scheduledPayments/{scheduledPaymentId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(userId) {
+        return isSignedIn() && request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secures financial tips under `/users/{userId}/financialTips/{financialTipId}`,
+     *              allowing only the owner to manage their financial tips.
+     * @path /users/{userId}/financialTips/{financialTipId}
+     * @allow (create) - Authenticated user creates a financial tip under their profile. Requires userId match.
+     * @allow (get, list, update, delete) - Authenticated user manages their own financial tips.
+     * @deny (create, update, delete) - Authenticated user attempts to access or modify another user's financial tips.
+     * @principle Enforces document ownership for all financial tip operations.
+     */
+    match /users/{userId}/financialTips/{financialTipId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(userId) {
+        return isSignedIn() && request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Allows public read access to ATM locations under `/atms/{atmId}`.
+     *              Write access is denied.
+     * @path /atms/{atmId}
+     * @allow (get, list) - Any user can read ATM locations.
+     * @deny (create, update, delete) - No user can create, update, or delete ATM locations.
+     * @principle Allows public read access for ATM locations. Write access is denied.
+     */
+    match /atms/{atmId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Allows public read access to transaction categories under `/categories/{categoryId}`.
+     *              Write access is denied.
+     * @path /categories/{categoryId}
+     * @allow (get, list) - Any user can read transaction categories.
+     * @deny (create, update, delete) - No user can create, update, or delete transaction categories.
+     * @principle Allows public read access for transaction categories. Write access is denied.
+     */
+    match /categories/{categoryId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+  }
+}
