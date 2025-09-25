@@ -105,7 +105,7 @@ const GetCashIcon = () => (
 );
 const StatementsIcon = () => (
   <Image
-    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2FIMG_20250925_144805.jpg?alt=media&token=603fdc43-9a21-42f0-b60b-96dfa3abb8da"
+    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758804914043.jpg?alt=media&token=d6f57fac-922b-4aff-8a89-103273efe411"
     alt="Statements and docs icon"
     width={56}
     height={56}
@@ -125,7 +125,7 @@ const widgets = [
   { icon: PayShapIcon, label: 'PayShap', href: '#' },
   { icon: QuickPayIcon, label: 'Quick Pay', href: '#' },
   { icon: GetCashIcon, label: 'Get cash', href: '#' },
-  { icon: StatementsIcon, label: 'Statements and docs', href: '/documents' },
+  { icon: StatementsIcon, label: 'Statements and docs', href: '/documents', isLarge: true },
 ];
 
 async function getAccounts(): Promise<Account[]> {
@@ -315,7 +315,10 @@ export default async function DashboardPage() {
             {widgets.map((widget, index) => (
               <Link href={widget.href} key={index}>
                 <div className="flex flex-col items-center gap-1 relative cursor-pointer">
-                <div className="p-2 rounded-lg shadow-sm border bg-white flex items-center justify-center">
+                <div className={cn(
+                  "rounded-lg shadow-sm border bg-white flex items-center justify-center",
+                  widget.isLarge ? "p-0" : "p-2"
+                )}>
                     <widget.icon />
                 </div>
                 <p className="text-xs text-gray-600">{widget.label}</p>
