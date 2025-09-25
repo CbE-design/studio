@@ -104,14 +104,13 @@ const GetCashIcon = () => (
   />
 );
 const StatementsIcon = () => (
-  <div className="h-14 w-14 flex items-center justify-center">
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-primary h-10 w-10">
-      <path d="M22 10V15C22 20 20 22 15 22H9C4 22 2 20 2 15V9C2 4 4 2 9 2H14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M22 10H18C15 10 14 9 14 6V2L22 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M7 13H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M7 17H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  </div>
+  <Image
+    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2FIMG_20250925_144805.jpg?alt=media&token=603fdc43-9a21-42f0-b60b-96dfa3abb8da"
+    alt="Statements and docs icon"
+    width={56}
+    height={56}
+    className="h-14 w-14"
+  />
 );
 
 
@@ -270,7 +269,7 @@ export default async function DashboardPage() {
               height={32}
               className="w-8 h-8"
             />
-            <span className="font-bold text-xl">Corrie</span>
+            <span className="font-bold text-xl ml-2">Corrie</span>
           </div>
           <div className="flex items-center gap-4">
             <Bell className="h-6 w-6" />
