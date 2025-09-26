@@ -80,19 +80,19 @@ export default function AccountDetailsPage() {
   const params = useParams();
   const accountId = params.id as string;
   const firestore = useFirestore();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
 
   const accountDocRef = useMemoFirebase(() => {
-    if (!firestore || !accountId || !user) return null;
-    return doc(firestore, 'accounts', accountId);
-  }, [firestore, accountId, user]);
+    if (!firestore || !accountId || !user?.uid) return null;
+    return doc(firestore, 'users', user.uid, 'bankAccounts', accountId);
+  }, [firestore, accountId, user?.uid]);
 
   const { data: account, isLoading: isAccountLoading } = useDocument<Account>(accountDocRef);
 
   const transactionsQuery = useMemoFirebase(() => {
-    if (!firestore || !accountId || !user) return null;
-    return query(collection(firestore, 'accounts', accountId, 'transactions'));
-  }, [firestore, accountId, user]);
+    if (!firestore || !accountId || !user?.uid) return null;
+    return query(collection(firestore, 'users', user.uid, 'bankAccounts', accountId, 'transactions'));
+  }, [firestore, accountId, user?.uid]);
 
   const { data: accountTransactions, isLoading: isTransactionsLoading } = useCollection<Transaction>(transactionsQuery);
 
@@ -101,7 +101,7 @@ export default function AccountDetailsPage() {
     return [...accountTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [accountTransactions]);
 
-  if (isAccountLoading || isTransactionsLoading) {
+  if (isUserLoading || isAccountLoading || isTransactionsLoading) {
     return <LoadingSkeleton />;
   }
 
