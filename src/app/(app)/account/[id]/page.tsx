@@ -80,18 +80,19 @@ export default function AccountDetailsPage() {
   const params = useParams();
   const accountId = params.id as string;
   const firestore = useFirestore();
+  const { user } = useUser();
 
   const accountDocRef = useMemoFirebase(() => {
-    if (!firestore || !accountId) return null;
+    if (!firestore || !accountId || !user) return null;
     return doc(firestore, 'accounts', accountId);
-  }, [firestore, accountId]);
+  }, [firestore, accountId, user]);
 
   const { data: account, isLoading: isAccountLoading } = useDocument<Account>(accountDocRef);
 
   const transactionsQuery = useMemoFirebase(() => {
-    if (!firestore || !accountId) return null;
+    if (!firestore || !accountId || !user) return null;
     return query(collection(firestore, 'accounts', accountId, 'transactions'));
-  }, [firestore, accountId]);
+  }, [firestore, accountId, user]);
 
   const { data: accountTransactions, isLoading: isTransactionsLoading } = useCollection<Transaction>(transactionsQuery);
 
@@ -219,5 +220,3 @@ export default function AccountDetailsPage() {
     </div>
   );
 }
-
-    
