@@ -5,8 +5,9 @@ import { z } from 'zod';
 import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
 import { revalidatePath } from 'next/cache';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/app/lib/firebase';
+import { auth, db } from '@/app/lib/firebase';
 import { redirect } from 'next/navigation';
+import { doc, runTransaction } from 'firebase/firestore';
 
 const FormSchema = z.object({
   income: z.coerce.number().positive({ message: 'Please enter a valid income.' }),
@@ -66,6 +67,7 @@ const TransactionSchema = z.object({
     recipientName: z.string().optional(),
     yourReference: z.string().optional(),
     recipientReference: z.string().optional(),
+    userId: z.string().min(1, { message: 'User ID is required.'}),
 });
 
 type TransactionInput = z.infer<typeof TransactionSchema>;
@@ -74,33 +76,48 @@ export async function createTransactionAction(data: TransactionInput) {
     const validatedFields = TransactionSchema.safeParse(data);
 
     if (!validatedFields.success) {
-        console.error('Validation failed:', validatedFields.error.flatten().fieldErrors);
         return {
             errors: validatedFields.error.flatten().fieldErrors,
             message: 'Invalid fields. Failed to create transaction.',
         };
     }
     
-    const { fromAccountId, amount, recipientName, yourReference, recipientReference } = validatedFields.data;
+    const { fromAccountId, amount, recipientName, yourReference, recipientReference, userId } = validatedFields.data;
     
     const numericAmount = parseFloat(amount);
     if (isNaN(numericAmount) || numericAmount <= 0) {
         return { message: 'Invalid amount.' };
     }
 
-    console.log("Mock Transaction Created:", {
-        fromAccountId,
-        amount: -Math.abs(numericAmount),
-        description: `Payment to ${recipientName || 'recipient'}`,
-        type: 'debit',
-        date: new Date().toISOString(),
-        reference: yourReference || recipientReference || 'Single Payment',
-    });
+    const fromAccountRef = doc(db, 'users', userId, 'bankAccounts', fromAccountId);
+    const transactionsRef = doc(collection(db, 'users', userId, 'bankAccounts', fromAccountId, 'transactions'));
 
-    // In a real app, you would revalidate the path of the account details page
-    // e.g. revalidatePath(`/account/${fromAccountId}`);
-    
-    return { message: 'Transaction created successfully.' };
+    try {
+        await runTransaction(db, async (transaction) => {
+            const fromAccountDoc = await transaction.get(fromAccountRef);
+            if (!fromAccountDoc.exists()) {
+                throw new Error("Source account does not exist!");
+            }
+
+            const newBalance = fromAccountDoc.data().balance - numericAmount;
+            transaction.update(fromAccountRef, { balance: newBalance });
+
+            transaction.set(transactionsRef, {
+                amount: -Math.abs(numericAmount),
+                date: new Date().toISOString(),
+                description: `Payment to ${recipientName || 'recipient'}`,
+                type: 'debit',
+                reference: yourReference || recipientReference || 'Single Payment',
+            });
+        });
+
+        revalidatePath(`/account/${fromAccountId}`);
+        return { message: 'Transaction created successfully.' };
+
+    } catch (e) {
+        console.error("Transaction failed: ", e);
+        return { message: 'Transaction failed.' };
+    }
 }
 
 export async function authenticate(
