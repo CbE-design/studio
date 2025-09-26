@@ -124,12 +124,12 @@ export default function DashboardPage() {
   const slides = [
     {
       title: 'Accounts',
-      content: <Accounts />,
+      content: <Accounts key="accounts" />,
     },
     {
       title: 'Rewards',
       content: (
-         <div className="space-y-2">
+         <div key="rewards" className="space-y-2">
           <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
             <div>
               <p className="text-sm">Greenbacks Rewards</p>
@@ -143,7 +143,7 @@ export default function DashboardPage() {
     {
       title: 'International banking and travel',
       content: (
-        <div className="space-y-4">
+        <div key="international" className="space-y-4">
           <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
             <div>
               <p className="text-xs">Incoming and outgoing payments</p>
@@ -164,7 +164,7 @@ export default function DashboardPage() {
     {
       title: 'Savings & Investments',
       content: (
-        <div className="space-y-4">
+        <div key="savings" className="space-y-4">
           <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
             <div>
               <p className="text-xs">Tax certificates</p>
@@ -184,7 +184,7 @@ export default function DashboardPage() {
     {
       title: 'Insurance',
       content: (
-        <div className="space-y-4">
+        <div key="insurance" className="space-y-4">
           <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
             <div>
               <p className="text-xs">Insurance</p>
