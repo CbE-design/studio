@@ -1,13 +1,14 @@
 
 'use client';
 
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useCollection, useFirestore, useUser } from '@/firebase';
 import type { Account } from '@/app/lib/definitions';
 import { formatCurrency } from '@/app/lib/data';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { collection, query } from 'firebase/firestore';
 import { Skeleton } from './ui/skeleton';
+import { useMemo } from 'react';
 
 const AccountSkeleton = () => (
   <div className="space-y-4">
@@ -32,7 +33,7 @@ export function Accounts() {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
 
-  const accountsQuery = useMemoFirebase(() => {
+  const accountsQuery = useMemo(() => {
     // Wait until the user is loaded and authenticated
     if (!firestore || !user?.uid) return null;
     // Query for accounts belonging to the current user
@@ -53,7 +54,7 @@ export function Accounts() {
           <Link href={`/account/${account.id}`} key={account.id}>
             <div className="flex flex-row justify-between items-center p-3 bg-white/10 border border-white/20 rounded-lg cursor-pointer hover:bg-white/20">
               <div>
-                <p className="text-sm font-normal normal-case">{account.name}</p>
+                <p className="text-sm font-normal normal-case">{account.accountName}</p>
                 <p className="text-base font-normal">{formatCurrency(account.balance, account.currency)}</p>
               </div>
               <ChevronRight className="h-6 w-6" />
