@@ -1,125 +1,19 @@
-/**
- * @fileoverview Firestore Security Rules for the application.
- *
- * Core Philosophy:
- * This ruleset enforces a strict user-ownership model. All data is nested under
- * the /users/{userId} path, ensuring that only the authenticated user can
- * access their own data.
- *
- * Data Structure:
- * - /users/{userId}: Stores user profiles.
- * - /users/{userId}/bankAccounts/{bankAccountId}: Stores bank accounts owned by the user.
- * - /users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId}: Stores transactions for a specific bank account.
- * - /users/{userId}/beneficiaries/{beneficiaryId}: Stores beneficiaries associated with the user.
- *
- * Key Security Decisions:
- * - Users can only access their own data.
- * - Path-based ownership is enforced for all user-related data (bank accounts,
- *   transactions, beneficiaries).
- * - No listing of the /users collection is allowed to prevent data leakage.
- * - Data validation is minimized in this prototype to focus on authorization.
- *
- * Denormalization for Authorization:
- * The data model is structured such that ownership can be derived directly
- * from the path. This avoids costly `get()` calls to parent documents to
- * determine authorization. For example, the rule for
- * `/users/{userId}/bankAccounts/{bankAccountId}` only needs to check that
- * `request.auth.uid == userId` to grant access, without needing to read the
- * user document.
- */
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if the user is signed in.
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    // Helper function to check if the authenticated user is the owner of the resource.
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
-    // Helper function to check if the authenticated user is the owner of the resource and the resource exists.
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
-    }
-
-    /**
-     * @description Protects the /users collection. Only the user themselves can read/write their profile.
-     * @path /users/{userId}
-     * @allow (create) User A can create their own profile: `request.auth.uid == 'user_a'` and `request.resource.data.id == 'user_a'`
-     * @allow (get) User A can get their own profile: `request.auth.uid == 'user_a'`
-     * @allow (update) User A can update their own profile: `request.auth.uid == 'user_a'`
-     * @allow (delete) User A can delete their own profile: `request.auth.uid == 'user_a'`
-     * @deny (create) User A cannot create a profile for User B: `request.auth.uid == 'user_a'` and `request.resource.data.id == 'user_b'`
-     * @deny (get) User A cannot get User B's profile: `request.auth.uid == 'user_a'`
-     * @principle Enforces user-ownership for profile data.
-     */
-    match /users/{userId} {
-      allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Protects the /users/{userId}/bankAccounts collection. Only the user themselves can read/write their bank accounts.
-     * @path /users/{userId}/bankAccounts/{bankAccountId}
-     * @allow (create) User A can create a bank account under their profile: `request.auth.uid == 'user_a'`
-     * @allow (get) User A can get a bank account under their profile: `request.auth.uid == 'user_a'`
-     * @allow (update) User A can update a bank account under their profile: `request.auth.uid == 'user_a'`
-     * @allow (delete) User A can delete a bank account under their profile: `request.auth.uid == 'user_a'`
-     * @deny (create) User A cannot create a bank account under User B's profile: `request.auth.uid == 'user_a'` for `/users/user_b/bankAccounts/bank_account_1`
-     * @deny (get) User A cannot get a bank account under User B's profile: `request.auth.uid == 'user_a'` for `/users/user_b/bankAccounts/bank_account_1`
-     * @principle Enforces user-ownership for bank account data.
-     */
-    match /users/{userId}/bankAccounts/{bankAccountId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Protects the /users/{userId}/bankAccounts/{bankAccountId}/transactions collection. Only the user themselves can read/write their transactions.
-     * @path /users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId}
-     * @allow (create) User A can create a transaction under their bank account: `request.auth.uid == 'user_a'`
-     * @allow (get) User A can get a transaction under their bank account: `request.auth.uid == 'user_a'`
-     * @allow (update) User A can update a transaction under their bank account: `request.auth.uid == 'user_a'`
-     * @allow (delete) User A can delete a transaction under their bank account: `request.auth.uid == 'user_a'`
-     * @deny (create) User A cannot create a transaction under User B's bank account: `request.auth.uid == 'user_a'` for `/users/user_b/bankAccounts/bank_account_1/transactions/transaction_1`
-     * @deny (get) User A cannot get a transaction under User B's bank account: `request.auth.uid == 'user_a'` for `/users/user_b/bankAccounts/bank_account_1/transactions/transaction_1`
-     * @principle Enforces user-ownership for transaction data.
-     */
-    match /users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Protects the /users/{userId}/beneficiaries collection. Only the user themselves can read/write their beneficiaries.
-     * @path /users/{userId}/beneficiaries/{beneficiaryId}
-     * @allow (create) User A can create a beneficiary under their profile: `request.auth.uid == 'user_a'`
-     * @allow (get) User A can get a beneficiary under their profile: `request.auth.uid == 'user_a'`
-     * @allow (update) User A can update a beneficiary under their profile: `request.auth.uid == 'user_a'`
-     * @allow (delete) User A can delete a beneficiary under their profile: `request.auth.uid == 'user_a'`
-     * @deny (create) User A cannot create a beneficiary under User B's profile: `request.auth.uid == 'user_a'` for `/users/user_b/beneficiaries/beneficiary_1`
-     * @deny (get) User A cannot get a beneficiary under User B's profile: `request.auth.uid == 'user_a'` for `/users/user_b/beneficiaries/beneficiary_1`
-     * @principle Enforces user-ownership for beneficiary data.
-     */
-    match /users/{userId}/beneficiaries/{beneficiaryId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+    // This rule allows anyone with your Firestore database reference to view, edit,
+    // and delete all data in your Firestore database. It is useful for getting
+    // started, but it is configured to expire after 30 days because it
+    // leaves your app open to attackers. At that time, all client
+    // requests to your Firestore database will be denied.
+    //
+    // Make sure to write security rules for your app before that time, or else
+    // all client requests to your Firestore database will be denied until you Update
+    // your rules
+    match /{document=**} {
+      allow read, write: if request.time < timestamp.date(2025, 10, 20);
     }
   }
 }
