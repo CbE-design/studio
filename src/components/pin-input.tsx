@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, ChangeEvent, KeyboardEvent } from 'react';
@@ -50,6 +51,7 @@ export function PinInput({ length, onComplete }: PinInputProps) {
            <input
             ref={(el) => (inputRefs.current[index] = el)}
             type="password"
+            inputMode="numeric"
             maxLength={1}
             value={pin[index]}
             onChange={(e) => handleChange(e, index)}

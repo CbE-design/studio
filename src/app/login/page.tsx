@@ -1,28 +1,25 @@
 
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useFormState, useFormStatus } from 'react-dom';
+import { authenticate } from '@/app/lib/actions';
 import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { PinInput } from '@/components/pin-input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { MessageSquare, Menu, ArrowRight } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { MessageSquare, Menu, ArrowRight, AlertCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+function LoginButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button className="w-full" aria-disabled={pending}>
+      Log in <ArrowRight className="ml-auto h-5 w-5 text-gray-50" />
+    </Button>
+  );
+}
 
 export default function LoginPage() {
-  const router = useRouter();
-  const { toast } = useToast();
-  const retailBankAward = PlaceHolderImages.find(img => img.id === 'retail-bank-award');
-  const customerObsessedAward = PlaceHolderImages.find(img => img.id === 'customer-obsessed-award');
-
-  const handlePinComplete = async (pin: string) => {
-    // In a real app, you would verify the pin
-    // For this demo, we'll just navigate to the dashboard
-    if (pin) {
-      router.push('/dashboard');
-    }
-  };
+  const [errorMessage, dispatch] = useFormState(authenticate, undefined);
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -46,56 +43,37 @@ export default function LoginPage() {
             <h1 className="text-3xl font-headline">Welcome back.</h1>
           </div>
           
-          <div className="space-y-4 pt-4">
-            <label className="text-sm font-medium text-muted-foreground">App PIN</label>
-            <div className="pt-2">
-              <PinInput length={5} onComplete={handlePinComplete} />
+          <form action={dispatch} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" name="email" type="email" placeholder="Enter your email" required />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" name="password" type="password" placeholder="Enter your password" required />
+            </div>
+            <LoginButton />
+
+            <div
+              className="flex h-8 items-end space-x-1"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              {errorMessage && (
+                <>
+                  <AlertCircle className="h-5 w-5 text-red-500" />
+                  <p className="text-sm text-red-500">{errorMessage}</p>
+                </>
+              )}
+            </div>
+          </form>
+
+           <div className="text-center">
+            <p className="text-sm text-muted-foreground">
+              To test the login, you can create a user in the Firebase Authentication console.
+            </p>
           </div>
 
-          <Button variant="link" className="text-primary p-0 h-auto">
-            Or use your Nedbank ID password <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-
-          <div className="space-y-4 pt-8">
-            {retailBankAward && (
-              <Card className="shadow-md">
-                <CardContent className="flex items-center gap-4 p-4">
-                  <Image
-                    src={retailBankAward.imageUrl}
-                    alt={retailBankAward.description}
-                    data-ai-hint={retailBankAward.imageHint}
-                    width={64}
-                    height={64}
-                    className="rounded-lg"
-                  />
-                  <div className="flex flex-col">
-                    <h3 className="font-semibold">Voted #1 retail bank 2024</h3>
-                    <p className="text-sm text-muted-foreground">2024 World Economic Magazine Awards - Best Retail Bank in South Africa</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {customerObsessedAward && (
-               <Card className="shadow-md">
-                <CardContent className="flex items-center gap-4 p-4">
-                  <Image
-                    src={customerObsessedAward.imageUrl}
-                    alt={customerObsessedAward.description}
-                    data-ai-hint={customerObsessedAward.imageHint}
-                    width={64}
-                    height={64}
-                    className="rounded-lg"
-                  />
-                  <div className="flex flex-col">
-                    <h3 className="font-semibold">Customer Obsessed Enterprise Award</h3>
-                    <p className="text-sm text-muted-foreground">2024 Forrester Award winner</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
         </div>
       </main>
     </div>

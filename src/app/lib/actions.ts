@@ -4,6 +4,9 @@
 import { z } from 'zod';
 import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
 import { revalidatePath } from 'next/cache';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/app/lib/firebase';
+import { redirect } from 'next/navigation';
 
 const FormSchema = z.object({
   income: z.coerce.number().positive({ message: 'Please enter a valid income.' }),
@@ -98,4 +101,23 @@ export async function createTransactionAction(data: TransactionInput) {
     // e.g. revalidatePath(`/account/${fromAccountId}`);
     
     return { message: 'Transaction created successfully.' };
+}
+
+export async function authenticate(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      formData.get('email') as string,
+      formData.get('password') as string,
+    );
+    redirect('/dashboard');
+  } catch (error: any) {
+    if (error.code.includes('auth')) {
+      return 'Invalid email or password.';
+    }
+    throw error;
+  }
 }
