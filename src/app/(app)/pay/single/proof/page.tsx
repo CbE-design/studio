@@ -10,6 +10,7 @@ import Image from 'next/image';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { Skeleton } from '@/components/ui/skeleton';
+import { formatCurrency } from '@/app/lib/data';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null | undefined }) => (
     <tr className="align-top">
@@ -57,7 +58,7 @@ function ProofOfPaymentContent() {
           dateOfPayment: format(now, 'dd/MM/yyyy'),
           referenceNumber: `${format(now, 'yyyy-MM-dd')}/Nedbank/${generateRandomSuffix()}`,
           recipient: searchParams.get('recipientName'),
-          amount: `R${parseFloat(searchParams.get('amount') || '0').toFixed(2)}`,
+          amount: formatCurrency(Number(searchParams.get('amount') || '0')),
           recipientReference: searchParams.get('recipientReference'),
           bank: searchParams.get('bankName'),
           accountNumber: `...${searchParams.get('accountNumber')?.slice(-5)}`,

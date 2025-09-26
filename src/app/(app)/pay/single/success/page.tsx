@@ -7,6 +7,7 @@ import { Check, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { formatCurrency } from '@/app/lib/data';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null }) => (
     <div className="py-4 border-b last:border-b-0">
@@ -80,7 +81,7 @@ function PaymentSuccessContent() {
                     <Check className="h-10 w-10" />
                 </div>
                 <h1 className="text-xl">
-                    {`R${paymentDetails.amount} paid to ${paymentDetails.recipientName}'s bank account`}
+                    {`${formatCurrency(Number(paymentDetails.amount))} paid to ${paymentDetails.recipientName}'s bank account`}
                 </h1>
             </header>
 

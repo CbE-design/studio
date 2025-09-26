@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, X, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
+import { formatCurrency } from '@/app/lib/data';
 
 const RecipientIcon = () => (
     <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center relative">
@@ -77,7 +78,7 @@ function ReviewPaymentContent() {
 
                 <div className="space-y-6">
                     <DetailRow label="Payment type" value={paymentDetails.paymentType} />
-                    <DetailRow label="Amount" value={`R${paymentDetails.amount}`} />
+                    <DetailRow label="Amount" value={formatCurrency(Number(paymentDetails.amount))} />
                     <DetailRow label="From account" value={paymentDetails.fromAccount} />
                     <DetailRow label="Payment date" value={format(new Date(), 'dd MMMM yyyy')} />
                     <DetailRow label="Your reference" value={paymentDetails.yourReference} />

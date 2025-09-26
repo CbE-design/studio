@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, ChevronRight, Users, Landmark, Smartphone, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,8 @@ import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import type { Account } from '@/app/lib/definitions';
-import { accounts as allAccounts } from '@/app/lib/data';
+import { useCollection, useFirestore, useUser } from '@/firebase';
+import { collection, query } from 'firebase/firestore';
 import {
   Select,
   SelectContent,
@@ -37,8 +38,17 @@ const BankIcon = () => (
 export default function SinglePaymentPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const firestore = useFirestore();
+  const { user } = useUser();
 
-  const [fromAccount, setFromAccount] = useState<string>(allAccounts.length > 0 ? allAccounts[0].id : '');
+  const accountsQuery = useMemo(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
+  }, [firestore, user?.uid]);
+
+  const { data: userAccounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
+
+  const [fromAccount, setFromAccount] = useState<string>('');
   const [amount, setAmount] = useState('1.00');
 
   const [bankName, setBankName] = useState('');
@@ -49,8 +59,8 @@ export default function SinglePaymentPage() {
   const [saveRecipient, setSaveRecipient] = useState(false);
   const [paymentType, setPaymentType] = useState('Standard EFT');
   
-  // Update state from URL params
-  useState(() => {
+  // Update state from URL params and set default account
+  useEffect(() => {
     const selectedBank = searchParams.get('bank');
     if (selectedBank) {
       setBankName(decodeURIComponent(selectedBank));
@@ -59,10 +69,13 @@ export default function SinglePaymentPage() {
     if (selectedPaymentType) {
       setPaymentType(decodeURIComponent(selectedPaymentType));
     }
-  });
+    if (!fromAccount && userAccounts && userAccounts.length > 0) {
+        setFromAccount(userAccounts[0].id);
+    }
+  }, [searchParams, userAccounts, fromAccount]);
 
   const handleNext = () => {
-    const selectedAccount = allAccounts?.find(acc => acc.id === fromAccount);
+    const selectedAccount = userAccounts?.find(acc => acc.id === fromAccount);
     const params = new URLSearchParams({
         fromAccountId: fromAccount,
         bankName,
@@ -72,7 +85,7 @@ export default function SinglePaymentPage() {
         recipientReference,
         paymentType,
         amount,
-        fromAccount: selectedAccount?.name || 'Unknown Account',
+        fromAccount: selectedAccount?.accountName || 'Unknown Account',
     });
     router.push(`/pay/single/review?${params.toString()}`);
   }
@@ -95,13 +108,13 @@ export default function SinglePaymentPage() {
         <div className="bg-white p-4 rounded-lg shadow-sm border space-y-4">
              <div>
                 <Label htmlFor="from-account" className="text-xs text-gray-500 font-semibold">From account</Label>
-                <Select value={fromAccount} onValueChange={setFromAccount}>
+                <Select value={fromAccount} onValueChange={setFromAccount} disabled={isAccountsLoading}>
                     <SelectTrigger id="from-account" className="mt-1">
-                        <SelectValue placeholder={"Select an account"} />
+                        <SelectValue placeholder={isAccountsLoading ? "Loading accounts..." : "Select an account"} />
                     </SelectTrigger>
                     <SelectContent>
-                        {allAccounts?.map(account => (
-                            <SelectItem key={account.id} value={account.id}>{account.name}</SelectItem>
+                        {userAccounts?.map(account => (
+                            <SelectItem key={account.id} value={account.id}>{account.accountName}</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
