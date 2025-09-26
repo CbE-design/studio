@@ -120,7 +120,7 @@ const widgets = [
   { icon: StatementsIcon, label: 'Statements and docs', href: '/documents' },
 ];
 
-export default async function DashboardPage() {
+export default function DashboardPage() {
   const slides = [
     {
       title: 'Accounts',
@@ -282,5 +282,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-
-    
