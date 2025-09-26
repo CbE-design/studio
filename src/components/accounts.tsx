@@ -33,11 +33,11 @@ export function Accounts() {
   const { user, isUserLoading } = useUser();
 
   const accountsQuery = useMemoFirebase(() => {
-    // Wait until the user is loaded and authenticated
-    if (!firestore || isUserLoading) return null;
+    // Wait until firestore is available
+    if (!firestore) return null;
     // Query for accounts from the top-level 'accounts' collection
     return query(collection(firestore, 'accounts'));
-  }, [firestore, isUserLoading]);
+  }, [firestore]);
 
   const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
 
