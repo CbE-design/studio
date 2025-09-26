@@ -4,7 +4,7 @@
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, MessageSquare, ChevronRight, Search, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { accounts, transactions, formatCurrency } from '@/app/lib/data';
+import { formatCurrency } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,9 @@ import { useMemo } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import { useCollection, useDocument, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { collection, doc, query } from 'firebase/firestore';
+
 
 const FilterIcon = () => (
   <svg
@@ -76,13 +79,30 @@ export default function AccountDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const accountId = params.id as string;
-  
-  const account = accounts.find(acc => acc.id === accountId);
-  const accountTransactions = transactions[accountId] || [];
-  
+  const firestore = useFirestore();
+
+  const accountDocRef = useMemoFirebase(() => {
+    if (!firestore || !accountId) return null;
+    return doc(firestore, 'accounts', accountId);
+  }, [firestore, accountId]);
+
+  const { data: account, isLoading: isAccountLoading } = useDocument<Account>(accountDocRef);
+
+  const transactionsQuery = useMemoFirebase(() => {
+    if (!firestore || !accountId) return null;
+    return query(collection(firestore, 'accounts', accountId, 'transactions'));
+  }, [firestore, accountId]);
+
+  const { data: accountTransactions, isLoading: isTransactionsLoading } = useCollection<Transaction>(transactionsQuery);
+
   const sortedTransactions = useMemo(() => {
+    if (!accountTransactions) return [];
     return [...accountTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [accountTransactions]);
+
+  if (isAccountLoading || isTransactionsLoading) {
+    return <LoadingSkeleton />;
+  }
 
   if (!account) {
     return (
@@ -199,3 +219,5 @@ export default function AccountDetailsPage() {
     </div>
   );
 }
+
+    
