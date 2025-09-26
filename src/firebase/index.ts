@@ -3,4 +3,5 @@
 'use client';
 export * from './hooks';
 export * from './firestore/use-collection';
+export * from './firestore/use-document';
 export * from './firestore/non-blocking-updates';
