@@ -34,10 +34,10 @@ export function Accounts() {
 
   const accountsQuery = useMemoFirebase(() => {
     // Wait until the user is loaded and authenticated
-    if (!firestore || !user?.uid) return null;
-    // Query for accounts belonging to the current user
-    return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
-  }, [firestore, user?.uid]);
+    if (!firestore || isUserLoading) return null;
+    // Query for accounts from the top-level 'accounts' collection
+    return query(collection(firestore, 'accounts'));
+  }, [firestore, isUserLoading]);
 
   const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
 
@@ -63,7 +63,7 @@ export function Accounts() {
       ) : (
          <div className="text-center py-4">
             <p className="text-sm">No accounts found.</p>
-            <p className="text-xs text-white/80">You can add account data under your user document in Firestore.</p>
+            <p className="text-xs text-white/80">You can add account data under the 'accounts' collection in Firestore.</p>
           </div>
       )}
     </div>
