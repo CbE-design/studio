@@ -115,7 +115,7 @@ export async function authenticate(
     );
     redirect('/dashboard');
   } catch (error: any) {
-    if (error.code.includes('auth')) {
+    if (error.code && error.code.includes('auth')) {
       return 'Invalid email or password.';
     }
     throw error;
