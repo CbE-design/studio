@@ -14,6 +14,7 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import {
   getAuth,
   onAuthStateChanged,
+  signInAnonymously,
   type Auth,
   type User,
 } from 'firebase/auth';
@@ -86,8 +87,16 @@ export function FirebaseProvider({ children }: PropsWithChildren<{}>) {
 
     // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setIsUserLoading(false);
+      if (user) {
+        setUser(user);
+        setIsUserLoading(false);
+      } else {
+        // If no user, sign in anonymously
+        signInAnonymously(auth).catch((error) => {
+          console.error("Anonymous sign-in failed on provider load:", error);
+          setIsUserLoading(false); // Still stop loading on error
+        });
+      }
     });
 
     return () => unsubscribe(); // Cleanup subscription on unmount

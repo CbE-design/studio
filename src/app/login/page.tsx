@@ -1,26 +1,45 @@
 
 'use client';
 
-import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { authenticate } from '@/app/lib/actions';
+import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Menu, ArrowRight, AlertCircle } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-
-function LoginButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button className="w-full" aria-disabled={pending}>
-      Log in <ArrowRight className="ml-auto h-5 w-5 text-gray-50" />
-    </Button>
-  );
-}
+import { MessageSquare, Menu, ArrowRight, AlertCircle, LoaderCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { signInAnonymously } from 'firebase/auth';
+import { useAuth } from '@/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 export default function LoginPage() {
-  const [errorMessage, dispatch] = useActionState(authenticate, undefined);
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const auth = useAuth();
+  const { toast } = useToast();
+
+  const handleLogin = async () => {
+    if (!auth) {
+      setErrorMessage('Firebase is not initialized. Please try again later.');
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage(undefined);
+
+    try {
+      await signInAnonymously(auth);
+      toast({
+        title: 'Login Successful',
+        description: 'You have been signed in anonymously.',
+      });
+      router.push('/dashboard');
+    } catch (error: any) {
+      console.error('Anonymous sign-in failed:', error);
+      setErrorMessage('Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -41,19 +60,20 @@ export default function LoginPage() {
       <main className="flex-1 overflow-y-auto px-6 py-8">
         <div className="space-y-8">
           <div>
-            <h1 className="text-3xl font-headline">Welcome back.</h1>
+            <h1 className="text-3xl font-headline">Welcome.</h1>
+            <p className="text-muted-foreground">Sign in to continue.</p>
           </div>
           
-          <form action={dispatch} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="user@nextmail.com" required defaultValue="user@nextmail.com" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" placeholder="123456" required defaultValue="123456" />
-            </div>
-            <LoginButton />
+          <div className="space-y-4">
+            <Button className="w-full" aria-disabled={isLoading} onClick={handleLogin}>
+              {isLoading ? (
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  Log in Anonymously <ArrowRight className="ml-auto h-5 w-5 text-gray-50" />
+                </>
+              )}
+            </Button>
 
             <div
               className="flex h-8 items-end space-x-1"
@@ -67,14 +87,7 @@ export default function LoginPage() {
                 </>
               )}
             </div>
-          </form>
-
-           <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              Use the credentials above to log in.
-            </p>
           </div>
-
         </div>
       </main>
     </div>

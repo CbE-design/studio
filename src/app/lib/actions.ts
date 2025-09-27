@@ -4,7 +4,6 @@
 import { z } from 'zod';
 import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 
 const FormSchema = z.object({
   income: z.coerce.number().positive({ message: 'Please enter a valid income.' }),
@@ -86,21 +85,4 @@ export async function createTransactionAction(data: TransactionInput) {
     revalidatePath(`/account/${validatedFields.data.fromAccountId}`);
 
     return { message: 'Transaction created successfully.' };
-}
-
-export async function authenticate(
-  prevState: string | undefined,
-  formData: FormData,
-) {
-  // This is a placeholder. A real implementation would use a library like NextAuth.js
-  // and validate against a database.
-  const email = formData.get('email');
-  const password = formData.get('password');
-
-  if (email === 'user@nextmail.com' && password === '123456') {
-      // In a real app, you'd set a cookie or session here
-      redirect('/dashboard');
-  } else {
-      return 'Invalid email or password.';
-  }
 }
