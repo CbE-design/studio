@@ -74,11 +74,11 @@ const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementTyp
                     New
                 </div>
             )}
-            <div className="w-8 h-px bg-gray-200" />
+            <div className="w-8 h-px bg-gray-300" />
             <div className="flex items-center justify-center w-12 h-12">
                 <Icon />
             </div>
-            <div className="w-8 h-px bg-gray-200" />
+            <div className="w-8 h-px bg-gray-300" />
             <p className="text-xs text-gray-700 font-medium h-8 flex items-center">{label}</p>
         </div>
     </Link>
@@ -228,6 +228,8 @@ export default function DashboardPage() {
   );
 }
 
+
+    
 
     
 
