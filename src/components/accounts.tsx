@@ -42,7 +42,7 @@ export function Accounts() {
 
   const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
 
-  if (isUserLoading || (accountsQuery && isAccountsLoading)) {
+  if (isUserLoading || isAccountsLoading) {
     return <AccountSkeleton />;
   }
 
