@@ -21,7 +21,7 @@ export function AccountsCarousel() {
           title: 'Rewards',
           content: (
              <div key="rewards" className="space-y-2">
-              <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
+              <div className="flex flex-row justify-between items-center p-3 rounded-lg border-b border-white/20 cursor-pointer hover:bg-white/10">
                 <div>
                   <p className="text-sm">Greenbacks Rewards</p>
                   <p className="text-base font-normal">GB 0</p>
@@ -150,5 +150,3 @@ export function AccountsCarousel() {
         </div>
     );
 }
-
-    
