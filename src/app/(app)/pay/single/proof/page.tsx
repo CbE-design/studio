@@ -7,10 +7,10 @@ import { ArrowLeft, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import Image from 'next/image';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency } from '@/app/lib/data';
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { useToast } from '@/hooks/use-toast';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null | undefined }) => (
     <tr className="align-top">
@@ -44,6 +44,7 @@ function ProofOfPaymentContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [paymentDetails, setPaymentDetails] = useState<any>(null);
+    const { toast } = useToast();
 
     useEffect(() => {
       const now = new Date();
@@ -53,7 +54,7 @@ function ProofOfPaymentContent() {
           dateOfPayment: format(now, 'dd/MM/yyyy'),
           referenceNumber: `${format(now, 'yyyy-MM-dd')}/Nedbank/${generateRandomSuffix()}`,
           recipient: searchParams.get('recipientName'),
-          amount: formatCurrency(Number(searchParams.get('amount') || '0')),
+          amount: Number(searchParams.get('amount') || '0'),
           recipientReference: searchParams.get('recipientReference'),
           bank: searchParams.get('bankName'),
           accountNumber: `...${searchParams.get('accountNumber')?.slice(-5)}`,
@@ -63,16 +64,118 @@ function ProofOfPaymentContent() {
       });
     }, [searchParams]);
 
-    const handleDownloadPdf = () => {
-        const input = document.getElementById('proof-of-payment');
-        if (input) {
-            html2canvas(input, { scale: 3 }).then((canvas) => {
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                pdf.save('proof-of-payment.pdf');
+    const handleDownloadPdf = async () => {
+        if (!paymentDetails) return;
+        try {
+            const pdfDoc = await PDFDocument.create();
+            const page = pdfDoc.addPage();
+            const { width, height } = page.getSize();
+            const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+            const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+            const textColor = rgb(0.2, 0.2, 0.2);
+
+            const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7';
+            const logoImageBytes = await fetch(logoUrl).then(res => res.arrayBuffer());
+            const logoImage = await pdfDoc.embedPng(logoImageBytes);
+            const logoDims = logoImage.scale(0.05); // Make logo smaller
+            page.drawImage(logoImage, {
+                x: 50,
+                y: height - 50 - logoDims.height,
+                width: logoDims.width,
+                height: logoDims.height,
+            });
+
+            const drawLine = (y: number) => {
+                page.drawLine({
+                    start: { x: 50, y },
+                    end: { x: width - 50, y },
+                    thickness: 0.5,
+                    color: rgb(0.8, 0.8, 0.8),
+                });
+            };
+
+            const drawText = (text: string, x: number, y: number, isBold = false, size = 10) => {
+                page.drawText(text, {
+                    x,
+                    y,
+                    font: isBold ? boldFont : font,
+                    size,
+                    color: textColor,
+                });
+            };
+            
+            let y = height - 100;
+            drawLine(y + 10);
+            y -= 20;
+
+            drawText('Notification of Payment', 50, y, true, 14);
+            y -= 20;
+            drawText('Nedbank Limited confirms that the following payment has been made:', 50, y, false, 10);
+            y -= 30;
+
+            drawText('Date of Payment', 50, y);
+            drawText(':', 200, y);
+            drawText(paymentDetails.dateOfPayment, 210, y, true);
+            y -= 15;
+            drawText('Reference Number', 50, y);
+            drawText(':', 200, y);
+            drawText(paymentDetails.referenceNumber, 210, y, true);
+            y -= 30;
+
+            drawText('Beneficiary details', 50, y, true, 12);
+            y -= 20;
+            drawText('Recipient', 50, y);
+            drawText(':', 200, y);
+            drawText(paymentDetails.recipient, 210, y, true);
+            y -= 15;
+            drawText('Amount', 50, y);
+            drawText(':', 200, y);
+            drawText(formatCurrency(paymentDetails.amount), 210, y, true);
+            y -= 15;
+            drawText('Recipient Reference', 50, y);
+            drawText(':', 200, y);
+            drawText(paymentDetails.recipientReference, 210, y, true);
+            y -= 15;
+            drawText('Bank', 50, y);
+            drawText(':', 200, y);
+            drawText(paymentDetails.bank, 210, y, true);
+            y -= 15;
+            drawText('Account Number', 50, y);
+            drawText(':', 200, y);
+            drawText(paymentDetails.accountNumber, 210, y, true);
+            y -= 15;
+            drawText('Channel', 50, y);
+            drawText(':', 200, y);
+            drawText(paymentDetails.channel, 210, y, true);
+            y -= 30;
+            
+            drawText('Payer details', 50, y, true, 12);
+            y -= 20;
+            drawText('Paid from Account Holder', 50, y);
+            drawText(':', 200, y);
+            drawText(paymentDetails.payer, 210, y, true);
+            y-= 30;
+
+            drawLine(y);
+            y -= 15;
+            drawText('Security Code', 50, y);
+            drawText(':', 200, y);
+            drawText(paymentDetails.securityCode, 210, y, true);
+
+            const pdfBytes = await pdfDoc.save();
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'proof-of-payment.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error("Failed to generate PDF:", error);
+            toast({
+                variant: 'destructive',
+                title: 'PDF Generation Failed',
+                description: 'An error occurred while trying to generate the PDF.',
             });
         }
     };
@@ -98,14 +201,14 @@ function ProofOfPaymentContent() {
                     <Image 
                         src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
                         alt="Nedbank Logo"
-                        width={48}
-                        height={48}
+                        width={40}
+                        height={40}
                         className="mb-6"
                     />
-                    <hr className="mb-6 border-gray-400"/>
+                    <hr className="mb-6 border-gray-300"/>
 
-                    <h2 className="text-sm font-bold mb-4">Notification of Payment</h2>
-                    <p className="mb-6">Nedbank Limited confirms that the following payment has been made:</p>
+                    <h2 className="text-lg font-bold mb-4 text-gray-800">Notification of Payment</h2>
+                    <p className="mb-6 text-gray-600 text-[12px]">Nedbank Limited confirms that the following payment has been made:</p>
 
                     <table className="w-full mb-6 text-[12px]">
                         <tbody>
@@ -114,11 +217,11 @@ function ProofOfPaymentContent() {
                         </tbody>
                     </table>
 
-                    <h3 className="font-bold mb-4 text-[12px]">Beneficiary details</h3>
+                    <h3 className="font-bold mb-4 text-base">Beneficiary details</h3>
                     <table className="w-full mb-6 text-[12px]">
                         <tbody>
                             <DetailRow label="Recipient" value={paymentDetails.recipient} />
-                            <DetailRow label="Amount" value={paymentDetails.amount} />
+                            <DetailRow label="Amount" value={formatCurrency(paymentDetails.amount)} />
                             <DetailRow label="Recipient Reference" value={paymentDetails.recipientReference} />
                             <DetailRow label="Bank" value={paymentDetails.bank} />
                             <DetailRow label="Account Number" value={paymentDetails.accountNumber} />
@@ -126,46 +229,31 @@ function ProofOfPaymentContent() {
                         </tbody>
                     </table>
                     
-                    <h3 className="font-bold mb-4 text-[12px]">Payer details</h3>
+                    <h3 className="font-bold mb-4 text-base">Payer details</h3>
                     <table className="w-full mb-6 text-[12px]">
                         <tbody>
                             <DetailRow label="Paid from Account Holder" value={paymentDetails.payer} />
                         </tbody>
                     </table>
-
-                    <p className="mb-6">
-                        Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.
-                    </p>
-
-                    <div className="space-y-4 mb-6 text-gray-600">
-                        <p>
-                            This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification.
-                            Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability for any loss or damage whatsoever or nature, arising from the use thereof.
-                            Payments may take up to three business days. Please check your account to verify the existence of the funds.
-                        </p>
-                        <p>
-                            <strong>Note:</strong> We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.
-                        </p>
-                    </div>
-
-                    <h4 className="font-bold mb-4">Nedbank Limited email disclaimer</h4>
-                    <p className="text-gray-600 mb-6">
-                        This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.
-                    </p>
                     
+                    <hr className="mb-6 border-gray-300"/>
+
                     <table className="w-full mb-6 text-[12px]">
                         <tbody>
                             <DetailRow label="Security Code" value={paymentDetails.securityCode} />
                         </tbody>
                     </table>
                     
-                    <hr className="mb-6 border-gray-400"/>
-
-                    <p className="text-[9px] text-gray-500 leading-tight text-center">
-                        Nedbank Limited Reg No 1951/000009/06. VAT Reg No 4320116074. 135 Rivonia Road, Sandown, Sandton, 2196, South Africa.
-                        <br/>
-                        We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCRCP16).
-                    </p>
+                    <div className="space-y-4 text-gray-500 text-[10px] text-center">
+                        <p>
+                           Payments may take up to three business days. Please check your account to verify the existence of the funds.
+                        </p>
+                        <p>
+                           Nedbank Limited Reg No 1951/000009/06. VAT Reg No 4320116074.
+                           <br />
+                           We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCRCP16).
+                        </p>
+                    </div>
                 </div>
             )}
         </main>
