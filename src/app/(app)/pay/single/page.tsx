@@ -62,13 +62,26 @@ export default function SinglePaymentPage() {
     }
 
     // Restore state from query parameters
-    if (searchParams.has('amount')) setAmount(searchParams.get('amount') || '0.00');
-    if (searchParams.has('bank')) setBankName(decodeURIComponent(searchParams.get('bank')!));
-    if (searchParams.has('accountNumber')) setAccountNumber(searchParams.get('accountNumber') || '');
-    if (searchParams.has('recipientName')) setRecipientName(searchParams.get('recipientName') || '');
-    if (searchParams.has('yourReference')) setYourReference(searchParams.get('yourReference') || '');
-    if (searchParams.has('recipientReference')) setRecipientReference(searchParams.get('recipientReference') || '');
-    if (searchParams.has('paymentType')) setPaymentType(decodeURIComponent(searchParams.get('paymentType')!));
+    const queryAmount = searchParams.get('amount');
+    if (queryAmount) setAmount(queryAmount);
+
+    const queryBank = searchParams.get('bank');
+    if (queryBank) setBankName(decodeURIComponent(queryBank));
+    
+    const queryAccountNumber = searchParams.get('accountNumber');
+    if (queryAccountNumber) setAccountNumber(queryAccountNumber);
+    
+    const queryRecipientName = searchParams.get('recipientName');
+    if (queryRecipientName) setRecipientName(queryRecipientName);
+    
+    const queryYourReference = searchParams.get('yourReference');
+    if (queryYourReference) setYourReference(queryYourReference);
+    
+    const queryRecipientReference = searchParams.get('recipientReference');
+    if (queryRecipientReference) setRecipientReference(queryRecipientReference);
+
+    const queryPaymentType = searchParams.get('paymentType');
+    if (queryPaymentType) setPaymentType(decodeURIComponent(queryPaymentType));
     
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
@@ -119,11 +132,11 @@ export default function SinglePaymentPage() {
       </header>
       
       <main className="flex-1 overflow-y-auto p-4 space-y-6">
-        <div className="bg-white p-4 rounded-lg shadow-sm border space-y-4">
+        <div className="space-y-4">
              <div>
                 <Label htmlFor="from-account" className="text-xs text-gray-500 font-semibold">From account</Label>
                 <Select value={fromAccount} onValueChange={setFromAccount} disabled={isAccountsLoading}>
-                    <SelectTrigger id="from-account" className="mt-1">
+                    <SelectTrigger id="from-account" className="mt-1 bg-white">
                         <SelectValue placeholder={isAccountsLoading ? "Loading accounts..." : "Select an account"} />
                     </SelectTrigger>
                     <SelectContent>
@@ -135,25 +148,25 @@ export default function SinglePaymentPage() {
             </div>
              <div>
                 <Label htmlFor="amount" className="text-xs text-gray-500 font-semibold">Amount</Label>
-                <Input id="amount" value={amount} onChange={e => setAmount(e.target.value)} type="number" placeholder="0.00" className="mt-1" />
+                <Input id="amount" value={amount} onChange={e => setAmount(e.target.value)} type="number" placeholder="0.00" className="mt-1 bg-white" />
             </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-sm border space-y-4">
+        <div className="space-y-4">
             <div>
                 <Label htmlFor="recipient-name" className="text-xs text-gray-500 font-semibold">A new recipient</Label>
-                <Input id="recipient-name" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Enter name and surname" className="mt-1" />
+                <Input id="recipient-name" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Enter name and surname" className="mt-1 bg-white" />
             </div>
 
-            <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+            <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
                 <Users className="h-5 w-5 mr-3 text-primary" />
                 <span className="flex-1 text-gray-700">Select from saved recipients</span>
             </div>
-             <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+             <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
                 <Landmark className="h-5 w-5 mr-3 text-primary" />
                 <span className="flex-1 text-gray-700">Select from bank-approved recipients</span>
             </div>
-             <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+             <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
                 <Smartphone className="h-5 w-5 mr-3 text-primary" />
                 <span className="flex-1 text-gray-700">Select from phone contacts</span>
             </div>
@@ -169,7 +182,7 @@ export default function SinglePaymentPage() {
             </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-sm border space-y-4">
+        <div className="space-y-4">
             <h2 className="font-semibold text-gray-800">To which account?</h2>
             <div className="space-y-2">
                 <Label htmlFor="bank-name" className="text-xs text-gray-500 font-semibold">Bank name</Label>
@@ -186,17 +199,17 @@ export default function SinglePaymentPage() {
             </div>
             <div className="space-y-2">
                 <Label htmlFor="account-number" className="text-xs text-gray-500 font-semibold">Account number</Label>
-                <Input id="account-number" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="" />
+                <Input id="account-number" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="" className="bg-white" />
             </div>
 
              <div className="space-y-2">
                 <Label htmlFor="your-reference" className="text-xs text-gray-500 font-semibold">Your reference (optional)</Label>
-                <Input id="your-reference" value={yourReference} onChange={e => setYourReference(e.target.value)} />
+                <Input id="your-reference" value={yourReference} onChange={e => setYourReference(e.target.value)} className="bg-white" />
             </div>
 
             <div className="space-y-2">
                 <Label htmlFor="recipient-reference" className="text-xs text-gray-500 font-semibold">Recipient's reference (optional)</Label>
-                <Input id="recipient-reference" value={recipientReference} onChange={e => setRecipientReference(e.target.value)} />
+                <Input id="recipient-reference" value={recipientReference} onChange={e => setRecipientReference(e.target.value)} className="bg-white" />
             </div>
 
             <h2 className="font-semibold text-gray-800 pt-2">Payment type?</h2>
@@ -234,3 +247,5 @@ export default function SinglePaymentPage() {
     </div>
   );
 }
+
+    
