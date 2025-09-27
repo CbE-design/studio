@@ -99,13 +99,13 @@ function SinglePaymentForm() {
         <h1 className="text-2xl font-semibold">Whom would you like to pay?</h1>
       </header>
       
-      <main className="flex-1 overflow-y-auto p-4 space-y-6 -mt-10">
-        <div className="bg-white p-4 rounded-lg shadow-sm border space-y-4">
-            <div>
-                <Label htmlFor="recipient-name" className="text-xs text-gray-500 font-semibold">A new recipient</Label>
-                <Input id="recipient-name" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Enter name and surname" className="mt-1 bg-white border-primary" />
-            </div>
+      <main className="flex-1 overflow-y-auto p-4 space-y-6">
+        <div className="-mt-16">
+            <Label htmlFor="recipient-name" className="text-xs text-gray-500 font-semibold">A new recipient</Label>
+            <Input id="recipient-name" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Enter name and surname" className="mt-1 bg-white border-primary" />
+        </div>
 
+        <div className="bg-white p-4 rounded-lg shadow-sm border space-y-4 mt-8">
             <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
                 <Users className="h-5 w-5 mr-3 text-primary" />
                 <span className="flex-1 text-gray-700">Select from saved recipients</span>
