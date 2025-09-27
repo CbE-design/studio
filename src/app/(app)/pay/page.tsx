@@ -1,11 +1,20 @@
 
 'use client';
 
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ChevronRight, User, Banknote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
+import type { Transaction } from '@/app/lib/definitions';
+import { collectionGroup, query, where, orderBy } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
+import { format } from 'date-fns';
+import { formatCurrency } from '@/app/lib/data';
+import { cn } from '@/lib/utils';
+
 
 const paymentOptions = [
   {
@@ -145,14 +154,51 @@ const paymentOptions = [
   },
 ];
 
+const RecipientIcon = () => (
+  <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+    <User className="h-5 w-5 text-gray-400" />
+  </div>
+);
+
+const HistorySkeleton = () => (
+    <div className="space-y-4 pt-4">
+        {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex items-center gap-4">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="flex-1 space-y-1">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/4" />
+                </div>
+                <Skeleton className="h-5 w-1/5" />
+            </div>
+        ))}
+    </div>
+);
+
 export default function PayPage() {
   const router = useRouter();
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
+
+  const transactionsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(
+        collectionGroup(firestore, 'transactions'), 
+        where('userId', '==', user.uid),
+        where('type', '==', 'debit'),
+        orderBy('date', 'desc')
+    );
+  }, [firestore, user?.uid]);
+
+  const { data: recentTransactions, isLoading: isTransactionsLoading } = useCollection<Transaction>(transactionsQuery);
+
+  const isLoading = isUserLoading || isTransactionsLoading;
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="bg-white p-4 flex items-center shadow-sm sticky top-0 z-10 border-b">
-        <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
-          <ArrowLeft />
+      <header className="bg-white p-4 flex items-center sticky top-0 z-10 border-b">
+        <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
+          <ArrowLeft className="h-6 w-6" />
         </Button>
         <h1 className="text-3xl font-bold text-gray-800">What would you like to do?</h1>
       </header>
@@ -186,10 +232,32 @@ export default function PayPage() {
                 <TabsTrigger value="once-off" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none data-[state=active]:text-primary font-semibold">Once-off payments</TabsTrigger>
               </TabsList>
               <TabsContent value="recipient" className="pt-4">
-                <p className="text-gray-500 text-sm">There are no recipient payments to display.</p>
+                 {isLoading ? (
+                    <HistorySkeleton />
+                 ) : recentTransactions && recentTransactions.length > 0 ? (
+                    <div className="space-y-4">
+                        {recentTransactions.map(tx => (
+                            <div key={tx.id} className="flex items-center gap-4">
+                                <RecipientIcon />
+                                <div className="flex-1">
+                                    <p className="font-semibold text-gray-800">{tx.recipientName || tx.description}</p>
+                                    <p className="text-sm text-gray-500">{format(new Date(tx.date), 'dd MMMM yyyy')}</p>
+                                </div>
+                                <p className={cn(
+                                "font-semibold",
+                                tx.type === 'debit' ? 'text-gray-800' : 'text-green-600'
+                                )}>
+                                {tx.type === 'debit' ? '-' : ''}{formatCurrency(tx.amount)}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                 ) : (
+                    <p className="text-gray-500 text-sm text-center py-8">There are no recipient payments to display.</p>
+                 )}
               </TabsContent>
               <TabsContent value="once-off" className="pt-4">
-                 <p className="text-gray-500 text-sm">There are no once-off payments to display.</p>
+                 <p className="text-gray-500 text-sm text-center py-8">There are no once-off payments to display.</p>
               </TabsContent>
             </Tabs>
           </div>
@@ -199,3 +267,5 @@ export default function PayPage() {
     </div>
   );
 }
+
+    
