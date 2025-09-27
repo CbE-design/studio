@@ -76,7 +76,7 @@ export function TransferForm({ allAccounts }: { allAccounts: Account[] }) {
   const initialFromAccount = allAccounts.length > 1 ? allAccounts[1].id : (allAccounts.length > 0 ? allAccounts[0].id : null);
   const initialToAccount = allAccounts.length > 0 ? allAccounts[0].id : null;
 
-  const [fromAccount, setFromAccount] useState<string | null>(initialFromAccount);
+  const [fromAccount, setFromAccount] = useState<string | null>(initialFromAccount);
   const [toAccount, setToAccount] = useState<string | null>(initialToAccount);
 
 
