@@ -150,17 +150,15 @@ export default function PayPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="gradient-background text-primary-foreground p-4 flex items-center shadow-md sticky top-0 z-10">
+      <header className="bg-white p-4 flex items-center shadow-sm sticky top-0 z-10 border-b">
         <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>
-        <h1 className="text-xl font-semibold">Pay</h1>
+        <h1 className="text-3xl font-bold text-gray-800">What would you like to do?</h1>
       </header>
       
       <main className="flex-1 overflow-y-auto">
         <div className="p-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8">What would you like to do?</h1>
-          
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             {paymentOptions.map((option, index) => (
               <Link href={option.href || '#'} key={option.title}>
