@@ -151,7 +151,7 @@ export default function SignupPage() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <header className="flex items-center justify-between p-4 bg-primary text-primary-foreground">
+      <header className="flex items-center justify-between p-4 gradient-background text-primary-foreground">
         <Image 
           src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO-white.png?alt=media&token=143ce385-52a1-432a-9df2-513ab41c49f8" 
           alt="Nedbank Logo"

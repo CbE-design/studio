@@ -149,7 +149,7 @@ export default function PayPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="bg-primary text-primary-foreground p-4 flex items-center shadow-md sticky top-0 z-10">
+      <header className="gradient-background text-primary-foreground p-4 flex items-center shadow-md sticky top-0 z-10">
         <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>

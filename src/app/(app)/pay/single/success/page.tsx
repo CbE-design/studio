@@ -85,7 +85,7 @@ function PaymentSuccessContent() {
 
     return (
         <div className="flex flex-col h-screen bg-white">
-            <header className="bg-primary text-primary-foreground p-6 text-center h-48 flex flex-col justify-center items-center">
+            <header className="gradient-background text-primary-foreground p-6 text-center h-48 flex flex-col justify-center items-center">
                 <div className="h-16 w-16 rounded-full border-2 border-white flex items-center justify-center mb-4">
                     <Check className="h-10 w-10" />
                 </div>

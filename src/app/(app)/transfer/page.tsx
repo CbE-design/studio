@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const LoadingSkeleton = () => (
     <div className="p-4 space-y-6 animate-pulse">
-        <Skeleton className="h-24 bg-primary/20" />
+        <div className="h-24 gradient-background" />
         <Skeleton className="h-40 bg-gray-200" />
         <Skeleton className="h-40 bg-gray-200" />
         <Skeleton className="h-20 bg-gray-200" />

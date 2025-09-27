@@ -58,7 +58,7 @@ export default function SelectBankPage() {
 
   return (
     <div className="flex flex-col h-screen bg-white">
-      <header className="bg-primary text-primary-foreground p-4 flex items-center sticky top-0 z-20">
+      <header className="gradient-background text-primary-foreground p-4 flex items-center sticky top-0 z-20">
         <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>

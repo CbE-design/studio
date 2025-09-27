@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 
 const CardPlaceholder = () => (
     <div className="relative w-full max-w-sm mx-auto aspect-[1.586] rounded-xl overflow-hidden shadow-lg">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary to-green-700"></div>
+      <div className="absolute inset-0 gradient-background"></div>
       <div className="relative h-full p-6 flex flex-col justify-between">
         <div>
           <div className="w-12 h-8 bg-white/20 rounded-md"></div>
@@ -29,7 +29,7 @@ export default function CardsPage() {
 
   return (
     <div className="flex flex-col h-screen bg-white">
-      <header className="bg-primary text-primary-foreground p-4 sticky top-0 z-10">
+      <header className="gradient-background text-primary-foreground p-4 sticky top-0 z-10">
         <h1 className="text-xl font-bold text-center">My cards</h1>
       </header>
       

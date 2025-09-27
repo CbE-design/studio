@@ -97,14 +97,14 @@ export function TransferForm({ allAccounts }: { allAccounts: Account[] }) {
 
   return (
     <div className="flex flex-col h-screen">
-      <header className="bg-primary text-primary-foreground p-4 flex items-center">
+      <header className="gradient-background text-primary-foreground p-4 flex items-center">
         <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>
         <h1 className="text-xl font-bold">Transfer</h1>
       </header>
 
-      <div className="bg-primary text-primary-foreground p-4 space-y-2">
+      <div className="gradient-background text-primary-foreground p-4 space-y-2">
         <label className="text-sm">Amount</label>
         <div className="flex items-end">
             <span className="text-2xl font-light mr-1">R</span>
