@@ -71,8 +71,14 @@ const AccountSelector = ({
 export function TransferForm({ allAccounts }: { allAccounts: Account[] }) {
   const router = useRouter();
   const [amount, setAmount] = useState('R0.00');
-  const [fromAccount, setFromAccount] = useState<string | null>(allAccounts.length > 1 ? allAccounts[1].id : null);
-  const [toAccount, setToAccount] = useState<string | null>(allAccounts.length > 0 ? allAccounts[0].id : null);
+  
+  // Safely set initial state for from and to accounts
+  const initialFromAccount = allAccounts.length > 1 ? allAccounts[1].id : (allAccounts.length > 0 ? allAccounts[0].id : null);
+  const initialToAccount = allAccounts.length > 0 ? allAccounts[0].id : null;
+
+  const [fromAccount, setFromAccount] useState<string | null>(initialFromAccount);
+  const [toAccount, setToAccount] = useState<string | null>(initialToAccount);
+
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9.]/g, '');
