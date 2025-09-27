@@ -6,9 +6,8 @@ import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/com
 import { Eye, ChevronLeft, ChevronRight, ChevronRight as ChevronRightIcon } from 'lucide-react';
 import { Accounts } from './accounts';
 import { Button } from './ui/button';
-import type { Account } from '@/app/lib/definitions';
 
-export function AccountsCarousel({ initialAccounts }: { initialAccounts: Account[] }) {
+export function AccountsCarousel() {
     const [api, setApi] = useState<CarouselApi>();
     const [current, setCurrent] = useState(0);
     const [count, setCount] = useState(0);
@@ -16,7 +15,7 @@ export function AccountsCarousel({ initialAccounts }: { initialAccounts: Account
     const slides = [
         {
           title: 'Accounts',
-          content: <Accounts initialAccounts={initialAccounts} />,
+          content: <Accounts />,
         },
         {
           title: 'Rewards',
@@ -151,3 +150,5 @@ export function AccountsCarousel({ initialAccounts }: { initialAccounts: Account
         </div>
     );
 }
+
+    

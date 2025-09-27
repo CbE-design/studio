@@ -28,21 +28,21 @@ const AccountSkeleton = () => (
   </div>
 )
 
-export function Accounts({ initialAccounts }: { initialAccounts: Account[] }) {
+export function Accounts() {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
 
   const accountsQuery = useMemoFirebase(() => {
+    // Wait until the user is loaded and authenticated
     if (!firestore || !user?.uid) return null;
+    // Query for accounts belonging to the current user
     return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
   }, [firestore, user?.uid]);
 
-  const { data: liveAccounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
+  const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
 
-  const accounts = liveAccounts ?? initialAccounts;
-  const isLoading = isUserLoading || (isAccountsLoading && !initialAccounts.length);
-
-  if (isLoading) {
+  // Show skeleton while user is logging in OR accounts are fetching
+  if (isUserLoading || isAccountsLoading) {
     return <AccountSkeleton />;
   }
 
@@ -69,3 +69,5 @@ export function Accounts({ initialAccounts }: { initialAccounts: Account[] }) {
     </div>
   );
 }
+
+    

@@ -8,11 +8,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { AccountsCarousel } from '@/components/accounts-carousel';
-import { getDocsFromServer } from '@/app/lib/data-fetching';
-import { db } from '@/app/lib/firebase-admin';
-import type { Account } from '@/app/lib/definitions';
 import { useUser } from '@/firebase';
-import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Custom SVG Icons
@@ -122,32 +118,8 @@ const LoadingSkeleton = () => (
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchAccounts() {
-      if (!user?.uid) {
-        if (!isUserLoading) setIsLoading(false);
-        return;
-      }
-      setIsLoading(true);
-      try {
-        const fetchedAccounts = (await getDocsFromServer(
-          db,
-          `users/${user.uid}/bankAccounts`
-        )) as Account[];
-        setAccounts(fetchedAccounts);
-      } catch (error) {
-        console.error("Failed to fetch accounts:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchAccounts();
-  }, [user?.uid, isUserLoading]);
-
-  if (isUserLoading || isLoading) {
+  if (isUserLoading) {
     return <LoadingSkeleton />;
   }
 
@@ -176,7 +148,7 @@ export default function DashboardPage() {
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto bg-gray-50">
         <div className="bg-primary text-primary-foreground p-4">
-            <AccountsCarousel initialAccounts={accounts} />
+            <AccountsCarousel />
         </div>
         <div className="p-4">
             <Image
@@ -205,3 +177,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
