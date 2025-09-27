@@ -13,7 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 
 const BankIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 22h16"/>
         <path d="M2 18V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v9"/>
         <path d="M4 18v-5"/>
@@ -100,8 +100,8 @@ function SinglePaymentForm() {
           <h1 className="text-2xl font-semibold">Whom would you like to pay?</h1>
         </header>
         
-        <main className="relative z-10 bg-gray-50 p-4 space-y-6 rounded-t-2xl -mt-4">
-          <div className="space-y-2">
+        <main className="relative z-10 bg-gray-50 p-4 space-y-6 rounded-t-2xl -mt-12">
+           <div className="space-y-2">
               <Label htmlFor="recipient-name" className="text-xs text-gray-500 font-semibold">A new recipient</Label>
               <Input id="recipient-name" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Enter name and surname" className="bg-white border-primary" />
           </div>
@@ -121,12 +121,17 @@ function SinglePaymentForm() {
               </div>
           </div>
           
-          <div className="space-y-2 py-4">
-              <h2 className="font-semibold text-gray-800 text-center">How would you like to pay?</h2>
-              <div className="flex justify-center">
-                  <div className="bg-primary text-primary-foreground p-4 rounded-lg flex flex-col items-center justify-center w-36 h-28 cursor-pointer shadow-md">
-                      <BankIcon />
-                      <span className="text-sm text-center mt-2">Pay to a bank account</span>
+          <div className="space-y-4 py-4">
+              <h2 className="font-semibold text-lg text-gray-800 text-left">How would you like to pay?</h2>
+              <div className="flex justify-start">
+                  <div className="bg-primary text-primary-foreground p-4 rounded-lg flex flex-col items-center justify-center w-40 h-32 cursor-pointer shadow-md">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 22h16"/>
+                        <path d="M2 18V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v9"/>
+                        <path d="M4 18v-5"/><path d="M8 18v-5"/><path d="M12 18v-5"/><path d="M16 18v-5"/><path d="M20 18v-5"/>
+                        <path d="m2 9 10-4 10 4"/>
+                      </svg>
+                      <span className="text-base text-center mt-2">Pay to a bank account</span>
                   </div>
               </div>
           </div>
