@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, ChevronRight, Users, Landmark, Smartphone, Info } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Users, Landmark, Smartphone, Info, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,7 +35,7 @@ const BankIcon = () => (
     </svg>
   );
 
-export default function SinglePaymentPage() {
+function SinglePaymentForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const firestore = useFirestore();
@@ -95,7 +95,7 @@ export default function SinglePaymentPage() {
   }, [searchParams, userAccounts]);
 
   const preserveStateAndNavigate = (pathname: string) => {
-      const params = new URLSearchParams();
+      const params = new URLSearchParams(searchParams.toString());
       // Persist all state fields into query params
       params.set('fromAccount', fromAccount);
       params.set('amount', amount);
@@ -254,4 +254,18 @@ export default function SinglePaymentPage() {
       </footer>
     </div>
   );
+}
+
+const LoadingFallback = () => (
+    <div className="flex items-center justify-center h-screen">
+        <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+    </div>
+);
+
+export default function SinglePaymentPage() {
+    return (
+        <Suspense fallback={<LoadingFallback />}>
+            <SinglePaymentForm />
+        </Suspense>
+    );
 }

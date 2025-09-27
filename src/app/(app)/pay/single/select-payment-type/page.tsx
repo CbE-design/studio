@@ -3,23 +3,23 @@
 
 import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 function PaymentTypeSelector() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const selectedBank = searchParams.get('bank') || '';
+
+  // Create a stable copy of searchParams for dependency array
+  const preservedSearchParams = new URLSearchParams(searchParams.toString());
 
   const handleSelect = (paymentType: string) => {
-    // We need to preserve the original bank query param when navigating back
-    const newSearchParams = new URLSearchParams();
-    newSearchParams.set('bank', selectedBank);
-    newSearchParams.set('paymentType', paymentType);
-    router.push(`/pay/single?${newSearchParams.toString()}`);
+    // Use the preserved params to ensure we don't lose any existing state
+    preservedSearchParams.set('paymentType', paymentType);
+    router.push(`/pay/single?${preservedSearchParams.toString()}`);
   };
   
-  const isNedbank = selectedBank.toLowerCase() === 'nedbank';
+  const isNedbank = (preservedSearchParams.get('bank') || '').toLowerCase() === 'nedbank';
 
   const paymentTypes = [
     {
@@ -70,9 +70,15 @@ function PaymentTypeSelector() {
   );
 }
 
+const LoadingFallback = () => (
+    <div className="flex items-center justify-center h-screen">
+        <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+    </div>
+);
+
 export default function SelectPaymentTypePage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<LoadingFallback />}>
             <PaymentTypeSelector />
         </Suspense>
     );

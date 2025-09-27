@@ -3,7 +3,7 @@
 
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Check, Share2 } from 'lucide-react';
+import { Check, Share2, LoaderCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -131,10 +131,16 @@ function PaymentSuccessContent() {
     );
 }
 
+const LoadingFallback = () => (
+    <div className="flex items-center justify-center h-screen">
+        <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+    </div>
+);
+
 
 export default function PaymentSuccessPage() {
     return (
-        <Suspense fallback={<div>Loading confirmation...</div>}>
+        <Suspense fallback={<LoadingFallback />}>
             <PaymentSuccessContent />
         </Suspense>
     );

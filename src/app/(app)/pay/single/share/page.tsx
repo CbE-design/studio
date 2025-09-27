@@ -3,7 +3,7 @@
 
 import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Mail, MessageSquare, Send } from 'lucide-react';
+import { ArrowLeft, Mail, MessageSquare, Send, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -51,9 +51,15 @@ function ShareProofOfPaymentContent() {
   );
 }
 
+const LoadingFallback = () => (
+    <div className="flex items-center justify-center h-screen">
+        <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+    </div>
+);
+
 export default function ShareProofOfPaymentPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<LoadingFallback />}>
             <ShareProofOfPaymentContent />
         </Suspense>
     )

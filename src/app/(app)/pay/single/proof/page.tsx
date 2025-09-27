@@ -3,7 +3,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Download } from 'lucide-react';
+import { ArrowLeft, Download, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import Image from 'next/image';
@@ -301,12 +301,16 @@ function ProofOfPaymentContent() {
     );
 }
 
+const LoadingFallback = () => (
+    <div className="flex items-center justify-center h-screen">
+        <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+    </div>
+);
+
 export default function ProofOfPaymentPage() {
     return (
-        <Suspense fallback={<div className="p-4">Loading proof of payment...</div>}>
+        <Suspense fallback={<LoadingFallback />}>
             <ProofOfPaymentContent />
         </Suspense>
     )
 }
-
-    

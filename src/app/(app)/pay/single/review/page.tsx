@@ -3,7 +3,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, X, User } from 'lucide-react';
+import { ArrowLeft, X, User, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/app/lib/data';
@@ -100,9 +100,15 @@ function ReviewPaymentContent() {
     )
 }
 
+const LoadingFallback = () => (
+    <div className="flex items-center justify-center h-screen">
+        <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+    </div>
+);
+
 export default function ReviewPaymentPage() {
     return (
-        <Suspense fallback={<div>Loading payment details...</div>}>
+        <Suspense fallback={<LoadingFallback />}>
             <ReviewPaymentContent />
         </Suspense>
     )

@@ -1,15 +1,15 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Search } from 'lucide-react';
+import { ArrowLeft, Search, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { banks as allBanks } from '@/app/lib/data';
 import type { Bank } from '@/app/lib/definitions';
 
-export default function SelectBankPage() {
+function BankSelector() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
@@ -112,5 +112,19 @@ export default function SelectBankPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+const LoadingFallback = () => (
+    <div className="flex items-center justify-center h-screen">
+        <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+    </div>
+);
+
+export default function SelectBankPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <BankSelector />
+    </Suspense>
   );
 }
