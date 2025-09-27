@@ -4,10 +4,6 @@
 import { z } from 'zod';
 import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
 import { revalidatePath } from 'next/cache';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth, db } from '@/app/lib/firebase';
-import { redirect } from 'next/navigation';
-import { doc, runTransaction } from 'firebase/firestore';
 
 const FormSchema = z.object({
   income: z.coerce.number().positive({ message: 'Please enter a valid income.' }),
@@ -67,7 +63,6 @@ const TransactionSchema = z.object({
     recipientName: z.string().optional(),
     yourReference: z.string().optional(),
     recipientReference: z.string().optional(),
-    userId: z.string().min(1, { message: 'User ID is required.'}),
 });
 
 type TransactionInput = z.infer<typeof TransactionSchema>;
@@ -82,59 +77,30 @@ export async function createTransactionAction(data: TransactionInput) {
         };
     }
     
-    const { fromAccountId, amount, recipientName, yourReference, recipientReference, userId } = validatedFields.data;
-    
-    const numericAmount = parseFloat(amount);
-    if (isNaN(numericAmount) || numericAmount <= 0) {
-        return { message: 'Invalid amount.' };
-    }
+    // In a real app, you would now interact with your database.
+    // For this example, we'll just log the data and return a success message.
+    console.log('Creating transaction with the following data:', validatedFields.data);
 
-    const fromAccountRef = doc(db, 'users', userId, 'bankAccounts', fromAccountId);
-    const transactionsRef = doc(collection(db, 'users', userId, 'bankAccounts', fromAccountId, 'transactions'));
+    // This is where you might revalidate cache for pages that display transactions
+    revalidatePath(`/account/${validatedFields.data.fromAccountId}`);
 
-    try {
-        await runTransaction(db, async (transaction) => {
-            const fromAccountDoc = await transaction.get(fromAccountRef);
-            if (!fromAccountDoc.exists()) {
-                throw new Error("Source account does not exist!");
-            }
-
-            const newBalance = fromAccountDoc.data().balance - numericAmount;
-            transaction.update(fromAccountRef, { balance: newBalance });
-
-            transaction.set(transactionsRef, {
-                amount: -Math.abs(numericAmount),
-                date: new Date().toISOString(),
-                description: `Payment to ${recipientName || 'recipient'}`,
-                type: 'debit',
-                reference: yourReference || recipientReference || 'Single Payment',
-            });
-        });
-
-        revalidatePath(`/account/${fromAccountId}`);
-        return { message: 'Transaction created successfully.' };
-
-    } catch (e) {
-        console.error("Transaction failed: ", e);
-        return { message: 'Transaction failed.' };
-    }
+    return { message: 'Transaction created successfully.' };
 }
 
 export async function authenticate(
   prevState: string | undefined,
   formData: FormData,
 ) {
-  try {
-    await signInWithEmailAndPassword(
-      auth,
-      formData.get('email') as string,
-      formData.get('password') as string,
-    );
-    redirect('/dashboard');
-  } catch (error: any) {
-    if (error.code && error.code.includes('auth')) {
+  // This is a placeholder. A real implementation would use a library like NextAuth.js
+  // and validate against a database.
+  const email = formData.get('email');
+  const password = formData.get('password');
+
+  if (email === 'user@nextmail.com' && password === '123456') {
+      // In a real app, you'd set a cookie or session here
+      const { redirect } = await import('next/navigation');
+      redirect('/dashboard');
+  } else {
       return 'Invalid email or password.';
-    }
-    throw error;
   }
 }

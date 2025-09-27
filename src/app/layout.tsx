@@ -3,7 +3,6 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { Roboto } from 'next/font/google';
 import { cn } from '@/lib/utils';
-import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -25,9 +24,7 @@ export default function RootLayout({
     <html lang="en">
       <head />
       <body className={cn("font-sans antialiased", roboto.variable)}>
-        <FirebaseClientProvider>
           {children}
-        </FirebaseClientProvider>
         <Toaster />
       </body>
     </html>

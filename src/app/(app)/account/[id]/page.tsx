@@ -4,18 +4,15 @@
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, MessageSquare, ChevronRight, Search, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { formatCurrency } from '@/app/lib/data';
+import { formatCurrency, accounts, transactions } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
-import { useCollection, useDocument, useFirestore, useUser } from '@/firebase';
-import { collection, doc, query } from 'firebase/firestore';
-
 
 const FilterIcon = () => (
   <svg
@@ -79,33 +76,27 @@ export default function AccountDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const accountId = params.id as string;
-  const firestore = useFirestore();
-  const { user, isUserLoading } = useUser();
+  
+  const [account, setAccount] = useState<Account | undefined>(undefined);
+  const [accountTransactions, setAccountTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const accountDocRef = useMemo(() => {
-    if (firestore && user?.uid && accountId) {
-      return doc(firestore, 'users', user.uid, 'bankAccounts', accountId);
+  useEffect(() => {
+    const foundAccount = accounts.find(acc => acc.id === accountId);
+    setAccount(foundAccount);
+    if (foundAccount) {
+      setAccountTransactions(transactions[accountId] || []);
     }
-    return null;
-  }, [firestore, user?.uid, accountId]);
+    setIsLoading(false);
+  }, [accountId]);
 
-  const { data: account, isLoading: isAccountLoading } = useDocument<Account>(accountDocRef);
-
-  const transactionsQuery = useMemo(() => {
-    if (firestore && user?.uid && accountId) {
-      return query(collection(firestore, 'users', user.uid, 'bankAccounts', accountId, 'transactions'));
-    }
-    return null;
-  }, [firestore, user?.uid, accountId]);
-
-  const { data: accountTransactions, isLoading: isTransactionsLoading } = useCollection<Transaction>(transactionsQuery);
 
   const sortedTransactions = useMemo(() => {
     if (!accountTransactions) return [];
     return [...accountTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [accountTransactions]);
 
-  if (isUserLoading || (accountDocRef && isAccountLoading) || (transactionsQuery && isTransactionsLoading)) {
+  if (isLoading) {
     return <LoadingSkeleton />;
   }
 
@@ -127,7 +118,7 @@ export default function AccountDetailsPage() {
               <ArrowLeft />
             </Button>
             <div>
-              <h1 className="text-xl font-normal normal-case">{account.accountName}</h1>
+              <h1 className="text-xl font-normal normal-case">{account.name}</h1>
               <p className="text-sm opacity-80">{account.accountNumber}</p>
             </div>
           </div>

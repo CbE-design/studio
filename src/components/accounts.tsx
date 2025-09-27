@@ -1,14 +1,11 @@
 
 'use client';
 
-import { useCollection, useFirestore, useUser } from '@/firebase';
 import type { Account } from '@/app/lib/definitions';
-import { formatCurrency } from '@/app/lib/data';
+import { formatCurrency, accounts } from '@/app/lib/data';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
-import { collection, query } from 'firebase/firestore';
 import { Skeleton } from './ui/skeleton';
-import { useMemo } from 'react';
 
 const AccountSkeleton = () => (
   <div className="space-y-4">
@@ -30,30 +27,17 @@ const AccountSkeleton = () => (
 )
 
 export function Accounts() {
-  const firestore = useFirestore();
-  const { user, isUserLoading } = useUser();
-
-  const accountsQuery = useMemo(() => {
-    if (firestore && user?.uid) {
-      return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
-    }
-    return null;
-  }, [firestore, user?.uid]);
-
-  const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
-
-  if (isUserLoading || isAccountsLoading) {
-    return <AccountSkeleton />;
-  }
+  // Using hardcoded data
+  const userAccounts = accounts;
 
   return (
     <div className="space-y-4">
-      {accounts && accounts.length > 0 ? (
-        accounts.map((account) => (
+      {userAccounts && userAccounts.length > 0 ? (
+        userAccounts.map((account) => (
           <Link href={`/account/${account.id}`} key={account.id}>
             <div className="flex flex-row justify-between items-center p-3 bg-white/10 border border-white/20 rounded-lg cursor-pointer hover:bg-white/20">
               <div>
-                <p className="text-sm font-normal normal-case">{account.accountName}</p>
+                <p className="text-sm font-normal normal-case">{account.name}</p>
                 <p className="text-base font-normal">{formatCurrency(account.balance, account.currency)}</p>
               </div>
               <ChevronRight className="h-6 w-6" />
@@ -63,8 +47,7 @@ export function Accounts() {
       ) : (
          <div className="text-center py-4">
             <p className="text-sm">No accounts found.</p>
-            <p className="text-xs text-white/80">You can add account data under your user document in Firestore.</p>
-          </div>
+         </div>
       )}
     </div>
   );

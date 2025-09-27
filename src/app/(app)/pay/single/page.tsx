@@ -11,8 +11,7 @@ import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import type { Account } from '@/app/lib/definitions';
-import { useCollection, useFirestore, useUser } from '@/firebase';
-import { collection, query } from 'firebase/firestore';
+import { accounts as userAccountsData } from '@/app/lib/data';
 import {
   Select,
   SelectContent,
@@ -38,15 +37,9 @@ const BankIcon = () => (
 export default function SinglePaymentPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const firestore = useFirestore();
-  const { user } = useUser();
-
-  const accountsQuery = useMemo(() => {
-    if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
-  }, [firestore, user?.uid]);
-
-  const { data: userAccounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
+  
+  const userAccounts: Account[] = userAccountsData;
+  const isAccountsLoading = false; // Since it's hardcoded
 
   const [fromAccount, setFromAccount] = useState<string>('');
   const [amount, setAmount] = useState('1.00');
@@ -85,7 +78,7 @@ export default function SinglePaymentPage() {
         recipientReference,
         paymentType,
         amount,
-        fromAccount: selectedAccount?.accountName || 'Unknown Account',
+        fromAccount: selectedAccount?.name || 'Unknown Account',
     });
     router.push(`/pay/single/review?${params.toString()}`);
   }
@@ -114,7 +107,7 @@ export default function SinglePaymentPage() {
                     </SelectTrigger>
                     <SelectContent>
                         {userAccounts?.map(account => (
-                            <SelectItem key={account.id} value={account.id}>{account.accountName}</SelectItem>
+                            <SelectItem key={account.id} value={account.id}>{account.name}</SelectItem>
                         ))}
                     </SelectContent>
                 </Select>

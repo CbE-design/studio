@@ -47,11 +47,11 @@ export default function LoginPage() {
           <form action={dispatch} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="Enter your email" required />
+              <Input id="email" name="email" type="email" placeholder="user@nextmail.com" required defaultValue="user@nextmail.com" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" placeholder="Enter your password" required />
+              <Input id="password" name="password" type="password" placeholder="123456" required defaultValue="123456" />
             </div>
             <LoginButton />
 
@@ -71,7 +71,7 @@ export default function LoginPage() {
 
            <div className="text-center">
             <p className="text-sm text-muted-foreground">
-              To test the login, you can create a user in the Firebase Authentication console.
+              Use the credentials above to log in.
             </p>
           </div>
 

@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/app/lib/data';
 import { createTransactionAction } from '@/app/lib/actions';
-import { useUser } from '@/firebase';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null }) => (
     <div className="py-4 border-b last:border-b-0">
@@ -22,7 +21,6 @@ function PaymentSuccessContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { toast } = useToast();
-    const { user } = useUser();
     const transactionRecorded = useRef(false);
 
     const paymentDetails = {
@@ -36,7 +34,7 @@ function PaymentSuccessContent() {
     };
 
     useEffect(() => {
-        if (transactionRecorded.current || !user?.uid) return;
+        if (transactionRecorded.current) return;
         
         const recordTransaction = async () => {
             if (!paymentDetails.fromAccountId || !paymentDetails.amount) {
@@ -54,7 +52,6 @@ function PaymentSuccessContent() {
                 recipientName: paymentDetails.recipientName || undefined,
                 yourReference: paymentDetails.yourReference || undefined,
                 recipientReference: paymentDetails.recipientReference || undefined,
-                userId: user.uid
             });
 
             if (result.message === 'Transaction created successfully.') {
@@ -74,7 +71,7 @@ function PaymentSuccessContent() {
         recordTransaction();
         transactionRecorded.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user?.uid]);
+    }, []);
     
     const handleShare = () => {
         const params = new URLSearchParams();
