@@ -35,7 +35,7 @@ export function Accounts() {
       {userAccounts && userAccounts.length > 0 ? (
         userAccounts.map((account) => (
           <Link href={`/account/${account.id}`} key={account.id}>
-            <div className="flex flex-row justify-between items-center p-3 bg-white/10 border border-white/20 rounded-lg cursor-pointer hover:bg-white/20">
+            <div className="flex flex-row justify-between items-center p-3 bg-white/5 border border-white/10 rounded-lg cursor-pointer hover:bg-white/10">
               <div>
                 <p className="text-sm font-normal normal-case">{account.name}</p>
                 <p className="text-base font-normal">{formatCurrency(account.balance, account.currency)}</p>
