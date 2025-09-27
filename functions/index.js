@@ -1,32 +1,88 @@
 /**
  * Import function triggers from their respective submodules:
  *
- * const {onCall} = require("firebase-functions/v2/https");
+ * const {onCall} = require("firebase-functions/v2/onCall");
  * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
  *
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
 
-const {setGlobalOptions} = require("firebase-functions");
-const {onRequest} = require("firebase-functions/https");
-const logger = require("firebase-functions/logger");
+const { setGlobalOptions } = require('firebase-functions/v2');
+const { onUserCreate } = require('firebase-functions/v2/auth');
+const admin = require('firebase-admin');
 
-// For cost control, you can set the maximum number of containers that can be
-// running at the same time. This helps mitigate the impact of unexpected
-// traffic spikes by instead downgrading performance. This limit is a
-// per-function limit. You can override the limit for each function using the
-// `maxInstances` option in the function's options, e.g.
-// `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
-// NOTE: setGlobalOptions does not apply to functions using the v1 API. V1
-// functions should each use functions.runWith({ maxInstances: 10 }) instead.
-// In the v1 API, each function can only serve one request per container, so
-// this will be the maximum concurrent request count.
-setGlobalOptions({ maxInstances: 10 });
+// Initialize Firebase Admin SDK
+admin.initializeApp();
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+// Set global options for functions (e.g., region, memory)
+setGlobalOptions({ region: 'us-central1' });
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+// Default bank accounts to be created for a new user
+const defaultAccounts = [
+  {
+    name: 'Savvy Bundle Current Account',
+    type: 'Cheque',
+    accountNumber: '1234567890',
+    balance: 0.0,
+    currency: 'ZAR',
+  },
+  {
+    name: 'Current Account',
+    type: 'Cheque',
+    accountNumber: '1234066912',
+    balance: -5891.1,
+    currency: 'ZAR',
+  },
+  {
+    name: 'MyPockets(2/10)',
+    type: 'Savings',
+    accountNumber: '1122334455',
+    balance: 4.0,
+    currency: 'ZAR',
+  },
+  {
+    name: 'Savings Account',
+    type: 'Savings',
+    accountNumber: '0987654321',
+    balance: 1250.0,
+    currency: 'ZAR',
+  },
+];
+
+/**
+ * Triggered when a new user is created in Firebase Authentication.
+ * This function creates a corresponding user document in Firestore
+ * and provisions them with a default set of bank accounts.
+ */
+exports.provisionNewUser = onUserCreate(async (event) => {
+  const user = event.data;
+  const { uid, email } = user;
+  const db = admin.firestore();
+
+  // Create the main user document
+  const userDocRef = db.collection('users').doc(uid);
+  await userDocRef.set({
+    id: uid,
+    email: email,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  // Create the bankAccounts subcollection with default accounts
+  const bankAccountsCollectionRef = userDocRef.collection('bankAccounts');
+  const batch = db.batch();
+
+  defaultAccounts.forEach((account) => {
+    // Let Firestore auto-generate the document ID
+    const newAccountRef = bankAccountsCollectionRef.doc();
+    batch.set(newAccountRef, {
+      ...account,
+      userId: uid, // Link the account to the user
+    });
+  });
+
+  // Commit the batch to create all accounts at once
+  await batch.commit();
+
+  console.log(`Successfully provisioned new user: ${uid}`);
+  return null;
+});
