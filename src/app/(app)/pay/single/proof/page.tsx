@@ -73,15 +73,15 @@ function ProofOfPaymentContent() {
 
             const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
             const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+            const monospaceFont = await pdfDoc.embedFont(StandardFonts.Courier);
             
             const textColor = rgb(0.2, 0.2, 0.2); // #333
             const lightTextColor = rgb(0.33, 0.33, 0.33); // #555
             const footerTextColor = rgb(0.46, 0.46, 0.46); // #777
             const borderColor = rgb(0.8, 0.8, 0.8); // #ccc
-            const margin = 50;
+            const margin = 40;
             let y = height - margin - 20;
 
-            // Helper for wrapping text
             const wrapText = (text: string, maxWidth: number, font: PDFFont, fontSize: number) => {
                 const words = text.split(' ');
                 let lines: string[] = [];
@@ -100,19 +100,8 @@ function ProofOfPaymentContent() {
                 lines.push(currentLine);
                 return lines;
             };
-
-            // 1. Logo and Header Line
-            const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7';
-            const logoImageBytes = await fetch(`/api/image-proxy?url=${encodeURIComponent(logoUrl)}`).then(res => res.arrayBuffer());
-            const logoImage = await pdfDoc.embedPng(logoImageBytes);
-            const logoDims = logoImage.scale(0.04);
-            page.drawImage(logoImage, {
-                x: margin,
-                y: y - logoDims.height,
-                width: logoDims.width,
-                height: logoDims.height,
-            });
-            y -= logoDims.height + 5;
+            
+            // 1. Header Line
             page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 1, color: borderColor });
             y -= 20;
 
@@ -128,11 +117,11 @@ function ProofOfPaymentContent() {
             const col1X = margin;
             const col2X = margin + 155; // Approx 25% + separator space
             page.drawText('Date of Payment', { x: col1X, y, font, size: 12, color: textColor });
-            page.drawText(':', { x: col2X - 10, y, font: boldFont, size: 12, color: textColor });
+            page.drawText(':', { x: col2X - 10, y, font, size: 12, color: textColor });
             page.drawText(paymentDetails.dateOfPayment, { x: col2X, y, font, size: 12, color: textColor });
             y -= 22; // 1.8 line height approx
             page.drawText('Reference Number', { x: col1X, y, font, size: 12, color: textColor });
-            page.drawText(':', { x: col2X - 10, y, font: boldFont, size: 12, color: textColor });
+            page.drawText(':', { x: col2X - 10, y, font, size: 12, color: textColor });
             page.drawText(paymentDetails.referenceNumber, { x: col2X, y, font, size: 12, color: textColor });
             y -= 30;
 
@@ -172,10 +161,12 @@ function ProofOfPaymentContent() {
                 "Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details."
             ];
             const standardFontSize = 11;
-            standardTexts.forEach(text => {
-                const lines = wrapText(text, width - (2*margin), font, standardFontSize);
+            standardTexts.forEach((text, i) => {
+                const isBold = i === 2 || text.startsWith("Note:");
+                const currentFont = isBold ? boldFont : font;
+                const lines = wrapText(text, width - (2*margin), currentFont, standardFontSize);
                 lines.forEach(line => {
-                     page.drawText(line, { x: margin, y, font, size: standardFontSize, color: textColor, lineHeight: 13 });
+                     page.drawText(line, { x: margin, y, font: currentFont, size: standardFontSize, color: textColor, lineHeight: 13 });
                      y -= 13;
                 });
                 y -= 8;
@@ -200,15 +191,16 @@ function ProofOfPaymentContent() {
 
             // 9. Security Code
             page.drawText('Security Code', { x: col1X, y, font, size: 12, color: textColor });
-            page.drawText(':', { x: col2X - 10, y, font: boldFont, size: 12, color: textColor });
-            page.drawText(paymentDetails.securityCode, { x: col2X, y, font: boldFont, size: 12, color: textColor });
+            page.drawText(':', { x: col2X - 10, y, font, size: 12, color: textColor });
+            page.drawText(paymentDetails.securityCode, { x: col2X, y, font: monospaceFont, size: 12, color: textColor });
             y -= 25;
 
             // 10. Footer
             page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 1, color: borderColor });
             y -= 20;
             const footerText = "Nedbank Limited Reg No 1951/000009/06 VAT Reg No 432018074 135 Rivonia Road, Sandton, Sandton 2196, South Africa.";
-            page.drawText(footerText, { x: margin, y, font, size: 8, color: footerTextColor, x: (width - font.widthOfTextAtSize(footerText, 8))/2 });
+            const footerFontSize = 8;
+            page.drawText(footerText, { x: (width - font.widthOfTextAtSize(footerText, footerFontSize))/2, y, font, size: footerFontSize, color: footerTextColor });
 
             const pdfBytes = await pdfDoc.save();
             const blob = new Blob([pdfBytes], { type: 'application/pdf' });
@@ -316,3 +308,5 @@ export default function ProofOfPaymentPage() {
         </Suspense>
     )
 }
+
+    
