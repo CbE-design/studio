@@ -12,44 +12,28 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import type { Account, Beneficiary } from "@/app/lib/definitions";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/app/lib/firebase";
-import { beneficiaries } from "@/app/lib/data";
+import { useFirestore, useUser, useCollection, useMemoFirebase } from "@/firebase";
+import { beneficiaries as staticBeneficiaries } from "@/app/lib/data";
+import { query } from 'firebase/firestore';
 
 
 export default function PaymentsPage() {
   const { toast } = useToast();
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useUser();
+  const firestore = useFirestore();
 
-  useEffect(() => {
-    async function fetchAccounts() {
-      try {
-        const querySnapshot = await getDocs(collection(db, "accounts"));
-        const fetchedAccounts = querySnapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                name: data.name,
-                type: data.type,
-                accountNumber: data.accountNumber,
-                balance: data.balance,
-                currency: data.currency,
-            } as Account;
-        });
-        setAccounts(fetchedAccounts);
-      } catch (error) {
-        console.error("Error fetching accounts: ", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Could not fetch accounts from the database.",
-        });
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchAccounts();
-  }, [toast]);
+  const accountsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
+  }, [firestore, user?.uid]);
+
+  const beneficiariesQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'users', user.uid, 'beneficiaries'));
+  }, [firestore, user?.uid]);
+
+  const { data: accounts, isLoading: loading } = useCollection<Account>(accountsQuery);
+  const { data: beneficiaries, isLoading: beneficiariesLoading } = useCollection<Beneficiary>(beneficiariesQuery);
 
 
   const handlePayment = (e: React.FormEvent<HTMLFormElement>) => {
@@ -112,7 +96,7 @@ export default function PaymentsPage() {
                             <SelectValue placeholder="Select an account" />
                           </SelectTrigger>
                           <SelectContent>
-                            {accounts.map(acc => (
+                            {accounts?.map(acc => (
                               <SelectItem key={acc.id} value={acc.id}>
                                 {acc.name} ({formatCurrency(acc.balance, acc.currency)})
                               </SelectItem>
@@ -127,7 +111,7 @@ export default function PaymentsPage() {
                             <SelectValue placeholder="Select an account" />
                           </SelectTrigger>
                           <SelectContent>
-                            {accounts.map(acc => (
+                            {accounts?.map(acc => (
                               <SelectItem key={acc.id} value={acc.id}>
                                 {acc.name} ({formatCurrency(acc.balance, acc.currency)})
                               </SelectItem>
@@ -166,7 +150,7 @@ export default function PaymentsPage() {
                           <SelectValue placeholder="Select an account" />
                         </SelectTrigger>
                         <SelectContent>
-                          {accounts.filter(a => a.type !== 'Credit').map(acc => (
+                          {accounts?.filter(a => a.type !== 'Credit').map(acc => (
                             <SelectItem key={acc.id} value={acc.id}>
                               {acc.name} ({formatCurrency(acc.balance, acc.currency)})
                             </SelectItem>
@@ -178,10 +162,10 @@ export default function PaymentsPage() {
                       <Label htmlFor="beneficiary">To</Label>
                       <Select name="beneficiary">
                         <SelectTrigger id="beneficiary">
-                          <SelectValue placeholder="Select a beneficiary" />
+                          <SelectValue placeholder={beneficiariesLoading ? "Loading..." : "Select a beneficiary"} />
                         </SelectTrigger>
                         <SelectContent>
-                          {beneficiaries.map(ben => (
+                          {beneficiaries?.map(ben => (
                             <SelectItem key={ben.id} value={ben.id}>
                               {ben.name} - {ben.accountNumber}
                             </SelectItem>

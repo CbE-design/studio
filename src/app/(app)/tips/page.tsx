@@ -1,3 +1,6 @@
+
+'use client';
+
 import { TipsForm } from "@/components/tips-form";
 import { Lightbulb } from "lucide-react";
 
