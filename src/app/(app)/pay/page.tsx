@@ -182,8 +182,8 @@ export default function PayPage() {
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Your recent payments</h2>
             <Tabs defaultValue="recipient" className="w-full">
               <TabsList className="grid w-full grid-cols-2 bg-transparent p-0">
-                <TabsTrigger value="recipient" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none data-[state=active]:text-primary font-semibold">Recipient payments</TabsTrigger>
-                <TabsTrigger value="once-off" className="data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none data-[state=active]:text-primary font-semibold">Once-off payments</TabsTrigger>
+                <TabsTrigger value="recipient" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none data-[state=active]:text-primary font-semibold">Recipient payments</TabsTrigger>
+                <TabsTrigger value="once-off" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none data-[state=active]:text-primary font-semibold">Once-off payments</TabsTrigger>
               </TabsList>
               <TabsContent value="recipient" className="pt-4">
                 <p className="text-gray-500 text-sm">There are no recipient payments to display.</p>
