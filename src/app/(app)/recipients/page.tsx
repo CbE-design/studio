@@ -3,29 +3,55 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, UserPlus } from 'lucide-react';
+import { Search, UserPlus, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { beneficiaries as allBeneficiaries } from '@/app/lib/data';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import type { Beneficiary } from '@/app/lib/definitions';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { collection, query } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const tabs = ['Local', 'International', 'Bank-approved'];
 
+const LoadingSkeleton = () => (
+    <div className="px-4">
+        {['A', 'B', 'C'].map(group => (
+            <div key={group}>
+                <Skeleton className="h-8 w-full my-2 bg-gray-100" />
+                <div className="space-y-2">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                </div>
+            </div>
+        ))}
+    </div>
+);
+
 export default function RecipientsPage() {
   const router = useRouter();
+  const { user } = useUser();
+  const firestore = useFirestore();
   const [activeTab, setActiveTab] = useState('Local');
   const [searchTerm, setSearchTerm] = useState('');
 
+  const beneficiariesQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'users', user.uid, 'beneficiaries'));
+  }, [firestore, user?.uid]);
+
+  const { data: allBeneficiaries, isLoading } = useCollection<Beneficiary>(beneficiariesQuery);
+
   const filteredBeneficiaries = useMemo(() => {
+    if (!allBeneficiaries) return [];
     if (!searchTerm) {
       return allBeneficiaries;
     }
     return allBeneficiaries.filter(ben =>
       ben.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm]);
+  }, [searchTerm, allBeneficiaries]);
 
   const groupedBeneficiaries = useMemo(() => {
     return filteredBeneficiaries.reduce((acc, ben) => {
@@ -87,28 +113,30 @@ export default function RecipientsPage() {
       </div>
 
       <main className="flex-1 overflow-y-auto">
-          <div className="px-4">
-            {sortedGroups.map(group => (
-              <div key={group}>
-                <h2 id={group} className="bg-gray-100 text-gray-600 font-bold p-2 my-2 -mx-4 px-4 sticky top-[197px] z-10">{group}</h2>
-                {groupedBeneficiaries[group].map(ben => (
-                  <Link href={`/recipients/${ben.id}`} key={ben.id} className="block hover:bg-gray-50">
-                      <div className="py-3 border-b">
-                      <p className="font-semibold">{ben.name}</p>
-                      <p className="text-sm text-gray-500">
-                          {ben.bank ? `${ben.bank} - ${ben.accountNumber}` : ben.accountNumber}
-                      </p>
-                      </div>
-                  </Link>
-                ))}
-              </div>
-            ))}
-            {filteredBeneficiaries.length === 0 && (
-              <div className="text-center py-10 text-gray-500">
-                <p>No recipients found.</p>
-              </div>
-            )}
-          </div>
+          {isLoading ? <LoadingSkeleton /> : (
+            <div className="px-4">
+              {sortedGroups.map(group => (
+                <div key={group}>
+                  <h2 id={group} className="bg-gray-100 text-gray-600 font-bold p-2 my-2 -mx-4 px-4 sticky top-[197px] z-10">{group}</h2>
+                  {groupedBeneficiaries[group].map(ben => (
+                    <Link href={`/recipients/${ben.id}`} key={ben.id} className="block hover:bg-gray-50">
+                        <div className="py-3 border-b">
+                        <p className="font-semibold">{ben.name}</p>
+                        <p className="text-sm text-gray-500">
+                            {ben.bank ? `${ben.bank} - ${ben.accountNumber}` : ben.accountNumber}
+                        </p>
+                        </div>
+                    </Link>
+                  ))}
+                </div>
+              ))}
+              {filteredBeneficiaries.length === 0 && (
+                <div className="text-center py-10 text-gray-500">
+                  <p>No recipients found.</p>
+                </div>
+              )}
+            </div>
+          )}
       </main>
     </div>
   );

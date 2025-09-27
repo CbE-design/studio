@@ -1,15 +1,18 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
-import { beneficiaries } from '@/app/lib/data';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { doc, getDoc } from 'firebase/firestore';
+import { useFirestore, useUser } from '@/firebase';
+import type { Beneficiary } from '@/app/lib/definitions';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const BankIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
@@ -34,15 +37,72 @@ const NoTransactionsIcon = () => (
     </svg>
 );
 
+const LoadingSkeleton = () => (
+    <div className="p-4 animate-pulse">
+        <div className="flex items-center gap-4 mb-6">
+            <Skeleton className="h-16 w-16 rounded-full" />
+            <Skeleton className="h-8 w-48" />
+        </div>
+        <Skeleton className="h-10 w-full mb-6" />
+        <div className="space-y-6">
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+        </div>
+    </div>
+);
+
+
 const tabs = ['Details', 'History'];
 
 export default function RecipientDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const recipientId = params.id as string;
-  const [activeTab, setActiveTab] = useState('Details');
+  const { user } = useUser();
+  const firestore = useFirestore();
 
-  const recipient = beneficiaries.find(b => b.id === recipientId);
+  const [activeTab, setActiveTab] = useState('Details');
+  const [recipient, setRecipient] = useState<Beneficiary | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!firestore || !user?.uid || !recipientId) return;
+
+    const fetchRecipient = async () => {
+        setIsLoading(true);
+        try {
+            const docRef = doc(firestore, 'users', user.uid, 'beneficiaries', recipientId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                setRecipient({ id: docSnap.id, ...docSnap.data() } as Beneficiary);
+            } else {
+                console.log("No such recipient!");
+            }
+        } catch (error) {
+            console.error("Error fetching recipient:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    fetchRecipient();
+  }, [firestore, user?.uid, recipientId]);
+
+  if (isLoading) {
+    return (
+        <div className="flex flex-col h-screen bg-white">
+            <header className="bg-white text-gray-800 p-4 flex items-center justify-between shadow-sm sticky top-0 z-10 border-b">
+                <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                    <ArrowLeft />
+                </Button>
+            </header>
+            <main className="flex-1 overflow-y-auto px-4 pt-6">
+                <LoadingSkeleton />
+            </main>
+        </div>
+    );
+  }
 
   if (!recipient) {
     return (

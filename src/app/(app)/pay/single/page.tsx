@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import type { Account } from '@/app/lib/definitions';
-import { accounts as userAccountsData } from '@/app/lib/data';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import {
   Select,
   SelectContent,
@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { collection, query } from 'firebase/firestore';
 
 
 const BankIcon = () => (
@@ -37,9 +38,15 @@ const BankIcon = () => (
 export default function SinglePaymentPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  const userAccounts: Account[] = userAccountsData;
-  const isAccountsLoading = false; // Since it's hardcoded
+  const firestore = useFirestore();
+  const { user } = useUser();
+
+  const accountsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
+  }, [firestore, user?.uid]);
+
+  const { data: userAccounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
 
   const [fromAccount, setFromAccount] = useState<string>('');
   const [amount, setAmount] = useState('0.00');
@@ -56,7 +63,7 @@ export default function SinglePaymentPage() {
     // This effect runs once on mount and whenever searchParams change.
     // It populates the form state from URL query parameters.
     
-    // Set default 'from' account if not already set
+    // Set default 'from' account if not already set and accounts are loaded
     if (!fromAccount && userAccounts && userAccounts.length > 0) {
         setFromAccount(userAccounts[0].id);
     }
@@ -83,8 +90,9 @@ export default function SinglePaymentPage() {
     const queryPaymentType = searchParams.get('paymentType');
     if (queryPaymentType) setPaymentType(decodeURIComponent(queryPaymentType));
     
+  // We only want this to re-run when params or accounts change
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [searchParams, userAccounts]);
 
   const preserveStateAndNavigate = (pathname: string) => {
       const params = new URLSearchParams();
@@ -247,5 +255,3 @@ export default function SinglePaymentPage() {
     </div>
   );
 }
-
-    

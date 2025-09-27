@@ -2,7 +2,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, LoaderCircle } from 'lucide-react';
@@ -10,7 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { useToast } from '@/hooks/use-toast';
-import { accounts, transactions } from '@/app/lib/data';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { collection, doc, getDoc, query } from 'firebase/firestore';
 
 
 const StatementLoadingSkeleton = () => (
@@ -39,22 +40,55 @@ export default function StatementPage() {
     const router = useRouter();
     const params = useParams();
     const accountId = params.id as string;
+    const { user, isUserLoading } = useUser();
+    const firestore = useFirestore();
   
     const [generatingPdf, setGeneratingPdf] = useState(false);
     const { toast } = useToast();
     
-    const account = accounts.find(acc => acc.id === accountId);
-    const accountTransactions = transactions[accountId] || [];
+    const [account, setAccount] = useState<Account | null>(null);
+    const [isAccountLoading, setIsAccountLoading] = useState(true);
+
+    useEffect(() => {
+        if (!firestore || !user?.uid || !accountId) return;
+
+        const fetchAccountData = async () => {
+            setIsAccountLoading(true);
+            try {
+                const accountDocRef = doc(firestore, 'users', user.uid, 'bankAccounts', accountId);
+                const docSnap = await getDoc(accountDocRef);
+                if (docSnap.exists()) {
+                    setAccount({ id: docSnap.id, ...docSnap.data() } as Account);
+                } else {
+                    console.error("Account document not found");
+                    setAccount(null);
+                }
+            } catch (error) {
+                console.error("Error fetching account details:", error);
+            } finally {
+                setIsAccountLoading(false);
+            }
+        };
+        fetchAccountData();
+    }, [firestore, user?.uid, accountId]);
+
+    const transactionsQuery = useMemoFirebase(() => {
+        if (!firestore || !user?.uid || !accountId) return null;
+        return query(collection(firestore, 'users', user.uid, 'bankAccounts', accountId, 'transactions'));
+    }, [firestore, user?.uid, accountId]);
+
+    const { data: accountTransactions, isLoading: isTransactionsLoading } = useCollection<Transaction>(transactionsQuery);
 
     const sortedTransactions = useMemo(() => {
+        if (!accountTransactions) return [];
         return [...accountTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }, [accountTransactions]);
     
-    const isLoading = false; // Replace with actual loading state if any
-    const error = !account ? new Error('Account not found') : null;
+    const isLoading = isUserLoading || isAccountLoading || isTransactionsLoading;
+    const error = !account && !isAccountLoading ? new Error('Account not found') : null;
 
     const handleDownloadPdf = async () => {
-        if (!account) return;
+        if (!account || !sortedTransactions) return;
 
         setGeneratingPdf(true);
 
