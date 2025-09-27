@@ -209,21 +209,17 @@ export default function DashboardPage() {
             </Card>
 
             <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
-            <Card className="shadow-md rounded-lg">
-              <CardContent className="p-4">
-                  <div className="grid grid-cols-4 gap-y-6">
-                    {widgets.map((widget, index) => (
-                        <WidgetItem 
-                          key={index} 
-                          icon={widget.icon} 
-                          label={widget.label} 
-                          href={widget.href}
-                          isNew={widget.new} 
-                        />
-                    ))}
-                  </div>
-              </CardContent>
-            </Card>
+            <div className="grid grid-cols-4 gap-y-6">
+              {widgets.map((widget, index) => (
+                  <WidgetItem 
+                    key={index} 
+                    icon={widget.icon} 
+                    label={widget.label} 
+                    href={widget.href}
+                    isNew={widget.new} 
+                  />
+              ))}
+            </div>
         </div>
       </main>
     </div>
