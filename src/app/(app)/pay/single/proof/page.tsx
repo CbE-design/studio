@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 import Image from 'next/image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatCurrency } from '@/app/lib/data';
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { PDFDocument, StandardFonts, rgb, PDFFont } from 'pdf-lib';
 import { useToast } from '@/hooks/use-toast';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null | undefined }) => (
@@ -70,97 +70,165 @@ function ProofOfPaymentContent() {
             const pdfDoc = await PDFDocument.create();
             const page = pdfDoc.addPage();
             const { width, height } = page.getSize();
+
             const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
             const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+            
             const textColor = rgb(0.2, 0.2, 0.2);
+            const headingColor = rgb(0, 0, 0);
+            const margin = 50;
+            let y = height - margin;
 
+            // Helper for wrapping text
+            const wrapText = (text: string, maxWidth: number, font: PDFFont, fontSize: number) => {
+                const words = text.split(' ');
+                const lines: string[] = [];
+                let currentLine = words[0];
+
+                for (let i = 1; i < words.length; i++) {
+                    const word = words[i];
+                    const width = font.widthOfTextAtSize(currentLine + " " + word, fontSize);
+                    if (width < maxWidth) {
+                        currentLine += " " + word;
+                    } else {
+                        lines.push(currentLine);
+                        currentLine = word;
+                    }
+                }
+                lines.push(currentLine);
+                return lines;
+            };
+
+            // 1. Logo
             const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7';
             const logoImageBytes = await fetch(`/api/image-proxy?url=${encodeURIComponent(logoUrl)}`).then(res => res.arrayBuffer());
             const logoImage = await pdfDoc.embedPng(logoImageBytes);
-            const logoDims = logoImage.scale(0.05); // Make logo smaller
+            const logoDims = logoImage.scale(0.05);
             page.drawImage(logoImage, {
-                x: 50,
-                y: height - 50 - logoDims.height,
+                x: margin,
+                y: y - logoDims.height,
                 width: logoDims.width,
                 height: logoDims.height,
             });
+            y -= logoDims.height + 20;
 
-            const drawLine = (y: number) => {
-                page.drawLine({
-                    start: { x: 50, y },
-                    end: { x: width - 50, y },
-                    thickness: 0.5,
-                    color: rgb(0.8, 0.8, 0.8),
-                });
-            };
+            // 2. Main Title
+            page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 18, color: headingColor });
+            y -= 30;
 
-            const drawText = (text: string, x: number, y: number, isBold = false, size = 10) => {
-                page.drawText(text, {
-                    x,
-                    y,
-                    font: isBold ? boldFont : font,
-                    size,
-                    color: textColor,
-                });
-            };
+            // 3. Intro paragraph
+            page.drawText('Nedbank Limited confirms that the following payment has been made:', { x: margin, y, font, size: 10, color: textColor });
+            y -= 25;
             
-            let y = height - 100;
-            drawLine(y + 10);
-            y -= 20;
+            // 4. Details Table (Date, Ref)
+            const detailStartY = y;
+            page.drawText('Date of Payment', { x: margin, y, font, size: 9, color: textColor });
+            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
+            page.drawText(paymentDetails.dateOfPayment, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
+            y -= 15;
+            page.drawText('Reference Number', { x: margin, y, font, size: 9, color: textColor });
+            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
+            page.drawText(paymentDetails.referenceNumber, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
+            y = detailStartY - 50;
 
-            drawText('Notification of Payment', 50, y, true, 14);
-            y -= 20;
-            drawText('Nedbank Limited confirms that the following payment has been made:', 50, y, false, 10);
+            // 5. Beneficiary Details
+            page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 14, color: headingColor });
+            y -= 25;
+            const beneficiaryStartY = y;
+            page.drawText('Recipient', { x: margin, y, font, size: 9, color: textColor });
+            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
+            page.drawText(paymentDetails.recipient, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
+            y -= 15;
+            page.drawText('Amount', { x: margin, y, font, size: 9, color: textColor });
+            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
+            page.drawText(formatCurrency(paymentDetails.amount), { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
+            y -= 15;
+            page.drawText('Recipient Reference', { x: margin, y, font, size: 9, color: textColor });
+            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
+            page.drawText(paymentDetails.recipientReference, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
+            y -= 15;
+            page.drawText('Bank', { x: margin, y, font, size: 9, color: textColor });
+            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
+            page.drawText(paymentDetails.bank, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
+            y -= 15;
+            page.drawText('Account Number', { x: margin, y, font, size: 9, color: textColor });
+            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
+            page.drawText(paymentDetails.accountNumber, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
+            y -= 15;
+            page.drawText('Channel', { x: margin, y, font, size: 9, color: textColor });
+            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
+            page.drawText(paymentDetails.channel, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
+            y = beneficiaryStartY - 120;
+
+            // 6. Payer Details
+            page.drawText('Payer details', { x: margin, y, font: boldFont, size: 14, color: headingColor });
+            y -= 25;
+            page.drawText('Paid from Account Holder', { x: margin, y, font, size: 9, color: textColor });
+            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
+            page.drawText(paymentDetails.payer, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
             y -= 30;
 
-            drawText('Date of Payment', 50, y);
-            drawText(':', 200, y);
-            drawText(paymentDetails.dateOfPayment, 210, y, true);
-            y -= 15;
-            drawText('Reference Number', 50, y);
-            drawText(':', 200, y);
-            drawText(paymentDetails.referenceNumber, 210, y, true);
-            y -= 30;
+            // 7. Standard Text
+            const standardTexts = [
+                "Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.",
+                "This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification.",
+                "Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information.",
+                "Payments may take up to three business days. Please check your account to verify the existence of the funds.",
+                "Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details."
+            ];
 
-            drawText('Beneficiary details', 50, y, true, 12);
-            y -= 20;
-            drawText('Recipient', 50, y);
-            drawText(':', 200, y);
-            drawText(paymentDetails.recipient, 210, y, true);
+            const standardFontsize = 8;
+            standardTexts.forEach(text => {
+                const lines = wrapText(text, width - (2*margin), font, standardFontsize);
+                lines.forEach(line => {
+                     page.drawText(line, { x: margin, y, font, size: standardFontsize, color: textColor, lineHeight: 10 });
+                     y -= 10;
+                });
+                y -= 5;
+            });
             y -= 15;
-            drawText('Amount', 50, y);
-            drawText(':', 200, y);
-            drawText(formatCurrency(paymentDetails.amount), 210, y, true);
-            y -= 15;
-            drawText('Recipient Reference', 50, y);
-            drawText(':', 200, y);
-            drawText(paymentDetails.recipientReference, 210, y, true);
-            y -= 15;
-            drawText('Bank', 50, y);
-            drawText(':', 200, y);
-            drawText(paymentDetails.bank, 210, y, true);
-            y -= 15;
-            drawText('Account Number', 50, y);
-            drawText(':', 200, y);
-            drawText(paymentDetails.accountNumber, 210, y, true);
-            y -= 15;
-            drawText('Channel', 50, y);
-            drawText(':', 200, y);
-            drawText(paymentDetails.channel, 210, y, true);
-            y -= 30;
+
+            // 8. Disclaimer Box
+            const boxPadding = 10;
+            const boxContentWidth = width - (2 * margin) - (2 * boxPadding);
+            const disclaimerTitle = "Nedbank Limited email disclaimer";
+            const disclaimerText = "This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of, or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.";
+
+            const titleLines = wrapText(disclaimerTitle, boxContentWidth, boldFont, 9);
+            const bodyLines = wrapText(disclaimerText, boxContentWidth, font, 7);
             
-            drawText('Payer details', 50, y, true, 12);
-            y -= 20;
-            drawText('Paid from Account Holder', 50, y);
-            drawText(':', 200, y);
-            drawText(paymentDetails.payer, 210, y, true);
-            y-= 30;
+            const boxHeight = (titleLines.length * 11) + (bodyLines.length * 9) + (2 * boxPadding);
 
-            drawLine(y);
-            y -= 15;
-            drawText('Security Code', 50, y);
-            drawText(':', 200, y);
-            drawText(paymentDetails.securityCode, 210, y, true);
+            page.drawRectangle({
+                x: margin,
+                y: y - boxHeight,
+                width: width - (2 * margin),
+                height: boxHeight,
+                borderColor: rgb(0.8, 0.8, 0.8),
+                borderWidth: 1,
+            });
+            
+            let boxY = y - boxPadding;
+            titleLines.forEach(line => {
+                page.drawText(line, { x: margin + boxPadding, y: boxY - 11, font: boldFont, size: 9, color: headingColor });
+                boxY -= 11;
+            });
+            boxY -= 5;
+            bodyLines.forEach(line => {
+                page.drawText(line, { x: margin + boxPadding, y: boxY - 9, font, size: 7, color: textColor, lineHeight: 9 });
+                boxY -= 9;
+            });
+            y -= boxHeight + 20;
+
+            // 9. Security Code
+            page.drawText('Security Code', { x: margin, y, font, size: 9, color: textColor });
+            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
+            page.drawText(paymentDetails.securityCode, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
+            y -= 25;
+
+            // 10. Footer
+            const footerText = "Nedbank Limited Reg No 1951/000009/06 VAT Reg No 432018074 135 Rivonia Road, Sandton, Sandton 2196, South Africa.";
+            page.drawText(footerText, { x: margin, y, font, size: 7, color: textColor });
 
             const pdfBytes = await pdfDoc.save();
             const blob = new Blob([pdfBytes], { type: 'application/pdf' });
