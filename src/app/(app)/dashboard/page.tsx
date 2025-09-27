@@ -68,18 +68,18 @@ const widgets = [
 
 const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementType, label: string, href: string, isNew?: boolean }) => (
     <Link href={href}>
-        <div className="relative flex flex-col items-center justify-center space-y-2 text-center">
-             {isNew && (
-                <div className="absolute -top-1 right-2 px-1.5 py-0.5 text-xs font-semibold text-white bg-green-500 rounded-sm">
-                    New
-                </div>
-            )}
+        <div className="flex flex-col items-center justify-start space-y-2 text-center h-full">
             <div className="w-8 h-px bg-gray-300" />
-            <div className="flex items-center justify-center w-12 h-12">
+            <div className="relative flex items-center justify-center w-12 h-12">
+                {isNew && (
+                    <div className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs font-semibold text-white bg-green-500 rounded-sm z-10">
+                        New
+                    </div>
+                )}
                 <Icon />
             </div>
             <div className="w-8 h-px bg-gray-300" />
-            <p className="text-xs text-gray-700 font-medium h-8 flex items-center">{label}</p>
+            <p className="text-xs text-gray-700 font-medium h-8 flex items-center text-center">{label}</p>
         </div>
     </Link>
 );
@@ -230,3 +230,4 @@ export default function DashboardPage() {
     
 
     
+
