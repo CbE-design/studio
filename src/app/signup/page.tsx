@@ -81,10 +81,10 @@ async function provisionNewUserInFirestore(firestore: any, user: User) {
         });
 
         // Check if this account has sample transactions
-        const transactions = sampleTransactions[account.accountNumber as keyof typeof sampleTransactions];
-        if (transactions) {
+        const transactionsForAccount = sampleTransactions[account.accountNumber as keyof typeof sampleTransactions];
+        if (transactionsForAccount) {
             const transactionsCollectionRef = collection(newAccountRef, 'transactions');
-            transactions.forEach(tx => {
+            transactionsForAccount.forEach(tx => {
                 const newTransactionRef = doc(transactionsCollectionRef);
                 const transactionDate = new Date();
                 transactionDate.setDate(transactionDate.getDate() - tx.daysAgo);
