@@ -1,3 +1,4 @@
+
 import admin from 'firebase-admin';
 
 // Check if the service account key is present in environment variables
@@ -16,7 +17,9 @@ if (!admin.apps.length) {
     // Initialize without credentials for local development or in environments
     // where the key is not set. This prevents the app from crashing.
     // Server-side features requiring authentication will not work.
-    admin.initializeApp();
+    admin.initializeApp({
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    });
     console.warn(
       'Firebase Admin SDK initialized without credentials. ' +
       'Server-side data fetching that requires authentication will not work. ' +
