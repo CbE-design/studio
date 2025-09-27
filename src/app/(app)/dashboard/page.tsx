@@ -140,7 +140,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Image 
-              src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO-white.png?alt=media&token=143ce385-52a1-432a-9df2-513ab41c49f8" 
+              src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
               alt="Nedbank Logo"
               width={24}
               height={24}
@@ -161,7 +161,7 @@ export default function DashboardPage() {
             <AccountsCarousel />
         </div>
         <div className="p-4">
-            <div className="my-4 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+            <div className="my-4 bg-white rounded-lg shadow-sm overflow-hidden">
                 <Image
                 src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
                 alt="Advertisement banner"
