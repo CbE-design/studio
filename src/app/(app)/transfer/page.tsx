@@ -17,7 +17,7 @@ const LoadingSkeleton = () => (
 )
 
 export default function TransferPage() {
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
   const accountsQuery = useMemoFirebase(() => {
@@ -25,7 +25,9 @@ export default function TransferPage() {
     return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
   }, [firestore, user?.uid]);
 
-  const { data: allAccounts, isLoading } = useCollection<Account>(accountsQuery);
+  const { data: allAccounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
+
+  const isLoading = isUserLoading || isAccountsLoading;
 
   if (isLoading || !allAccounts) {
       return <LoadingSkeleton />;

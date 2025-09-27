@@ -59,18 +59,23 @@ export default function RecipientDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const recipientId = params.id as string;
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
   const [activeTab, setActiveTab] = useState('Details');
   const [recipient, setRecipient] = useState<Beneficiary | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isRecipientLoading, setIsRecipientLoading] = useState(true);
 
   useEffect(() => {
-    if (!firestore || !user?.uid || !recipientId) return;
+    if (!firestore || !user?.uid || !recipientId) {
+        if (!isUserLoading) {
+            setIsRecipientLoading(false);
+        }
+        return;
+    }
 
     const fetchRecipient = async () => {
-        setIsLoading(true);
+        setIsRecipientLoading(true);
         try {
             const docRef = doc(firestore, 'users', user.uid, 'beneficiaries', recipientId);
             const docSnap = await getDoc(docRef);
@@ -82,12 +87,14 @@ export default function RecipientDetailsPage() {
         } catch (error) {
             console.error("Error fetching recipient:", error);
         } finally {
-            setIsLoading(false);
+            setIsRecipientLoading(false);
         }
     };
 
     fetchRecipient();
-  }, [firestore, user?.uid, recipientId]);
+  }, [firestore, user?.uid, recipientId, isUserLoading]);
+  
+  const isLoading = isUserLoading || isRecipientLoading;
 
   if (isLoading) {
     return (

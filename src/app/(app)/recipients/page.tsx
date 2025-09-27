@@ -31,7 +31,7 @@ const LoadingSkeleton = () => (
 
 export default function RecipientsPage() {
   const router = useRouter();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const [activeTab, setActiveTab] = useState('Local');
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,7 +41,8 @@ export default function RecipientsPage() {
     return query(collection(firestore, 'users', user.uid, 'beneficiaries'));
   }, [firestore, user?.uid]);
 
-  const { data: allBeneficiaries, isLoading } = useCollection<Beneficiary>(beneficiariesQuery);
+  const { data: allBeneficiaries, isLoading: isBeneficiariesLoading } = useCollection<Beneficiary>(beneficiariesQuery);
+  const isLoading = isUserLoading || isBeneficiariesLoading;
 
   const filteredBeneficiaries = useMemo(() => {
     if (!allBeneficiaries) return [];
@@ -77,7 +78,7 @@ export default function RecipientsPage() {
       <header className="bg-white text-gray-800 p-4 flex items-center justify-between shadow-sm sticky top-0 z-20 border-b">
         <h1 className="text-xl font-bold">Recipients</h1>
         <Button variant="ghost" size="icon">
-          <UserPlus className="h-8 w-8" />
+          <UserPlus className="h-8 w-8 text-primary" />
         </Button>
       </header>
 
@@ -130,7 +131,7 @@ export default function RecipientsPage() {
                   ))}
                 </div>
               ))}
-              {filteredBeneficiaries.length === 0 && (
+              {filteredBeneficiaries.length === 0 && !isLoading && (
                 <div className="text-center py-10 text-gray-500">
                   <p>No recipients found.</p>
                 </div>

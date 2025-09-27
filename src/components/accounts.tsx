@@ -10,7 +10,7 @@ import { collection, query } from 'firebase/firestore';
 import { Skeleton } from './ui/skeleton';
 
 const AccountSkeleton = () => (
-  <div className="space-y-4">
+  <div className="space-y-0">
     <div className="flex flex-row justify-between items-center p-3 border-b border-white/20">
       <div>
         <Skeleton className="h-5 w-40 bg-white/20" />
@@ -42,7 +42,7 @@ export function Accounts() {
   const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
 
   // Show skeleton while user is logging in OR accounts are fetching
-  if (isUserLoading || isAccountsLoading) {
+  if (isUserLoading || (isAccountsLoading && accounts === null)) {
     return <AccountSkeleton />;
   }
 
@@ -63,7 +63,7 @@ export function Accounts() {
       ) : (
          <div className="text-center py-4">
             <p className="text-sm">No accounts found.</p>
-            <p className="text-xs text-white/80">You can add account data under your user document in Firestore.</p>
+            <p className="text-xs text-white/80">This can happen if you just signed up. Try refreshing.</p>
          </div>
       )}
     </div>
