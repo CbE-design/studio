@@ -1,4 +1,6 @@
 
+'use client';
+
 import {
   Bell,
   MessageSquare,
@@ -9,6 +11,9 @@ import { AccountsCarousel } from '@/components/accounts-carousel';
 import { getDocsFromServer } from '@/app/lib/data-fetching';
 import { db } from '@/app/lib/firebase-admin';
 import type { Account } from '@/app/lib/definitions';
+import { useUser } from '@/firebase';
+import { useEffect, useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Custom SVG Icons
 const OffersIcon = () => (
@@ -33,7 +38,7 @@ const PayShapIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="text-primary h-8 w-8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM8.5 16.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3.5-3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0-7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>
 );
 const LatestIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8"><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V12"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/><path d="M16 5.5a2.5 2.5 0 0 0-5 0"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8"><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-4-2V12"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/><path d="M16 5.5a2.5 2.5 0 0 0-5 0"/></svg>
 );
 const QuickPayIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2Z"/><path d="M12 6v6l4 2"/><path d="M16.2 7.8c3.2 1.2 5.3 4.9 4.1 8.2s-4.9 5.3-8.2 4.1-5.3-4.9-4.1-8.2c.8-2.3 2.6-4 4.8-4.8"/></svg>
@@ -81,18 +86,69 @@ const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementTyp
     </Link>
 );
 
-export default async function DashboardPage() {
-  // This is a placeholder for a real user ID.
-  const userId = 'm9N5gQY126d5D6m3tO9s';
-  let initialAccounts: Account[] = [];
-  try {
-    initialAccounts = (await getDocsFromServer(
-      db,
-      `users/${userId}/bankAccounts`
-    )) as Account[];
-  } catch (error) {
-    console.error("Failed to fetch initial accounts:", error);
-    // Handle the error gracefully, maybe show a message to the user
+const LoadingSkeleton = () => (
+  <div className="flex flex-col h-full bg-white text-black">
+    <header className="bg-primary text-primary-foreground p-4 space-y-4 sticky top-0 z-10">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Skeleton className="w-6 h-6 rounded-md bg-white/20" />
+          <Skeleton className="h-6 w-48 bg-white/20" />
+        </div>
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
+          <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
+        </div>
+      </div>
+    </header>
+    <main className="flex-1 overflow-y-auto bg-gray-50">
+      <div className="bg-primary text-primary-foreground p-4">
+        <Skeleton className="h-40 w-full bg-white/20 rounded-lg" />
+      </div>
+      <div className="p-4">
+        <Skeleton className="h-24 w-full my-6 rounded-lg bg-gray-200" />
+        <Skeleton className="h-8 w-1/3 mb-4 bg-gray-200" />
+        <div className="grid grid-cols-4 gap-y-6">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="flex flex-col items-center space-y-2">
+              <Skeleton className="w-12 h-12 bg-gray-200 rounded-lg" />
+              <Skeleton className="w-16 h-4 bg-gray-200 rounded-md" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </main>
+  </div>
+);
+
+export default function DashboardPage() {
+  const { user, isUserLoading } = useUser();
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchAccounts() {
+      if (!user?.uid) {
+        if (!isUserLoading) setIsLoading(false);
+        return;
+      }
+      setIsLoading(true);
+      try {
+        const fetchedAccounts = (await getDocsFromServer(
+          db,
+          `users/${user.uid}/bankAccounts`
+        )) as Account[];
+        setAccounts(fetchedAccounts);
+      } catch (error) {
+        console.error("Failed to fetch accounts:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchAccounts();
+  }, [user?.uid, isUserLoading]);
+
+  if (isUserLoading || isLoading) {
+    return <LoadingSkeleton />;
   }
 
   return (
@@ -120,7 +176,7 @@ export default async function DashboardPage() {
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto bg-gray-50">
         <div className="bg-primary text-primary-foreground p-4">
-            <AccountsCarousel initialAccounts={initialAccounts} />
+            <AccountsCarousel initialAccounts={accounts} />
         </div>
         <div className="p-4">
             <Image
