@@ -11,11 +11,15 @@ export type Account = {
 export type Transaction = {
   id: string;
   fromAccountId?: string;
+  userId?: string; // Add userId to link transaction to the user
   date: string;
   description: string;
   amount: number;
   type: 'debit' | 'credit';
-  reference: string;
+  reference?: string;
+  recipientName?: string;
+  yourReference?: string;
+  recipientReference?: string;
 };
 
 export type Beneficiary = {

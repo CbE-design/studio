@@ -6,12 +6,75 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, Menu, ArrowRight, AlertCircle, LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { useAuth } from '@/firebase';
+import { createUserWithEmailAndPassword, User } from 'firebase/auth';
+import { useAuth, useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
+import { doc, setDoc, writeBatch, collection } from 'firebase/firestore';
+
+// Default bank accounts to be created for a new user
+const defaultAccounts = [
+  {
+    name: 'Savvy Bundle Current Account',
+    type: 'Cheque',
+    accountNumber: '1234567890',
+    balance: 0.0,
+    currency: 'ZAR',
+  },
+  {
+    name: 'Current Account',
+    type: 'Cheque',
+    accountNumber: '1234066912',
+    balance: -5891.1,
+    currency: 'ZAR',
+  },
+  {
+    name: 'MyPockets(2/10)',
+    type: 'Savings',
+    accountNumber: '1122334455',
+    balance: 4.0,
+    currency: 'ZAR',
+  },
+  {
+    name: 'Savings Account',
+    type: 'Savings',
+    accountNumber: '0987654321',
+    balance: 1250.0,
+    currency: 'ZAR',
+  },
+];
+
+async function provisionNewUserInFirestore(firestore: any, user: User) {
+    if (!firestore || !user) return;
+
+    const { uid, email } = user;
+    const userDocRef = doc(firestore, 'users', uid);
+
+    // Create the main user document
+    await setDoc(userDocRef, {
+        id: uid,
+        email: email,
+        createdAt: new Date(),
+    });
+
+    // Create the bankAccounts subcollection with default accounts
+    const bankAccountsCollectionRef = collection(userDocRef, 'bankAccounts');
+    const batch = writeBatch(firestore);
+
+    defaultAccounts.forEach((account) => {
+        const newAccountRef = doc(bankAccountsCollectionRef);
+        batch.set(newAccountRef, {
+            ...account,
+            userId: uid,
+        });
+    });
+
+    await batch.commit();
+    console.log(`Successfully provisioned new user in Firestore: ${uid}`);
+}
+
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -20,11 +83,12 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const auth = useAuth();
+  const firestore = useFirestore();
   const { toast } = useToast();
 
   const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!auth) {
+    if (!auth || !firestore) {
       setErrorMessage('Firebase is not initialized. Please try again later.');
       return;
     }
@@ -33,7 +97,10 @@ export default function SignupPage() {
     setErrorMessage(undefined);
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // After user is created in Auth, provision their documents in Firestore
+      await provisionNewUserInFirestore(firestore, userCredential.user);
+      
       toast({
         title: 'Account Created',
         description: 'You have been successfully signed up and logged in.',
