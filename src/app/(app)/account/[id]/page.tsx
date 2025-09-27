@@ -50,8 +50,8 @@ const LoadingSkeleton = () => (
             <ArrowLeft />
           </Button>
           <div>
-            <Skeleton className="h-6 w-48 bg-primary-foreground/20" />
-            <Skeleton className="h-4 w-32 mt-1 bg-primary-foreground/20" />
+            <Skeleton className="h-6 w-48 bg-white/20" />
+            <Skeleton className="h-4 w-32 mt-1 bg-white/20" />
           </div>
         </div>
         <MessageSquare className="h-6 w-6" />
@@ -59,11 +59,11 @@ const LoadingSkeleton = () => (
       <div className="flex justify-between">
         <div className="text-left">
           <p className="text-xs opacity-80">Current balance</p>
-          <Skeleton className="h-7 w-36 mt-1 bg-primary-foreground/20" />
+          <Skeleton className="h-7 w-36 mt-1 bg-white/20" />
         </div>
         <div className="text-right">
           <p className="text-xs opacity-80">Available balance</p>
-          <Skeleton className="h-7 w-36 mt-1 bg-primary-foreground/20" />
+          <Skeleton className="h-7 w-36 mt-1 bg-white/20" />
         </div>
       </div>
     </header>
@@ -82,13 +82,18 @@ export default function AccountDetailsPage() {
   const { user, isUserLoading } = useUser();
   
   const [account, setAccount] = useState<Account | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAccountLoading, setIsAccountLoading] = useState(true);
 
   useEffect(() => {
-    if (!firestore || !user?.uid || !accountId) return;
+    if (!firestore || !user?.uid || !accountId) {
+      if (!isUserLoading) {
+        setIsAccountLoading(false);
+      }
+      return;
+    }
 
     const fetchAccountData = async () => {
-        setIsLoading(true);
+        setIsAccountLoading(true);
         try {
             const accountDocRef = doc(firestore, 'users', user.uid, 'bankAccounts', accountId);
             const docSnap = await getDoc(accountDocRef);
@@ -102,11 +107,11 @@ export default function AccountDetailsPage() {
         } catch (error) {
             console.error("Error fetching account details:", error);
         } finally {
-            setIsLoading(false);
+            setIsAccountLoading(false);
         }
     };
     fetchAccountData();
-  }, [firestore, user?.uid, accountId]);
+  }, [firestore, user?.uid, accountId, isUserLoading]);
 
   const transactionsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid || !accountId) return null;
@@ -120,7 +125,9 @@ export default function AccountDetailsPage() {
     return [...accountTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [accountTransactions]);
 
-  if (isUserLoading || isLoading) {
+  const isLoading = isUserLoading || isAccountLoading;
+
+  if (isLoading) {
     return <LoadingSkeleton />;
   }
 

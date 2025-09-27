@@ -50,7 +50,12 @@ export default function StatementPage() {
     const [isAccountLoading, setIsAccountLoading] = useState(true);
 
     useEffect(() => {
-        if (!firestore || !user?.uid || !accountId) return;
+        if (!firestore || !user?.uid || !accountId) {
+            if (!isUserLoading) {
+                setIsAccountLoading(false);
+            }
+            return;
+        }
 
         const fetchAccountData = async () => {
             setIsAccountLoading(true);
@@ -70,7 +75,7 @@ export default function StatementPage() {
             }
         };
         fetchAccountData();
-    }, [firestore, user?.uid, accountId]);
+    }, [firestore, user?.uid, accountId, isUserLoading]);
 
     const transactionsQuery = useMemoFirebase(() => {
         if (!firestore || !user?.uid || !accountId) return null;
@@ -85,7 +90,7 @@ export default function StatementPage() {
     }, [accountTransactions]);
     
     const isLoading = isUserLoading || isAccountLoading || isTransactionsLoading;
-    const error = !account && !isAccountLoading ? new Error('Account not found') : null;
+    const error = !account && !isLoading ? new Error('Account not found') : null;
 
     const handleDownloadPdf = async () => {
         if (!account || !sortedTransactions) return;
@@ -119,7 +124,7 @@ export default function StatementPage() {
             sortedTransactions.slice(0, maxTransactions).forEach((tx) => {
                 page.drawText(format(new Date(tx.date), 'dd MMM yyyy'), { x: 72, y: yPosition, font, size: 9, color: textColor });
                 page.drawText(tx.description || '', { x: 150, y: yPosition, font, size: 9, color: textColor });
-                page.drawText(tx.reference || '', { x: 300, y: yPosition, font, size: 9, color: textColor });
+                page.drawText(tx.reference || 'N/A', { x: 300, y: yPosition, font, size: 9, color: textColor });
                 page.drawText(formatCurrency(tx.amount), { x: 450, y: yPosition, font, size: 9, color: textColor });
                 yPosition -= 20;
             });

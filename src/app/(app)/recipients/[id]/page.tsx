@@ -83,9 +83,11 @@ export default function RecipientDetailsPage() {
                 setRecipient({ id: docSnap.id, ...docSnap.data() } as Beneficiary);
             } else {
                 console.log("No such recipient!");
+                setRecipient(null);
             }
         } catch (error) {
             console.error("Error fetching recipient:", error);
+            setRecipient(null);
         } finally {
             setIsRecipientLoading(false);
         }
@@ -113,14 +115,15 @@ export default function RecipientDetailsPage() {
 
   if (!recipient) {
     return (
-      <div className="flex flex-col h-screen bg-gray-50 items-center justify-center">
-        <p className="text-xl text-gray-700">Recipient not found</p>
+      <div className="flex flex-col h-screen bg-gray-50 items-center justify-center p-4">
+        <p className="text-xl text-destructive-foreground bg-destructive p-4 rounded-md">Recipient not found</p>
         <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
       </div>
     );
   }
   
   const getInitials = (name: string) => {
+    if (!name) return '??';
     const names = name.split(' ');
     if (names.length > 1) {
       return `${names[0][0]}${names[names.length-1][0]}`.toUpperCase();
