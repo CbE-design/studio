@@ -124,7 +124,7 @@ export default function DashboardPage() {
   const slides = [
     {
       title: 'Accounts',
-      content: <Accounts key="accounts" />,
+      content: <Accounts />,
     },
     {
       title: 'Rewards',
