@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, X, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,7 @@ const DetailRow = ({ label, value }: { label: string; value: string | null }) =>
 function ReviewPaymentContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
     const paymentDetails = {
         fromAccountId: searchParams.get('fromAccountId'),
@@ -43,6 +44,10 @@ function ReviewPaymentContent() {
         amount: searchParams.get('amount'),
         fromAccount: searchParams.get('fromAccount'),
     };
+
+    useEffect(() => {
+        setFormattedDate(format(new Date(), 'dd MMMM yyyy'));
+    }, []);
 
     const handlePay = () => {
         const params = new URLSearchParams();
@@ -80,7 +85,7 @@ function ReviewPaymentContent() {
                     <DetailRow label="Payment type" value={paymentDetails.paymentType} />
                     <DetailRow label="Amount" value={formatCurrency(Number(paymentDetails.amount))} />
                     <DetailRow label="From account" value={paymentDetails.fromAccount} />
-                    <DetailRow label="Payment date" value={format(new Date(), 'dd MMMM yyyy')} />
+                    <DetailRow label="Payment date" value={formattedDate} />
                     <DetailRow label="Your reference" value={paymentDetails.yourReference} />
                     <DetailRow label="Recipient's reference" value={paymentDetails.recipientReference} />
                 </div>

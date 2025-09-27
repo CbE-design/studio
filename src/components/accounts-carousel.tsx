@@ -24,7 +24,7 @@ export function AccountsCarousel() {
               <div className="flex flex-row justify-between items-center p-3 border-b border-white/20">
                 <div>
                   <p className="text-sm">Greenbacks Rewards</p>
-                  <p className="text-base font-normal">GB 0</p>
+                  <div className="text-base font-normal">GB 0</div>
                 </div>
                 <ChevronRightIcon className="h-6 w-6" />
               </div>

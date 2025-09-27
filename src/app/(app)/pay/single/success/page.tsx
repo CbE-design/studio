@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense, useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Check, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -24,6 +24,7 @@ function PaymentSuccessContent() {
     const { toast } = useToast();
     const transactionRecorded = useRef(false);
     const auth = useAuth();
+    const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
     const paymentDetails = {
         fromAccountId: searchParams.get('fromAccountId'),
@@ -36,6 +37,8 @@ function PaymentSuccessContent() {
     };
 
     useEffect(() => {
+        setFormattedDate(format(new Date(), 'dd MMMM yyyy'));
+
         if (transactionRecorded.current || !auth?.currentUser) return;
         
         const recordTransaction = async () => {
@@ -49,11 +52,7 @@ function PaymentSuccessContent() {
             }
 
             try {
-                const idToken = await auth.currentUser.getIdToken();
-                if (!idToken) {
-                    throw new Error("Authentication token not found.");
-                }
-                
+                // The createTransactionAction now gets the token from headers on the server-side.
                 const result = await createTransactionAction({
                     fromAccountId: paymentDetails.fromAccountId,
                     amount: paymentDetails.amount,
@@ -110,7 +109,7 @@ function PaymentSuccessContent() {
             </header>
 
             <main className="flex-1 overflow-y-auto p-4 space-y-2">
-                 <DetailRow label="Payment date" value={format(new Date(), 'dd MMMM yyyy')} />
+                 <DetailRow label="Payment date" value={formattedDate} />
                  <DetailRow label="Bank name" value={paymentDetails.bankName} />
                  <DetailRow label="Account number" value={paymentDetails.accountNumber} />
                  <DetailRow label="Your reference" value={paymentDetails.yourReference} />

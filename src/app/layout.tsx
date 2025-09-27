@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head />
-      <body className={cn("font-sans antialiased")}>
+      <body className={cn("antialiased")}>
         <FirebaseProvider>
           {children}
         </FirebaseProvider>
