@@ -161,14 +161,16 @@ export default function DashboardPage() {
             <AccountsCarousel />
         </div>
         <div className="p-4">
-            <Image
-            src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
-            alt="Advertisement banner"
-            data-ai-hint="advertisement banner"
-            width={600}
-            height={100}
-            className="w-full my-6 rounded-lg overflow-hidden"
-            />
+            <div className="bg-white my-4 p-1 border rounded-lg shadow-sm">
+                <Image
+                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
+                alt="Advertisement banner"
+                data-ai-hint="advertisement banner"
+                width={600}
+                height={100}
+                className="w-full rounded-md"
+                />
+            </div>
 
             <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
             <div className="grid grid-cols-4 gap-y-6">
