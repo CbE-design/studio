@@ -161,7 +161,7 @@ export default function DashboardPage() {
             <AccountsCarousel />
         </div>
         <div className="p-4">
-            <div className="bg-white my-4 p-1 border rounded-lg shadow-sm">
+            <div className="bg-white my-4 border rounded-lg shadow-sm">
                 <Image
                 src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
                 alt="Advertisement banner"
