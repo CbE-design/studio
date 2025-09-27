@@ -21,7 +21,7 @@ export function AccountsCarousel() {
           title: 'Rewards',
           content: (
              <div key="rewards" className="space-y-2">
-              <div className="flex flex-row justify-between items-center p-3 rounded-lg border-b border-white/20 cursor-pointer hover:bg-white/10">
+              <div className="flex flex-row justify-between items-center p-3 border-b border-white/20">
                 <div>
                   <p className="text-sm">Greenbacks Rewards</p>
                   <p className="text-base font-normal">GB 0</p>
@@ -134,7 +134,7 @@ export function AccountsCarousel() {
             </Carousel>
             <div className="flex items-center justify-center space-x-2 py-4">
                 <button onClick={scrollPrev} className="p-1 disabled:opacity-50" disabled={current === 0}>
-                    <ChevronLeft className="h-4 w-4" />
+                    <ChevronLeft className="h-6 w-6" />
                 </button>
                 {Array.from({ length: count }).map((_, index) => (
                     <button
@@ -144,7 +144,7 @@ export function AccountsCarousel() {
                     />
                 ))}
                 <button onClick={scrollNext} className="p-1 disabled:opacity-50" disabled={current === count - 1}>
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-6 w-6" />
                 </button>
             </div>
         </div>
