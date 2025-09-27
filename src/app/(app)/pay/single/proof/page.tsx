@@ -75,7 +75,7 @@ function ProofOfPaymentContent() {
             const textColor = rgb(0.2, 0.2, 0.2);
 
             const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7';
-            const logoImageBytes = await fetch(logoUrl).then(res => res.arrayBuffer());
+            const logoImageBytes = await fetch(`/api/image-proxy?url=${encodeURIComponent(logoUrl)}`).then(res => res.arrayBuffer());
             const logoImage = await pdfDoc.embedPng(logoImageBytes);
             const logoDims = logoImage.scale(0.05); // Make logo smaller
             page.drawImage(logoImage, {
@@ -221,7 +221,7 @@ function ProofOfPaymentContent() {
                     <table className="w-full mb-6 text-[12px]">
                         <tbody>
                             <DetailRow label="Recipient" value={paymentDetails.recipient} />
-                            <DetailRow label="Amount" value={formatCurrency(paymentDetails.amount)} />
+                            <DetailRow label="Amount" value={formatCurrency(Number(paymentDetails.amount))} />
                             <DetailRow label="Recipient Reference" value={paymentDetails.recipientReference} />
                             <DetailRow label="Bank" value={paymentDetails.bank} />
                             <DetailRow label="Account Number" value={paymentDetails.accountNumber} />
