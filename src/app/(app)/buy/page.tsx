@@ -46,10 +46,11 @@ export default function BuyPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="bg-white text-gray-800 p-4 flex items-center shadow-sm sticky top-0 z-10 border-b">
+      <header className="bg-primary text-primary-foreground p-4 flex items-center shadow-sm sticky top-0 z-10 border-b">
         <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>
+        <h1 className="text-xl font-semibold">Buy</h1>
       </header>
       
       <main className="flex-1 overflow-y-auto">

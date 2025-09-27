@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 const CardPlaceholder = () => (
     <div className="relative w-full max-w-sm mx-auto aspect-[1.586] rounded-xl overflow-hidden shadow-lg">
@@ -68,6 +69,10 @@ export default function CardsPage() {
         </div>
         
         <CardPlaceholder />
+
+        <div className="pt-4">
+          <Button>Order a new card</Button>
+        </div>
       </main>
     </div>
   );

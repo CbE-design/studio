@@ -140,13 +140,13 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Image 
-              src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
+              src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO-white.png?alt=media&token=143ce385-52a1-432a-9df2-513ab41c49f8" 
               alt="Nedbank Logo"
               width={24}
               height={24}
               className="w-6 h-6"
             />
-            <span className="font-medium text-lg">Van Schalkwyk Family Trust</span>
+            <span className="font-medium text-lg">Corrie</span>
           </div>
           <div className="flex items-center gap-4">
             <Bell className="h-5 w-5" />
@@ -161,14 +161,14 @@ export default function DashboardPage() {
             <AccountsCarousel />
         </div>
         <div className="p-4">
-            <div className="bg-white my-4 border rounded-lg shadow-sm">
+            <div className="bg-white my-4 border rounded-lg shadow-sm overflow-hidden">
                 <Image
                 src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
                 alt="Advertisement banner"
                 data-ai-hint="advertisement banner"
                 width={600}
                 height={100}
-                className="w-full rounded-md"
+                className="w-full"
                 />
             </div>
 

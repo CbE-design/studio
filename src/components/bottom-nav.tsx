@@ -25,7 +25,12 @@ export function BottomNav() {
     setIsModalOpen(true);
   };
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) => {
+    if (href === '/dashboard') return pathname.startsWith('/dashboard');
+    if (href === '/cards') return pathname.startsWith('/cards');
+    if (href === '/recipients') return pathname.startsWith('/recipients');
+    return pathname === href;
+  }
 
   return (
     <>

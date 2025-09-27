@@ -136,7 +136,7 @@ export default function SinglePaymentPage() {
         <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>
-        <h1 className="text-2xl font-semibold">Whom would you like to pay?</h1>
+        <h1 className="text-xl font-semibold">Whom would you like to pay?</h1>
       </header>
       
       <main className="flex-1 overflow-y-auto p-4 space-y-6">
@@ -245,7 +245,7 @@ export default function SinglePaymentPage() {
       </main>
       <footer className="p-4 bg-white border-t sticky bottom-0">
         <Button 
-            className={cn("w-full font-bold", isFormValid ? 'bg-primary hover:bg-primary/90' : 'bg-gray-300 hover:bg-gray-400 text-gray-600')}
+            className="w-full font-bold"
             disabled={!isFormValid}
             onClick={handleNext}
         >

@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import type { Account } from '@/app/lib/definitions';
+import { formatCurrency } from '@/app/lib/data';
 
 const AccountSelector = ({
   accounts,
@@ -56,7 +57,7 @@ const AccountSelector = ({
                   : 'bg-gray-300'
               )}
             >
-              {`R${account.balance.toFixed(2)}`}
+              {formatCurrency(account.balance, account.currency)}
             </div>
              {selectedAccount === account.id && (
               <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-primary" />
@@ -70,7 +71,7 @@ const AccountSelector = ({
 
 export function TransferForm({ allAccounts }: { allAccounts: Account[] }) {
   const router = useRouter();
-  const [amount, setAmount] = useState('R0.00');
+  const [amount, setAmount] = useState('0.00');
   
   // Safely set initial state for from and to accounts
   const initialFromAccount = allAccounts.length > 1 ? allAccounts[1].id : (allAccounts.length > 0 ? allAccounts[0].id : null);
@@ -82,13 +83,17 @@ export function TransferForm({ allAccounts }: { allAccounts: Account[] }) {
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9.]/g, '');
-    const numberValue = parseFloat(value);
-    if (!isNaN(numberValue)) {
-      setAmount(`R${numberValue.toFixed(2)}`);
-    } else {
-      setAmount('R0.00');
-    }
+    setAmount(value);
   };
+
+  const handleAmountBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const numberValue = parseFloat(e.target.value);
+    if (!isNaN(numberValue)) {
+      setAmount(numberValue.toFixed(2));
+    } else {
+      setAmount('0.00');
+    }
+  }
 
   return (
     <div className="flex flex-col h-screen">
@@ -101,12 +106,17 @@ export function TransferForm({ allAccounts }: { allAccounts: Account[] }) {
 
       <div className="bg-primary text-primary-foreground p-4 space-y-2">
         <label className="text-sm">Amount</label>
-        <input
-          type="text"
-          value={amount}
-          onChange={handleAmountChange}
-          className="w-full bg-transparent text-4xl font-light border-b border-yellow-400 focus:outline-none focus:border-b-2"
-        />
+        <div className="flex items-end">
+            <span className="text-2xl font-light mr-1">R</span>
+            <input
+              type="text"
+              value={amount}
+              onChange={handleAmountChange}
+              onBlur={handleAmountBlur}
+              className="w-full bg-transparent text-4xl font-light border-b border-yellow-400 focus:outline-none focus:border-b-2"
+              placeholder="0.00"
+            />
+        </div>
         <p className="text-xs text-center text-primary-foreground/80">R105 500.00 daily transfer limit remaining</p>
       </div>
 
@@ -155,7 +165,7 @@ export function TransferForm({ allAccounts }: { allAccounts: Account[] }) {
       </main>
 
       <footer className="p-4 bg-white border-t">
-        <Button className="w-full bg-gray-300 hover:bg-gray-400 text-gray-600 font-bold">
+        <Button className="w-full bg-primary hover:bg-primary/90 font-bold">
           Next
         </Button>
       </footer>

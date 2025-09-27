@@ -153,6 +153,7 @@ export default function PayPage() {
         <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>
+        <h1 className="text-xl font-semibold">Pay</h1>
       </header>
       
       <main className="flex-1 overflow-y-auto">
