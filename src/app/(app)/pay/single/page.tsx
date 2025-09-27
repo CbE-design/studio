@@ -92,21 +92,20 @@ function SinglePaymentForm() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <div className="relative flex-1 overflow-y-auto">
-        <header className="gradient-background text-primary-foreground p-4 flex items-start h-28 sticky top-0 z-0">
-          <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
-            <ArrowLeft />
-          </Button>
-          <h1 className="text-2xl font-semibold">Whom would you like to pay?</h1>
-        </header>
-        
-        <main className="relative z-10 bg-gray-50 p-4 space-y-6 rounded-t-2xl -mt-12">
-           <div className="space-y-2">
+      <header className="gradient-background text-primary-foreground p-4 flex items-start h-28 sticky top-0 z-0">
+        <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
+          <ArrowLeft />
+        </Button>
+        <h1 className="text-2xl font-semibold">Whom would you like to pay?</h1>
+      </header>
+      
+      <main className="relative z-10 bg-gray-50 p-4 space-y-6 rounded-t-2xl -mt-16 flex-1 overflow-y-auto">
+          <div className="space-y-2">
               <Label htmlFor="recipient-name" className="text-xs text-gray-500 font-semibold">A new recipient</Label>
               <Input id="recipient-name" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Enter name and surname" className="bg-white border-primary" />
           </div>
 
-          <div className="bg-white p-4 rounded-lg shadow-sm border space-y-4 mt-8">
+          <div className="bg-white p-4 rounded-lg space-y-4 mt-8">
               <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
                   <Users className="h-5 w-5 mr-3 text-primary" />
                   <span className="flex-1 text-gray-700">Select from saved recipients</span>
@@ -122,8 +121,8 @@ function SinglePaymentForm() {
           </div>
           
           <div className="space-y-4 py-4">
-              <h2 className="font-semibold text-lg text-gray-800 text-left">How would you like to pay?</h2>
-              <div className="flex justify-start">
+              <h2 className="font-semibold text-lg text-gray-800">How would you like to pay?</h2>
+              <div className="flex">
                   <div className="bg-primary text-primary-foreground p-4 rounded-lg flex flex-col items-center justify-center w-40 h-32 cursor-pointer shadow-md">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M4 22h16"/>
@@ -183,13 +182,12 @@ function SinglePaymentForm() {
               </AlertDescription>
           </Alert>
           
-          <div className="bg-white p-4 rounded-lg shadow-sm border flex items-center justify-between">
+          <div className="bg-white p-4 rounded-lg border flex items-center justify-between">
               <Label htmlFor="save-recipient" className="font-semibold text-gray-800">Save recipient</Label>
               <Switch id="save-recipient" checked={saveRecipient} onCheckedChange={setSaveRecipient} />
           </div>
 
-        </main>
-      </div>
+      </main>
 
       <footer className="p-4 bg-white border-t sticky bottom-0 z-20">
         <Button 
