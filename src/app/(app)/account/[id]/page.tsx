@@ -4,7 +4,7 @@
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, MessageSquare, ChevronRight, Search, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { formatCurrency, accounts, transactions } from '@/app/lib/data';
+import { formatCurrency } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,8 @@ import { useMemo, useState, useEffect } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { collection, doc, getDoc, query } from 'firebase/firestore';
 
 const FilterIcon = () => (
   <svg
@@ -76,27 +78,49 @@ export default function AccountDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const accountId = params.id as string;
+  const firestore = useFirestore();
+  const { user, isUserLoading } = useUser();
   
   const [account, setAccount] = useState<Account | undefined>(undefined);
-  const [accountTransactions, setAccountTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const foundAccount = accounts.find(acc => acc.id === accountId);
-    setAccount(foundAccount);
-    if (foundAccount) {
-      setAccountTransactions(transactions[accountId] || []);
-    }
-    setIsLoading(false);
-  }, [accountId]);
+    if (!firestore || !user?.uid || !accountId) return;
 
+    const fetchAccountData = async () => {
+        setIsLoading(true);
+        try {
+            const accountDocRef = doc(firestore, 'users', user.uid, 'bankAccounts', accountId);
+            const docSnap = await getDoc(accountDocRef);
+
+            if (docSnap.exists()) {
+                setAccount({ id: docSnap.id, ...docSnap.data() } as Account);
+            } else {
+                console.log("No such document!");
+                setAccount(undefined);
+            }
+        } catch (error) {
+            console.error("Error fetching account details:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    fetchAccountData();
+  }, [firestore, user?.uid, accountId]);
+
+  const transactionsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid || !accountId) return null;
+    return query(collection(firestore, 'users', user.uid, 'bankAccounts', accountId, 'transactions'));
+  }, [firestore, user?.uid, accountId]);
+
+  const { data: accountTransactions, isLoading: isTransactionsLoading } = useCollection<Transaction>(transactionsQuery);
 
   const sortedTransactions = useMemo(() => {
     if (!accountTransactions) return [];
     return [...accountTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [accountTransactions]);
 
-  if (isLoading) {
+  if (isUserLoading || isLoading) {
     return <LoadingSkeleton />;
   }
 
@@ -188,9 +212,15 @@ export default function AccountDetailsPage() {
 
         <div className="bg-white">
           <div className="p-4 bg-gray-100">
-            <h2 className="font-bold text-gray-600 text-sm">THIS WEEK</h2>
+            <h2 className="font-bold text-gray-600 text-sm">TRANSACTIONS</h2>
           </div>
-          {sortedTransactions.length > 0 ? (
+          {isTransactionsLoading ? (
+            <div className="p-4 space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+            </div>
+          ) : sortedTransactions && sortedTransactions.length > 0 ? (
             sortedTransactions.map(tx => (
               <div key={tx.id} className="flex justify-between items-center p-4 border-b">
                 <div>
