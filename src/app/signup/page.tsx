@@ -6,102 +6,12 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, Menu, ArrowRight, AlertCircle, LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword, User } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useAuth, useFirestore } from '@/firebase-provider';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import { doc, setDoc, writeBatch, collection, WriteBatch } from 'firebase/firestore';
-
-// Default bank accounts to be created for a new user
-const defaultAccounts = [
-  {
-    name: 'Savvy Bundle Current Account',
-    type: 'Cheque',
-    accountNumber: '1234567890',
-    balance: 0.0,
-    currency: 'ZAR',
-  },
-  {
-    name: 'Current Account',
-    type: 'Cheque',
-    accountNumber: '1234066912',
-    balance: -5891.1,
-    currency: 'ZAR',
-  },
-  {
-    name: 'MyPockets(2/10)',
-    type: 'Savings',
-    accountNumber: '1122334455',
-    balance: 4.0,
-    currency: 'ZAR',
-  },
-  {
-    name: 'Savings Account',
-    type: 'Savings',
-    accountNumber: '0987654321',
-    balance: 1250.0,
-    currency: 'ZAR',
-  },
-];
-
-const sampleTransactions = {
-  '1234066912': [
-    { description: 'ONLINE PURCHASE', amount: 1740.00, type: 'debit', daysAgo: 2 },
-    { description: 'SALARY', amount: 25000.00, type: 'credit', daysAgo: 3 },
-  ],
-  '0987654321': [
-    { description: 'MONTHLY SAVING', amount: 1000.00, type: 'credit', daysAgo: 10 },
-  ],
-};
-
-
-async function provisionNewUserInFirestore(firestore: any, user: User) {
-    if (!firestore || !user) return;
-
-    const { uid, email } = user;
-    const batch = writeBatch(firestore);
-
-    // 1. Create the main user document
-    const userDocRef = doc(firestore, 'users', uid);
-    batch.set(userDocRef, {
-        id: uid,
-        email: email,
-        createdAt: new Date(),
-    });
-
-    // 2. Create the bankAccounts subcollection and transactions
-    const bankAccountsCollectionRef = collection(userDocRef, 'bankAccounts');
-    for (const account of defaultAccounts) {
-        const newAccountRef = doc(bankAccountsCollectionRef);
-        batch.set(newAccountRef, {
-            ...account,
-            userId: uid,
-        });
-
-        // Check if this account has sample transactions
-        const transactionsForAccount = sampleTransactions[account.accountNumber as keyof typeof sampleTransactions];
-        if (transactionsForAccount) {
-            const transactionsCollectionRef = collection(newAccountRef, 'transactions');
-            transactionsForAccount.forEach(tx => {
-                const newTransactionRef = doc(transactionsCollectionRef);
-                const transactionDate = new Date();
-                transactionDate.setDate(transactionDate.getDate() - tx.daysAgo);
-
-                batch.set(newTransactionRef, {
-                    ...tx,
-                    date: transactionDate.toISOString(),
-                    userId: uid,
-                    fromAccountId: newAccountRef.id,
-                });
-            });
-        }
-    }
-
-    await batch.commit();
-    console.log(`Successfully provisioned new user in Firestore: ${uid}`);
-}
 
 
 export default function SignupPage() {
@@ -125,9 +35,8 @@ export default function SignupPage() {
     setErrorMessage(undefined);
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // After user is created in Auth, provision their documents in Firestore
-      await provisionNewUserInFirestore(firestore, userCredential.user);
+      // The onUserCreate Cloud Function will handle creating the user document in Firestore.
+      await createUserWithEmailAndPassword(auth, email, password);
       
       toast({
         title: 'Account Created',
