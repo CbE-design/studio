@@ -1,4 +1,6 @@
 {
-  "firebase_hosting": {},
+  "firebase_hosting": {
+    "deploymentHostingUrl": "https://money-go-bd62c.web.app"
+  },
   "cloud_run_deploy": {}
 }
