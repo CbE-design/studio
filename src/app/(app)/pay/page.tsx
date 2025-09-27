@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
-import type { Transaction } from '@/app/lib/definitions';
-import { collectionGroup, query, where, orderBy } from 'firebase/firestore';
+import type { Account, Transaction } from '@/app/lib/definitions';
+import { collection, query, where, orderBy, limit } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/app/lib/data';
@@ -180,19 +180,29 @@ export default function PayPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  const transactionsQuery = useMemoFirebase(() => {
+  const accountsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
     return query(
-        collectionGroup(firestore, 'transactions'), 
-        where('userId', '==', user.uid),
-        where('type', '==', 'debit'),
-        orderBy('date', 'desc')
+      collection(firestore, 'users', user.uid, 'bankAccounts'),
+      limit(1)
     );
   }, [firestore, user?.uid]);
 
+  const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
+  const firstAccountId = accounts?.[0]?.id;
+
+  const transactionsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid || !firstAccountId) return null;
+    return query(
+        collection(firestore, 'users', user.uid, 'bankAccounts', firstAccountId, 'transactions'), 
+        where('type', '==', 'debit'),
+        orderBy('date', 'desc')
+    );
+  }, [firestore, user?.uid, firstAccountId]);
+
   const { data: recentTransactions, isLoading: isTransactionsLoading } = useCollection<Transaction>(transactionsQuery);
 
-  const isLoading = isUserLoading || isTransactionsLoading;
+  const isLoading = isUserLoading || isAccountsLoading || (firstAccountId && isTransactionsLoading);
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -267,5 +277,3 @@ export default function PayPage() {
     </div>
   );
 }
-
-    
