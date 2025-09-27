@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { doc, getDoc } from 'firebase/firestore';
-import { useFirestore, useUser } from '@/firebase';
+import { useFirestore, useUser } from '@/firebase-provider';
 import type { Beneficiary } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -92,7 +92,7 @@ export default function RecipientDetailsPage() {
     };
 
     fetchRecipient();
-  }, [firestore, user?.uid, recipientId, isUserLoading]);
+  }, [firestore, user, recipientId, isUserLoading]);
   
   const isLoading = isUserLoading || isRecipientLoading;
 

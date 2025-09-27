@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import type { Beneficiary } from '@/app/lib/definitions';
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
 import { collection, query } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -39,7 +39,7 @@ export default function RecipientsPage() {
   const beneficiariesQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
     return query(collection(firestore, 'users', user.uid, 'beneficiaries'));
-  }, [firestore, user?.uid]);
+  }, [firestore, user]);
 
   const { data: allBeneficiaries, isLoading: isBeneficiariesLoading } = useCollection<Beneficiary>(beneficiariesQuery);
   const isLoading = isUserLoading || isBeneficiariesLoading;

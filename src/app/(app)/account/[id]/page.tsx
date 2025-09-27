@@ -13,7 +13,7 @@ import { useMemo, useState, useEffect } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
 import { collection, doc, getDoc, query } from 'firebase/firestore';
 
 const FilterIcon = () => (

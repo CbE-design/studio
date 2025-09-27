@@ -9,11 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect, useState } from "react";
 import type { Account, Beneficiary } from "@/app/lib/definitions";
-import { collection, getDocs } from "firebase/firestore";
-import { useFirestore, useUser, useCollection, useMemoFirebase } from "@/firebase";
-import { beneficiaries as staticBeneficiaries } from "@/app/lib/data";
+import { collection } from "firebase/firestore";
+import { useUser, useCollection, useMemoFirebase, useFirestore } from "@/firebase-provider";
 import { query } from 'firebase/firestore';
 
 

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/app/lib/data';
 import { createTransactionAction } from '@/app/lib/actions';
+import { useAuth } from '@/firebase-provider';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null }) => (
     <div className="py-4 border-b last:border-b-0">
@@ -22,6 +23,7 @@ function PaymentSuccessContent() {
     const searchParams = useSearchParams();
     const { toast } = useToast();
     const transactionRecorded = useRef(false);
+    const auth = useAuth();
 
     const paymentDetails = {
         fromAccountId: searchParams.get('fromAccountId'),
@@ -34,7 +36,7 @@ function PaymentSuccessContent() {
     };
 
     useEffect(() => {
-        if (transactionRecorded.current) return;
+        if (transactionRecorded.current || !auth?.currentUser) return;
         
         const recordTransaction = async () => {
             if (!paymentDetails.fromAccountId || !paymentDetails.amount) {
@@ -45,25 +47,38 @@ function PaymentSuccessContent() {
                 });
                 return;
             }
-            
-            const result = await createTransactionAction({
-                fromAccountId: paymentDetails.fromAccountId,
-                amount: paymentDetails.amount,
-                recipientName: paymentDetails.recipientName || undefined,
-                yourReference: paymentDetails.yourReference || undefined,
-                recipientReference: paymentDetails.recipientReference || undefined,
-            });
 
-            if (result.message === 'Transaction created successfully.') {
-                toast({
-                    title: "Transaction Recorded",
-                    description: "Your payment has been successfully processed and recorded.",
+            try {
+                const idToken = await auth.currentUser.getIdToken();
+                if (!idToken) {
+                    throw new Error("Authentication token not found.");
+                }
+                
+                const result = await createTransactionAction({
+                    fromAccountId: paymentDetails.fromAccountId,
+                    amount: paymentDetails.amount,
+                    recipientName: paymentDetails.recipientName || undefined,
+                    yourReference: paymentDetails.yourReference || undefined,
+                    recipientReference: paymentDetails.recipientReference || undefined,
                 });
-            } else {
-                 toast({
+    
+                if (result.message === 'Transaction created successfully.') {
+                    toast({
+                        title: "Transaction Recorded",
+                        description: "Your payment has been successfully processed and recorded.",
+                    });
+                } else {
+                     toast({
+                        variant: 'destructive',
+                        title: "Transaction Failed",
+                        description: result.message,
+                    });
+                }
+            } catch (e: any) {
+                toast({
                     variant: 'destructive',
                     title: "Transaction Failed",
-                    description: result.message,
+                    description: e.message || "An unexpected error occurred.",
                 });
             }
         };
@@ -71,7 +86,7 @@ function PaymentSuccessContent() {
         recordTransaction();
         transactionRecorded.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [auth]);
     
     const handleShare = () => {
         const params = new URLSearchParams();

@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { useToast } from '@/hooks/use-toast';
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
 import { collection, doc, getDoc, query } from 'firebase/firestore';
 
 

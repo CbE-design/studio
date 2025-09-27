@@ -3,7 +3,7 @@
 
 import type { Account } from '@/app/lib/definitions';
 import { TransferForm } from '@/components/transfer-form';
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
 import { collection, query } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 

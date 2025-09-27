@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
 import type { Account } from '@/app/lib/definitions';
 import { formatCurrency } from '@/app/lib/data';
 import Link from 'next/link';

@@ -5,35 +5,15 @@ import React, {
   createContext,
   useContext,
   useEffect,
-  useMemo,
   useState,
   type PropsWithChildren,
 } from 'react';
-import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
-import {
-  getAuth,
-  onAuthStateChanged,
-  type Auth,
-  type User,
-} from 'firebase/auth';
-import {
-  getFirestore,
-  onSnapshot,
-  Query,
-  DocumentData,
-  QuerySnapshot,
-  type Firestore,
-} from 'firebase/firestore';
-
-// Firebase configuration from environment variables
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
+import type { FirebaseApp } from 'firebase/app';
+import type { Auth, User } from 'firebase/auth';
+import type { Firestore, Query, DocumentData, QuerySnapshot } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { onSnapshot } from 'firebase/firestore';
+import { app, auth, firestore } from '@/app/lib/firebase';
 
 // Types for our context
 type FirebaseContextType = {
@@ -64,25 +44,10 @@ export const useUser = () => {
 
 // The provider component
 export function FirebaseProvider({ children }: PropsWithChildren<{}>) {
-  const [app, setApp] = useState<FirebaseApp | null>(null);
-  const [auth, setAuth] = useState<Auth | null>(null);
-  const [firestore, setFirestore] = useState<Firestore | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isUserLoading, setIsUserLoading] = useState(true);
 
   useEffect(() => {
-    // Initialize Firebase app
-    const appInstance = !getApps().length
-      ? initializeApp(firebaseConfig)
-      : getApp();
-    setApp(appInstance);
-    setAuth(getAuth(appInstance));
-    setFirestore(getFirestore(appInstance));
-  }, []);
-
-  useEffect(() => {
-    if (!auth) return;
-
     // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user); // This will be the user object or null
@@ -90,7 +55,7 @@ export function FirebaseProvider({ children }: PropsWithChildren<{}>) {
     });
 
     return () => unsubscribe(); // Cleanup subscription on unmount
-  }, [auth]);
+  }, []);
 
   const value = { app, auth, firestore, user, isUserLoading };
 
@@ -133,7 +98,7 @@ export function useCollection<T extends DocumentData>(query: Query<T> | null) {
 }
 
 // Custom hook to memoize expensive object creation (like Firestore queries)
-export function useMemoFirebase<T>(factory: () => T, deps: any[]): T {
+export function useMemoFirebase<T>(factory: () => T, deps: React.DependencyList): T {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     return React.useMemo(factory, deps);
 }

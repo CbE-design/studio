@@ -8,7 +8,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { AccountsCarousel } from '@/components/accounts-carousel';
-import { useUser } from '@/firebase';
+import { useUser } from '@/firebase-provider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -161,7 +161,7 @@ export default function DashboardPage() {
             <AccountsCarousel />
         </div>
         <div className="p-4">
-            <div className="my-4 bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="my-4 mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-gray-200">
                 <Image
                 src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
                 alt="Advertisement banner"
