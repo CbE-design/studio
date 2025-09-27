@@ -8,12 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { beneficiaries as allBeneficiaries } from '@/app/lib/data';
 import { cn } from '@/lib/utils';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import Link from 'next/link';
 
 const tabs = ['Local', 'International', 'Bank-approved'];
-
-const alphabet = '#ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 export default function RecipientsPage() {
   const router = useRouter();
@@ -88,46 +85,29 @@ export default function RecipientsPage() {
           </div>
       </div>
 
-      <main className="flex-1 overflow-hidden flex">
-        <div className="flex-1 overflow-y-auto">
-            <div className="px-4">
-              {sortedGroups.map(group => (
-                <div key={group}>
-                  <h2 id={group} className="bg-gray-100 text-gray-600 font-bold p-2 my-2 -mx-4 px-4 sticky top-[197px] z-10">{group}</h2>
-                  {groupedBeneficiaries[group].map(ben => (
-                    <Link href={`/recipients/${ben.id}`} key={ben.id} className="block hover:bg-gray-50">
-                        <div className="py-3 border-b">
-                        <p className="font-semibold">{ben.name}</p>
-                        <p className="text-sm text-gray-500">
-                            {ben.bank ? `${ben.bank} - ${ben.accountNumber}` : ben.accountNumber}
-                        </p>
-                        </div>
-                    </Link>
-                  ))}
-                </div>
-              ))}
-              {filteredBeneficiaries.length === 0 && (
-                <div className="text-center py-10 text-gray-500">
-                  <p>No recipients found.</p>
-                </div>
-              )}
-            </div>
-        </div>
-        <ScrollArea className="h-full">
-            <div className="flex flex-col items-center justify-center h-full px-2 text-xs text-gray-500 font-medium">
-                {alphabet.map(letter => (
-                    <a key={letter} href={`#${letter}`} className="py-0.5 hover:text-primary" onClick={(e) => {
-                      e.preventDefault();
-                      const element = document.getElementById(letter);
-                      if (element) {
-                        element.scrollIntoView();
-                      }
-                    }}>
-                        {letter}
-                    </a>
+      <main className="flex-1 overflow-y-auto">
+          <div className="px-4">
+            {sortedGroups.map(group => (
+              <div key={group}>
+                <h2 id={group} className="bg-gray-100 text-gray-600 font-bold p-2 my-2 -mx-4 px-4 sticky top-[197px] z-10">{group}</h2>
+                {groupedBeneficiaries[group].map(ben => (
+                  <Link href={`/recipients/${ben.id}`} key={ben.id} className="block hover:bg-gray-50">
+                      <div className="py-3 border-b">
+                      <p className="font-semibold">{ben.name}</p>
+                      <p className="text-sm text-gray-500">
+                          {ben.bank ? `${ben.bank} - ${ben.accountNumber}` : ben.accountNumber}
+                      </p>
+                      </div>
+                  </Link>
                 ))}
-            </div>
-        </ScrollArea>
+              </div>
+            ))}
+            {filteredBeneficiaries.length === 0 && (
+              <div className="text-center py-10 text-gray-500">
+                <p>No recipients found.</p>
+              </div>
+            )}
+          </div>
       </main>
     </div>
   );

@@ -42,8 +42,7 @@ export default function SinglePaymentPage() {
   const isAccountsLoading = false; // Since it's hardcoded
 
   const [fromAccount, setFromAccount] = useState<string>('');
-  const [amount, setAmount] = useState('1.00');
-
+  const [amount, setAmount] = useState('0.00');
   const [bankName, setBankName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [recipientName, setRecipientName] = useState('');
@@ -54,18 +53,40 @@ export default function SinglePaymentPage() {
   
   // Update state from URL params and set default account
   useEffect(() => {
-    const selectedBank = searchParams.get('bank');
-    if (selectedBank) {
-      setBankName(decodeURIComponent(selectedBank));
-    }
-    const selectedPaymentType = searchParams.get('paymentType');
-    if (selectedPaymentType) {
-      setPaymentType(decodeURIComponent(selectedPaymentType));
-    }
+    // This effect runs once on mount and whenever searchParams change.
+    // It populates the form state from URL query parameters.
+    
+    // Set default 'from' account if not already set
     if (!fromAccount && userAccounts && userAccounts.length > 0) {
         setFromAccount(userAccounts[0].id);
     }
-  }, [searchParams, userAccounts, fromAccount]);
+
+    // Restore state from query parameters
+    if (searchParams.has('amount')) setAmount(searchParams.get('amount') || '0.00');
+    if (searchParams.has('bank')) setBankName(decodeURIComponent(searchParams.get('bank')!));
+    if (searchParams.has('accountNumber')) setAccountNumber(searchParams.get('accountNumber') || '');
+    if (searchParams.has('recipientName')) setRecipientName(searchParams.get('recipientName') || '');
+    if (searchParams.has('yourReference')) setYourReference(searchParams.get('yourReference') || '');
+    if (searchParams.has('recipientReference')) setRecipientReference(searchParams.get('recipientReference') || '');
+    if (searchParams.has('paymentType')) setPaymentType(decodeURIComponent(searchParams.get('paymentType')!));
+    
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  const preserveStateAndNavigate = (pathname: string) => {
+      const params = new URLSearchParams();
+      // Persist all state fields into query params
+      params.set('fromAccount', fromAccount);
+      params.set('amount', amount);
+      params.set('bankName', bankName);
+      params.set('accountNumber', accountNumber);
+      params.set('recipientName', recipientName);
+      params.set('yourReference', yourReference);
+      params.set('recipientReference', recipientReference);
+      params.set('paymentType', paymentType);
+
+      router.push(`${pathname}?${params.toString()}`);
+  }
 
   const handleNext = () => {
     const selectedAccount = userAccounts?.find(acc => acc.id === fromAccount);
@@ -114,7 +135,7 @@ export default function SinglePaymentPage() {
             </div>
              <div>
                 <Label htmlFor="amount" className="text-xs text-gray-500 font-semibold">Amount</Label>
-                <Input id="amount" value={amount} onChange={e => setAmount(e.target.value)} type="number" placeholder="1.00" className="mt-1" />
+                <Input id="amount" value={amount} onChange={e => setAmount(e.target.value)} type="number" placeholder="0.00" className="mt-1" />
             </div>
         </div>
 
@@ -152,13 +173,13 @@ export default function SinglePaymentPage() {
             <h2 className="font-semibold text-gray-800">To which account?</h2>
             <div className="space-y-2">
                 <Label htmlFor="bank-name" className="text-xs text-gray-500 font-semibold">Bank name</Label>
-                <div className="relative" onClick={() => router.push('/pay/single/select-bank')}>
+                <div className="relative" onClick={() => preserveStateAndNavigate('/pay/single/select-bank')}>
                     <Input 
                       id="bank-name" 
                       value={bankName} 
                       readOnly 
                       placeholder="Select bank" 
-                      className="pr-10 cursor-pointer"
+                      className="pr-10 cursor-pointer bg-white"
                     />
                     <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 </div>
@@ -181,8 +202,8 @@ export default function SinglePaymentPage() {
             <h2 className="font-semibold text-gray-800 pt-2">Payment type?</h2>
             <div className="space-y-2">
                  <Label htmlFor="payment-method" className="text-xs text-gray-500 font-semibold">Payment method</Label>
-                <div className="relative" onClick={() => router.push(`/pay/single/select-payment-type?bank=${encodeURIComponent(bankName)}`)}>
-                    <Input id="payment-method" value={paymentType} readOnly className="pr-10 border-primary cursor-pointer" />
+                <div className="relative" onClick={() => preserveStateAndNavigate('/pay/single/select-payment-type')}>
+                    <Input id="payment-method" value={paymentType} readOnly className="pr-10 border-primary cursor-pointer bg-white" />
                     <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 </div>
             </div>

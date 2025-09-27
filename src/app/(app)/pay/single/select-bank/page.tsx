@@ -2,32 +2,37 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { banks as allBanks } from '@/app/lib/data';
 import type { Bank } from '@/app/lib/definitions';
-import { ScrollArea } from '@/components/ui/scroll-area';
-
-const alphabet = '#ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 export default function SelectBankPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleBankSelect = (bankName: string) => {
-    router.push(`/pay/single?bank=${encodeURIComponent(bankName)}`);
+    // Preserve existing query params and add the selected bank
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.set('bank', bankName);
+    router.push(`/pay/single?${newSearchParams.toString()}`);
   };
+  
+  const sortedBanks = useMemo(() => {
+    return [...allBanks].sort((a, b) => a.name.localeCompare(b.name));
+  }, []);
 
   const filteredBanks = useMemo(() => {
     if (!searchTerm) {
-      return allBanks;
+      return sortedBanks;
     }
-    return allBanks.filter(bank =>
+    return sortedBanks.filter(bank =>
       bank.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm]);
+  }, [searchTerm, sortedBanks]);
 
   const popularBanks = useMemo(() => filteredBanks.filter(b => b.popular), [filteredBanks]);
   
