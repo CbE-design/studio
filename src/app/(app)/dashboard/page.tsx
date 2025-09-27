@@ -174,7 +174,7 @@ export default function DashboardPage() {
       {/* Header */}
       <header className="bg-primary text-primary-foreground p-4 space-y-4 sticky top-0 z-10">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2">
             <Image 
               src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
               alt="Nedbank Logo"
@@ -197,18 +197,14 @@ export default function DashboardPage() {
             <AccountsCarousel slides={slides} />
         </div>
         <div className="p-4">
-            <Card className="my-6 shadow-md rounded-lg overflow-hidden">
-            <CardContent className="p-0">
-                <Image
-                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
-                alt="Advertisement banner"
-                data-ai-hint="advertisement banner"
-                width={600}
-                height={100}
-                className="w-full"
-                />
-            </CardContent>
-            </Card>
+            <Image
+            src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
+            alt="Advertisement banner"
+            data-ai-hint="advertisement banner"
+            width={600}
+            height={100}
+            className="w-full my-6 rounded-lg overflow-hidden"
+            />
 
             <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
             <div className="grid grid-cols-4 gap-y-6">
