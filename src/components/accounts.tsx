@@ -34,16 +34,15 @@ export function Accounts() {
   const { user, isUserLoading } = useUser();
 
   const accountsQuery = useMemo(() => {
-    // Wait until the user is loaded and authenticated
-    if (!firestore || !user?.uid) return null;
-    // Query for accounts belonging to the current user
-    return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
+    if (firestore && user?.uid) {
+      return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
+    }
+    return null;
   }, [firestore, user?.uid]);
 
   const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
 
-  // Show skeleton while user is logging in OR accounts are fetching
-  if (isUserLoading || isAccountsLoading) {
+  if (isUserLoading || (accountsQuery && isAccountsLoading)) {
     return <AccountSkeleton />;
   }
 

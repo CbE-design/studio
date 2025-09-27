@@ -13,7 +13,7 @@ import { useMemo } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
-import { useCollection, useDocument, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useCollection, useDocument, useFirestore, useUser } from '@/firebase';
 import { collection, doc, query } from 'firebase/firestore';
 
 
@@ -82,17 +82,21 @@ export default function AccountDetailsPage() {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
 
-  const accountDocRef = useMemoFirebase(() => {
-    if (!firestore || !accountId || !user?.uid) return null;
-    return doc(firestore, 'users', user.uid, 'bankAccounts', accountId);
-  }, [firestore, accountId, user?.uid]);
+  const accountDocRef = useMemo(() => {
+    if (firestore && user?.uid && accountId) {
+      return doc(firestore, 'users', user.uid, 'bankAccounts', accountId);
+    }
+    return null;
+  }, [firestore, user?.uid, accountId]);
 
   const { data: account, isLoading: isAccountLoading } = useDocument<Account>(accountDocRef);
 
-  const transactionsQuery = useMemoFirebase(() => {
-    if (!firestore || !accountId || !user?.uid) return null;
-    return query(collection(firestore, 'users', user.uid, 'bankAccounts', accountId, 'transactions'));
-  }, [firestore, accountId, user?.uid]);
+  const transactionsQuery = useMemo(() => {
+    if (firestore && user?.uid && accountId) {
+      return query(collection(firestore, 'users', user.uid, 'bankAccounts', accountId, 'transactions'));
+    }
+    return null;
+  }, [firestore, user?.uid, accountId]);
 
   const { data: accountTransactions, isLoading: isTransactionsLoading } = useCollection<Transaction>(transactionsQuery);
 
@@ -101,7 +105,7 @@ export default function AccountDetailsPage() {
     return [...accountTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [accountTransactions]);
 
-  if (isUserLoading || isAccountLoading || isTransactionsLoading) {
+  if (isUserLoading || (accountDocRef && isAccountLoading) || (transactionsQuery && isTransactionsLoading)) {
     return <LoadingSkeleton />;
   }
 
@@ -123,7 +127,7 @@ export default function AccountDetailsPage() {
               <ArrowLeft />
             </Button>
             <div>
-              <h1 className="text-xl font-normal normal-case">{account.name}</h1>
+              <h1 className="text-xl font-normal normal-case">{account.accountName}</h1>
               <p className="text-sm opacity-80">{account.accountNumber}</p>
             </div>
           </div>
