@@ -84,7 +84,7 @@ function SinglePaymentForm() {
         <h1 className="text-2xl font-semibold">Whom would you like to pay?</h1>
       </header>
       
-      <main className="relative z-20 bg-gray-50 rounded-t-2xl -mt-20 flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto bg-gray-50">
         <div className="p-4 space-y-6">
             <div className="space-y-2">
                 <Label htmlFor="recipient-name" className="text-xs text-gray-500 font-semibold">A new recipient</Label>
