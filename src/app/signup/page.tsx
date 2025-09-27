@@ -6,14 +6,14 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, Menu, ArrowRight, AlertCircle, LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
@@ -22,7 +22,7 @@ export default function LoginPage() {
   const auth = useAuth();
   const { toast } = useToast();
 
-  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!auth) {
       setErrorMessage('Firebase is not initialized. Please try again later.');
@@ -33,18 +33,21 @@ export default function LoginPage() {
     setErrorMessage(undefined);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, email, password);
       toast({
-        title: 'Login Successful',
-        description: 'You have been signed in.',
+        title: 'Account Created',
+        description: 'You have been successfully signed up and logged in.',
       });
       router.push('/dashboard');
     } catch (error: any) {
-      console.error('Sign-in failed:', error);
-      if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-        setErrorMessage('Invalid email or password. Please try again.');
-      } else {
-        setErrorMessage('Login failed. Please try again.');
+      console.error('Sign-up failed:', error);
+      if (error.code === 'auth/email-already-in-use') {
+        setErrorMessage('This email is already in use.');
+      } else if (error.code === 'auth/weak-password') {
+        setErrorMessage('Password should be at least 6 characters.');
+      }
+      else {
+        setErrorMessage('Sign-up failed. Please try again.');
       }
     } finally {
       setIsLoading(false);
@@ -70,11 +73,11 @@ export default function LoginPage() {
       <main className="flex-1 overflow-y-auto px-6 py-8">
         <div className="space-y-8">
           <div>
-            <h1 className="text-3xl font-headline">Welcome back.</h1>
-            <p className="text-muted-foreground">Sign in to continue.</p>
+            <h1 className="text-3xl font-headline">Create your account.</h1>
+            <p className="text-muted-foreground">Get started with digital banking.</p>
           </div>
           
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleSignUp} className="space-y-4">
             <div>
               <Label htmlFor="email">Email</Label>
               <Input
@@ -102,7 +105,7 @@ export default function LoginPage() {
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <>
-                  Sign In <ArrowRight className="ml-auto h-5 w-5" />
+                  Sign Up <ArrowRight className="ml-auto h-5 w-5" />
                 </>
               )}
             </Button>
@@ -122,9 +125,9 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{' '}
-            <Link href="/signup" className="font-semibold text-primary hover:underline">
-              Sign up
+            Already have an account?{' '}
+            <Link href="/login" className="font-semibold text-primary hover:underline">
+              Sign in
             </Link>
           </p>
         </div>

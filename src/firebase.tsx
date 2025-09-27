@@ -3,7 +3,6 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -14,7 +13,6 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import {
   getAuth,
   onAuthStateChanged,
-  signInAnonymously,
   type Auth,
   type User,
 } from 'firebase/auth';
@@ -87,16 +85,8 @@ export function FirebaseProvider({ children }: PropsWithChildren<{}>) {
 
     // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-        setIsUserLoading(false);
-      } else {
-        // If no user, sign in anonymously
-        signInAnonymously(auth).catch((error) => {
-          console.error("Anonymous sign-in failed on provider load:", error);
-          setIsUserLoading(false); // Still stop loading on error
-        });
-      }
+      setUser(user); // This will be the user object or null
+      setIsUserLoading(false);
     });
 
     return () => unsubscribe(); // Cleanup subscription on unmount
@@ -147,6 +137,6 @@ export function useCollection<T extends DocumentData>(query: Query<T> | null) {
 
 // Custom hook to memoize expensive object creation (like Firestore queries)
 export function useMemoFirebase<T>(factory: () => T, deps: any[]): T {
-    const cb = useCallback(factory, deps);
-    return useMemo(cb, [cb]);
+    const cb = React.useCallback(factory, deps);
+    return React.useMemo(cb, [cb]);
 }

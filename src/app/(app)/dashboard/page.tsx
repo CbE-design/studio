@@ -10,6 +10,8 @@ import Link from 'next/link';
 import { AccountsCarousel } from '@/components/accounts-carousel';
 import { useUser } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 // Custom SVG Icons
 const OffersIcon = () => (
@@ -118,8 +120,16 @@ const LoadingSkeleton = () => (
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
+  const router = useRouter();
 
-  if (isUserLoading) {
+  useEffect(() => {
+    // If loading is finished and there is no user, redirect to login
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  if (isUserLoading || !user) {
     return <LoadingSkeleton />;
   }
 
@@ -177,5 +187,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
