@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { beneficiaries as allBeneficiaries } from '@/app/lib/data';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import type { Beneficiary } from '@/app/lib/definitions';
 
 const tabs = ['Local', 'International', 'Bank-approved'];
 
@@ -35,7 +36,7 @@ export default function RecipientsPage() {
       }
       acc[group].push(ben);
       return acc;
-    }, {} as Record<string, typeof allBeneficiaries>);
+    }, {} as Record<string, Beneficiary[]>);
   }, [filteredBeneficiaries]);
 
   const sortedGroups = Object.keys(groupedBeneficiaries).sort((a, b) => {

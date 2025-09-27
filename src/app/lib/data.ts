@@ -112,6 +112,9 @@ export const banks: Bank[] = [
 ];
 
 export function formatCurrency(amount: number, currency: string = 'ZAR') {
+  if (typeof amount !== 'number') {
+    return 'R0.00';
+  }
   const isNegative = amount < 0;
   const absAmount = Math.abs(amount);
 

@@ -2,22 +2,100 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, type CarouselApi } from "@/components/ui/carousel";
-import { Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
+import { Eye, ChevronLeft, ChevronRight, ChevronRight as ChevronRightIcon } from 'lucide-react';
+import { Accounts } from './accounts';
+import { Button } from './ui/button';
+import type { Account } from '@/app/lib/definitions';
 
-interface Slide {
-    title: string;
-    content: React.ReactNode;
-}
-
-interface AccountsCarouselProps {
-    slides: Slide[];
-}
-
-export function AccountsCarousel({ slides }: AccountsCarouselProps) {
+export function AccountsCarousel({ initialAccounts }: { initialAccounts: Account[] }) {
     const [api, setApi] = useState<CarouselApi>();
     const [current, setCurrent] = useState(0);
     const [count, setCount] = useState(0);
+
+    const slides = [
+        {
+          title: 'Accounts',
+          content: <Accounts initialAccounts={initialAccounts} />,
+        },
+        {
+          title: 'Rewards',
+          content: (
+             <div key="rewards" className="space-y-2">
+              <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
+                <div>
+                  <p className="text-sm">Greenbacks Rewards</p>
+                  <p className="text-base font-normal">GB 0</p>
+                </div>
+                <ChevronRightIcon className="h-6 w-6" />
+              </div>
+            </div>
+          ),
+        },
+        {
+          title: 'International banking and travel',
+          content: (
+            <div key="international" className="space-y-4">
+              <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
+                <div>
+                  <p className="text-xs">Incoming and outgoing payments</p>
+                  <p className="text-base font-normal">International payments</p>
+                </div>
+                <Button variant="link" className="text-white font-bold">View</Button>
+              </div>
+              <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
+                <div>
+                  <p className="text-xs">Foreign Currency Accounts</p>
+                  <p className="text-base font-normal">Your currencies</p>
+                </div>
+                <ChevronRightIcon className="h-6 w-6" />
+              </div>
+            </div>
+          ),
+        },
+        {
+          title: 'Savings & Investments',
+          content: (
+            <div key="savings" className="space-y-4">
+              <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
+                <div>
+                  <p className="text-xs">Tax certificates</p>
+                  <p className="text-base font-normal">Tax certificates</p>
+                </div>
+                <ChevronRightIcon className="h-6 w-6" />
+              </div>
+              <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
+                <div>
+                  <p className="text-base font-normal">Save & Invest</p>
+                </div>
+                 <Button variant="link" className="font-bold text-yellow-400">Explore options</Button>
+              </div>
+            </div>
+          ),
+        },
+        {
+          title: 'Insurance',
+          content: (
+            <div key="insurance" className="space-y-4">
+              <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
+                <div>
+                  <p className="text-xs">Insurance</p>
+                  <p className="text-base font-normal">My policies and applications</p>
+                </div>
+                <ChevronRightIcon className="h-6 w-6" />
+              </div>
+              <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
+                <div>
+                  <p className="text-xs">Insurance</p>
+                  <p className="text-base font-normal">New policy</p>
+                </div>
+                 <Button variant="link" className="font-bold text-yellow-400">Get cover</Button>
+              </div>
+            </div>
+          ),
+        },
+    ];
+
 
     const scrollPrev = useCallback(() => {
       api?.scrollPrev();

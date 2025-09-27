@@ -4,6 +4,7 @@
 import { z } from 'zod';
 import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 
 const FormSchema = z.object({
   income: z.coerce.number().positive({ message: 'Please enter a valid income.' }),
@@ -98,7 +99,6 @@ export async function authenticate(
 
   if (email === 'user@nextmail.com' && password === '123456') {
       // In a real app, you'd set a cookie or session here
-      const { redirect } = await import('next/navigation');
       redirect('/dashboard');
   } else {
       return 'Invalid email or password.';

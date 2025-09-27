@@ -28,21 +28,21 @@ const AccountSkeleton = () => (
   </div>
 )
 
-export function Accounts() {
+export function Accounts({ initialAccounts }: { initialAccounts: Account[] }) {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
 
   const accountsQuery = useMemoFirebase(() => {
-    // Wait until the user is loaded and authenticated
     if (!firestore || !user?.uid) return null;
-    // Query for accounts belonging to the current user
     return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
   }, [firestore, user?.uid]);
 
-  const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
+  const { data: liveAccounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
 
-  // Show skeleton while user is logging in OR accounts are fetching
-  if (isUserLoading || isAccountsLoading) {
+  const accounts = liveAccounts ?? initialAccounts;
+  const isLoading = isUserLoading || (isAccountsLoading && !initialAccounts.length);
+
+  if (isLoading) {
     return <AccountSkeleton />;
   }
 
@@ -51,7 +51,7 @@ export function Accounts() {
       {accounts && accounts.length > 0 ? (
         accounts.map((account) => (
           <Link href={`/account/${account.id}`} key={account.id}>
-            <div className="flex flex-row justify-between items-center p-3 border border-yellow-400 rounded-lg cursor-pointer hover:bg-white/20">
+            <div className="flex flex-row justify-between items-center p-3 bg-white/10 border border-white/20 rounded-lg cursor-pointer hover:bg-white/20">
               <div>
                 <p className="text-sm font-normal normal-case">{account.name}</p>
                 <p className="text-base font-normal">{formatCurrency(account.balance, account.currency)}</p>

@@ -1,17 +1,14 @@
 
 import {
   Bell,
-  ChevronRight,
-  Eye,
   MessageSquare,
 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
 import { AccountsCarousel } from '@/components/accounts-carousel';
-import { Accounts } from '@/components/accounts';
+import { getDocsFromServer } from '@/app/lib/data-fetching';
+import { db } from '@/app/lib/firebase-admin';
+import type { Account } from '@/app/lib/definitions';
 
 // Custom SVG Icons
 const OffersIcon = () => (
@@ -84,90 +81,19 @@ const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementTyp
     </Link>
 );
 
-export default function DashboardPage() {
-  const slides = [
-    {
-      title: 'Accounts',
-      content: <Accounts />,
-    },
-    {
-      title: 'Rewards',
-      content: (
-         <div key="rewards" className="space-y-2">
-          <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
-            <div>
-              <p className="text-sm">Greenbacks Rewards</p>
-              <p className="text-base font-normal">GB 0</p>
-            </div>
-            <ChevronRight className="h-6 w-6" />
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: 'International banking and travel',
-      content: (
-        <div key="international" className="space-y-4">
-          <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
-            <div>
-              <p className="text-xs">Incoming and outgoing payments</p>
-              <p className="text-base font-normal">International payments</p>
-            </div>
-            <Button variant="link" className="text-white font-bold">View</Button>
-          </div>
-          <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
-            <div>
-              <p className="text-xs">Foreign Currency Accounts</p>
-              <p className="text-base font-normal">Your currencies</p>
-            </div>
-            <ChevronRight className="h-6 w-6" />
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: 'Savings & Investments',
-      content: (
-        <div key="savings" className="space-y-4">
-          <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
-            <div>
-              <p className="text-xs">Tax certificates</p>
-              <p className="text-base font-normal">Tax certificates</p>
-            </div>
-            <ChevronRight className="h-6 w-6" />
-          </div>
-          <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
-            <div>
-              <p className="text-base font-normal">Save & Invest</p>
-            </div>
-             <Button variant="link" className="font-bold text-yellow-400">Explore options</Button>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: 'Insurance',
-      content: (
-        <div key="insurance" className="space-y-4">
-          <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
-            <div>
-              <p className="text-xs">Insurance</p>
-              <p className="text-base font-normal">My policies and applications</p>
-            </div>
-            <ChevronRight className="h-6 w-6" />
-          </div>
-          <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
-            <div>
-              <p className="text-xs">Insurance</p>
-              <p className="text-base font-normal">New policy</p>
-            </div>
-             <Button variant="link" className="font-bold text-yellow-400">Get cover</Button>
-          </div>
-        </div>
-      ),
-    },
-  ];
-
+export default async function DashboardPage() {
+  // This is a placeholder for a real user ID.
+  const userId = 'm9N5gQY126d5D6m3tO9s';
+  let initialAccounts: Account[] = [];
+  try {
+    initialAccounts = (await getDocsFromServer(
+      db,
+      `users/${userId}/bankAccounts`
+    )) as Account[];
+  } catch (error) {
+    console.error("Failed to fetch initial accounts:", error);
+    // Handle the error gracefully, maybe show a message to the user
+  }
 
   return (
     <div className="flex flex-col h-full bg-white text-black">
@@ -194,7 +120,7 @@ export default function DashboardPage() {
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto bg-gray-50">
         <div className="bg-primary text-primary-foreground p-4">
-            <AccountsCarousel slides={slides} />
+            <AccountsCarousel initialAccounts={initialAccounts} />
         </div>
         <div className="p-4">
             <Image
@@ -223,11 +149,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-
-    
-
-    
-
-    
-

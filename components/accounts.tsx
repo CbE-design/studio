@@ -47,7 +47,7 @@ export function Accounts() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {accounts && accounts.length > 0 ? (
         accounts.map((account) => (
           <Link href={`/account/${account.id}`} key={account.id}>
@@ -64,7 +64,7 @@ export function Accounts() {
          <div className="text-center py-4">
             <p className="text-sm">No accounts found.</p>
             <p className="text-xs text-white/80">You can add account data under your user document in Firestore.</p>
-          </div>
+         </div>
       )}
     </div>
   );
