@@ -1,3 +1,4 @@
+
 /**
  * Import function triggers from their respective submodules:
  *
@@ -49,38 +50,65 @@ const defaultAccounts = [
   },
 ];
 
+const sampleTransactions = {
+  '1234066912': [
+    { description: 'ONLINE PURCHASE', amount: 1740.00, type: 'debit', daysAgo: 2 },
+    { description: 'SALARY', amount: 25000.00, type: 'credit', daysAgo: 3 },
+  ],
+  '0987654321': [
+    { description: 'MONTHLY SAVING', amount: 1000.00, type: 'credit', daysAgo: 10 },
+  ],
+};
+
+
 /**
  * Triggered when a new user is created in Firebase Authentication.
  * This function creates a corresponding user document in Firestore
- * and provisions them with a default set of bank accounts.
+ * and provisions them with a default set of bank accounts and transactions.
  */
 exports.provisionNewUser = onUserCreate(async (event) => {
   const user = event.data;
   const { uid, email } = user;
   const db = admin.firestore();
+  const batch = db.batch();
 
   // Create the main user document
   const userDocRef = db.collection('users').doc(uid);
-  await userDocRef.set({
+  batch.set(userDocRef, {
     id: uid,
     email: email,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
-  // Create the bankAccounts subcollection with default accounts
+  // Create the bankAccounts subcollection and sample transactions
   const bankAccountsCollectionRef = userDocRef.collection('bankAccounts');
-  const batch = db.batch();
 
-  defaultAccounts.forEach((account) => {
-    // Let Firestore auto-generate the document ID
-    const newAccountRef = bankAccountsCollectionRef.doc();
+  for (const account of defaultAccounts) {
+    const newAccountRef = bankAccountsCollectionRef.doc(); // Let Firestore auto-generate the document ID
     batch.set(newAccountRef, {
       ...account,
-      userId: uid, // Link the account to the user
+      userId: uid,
     });
-  });
 
-  // Commit the batch to create all accounts at once
+    const transactionsForAccount = sampleTransactions[account.accountNumber];
+    if (transactionsForAccount) {
+      const transactionsCollectionRef = newAccountRef.collection('transactions');
+      transactionsForAccount.forEach(tx => {
+        const newTransactionRef = transactionsCollectionRef.doc();
+        const transactionDate = new Date();
+        transactionDate.setDate(transactionDate.getDate() - tx.daysAgo);
+        
+        batch.set(newTransactionRef, {
+            ...tx,
+            date: transactionDate.toISOString(),
+            userId: uid,
+            fromAccountId: newAccountRef.id,
+        });
+      });
+    }
+  }
+
+  // Commit the batch to create all documents at once
   await batch.commit();
 
   console.log(`Successfully provisioned new user: ${uid}`);

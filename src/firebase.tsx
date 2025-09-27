@@ -137,6 +137,6 @@ export function useCollection<T extends DocumentData>(query: Query<T> | null) {
 
 // Custom hook to memoize expensive object creation (like Firestore queries)
 export function useMemoFirebase<T>(factory: () => T, deps: any[]): T {
-    const cb = React.useCallback(factory, deps);
-    return React.useMemo(cb, [cb]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return React.useMemo(factory, deps);
 }

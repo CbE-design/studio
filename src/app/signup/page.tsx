@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import { doc, setDoc, writeBatch, collection } from 'firebase/firestore';
+import { doc, setDoc, writeBatch, collection, WriteBatch } from 'firebase/firestore';
 
 // Default bank accounts to be created for a new user
 const defaultAccounts = [
@@ -46,30 +46,58 @@ const defaultAccounts = [
   },
 ];
 
+const sampleTransactions = {
+  '1234066912': [
+    { description: 'ONLINE PURCHASE', amount: 1740.00, type: 'debit', daysAgo: 2 },
+    { description: 'SALARY', amount: 25000.00, type: 'credit', daysAgo: 3 },
+  ],
+  '0987654321': [
+    { description: 'MONTHLY SAVING', amount: 1000.00, type: 'credit', daysAgo: 10 },
+  ],
+};
+
+
 async function provisionNewUserInFirestore(firestore: any, user: User) {
     if (!firestore || !user) return;
 
     const { uid, email } = user;
-    const userDocRef = doc(firestore, 'users', uid);
+    const batch = writeBatch(firestore);
 
-    // Create the main user document
-    await setDoc(userDocRef, {
+    // 1. Create the main user document
+    const userDocRef = doc(firestore, 'users', uid);
+    batch.set(userDocRef, {
         id: uid,
         email: email,
         createdAt: new Date(),
     });
 
-    // Create the bankAccounts subcollection with default accounts
+    // 2. Create the bankAccounts subcollection and transactions
     const bankAccountsCollectionRef = collection(userDocRef, 'bankAccounts');
-    const batch = writeBatch(firestore);
-
-    defaultAccounts.forEach((account) => {
+    for (const account of defaultAccounts) {
         const newAccountRef = doc(bankAccountsCollectionRef);
         batch.set(newAccountRef, {
             ...account,
             userId: uid,
         });
-    });
+
+        // Check if this account has sample transactions
+        const transactions = sampleTransactions[account.accountNumber as keyof typeof sampleTransactions];
+        if (transactions) {
+            const transactionsCollectionRef = collection(newAccountRef, 'transactions');
+            transactions.forEach(tx => {
+                const newTransactionRef = doc(transactionsCollectionRef);
+                const transactionDate = new Date();
+                transactionDate.setDate(transactionDate.getDate() - tx.daysAgo);
+
+                batch.set(newTransactionRef, {
+                    ...tx,
+                    date: transactionDate.toISOString(),
+                    userId: uid,
+                    fromAccountId: newAccountRef.id,
+                });
+            });
+        }
+    }
 
     await batch.commit();
     console.log(`Successfully provisioned new user in Firestore: ${uid}`);

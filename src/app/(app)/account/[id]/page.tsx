@@ -231,7 +231,7 @@ export default function AccountDetailsPage() {
                   "font-semibold",
                   tx.type === 'debit' ? 'text-gray-800' : 'text-green-600'
                 )}>
-                  {formatCurrency(tx.amount, account.currency)}
+                  {tx.type === 'debit' ? '-' : ''}{formatCurrency(tx.amount, account.currency)}
                 </p>
               </div>
             ))
