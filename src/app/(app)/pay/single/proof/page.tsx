@@ -74,21 +74,23 @@ function ProofOfPaymentContent() {
             const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
             const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
             
-            const textColor = rgb(0.2, 0.2, 0.2);
-            const headingColor = rgb(0, 0, 0);
+            const textColor = rgb(0.2, 0.2, 0.2); // #333
+            const lightTextColor = rgb(0.33, 0.33, 0.33); // #555
+            const footerTextColor = rgb(0.46, 0.46, 0.46); // #777
+            const borderColor = rgb(0.8, 0.8, 0.8); // #ccc
             const margin = 50;
-            let y = height - margin;
+            let y = height - margin - 20;
 
             // Helper for wrapping text
             const wrapText = (text: string, maxWidth: number, font: PDFFont, fontSize: number) => {
                 const words = text.split(' ');
-                const lines: string[] = [];
+                let lines: string[] = [];
                 let currentLine = words[0];
 
                 for (let i = 1; i < words.length; i++) {
                     const word = words[i];
-                    const width = font.widthOfTextAtSize(currentLine + " " + word, fontSize);
-                    if (width < maxWidth) {
+                    const currentWidth = font.widthOfTextAtSize(currentLine + " " + word, fontSize);
+                    if (currentWidth < maxWidth) {
                         currentLine += " " + word;
                     } else {
                         lines.push(currentLine);
@@ -99,73 +101,66 @@ function ProofOfPaymentContent() {
                 return lines;
             };
 
-            // 1. Logo
+            // 1. Logo and Header Line
             const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7';
             const logoImageBytes = await fetch(`/api/image-proxy?url=${encodeURIComponent(logoUrl)}`).then(res => res.arrayBuffer());
             const logoImage = await pdfDoc.embedPng(logoImageBytes);
-            const logoDims = logoImage.scale(0.05);
+            const logoDims = logoImage.scale(0.04);
             page.drawImage(logoImage, {
                 x: margin,
                 y: y - logoDims.height,
                 width: logoDims.width,
                 height: logoDims.height,
             });
-            y -= logoDims.height + 20;
+            y -= logoDims.height + 5;
+            page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 1, color: borderColor });
+            y -= 20;
 
             // 2. Main Title
-            page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 18, color: headingColor });
+            page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 18, color: textColor });
             y -= 30;
 
             // 3. Intro paragraph
-            page.drawText('Nedbank Limited confirms that the following payment has been made:', { x: margin, y, font, size: 10, color: textColor });
-            y -= 25;
+            page.drawText('Nedbank Limited confirms that the following payment has been made:', { x: margin, y, font, size: 12, color: textColor });
+            y -= 35;
             
             // 4. Details Table (Date, Ref)
-            const detailStartY = y;
-            page.drawText('Date of Payment', { x: margin, y, font, size: 9, color: textColor });
-            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
-            page.drawText(paymentDetails.dateOfPayment, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
-            y -= 15;
-            page.drawText('Reference Number', { x: margin, y, font, size: 9, color: textColor });
-            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
-            page.drawText(paymentDetails.referenceNumber, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
-            y = detailStartY - 50;
+            const col1X = margin;
+            const col2X = margin + 155; // Approx 25% + separator space
+            page.drawText('Date of Payment', { x: col1X, y, font, size: 12, color: textColor });
+            page.drawText(':', { x: col2X - 10, y, font: boldFont, size: 12, color: textColor });
+            page.drawText(paymentDetails.dateOfPayment, { x: col2X, y, font, size: 12, color: textColor });
+            y -= 22; // 1.8 line height approx
+            page.drawText('Reference Number', { x: col1X, y, font, size: 12, color: textColor });
+            page.drawText(':', { x: col2X - 10, y, font: boldFont, size: 12, color: textColor });
+            page.drawText(paymentDetails.referenceNumber, { x: col2X, y, font, size: 12, color: textColor });
+            y -= 30;
 
             // 5. Beneficiary Details
-            page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 14, color: headingColor });
+            page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 14, color: textColor });
             y -= 25;
-            const beneficiaryStartY = y;
-            page.drawText('Recipient', { x: margin, y, font, size: 9, color: textColor });
-            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
-            page.drawText(paymentDetails.recipient, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
+            const beneficiaryDetails = [
+              { label: 'Recipient', value: paymentDetails.recipient },
+              { label: 'Amount', value: formatCurrency(paymentDetails.amount) },
+              { label: 'Recipient Reference', value: paymentDetails.recipientReference },
+              { label: 'Bank', value: paymentDetails.bank },
+              { label: 'Account Number', value: paymentDetails.accountNumber },
+              { label: 'Channel', value: paymentDetails.channel },
+            ];
+            beneficiaryDetails.forEach(detail => {
+              page.drawText(detail.label, { x: col1X, y, font, size: 12, color: textColor });
+              page.drawText(':', { x: col2X - 10, y, font: boldFont, size: 12, color: textColor });
+              page.drawText(detail.value, { x: col2X, y, font: boldFont, size: 12, color: textColor });
+              y -= 22;
+            });
             y -= 15;
-            page.drawText('Amount', { x: margin, y, font, size: 9, color: textColor });
-            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
-            page.drawText(formatCurrency(paymentDetails.amount), { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
-            y -= 15;
-            page.drawText('Recipient Reference', { x: margin, y, font, size: 9, color: textColor });
-            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
-            page.drawText(paymentDetails.recipientReference, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
-            y -= 15;
-            page.drawText('Bank', { x: margin, y, font, size: 9, color: textColor });
-            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
-            page.drawText(paymentDetails.bank, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
-            y -= 15;
-            page.drawText('Account Number', { x: margin, y, font, size: 9, color: textColor });
-            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
-            page.drawText(paymentDetails.accountNumber, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
-            y -= 15;
-            page.drawText('Channel', { x: margin, y, font, size: 9, color: textColor });
-            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
-            page.drawText(paymentDetails.channel, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
-            y = beneficiaryStartY - 120;
 
             // 6. Payer Details
-            page.drawText('Payer details', { x: margin, y, font: boldFont, size: 14, color: headingColor });
+            page.drawText('Payer details', { x: margin, y, font: boldFont, size: 14, color: textColor });
             y -= 25;
-            page.drawText('Paid from Account Holder', { x: margin, y, font, size: 9, color: textColor });
-            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
-            page.drawText(paymentDetails.payer, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
+            page.drawText('Paid from Account Holder', { x: col1X, y, font, size: 12, color: textColor });
+            page.drawText(':', { x: col2X - 10, y, font: boldFont, size: 12, color: textColor });
+            page.drawText(paymentDetails.payer, { x: col2X, y, font: boldFont, size: 12, color: textColor });
             y -= 30;
 
             // 7. Standard Text
@@ -176,59 +171,44 @@ function ProofOfPaymentContent() {
                 "Payments may take up to three business days. Please check your account to verify the existence of the funds.",
                 "Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details."
             ];
-
-            const standardFontsize = 8;
+            const standardFontSize = 11;
             standardTexts.forEach(text => {
-                const lines = wrapText(text, width - (2*margin), font, standardFontsize);
+                const lines = wrapText(text, width - (2*margin), font, standardFontSize);
                 lines.forEach(line => {
-                     page.drawText(line, { x: margin, y, font, size: standardFontsize, color: textColor, lineHeight: 10 });
-                     y -= 10;
+                     page.drawText(line, { x: margin, y, font, size: standardFontSize, color: textColor, lineHeight: 13 });
+                     y -= 13;
                 });
-                y -= 5;
+                y -= 8;
             });
-            y -= 15;
+            y -= 10;
 
             // 8. Disclaimer Box
-            const boxPadding = 10;
-            const boxContentWidth = width - (2 * margin) - (2 * boxPadding);
-            const disclaimerTitle = "Nedbank Limited email disclaimer";
+            page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 1, color: borderColor });
+            y -= 20;
+
+            page.drawText("Nedbank Limited email disclaimer", { x: margin, y, font: boldFont, size: 14, color: textColor });
+            y -= 20;
+
             const disclaimerText = "This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of, or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.";
-
-            const titleLines = wrapText(disclaimerTitle, boxContentWidth, boldFont, 9);
-            const bodyLines = wrapText(disclaimerText, boxContentWidth, font, 7);
-            
-            const boxHeight = (titleLines.length * 11) + (bodyLines.length * 9) + (2 * boxPadding);
-
-            page.drawRectangle({
-                x: margin,
-                y: y - boxHeight,
-                width: width - (2 * margin),
-                height: boxHeight,
-                borderColor: rgb(0.8, 0.8, 0.8),
-                borderWidth: 1,
+            const disclaimerFontSize = 10;
+            const disclaimerLines = wrapText(disclaimerText, width - (2 * margin), font, disclaimerFontSize);
+            disclaimerLines.forEach(line => {
+                page.drawText(line, { x: margin, y, font, size: disclaimerFontSize, color: lightTextColor, lineHeight: 12 });
+                y -= 12;
             });
-            
-            let boxY = y - boxPadding;
-            titleLines.forEach(line => {
-                page.drawText(line, { x: margin + boxPadding, y: boxY - 11, font: boldFont, size: 9, color: headingColor });
-                boxY -= 11;
-            });
-            boxY -= 5;
-            bodyLines.forEach(line => {
-                page.drawText(line, { x: margin + boxPadding, y: boxY - 9, font, size: 7, color: textColor, lineHeight: 9 });
-                boxY -= 9;
-            });
-            y -= boxHeight + 20;
+            y -= 25;
 
             // 9. Security Code
-            page.drawText('Security Code', { x: margin, y, font, size: 9, color: textColor });
-            page.drawText(':', { x: margin + 125, y, font, size: 9, color: textColor });
-            page.drawText(paymentDetails.securityCode, { x: margin + 135, y, font: boldFont, size: 9, color: textColor });
+            page.drawText('Security Code', { x: col1X, y, font, size: 12, color: textColor });
+            page.drawText(':', { x: col2X - 10, y, font: boldFont, size: 12, color: textColor });
+            page.drawText(paymentDetails.securityCode, { x: col2X, y, font: boldFont, size: 12, color: textColor });
             y -= 25;
 
             // 10. Footer
+            page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 1, color: borderColor });
+            y -= 20;
             const footerText = "Nedbank Limited Reg No 1951/000009/06 VAT Reg No 432018074 135 Rivonia Road, Sandton, Sandton 2196, South Africa.";
-            page.drawText(footerText, { x: margin, y, font, size: 7, color: textColor });
+            page.drawText(footerText, { x: margin, y, font, size: 8, color: footerTextColor, x: (width - font.widthOfTextAtSize(footerText, 8))/2 });
 
             const pdfBytes = await pdfDoc.save();
             const blob = new Blob([pdfBytes], { type: 'application/pdf' });
