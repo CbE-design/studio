@@ -63,7 +63,7 @@ function ProofOfPaymentContent() {
           bank: searchParams.get('bankName'),
           accountNumber: `...${searchParams.get('accountNumber')?.slice(-5)}`,
           channel: 'Internet payment',
-          payer: 'Corrie',
+          payer: 'Van Schalkwyk Family Trust',
           securityCode: 'B1AEF1A32330C0E8BB99D508DAF75E3A0B051D48',
       });
     }, [searchParams]);
