@@ -7,23 +7,8 @@ import { ArrowLeft, ChevronRight, Users, Landmark, Smartphone, Info, LoaderCircl
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-
-
-const BankIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 22h16"/>
-        <path d="M2 18V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v9"/>
-        <path d="M4 18v-5"/>
-        <path d="M8 18v-5"/>
-        <path d="M12 18v-5"/>
-        <path d="M16 18v-5"/>
-        <path d="M20 18v-5"/>
-        <path d="m2 9 10-4 10 4"/>
-    </svg>
-  );
 
 function SinglePaymentForm() {
   const router = useRouter();
@@ -122,7 +107,7 @@ function SinglePaymentForm() {
           
           <div className="space-y-4 py-4">
               <h2 className="font-semibold text-lg text-gray-800">How would you like to pay?</h2>
-              <div className="flex">
+              <div>
                   <div className="bg-primary text-primary-foreground p-4 rounded-lg flex flex-col items-center justify-center w-40 h-32 cursor-pointer shadow-md">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M4 22h16"/>
