@@ -79,13 +79,13 @@ function ShareProofOfPaymentContent() {
         const proxyLogoUrl = `/api/image-proxy?url=${encodeURIComponent(logoUrl)}`;
         const logoImageBytes = await fetch(proxyLogoUrl).then(res => res.arrayBuffer());
         const logoImage = await pdfDoc.embedPng(logoImageBytes);
-        const logoDims = logoImage.scale(0.1);
+        const logoDims = logoImage.scale(0.12);
         
         const lineY = y - 20;
         
         page.drawImage(logoImage, {
             x: margin,
-            y: lineY - 2, // Move logo down slightly
+            y: lineY - logoDims.height + 1,
             width: logoDims.width,
             height: logoDims.height,
         });
