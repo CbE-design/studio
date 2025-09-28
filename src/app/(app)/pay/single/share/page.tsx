@@ -72,7 +72,7 @@ function ShareProofOfPaymentContent() {
         
         const textColor = rgb(0, 0, 0);
         const grayColor = rgb(0.3, 0.3, 0.3);
-        const margin = 40;
+        const margin = 50;
         let y = height - margin;
 
         const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/Nedbank_logo_small.jpg?alt=media&token=319e4fd6-4a34-4ae3-a912-e5894c901d91';
@@ -81,11 +81,11 @@ function ShareProofOfPaymentContent() {
         const logoImage = await pdfDoc.embedJpg(logoImageBytes);
         const logoDims = logoImage.scale(0.04);
         
-        const lineY = y - logoDims.height - 5;
+        const lineY = y - 20;
         
         page.drawImage(logoImage, {
             x: margin,
-            y: lineY, // Position logo directly on the line
+            y: lineY - 2, // Move logo down slightly
             width: logoDims.width,
             height: logoDims.height,
         });
@@ -93,16 +93,16 @@ function ShareProofOfPaymentContent() {
         page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 0.5, color: rgb(0.75, 0.75, 0.75) });
         y = lineY - 25;
 
-        page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 12 });
+        page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 12, color: textColor });
         y -= 25;
 
-        page.drawText('Nedbank Limited confirms that the following payment has been made:', { x: margin, y, font, size: 9 });
+        page.drawText('Nedbank Limited confirms that the following payment has been made:', { x: margin, y, font, size: 9, color: textColor });
         y -= 25;
 
         const drawDetailRow = (label: string, value: string) => {
-            page.drawText(label, { x: margin, y, font, size: 9 });
-            page.drawText(':', { x: margin + 120, y, font, size: 9 });
-            page.drawText(value, { x: margin + 130, y, font, size: 9 });
+            page.drawText(label, { x: margin, y, font, size: 9, color: textColor });
+            page.drawText(':', { x: margin + 120, y, font, size: 9, color: textColor });
+            page.drawText(value, { x: margin + 130, y, font, size: 9, color: textColor });
             y -= 15;
         };
         
@@ -110,7 +110,7 @@ function ShareProofOfPaymentContent() {
         drawDetailRow('Reference Number', detailsForPdf.referenceNumber);
         y -= 15;
 
-        page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 10 });
+        page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 10, color: textColor });
         y -= 20;
 
         drawDetailRow('Recipient', detailsForPdf.recipient || 'N/A');
@@ -121,7 +121,7 @@ function ShareProofOfPaymentContent() {
         drawDetailRow('Channel', detailsForPdf.channel);
         y -= 15;
 
-        page.drawText('Payer details', { x: margin, y, font: boldFont, size: 10 });
+        page.drawText('Payer details', { x: margin, y, font: boldFont, size: 10, color: textColor });
         y -= 20;
 
         drawDetailRow('Paid from Account Holder', detailsForPdf.payer);
@@ -167,7 +167,7 @@ function ShareProofOfPaymentContent() {
         y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y });
         y -= 20;
 
-        page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 10 });
+        page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 10, color: textColor });
         y -= 15;
         
         y = drawWrappedText('This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.', { ...commonTextOptions, x: margin, y });
