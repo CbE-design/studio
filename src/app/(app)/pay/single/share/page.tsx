@@ -58,10 +58,10 @@ function ShareProofOfPaymentContent() {
             recipient: paymentDetails.recipientName,
             amount: Number(paymentDetails.amount || '0'),
             recipientReference: paymentDetails.recipientReference,
+            payer: payerName,
             bank: paymentDetails.bankName,
             accountNumber: `...${paymentDetails.accountNumber?.slice(-6)}`,
             channel: 'Internet payment',
-            payer: payerName,
             securityCode: generateSecurityCode(),
         };
 
@@ -89,8 +89,8 @@ function ShareProofOfPaymentContent() {
         
         // Draw the logo right above the line
         page.drawImage(logoImage, {
-            x: margin - 22,
-            y: lineY,
+            x: margin - 18,
+            y: lineY - 1,
             width: logoDims.width,
             height: logoDims.height,
         });
@@ -254,11 +254,3 @@ export default function ShareProofOfPaymentPage() {
         </Suspense>
     )
 }
-
-    
-
-    
-
-    
-
-    
