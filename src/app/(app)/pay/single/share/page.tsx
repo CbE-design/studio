@@ -80,14 +80,15 @@ function ShareProofOfPaymentContent() {
         const logoImage = await pdfDoc.embedPng(logoImageBytes);
         const logoDims = logoImage.scale(0.18);
         
+        const lineY = height - margin - 50;
+        
         page.drawImage(logoImage, {
             x: margin,
-            y: height - margin - logoDims.height + 40,
+            y: lineY - logoDims.height,
             width: logoDims.width,
             height: logoDims.height,
         });
 
-        const lineY = height - margin - 50;
         page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 0.5, color: rgb(0.75, 0.75, 0.75) });
         let y = lineY - 25;
 
@@ -254,7 +255,3 @@ export default function ShareProofOfPaymentPage() {
         </Suspense>
     )
 }
-
-    
-
-    
