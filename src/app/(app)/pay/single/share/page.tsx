@@ -33,7 +33,7 @@ function ShareProofOfPaymentContent() {
       accountNumber: searchParams.get('accountNumber'),
   };
 
-  const [payerName, setPayerName] = useState('CORRIE DIRK VAN SCHALKWYK');
+  const [payerName, setPayerName] = useState('VAN SCHALKWYK FAMILY TRUST');
 
   useEffect(() => {
     if (user?.displayName) {

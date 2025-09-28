@@ -190,7 +190,7 @@ export default function RecipientDetailsPage() {
                     
                     <div>
                         <Label htmlFor="your-reference" className="text-gray-500 text-xs">Your reference</Label>
-                        <Input id="your-reference" defaultValue="A De Klerk" className="bg-white" />
+                        <Input id="your-reference" defaultValue="Van Schalkwyk Family Trust" className="bg-white" />
                     </div>
 
                     <div>
