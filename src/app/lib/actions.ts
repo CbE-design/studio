@@ -6,7 +6,6 @@ import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@
 import { revalidatePath } from 'next/cache';
 import { auth, db } from './firebase-admin';
 import { FieldValue, doc, runTransaction } from 'firebase-admin/firestore';
-import { headers } from 'next/headers';
 
 const FormSchema = z.object({
   income: z.coerce.number().positive({ message: 'Please enter a valid income.' }),
@@ -64,6 +63,7 @@ const TransactionSchema = z.object({
     recipientName: z.string().optional(),
     yourReference: z.string().optional(),
     recipientReference: z.string().optional(),
+    idToken: z.string().min(1, { message: 'Auth token is required.'}),
 });
 
 type TransactionInput = z.infer<typeof TransactionSchema>;
@@ -77,9 +77,8 @@ export async function createTransactionAction(data: TransactionInput) {
             message: 'Invalid fields. Failed to create transaction.',
         };
     }
-    
-    const headersList = headers();
-    const idToken = headersList.get('Authorization')?.split('Bearer ')[1];
+
+    const { idToken } = validatedFields.data;
 
     if (!idToken) {
         return { message: 'Authentication required.' };

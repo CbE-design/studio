@@ -52,13 +52,14 @@ function PaymentSuccessContent() {
             }
 
             try {
-                // The createTransactionAction now gets the token from headers on the server-side.
+                const idToken = await auth.currentUser.getIdToken(true);
                 const result = await createTransactionAction({
                     fromAccountId: paymentDetails.fromAccountId,
                     amount: paymentDetails.amount,
                     recipientName: paymentDetails.recipientName || undefined,
                     yourReference: paymentDetails.yourReference || undefined,
                     recipientReference: paymentDetails.recipientReference || undefined,
+                    idToken: idToken,
                 });
     
                 if (result.message === 'Transaction created successfully.') {
