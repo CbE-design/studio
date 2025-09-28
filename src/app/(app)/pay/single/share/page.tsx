@@ -82,15 +82,15 @@ function ShareProofOfPaymentContent() {
         const proxyLogoUrl = `/api/image-proxy?url=${encodeURIComponent(logoUrl)}`;
         const logoImageBytes = await fetch(proxyLogoUrl).then(res => res.arrayBuffer());
         const logoImage = await pdfDoc.embedJpg(logoImageBytes);
-        const logoDims = logoImage.scale(0.04); // Made logo smaller
+        const logoDims = logoImage.scale(0.04);
 
         // Define line position first
         const lineY = y - 35;
         
         // Draw the logo right above the line
         page.drawImage(logoImage, {
-            x: margin - 5, // Move further to the left
-            y: lineY, // Place it just on top of the line
+            x: margin - 25,
+            y: lineY - 2,
             width: logoDims.width,
             height: logoDims.height,
         });
@@ -254,6 +254,8 @@ export default function ShareProofOfPaymentPage() {
         </Suspense>
     )
 }
+
+    
 
     
 
