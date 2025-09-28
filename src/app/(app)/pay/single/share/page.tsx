@@ -164,8 +164,18 @@ function ShareProofOfPaymentContent() {
         page.drawLine({ start: { x: margin, y: y }, end: { x: width - margin, y: y }, thickness: 1, color: rgb(0, 0, 0) });
         y -= 12.5;
 
-        y = drawWrappedText('This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification. Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information. Payments may take up to three business days. Please check your account to verify the existence of the funds.', { ...commonTextOptions, x: margin, y });
-        y -= 15;
+        const disclaimerParagraphs = [
+          'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111.',
+          'Please contact the payer for enquiries regarding the contents of this notification. Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information.',
+          'Payments may take up to three business days. Please check your account to verify the existence of the funds.'
+        ];
+        
+        disclaimerParagraphs.forEach(paragraph => {
+            y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y });
+            y -= commonTextOptions.lineHeight;
+        });
+
+        y -= 5; // Extra space
         
         y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y });
         y -= 20;
@@ -173,8 +183,18 @@ function ShareProofOfPaymentContent() {
         page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 10, color: textColor });
         y -= 15;
         
-        y = drawWrappedText('This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.', { ...commonTextOptions, x: margin, y });
-        y -= 25;
+        const emailDisclaimerParagraphs = [
+            'This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited.',
+            'Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient.',
+            'If verification of this email or any attachment is required, please request a hard copy version.'
+        ];
+
+        emailDisclaimerParagraphs.forEach(paragraph => {
+            y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y });
+            y -= commonTextOptions.lineHeight;
+        });
+        
+        y -= 15;
 
         drawDetailRow('Security Code', detailsForPdf.securityCode);
         y -= 30;
