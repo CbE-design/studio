@@ -82,7 +82,7 @@ function ShareProofOfPaymentContent() {
         const proxyLogoUrl = `/api/image-proxy?url=${encodeURIComponent(logoUrl)}`;
         const logoImageBytes = await fetch(proxyLogoUrl).then(res => res.arrayBuffer());
         const logoImage = await pdfDoc.embedJpg(logoImageBytes);
-        const logoDims = logoImage.scale(0.25);
+        const logoDims = logoImage.scale(0.05);
         page.drawImage(logoImage, {
             x: margin,
             y: y - logoDims.height,
@@ -250,5 +250,3 @@ export default function ShareProofOfPaymentPage() {
         </Suspense>
     )
 }
-
-    
