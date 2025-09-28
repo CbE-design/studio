@@ -75,10 +75,10 @@ function ShareProofOfPaymentContent() {
         const margin = 50;
         let y = height - margin;
 
-        const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/Nedbank_logo_small.jpg?alt=media&token=319e4fd6-4a34-4ae3-a912-e5894c901d91';
+        const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/van-schalkwyk-trust-mobile.firebasestorage.app/o/image.png?alt=media&token=76f59614-ab23-4f99-a46a-7aa20a4ec4e2';
         const proxyLogoUrl = `/api/image-proxy?url=${encodeURIComponent(logoUrl)}`;
         const logoImageBytes = await fetch(proxyLogoUrl).then(res => res.arrayBuffer());
-        const logoImage = await pdfDoc.embedJpg(logoImageBytes);
+        const logoImage = await pdfDoc.embedPng(logoImageBytes);
         const logoDims = logoImage.scale(0.04);
         
         const lineY = y - 20;
