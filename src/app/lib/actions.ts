@@ -4,8 +4,7 @@
 import { z } from 'zod';
 import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
 import { revalidatePath } from 'next/cache';
-import { auth, db } from './firebase-admin';
-import { FieldValue, doc, runTransaction } from 'firebase-admin/firestore';
+import { auth, db, admin } from './firebase-admin';
 
 const FormSchema = z.object({
   income: z.coerce.number().positive({ message: 'Please enter a valid income.' }),
@@ -91,7 +90,7 @@ export async function createTransactionAction(data: TransactionInput, idToken: s
         const accountRef = db.doc(`users/${userId}/bankAccounts/${fromAccountId}`);
         const transactionCollectionRef = accountRef.collection('transactions');
 
-        await runTransaction(db, async (t) => {
+        await db.runTransaction(async (t) => {
             const accountDoc = await t.get(accountRef);
             if (!accountDoc.exists) {
                 throw new Error("Account not found.");
