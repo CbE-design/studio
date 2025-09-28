@@ -80,7 +80,7 @@ function ShareProofOfPaymentContent() {
         const logoImage = await pdfDoc.embedPng(logoImageBytes);
         const logoDims = logoImage.scale(0.22);
         
-        const lineY = height - margin - 50;
+        const lineY = height - margin - logoDims.height;
         
         page.drawImage(logoImage, {
             x: margin,
@@ -89,7 +89,7 @@ function ShareProofOfPaymentContent() {
             height: logoDims.height,
         });
 
-        page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 2, color: rgb(0.5, 0.5, 0.5) });
+        page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 2, color: rgb(0.4, 0.4, 0.4) });
         let y = lineY - 25;
 
         page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 12, color: textColor });
@@ -255,9 +255,3 @@ export default function ShareProofOfPaymentPage() {
         </Suspense>
     )
 }
-
-    
-
-    
-
-    
