@@ -96,7 +96,7 @@ function AmountPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const [amount, setAmount] = useState('0.00');
+    const [amount, setAmount] = useState('');
     const [yourReference, setYourReference] = useState('');
     const [recipientReference, setRecipientReference] = useState('');
 
@@ -142,15 +142,17 @@ function AmountPageContent() {
 
     const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/[^0-9.]/g, '');
+        const decimalCount = (value.match(/\./g) || []).length;
+        if (decimalCount > 1) return;
         setAmount(value);
     };
 
     const handleAmountBlur = (e: React.FocusEvent<HTMLInputElement>) => {
         const numberValue = parseFloat(e.target.value);
-        if (!isNaN(numberValue)) {
+        if (!isNaN(numberValue) && e.target.value) {
             setAmount(numberValue.toFixed(2));
         } else {
-            setAmount('0.00');
+            setAmount('');
         }
     };
     
@@ -159,7 +161,8 @@ function AmountPageContent() {
         Object.entries(paymentDetails).forEach(([key, value]) => {
             if (value) params.set(key, value);
         });
-        params.set('amount', amount);
+        const finalAmount = parseFloat(amount) > 0 ? amount : '0.00';
+        params.set('amount', finalAmount);
         params.set('yourReference', yourReference);
         params.set('recipientReference', recipientReference);
         if (fromAccount) {
@@ -180,13 +183,13 @@ function AmountPageContent() {
 
     return (
         <div className="flex flex-col h-screen bg-gray-50">
-            <header className="gradient-background text-primary-foreground p-4 flex items-start justify-between sticky top-0 z-10 flex-col h-[150px]">
+            <header className="gradient-background text-primary-foreground p-4 flex flex-col justify-between sticky top-0 z-10 h-[180px]">
                 <div className="w-full flex items-center justify-between">
                     <Button variant="ghost" size="icon" className="-ml-2" onClick={() => router.back()}>
                         <ArrowLeft />
                     </Button>
                     <div className="text-center">
-                        <h1 className="text-xl font-semibold">Pay {paymentDetails.recipientName}</h1>
+                        <h1 className="text-lg font-semibold">Pay {paymentDetails.recipientName}</h1>
                         <p className="text-sm opacity-80">{paymentDetails.bankName}</p>
                         <p className="text-sm opacity-80">{paymentDetails.accountNumber}</p>
                     </div>
@@ -194,19 +197,17 @@ function AmountPageContent() {
                         <X />
                     </Button>
                 </div>
-                <div className="w-full">
-                    <label className="text-sm">Amount</label>
-                    <div className="flex items-end">
-                        <span className="text-2xl font-light mr-1">R</span>
-                        <input
-                        type="text"
-                        value={amount}
-                        onChange={handleAmountChange}
-                        onBlur={handleAmountBlur}
-                        className="w-full bg-transparent text-4xl font-light focus:outline-none"
-                        placeholder="0.00"
-                        />
-                    </div>
+                <div className="w-full flex justify-center items-end">
+                    <span className="text-3xl font-light mr-1">R</span>
+                    <input
+                    type="text"
+                    inputMode="decimal"
+                    value={amount}
+                    onChange={handleAmountChange}
+                    onBlur={handleAmountBlur}
+                    className="w-auto max-w-full bg-transparent text-5xl font-light focus:outline-none text-center"
+                    placeholder="0.00"
+                    />
                 </div>
             </header>
             <div className="w-full h-1 bg-yellow-400"></div>
@@ -261,7 +262,7 @@ function AmountPageContent() {
                 </div>
             </main>
              <footer className="p-4 bg-white border-t sticky bottom-0">
-                <Button onClick={handleNext} className="w-full font-bold" disabled={!fromAccount || parseFloat(amount) <= 0}>
+                <Button onClick={handleNext} className="w-full font-bold" disabled={!fromAccount || !amount || parseFloat(amount) <= 0}>
                   Next
                 </Button>
             </footer>
@@ -282,3 +283,5 @@ export default function AmountPage() {
         </Suspense>
     );
 }
+
+    
