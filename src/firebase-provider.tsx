@@ -79,7 +79,10 @@ export function useCollection<T extends DocumentData>(query: Query<T> | null) {
             return;
         }
 
-        setIsLoading(true);
+        // Set loading to true only when query changes and we don't have data yet
+        if (!data) {
+            setIsLoading(true);
+        }
 
         const unsubscribe = onSnapshot(query, (snapshot: QuerySnapshot<T>) => {
             const docs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
@@ -92,6 +95,7 @@ export function useCollection<T extends DocumentData>(query: Query<T> | null) {
         });
 
         return () => unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [query]);
 
     return { data, isLoading, error };
