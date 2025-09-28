@@ -4,9 +4,8 @@
 import { z } from 'zod';
 import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
 import { revalidatePath } from 'next/cache';
-import { db } from './firebase-admin';
-import { doc, runTransaction } from 'firebase/firestore';
-import { auth as adminAuth } from 'firebase-admin';
+import { collection, doc, runTransaction } from 'firebase/firestore';
+import { firestore } from '@/app/lib/firebase';
 
 const FormSchema = z.object({
   income: z.coerce.number().positive({ message: 'Please enter a valid income.' }),
@@ -60,6 +59,7 @@ export async function getFinancialTipsAction(prevState: State, formData: FormDat
 
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
+    userId: z.string().min(1, { message: 'User ID is required.'}),
     amount: z.string().refine(val => !isNaN(parseFloat(val)) && parseFloat(val) > 0, { message: 'Amount must be a positive number.' }),
     recipientName: z.string().optional(),
     yourReference: z.string().optional(),
@@ -68,7 +68,7 @@ const TransactionSchema = z.object({
 
 type TransactionInput = z.infer<typeof TransactionSchema>;
 
-export async function createTransactionAction(data: TransactionInput, idToken: string) {
+export async function createTransactionAction(data: TransactionInput) {
     const validatedFields = TransactionSchema.safeParse(data);
 
     if (!validatedFields.success) {
@@ -78,22 +78,14 @@ export async function createTransactionAction(data: TransactionInput, idToken: s
         };
     }
 
-    if (!idToken) {
-        return { message: 'Authentication required.' };
-    }
-
     try {
-        const decodedToken = await adminAuth().verifyIdToken(idToken);
-        const userId = decodedToken.uid;
-        
-        const { fromAccountId, amount, recipientName, yourReference, recipientReference } = validatedFields.data;
+        const { fromAccountId, userId, amount, recipientName, yourReference, recipientReference } = validatedFields.data;
         const numericAmount = parseFloat(amount);
         
-        const accountRef = doc(db, `users/${userId}/bankAccounts/${fromAccountId}`);
-        const transactionCollectionRef = doc(db, `users/${userId}/bankAccounts/${fromAccountId}`).collection('transactions');
+        await runTransaction(firestore, async (transaction) => {
+            const accountRef = doc(firestore, `users/${userId}/bankAccounts/${fromAccountId}`);
+            const accountDoc = await transaction.get(accountRef);
 
-        await runTransaction(db, async (t) => {
-            const accountDoc = await t.get(accountRef);
             if (!accountDoc.exists()) {
                 throw new Error("Account not found.");
             }
@@ -102,11 +94,11 @@ export async function createTransactionAction(data: TransactionInput, idToken: s
             const newBalance = currentBalance - numericAmount;
 
             // Update account balance
-            t.update(accountRef, { balance: newBalance });
+            transaction.update(accountRef, { balance: newBalance });
 
             // Create new transaction document
-            const newTransactionRef = transactionCollectionRef.doc();
-            t.set(newTransactionRef, {
+            const newTransactionRef = doc(collection(firestore, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
+            transaction.set(newTransactionRef, {
                 userId: userId,
                 fromAccountId: fromAccountId,
                 amount: numericAmount,

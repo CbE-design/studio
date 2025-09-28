@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/app/lib/data';
 import { createTransactionAction } from '@/app/lib/actions';
-import { getAuth } from 'firebase/auth';
+import { useUser } from '@/firebase-provider';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null }) => (
     <div className="py-4 border-b last:border-b-0">
@@ -23,7 +23,7 @@ function PaymentSuccessContent() {
     const searchParams = useSearchParams();
     const { toast } = useToast();
     const transactionRecorded = useRef(false);
-    const auth = getAuth();
+    const { user, isUserLoading } = useUser();
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
     const paymentDetails = {
@@ -39,7 +39,7 @@ function PaymentSuccessContent() {
     useEffect(() => {
         setFormattedDate(format(new Date(), 'dd MMMM yyyy'));
 
-        if (transactionRecorded.current || !auth.currentUser) return;
+        if (transactionRecorded.current || isUserLoading || !user) return;
         
         const recordTransaction = async () => {
             if (!paymentDetails.fromAccountId || !paymentDetails.amount) {
@@ -52,14 +52,14 @@ function PaymentSuccessContent() {
             }
 
             try {
-                const idToken = await auth.currentUser.getIdToken(true);
                 const result = await createTransactionAction({
                     fromAccountId: paymentDetails.fromAccountId,
+                    userId: user.uid,
                     amount: paymentDetails.amount,
                     recipientName: paymentDetails.recipientName || undefined,
                     yourReference: paymentDetails.yourReference || undefined,
                     recipientReference: paymentDetails.recipientReference || undefined,
-                }, idToken);
+                });
     
                 if (result.message === 'Transaction created successfully.') {
                     toast({
@@ -85,7 +85,7 @@ function PaymentSuccessContent() {
         recordTransaction();
         transactionRecorded.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [auth.currentUser]);
+    }, [user, isUserLoading]);
     
     const handleShare = () => {
         const params = new URLSearchParams();
