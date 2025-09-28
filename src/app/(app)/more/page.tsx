@@ -9,10 +9,16 @@ import {
   Settings,
   ChevronRight,
   Plus,
+  LogOut,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/firebase-provider';
+import { signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 const NedbankConnectIcon = () => (
   <svg
@@ -90,6 +96,29 @@ const menuItems = [
 ];
 
 export default function MorePage() {
+  const auth = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    if (!auth) return;
+    try {
+      await signOut(auth);
+      toast({
+        title: 'Signed Out',
+        description: 'You have been successfully signed out.',
+      });
+      router.push('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Sign Out Failed',
+        description: 'Could not sign you out. Please try again.',
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       <header className="gradient-background h-16" />
@@ -140,6 +169,16 @@ export default function MorePage() {
               </li>
             ))}
           </ul>
+        </div>
+        <div className="p-4 mt-4">
+          <Button
+            variant="outline"
+            className="w-full justify-start text-lg p-6 border-gray-300"
+            onClick={handleLogout}
+          >
+            <LogOut className="mr-4 h-6 w-6 text-primary" />
+            Sign Out
+          </Button>
         </div>
       </main>
     </div>
