@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, MessageSquare, ChevronRight, Search, FileText } from 'lucide-react';
+import { ArrowLeft, MessageSquare, ChevronRight, Search, FileText, ShoppingCart, Home, Landmark, University, CircleDollarSign, LandmarkIcon, Building, HandCoins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
 import { collection, doc, getDoc, query } from 'firebase/firestore';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const FilterIcon = () => (
   <svg
@@ -74,6 +75,18 @@ const LoadingSkeleton = () => (
   </div>
 );
 
+const getTransactionIcon = (description: string) => {
+    const lowerCaseDesc = description.toLowerCase();
+    if (lowerCaseDesc.includes('purchase')) return <ShoppingCart className="h-5 w-5 text-gray-500" />;
+    if (lowerCaseDesc.includes('salary')) return <CircleDollarSign className="h-5 w-5 text-gray-500" />;
+    if (lowerCaseDesc.includes('payment to')) return <HandCoins className="h-5 w-5 text-gray-500" />;
+    if (lowerCaseDesc.includes('debit order')) return <Building className="h-5 w-5 text-gray-500" />;
+    if (lowerCaseDesc.includes('atm')) return <LandmarkIcon className="h-5 w-5 text-gray-500" />;
+    if (lowerCaseDesc.includes('transfer')) return <University className="h-5 w-5 text-gray-500" />;
+    if (lowerCaseDesc.includes('loan')) return <Home className="h-5 w-5 text-gray-500" />;
+    return <Landmark className="h-5 w-5 text-gray-500" />;
+};
+
 export default function AccountDetailsPage() {
   const router = useRouter();
   const params = useParams();
@@ -120,16 +133,27 @@ export default function AccountDetailsPage() {
     };
     fetchAccountData();
     // Re-fetch account data if transactions change to update balance
-  }, [firestore, user?.uid, accountId, isUserLoading, accountTransactions]);
+  }, [firestore, user?.uid, accountId, isUserLoading]);
 
-  const sortedTransactions = useMemo(() => {
-    if (!accountTransactions) return [];
-    // Ensure all transactions have a date before sorting
-    return [...accountTransactions].sort((a, b) => {
+  const groupedTransactions = useMemo(() => {
+    if (!accountTransactions) return {};
+    
+    const sorted = [...accountTransactions].sort((a, b) => {
         const dateA = a.date ? new Date(a.date).getTime() : 0;
         const dateB = b.date ? new Date(b.date).getTime() : 0;
         return dateB - dateA;
     });
+
+    return sorted.reduce((acc, tx) => {
+      if (!tx.date) return acc;
+      const dateKey = format(new Date(tx.date), 'yyyy-MM-dd');
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(tx);
+      return acc;
+    }, {} as Record<string, Transaction[]>);
+
   }, [accountTransactions]);
 
   const isLoading = isUserLoading || isAccountLoading;
@@ -224,33 +248,42 @@ export default function AccountDetailsPage() {
           </div>
         </div>
 
-        <div className="bg-white">
-          <div className="p-4 bg-gray-100">
-            <h2 className="font-bold text-gray-600 text-sm">TRANSACTIONS</h2>
-          </div>
+        <div className="bg-gray-50 px-4 space-y-4">
           {isTransactionsLoading ? (
             <div className="p-4 space-y-2">
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
             </div>
-          ) : sortedTransactions && sortedTransactions.length > 0 ? (
-            sortedTransactions.map(tx => (
-              <div key={tx.id} className="flex justify-between items-center p-4 border-b">
-                <div>
-                  <p className="text-sm font-semibold">{tx.description}</p>
-                  {tx.date && <p className="text-sm text-gray-500">{format(new Date(tx.date), 'dd MMM yyyy')}</p>}
-                </div>
-                <p className={cn(
-                  "font-semibold",
-                  tx.type === 'debit' ? 'text-gray-800' : 'text-green-600'
-                )}>
-                  {tx.type === 'debit' ? '-' : ''}{formatCurrency(tx.amount, account.currency)}
-                </p>
-              </div>
+          ) : Object.keys(groupedTransactions).length > 0 ? (
+            Object.keys(groupedTransactions).map(dateKey => (
+                <Card key={dateKey} className="overflow-hidden shadow-sm">
+                    <CardHeader className="bg-gray-100 p-3">
+                        <CardTitle className="text-sm font-semibold text-gray-600">
+                          {format(new Date(dateKey), 'EEEE, dd MMMM yyyy')}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        {groupedTransactions[dateKey].map(tx => (
+                            <div key={tx.id} className="flex items-start gap-4 p-4 border-b last:border-b-0">
+                                <div className="mt-1">{getTransactionIcon(tx.description)}</div>
+                                <div className="flex-1">
+                                    <p className="font-semibold text-sm text-gray-800">{tx.description}</p>
+                                    <p className="text-xs text-gray-500">{tx.yourReference || tx.recipientReference || 'No reference'}</p>
+                                </div>
+                                <p className={cn(
+                                    "font-semibold text-sm",
+                                    tx.type === 'debit' ? 'text-gray-900' : 'text-green-600'
+                                )}>
+                                    {tx.type === 'debit' ? '-' : ''}{formatCurrency(tx.amount, account.currency)}
+                                </p>
+                            </div>
+                        ))}
+                    </CardContent>
+                </Card>
             ))
           ) : (
-             <div className="text-center p-8 text-gray-500">
+             <div className="text-center p-8 text-gray-500 bg-white rounded-lg shadow-sm">
                 <p>No transactions found for this account.</p>
              </div>
           )}
@@ -259,3 +292,5 @@ export default function AccountDetailsPage() {
     </div>
   );
 }
+
+    
