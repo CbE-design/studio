@@ -161,7 +161,7 @@ export default function DashboardPage() {
             <AccountsCarousel />
         </div>
         <div className="p-4">
-            <div className="my-4 mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-gray-200">
+            <div className="my-2 md:my-4 mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-gray-200">
                 <Image
                 src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
                 alt="Advertisement banner"
@@ -173,7 +173,7 @@ export default function DashboardPage() {
             </div>
 
             <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
-            <div className="grid grid-cols-4 gap-y-6">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-y-6">
               {widgets.map((widget, index) => (
                   <WidgetItem 
                     key={index} 
@@ -189,3 +189,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
