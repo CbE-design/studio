@@ -89,7 +89,7 @@ function ShareProofOfPaymentContent() {
         
         // Draw the logo right above the line
         page.drawImage(logoImage, {
-            x: margin - 1, // Move slightly to the left
+            x: margin - 5, // Move further to the left
             y: lineY, // Place it just on top of the line
             width: logoDims.width,
             height: logoDims.height,
@@ -97,6 +97,7 @@ function ShareProofOfPaymentContent() {
 
         page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 1, color: rgb(0.75, 0.75, 0.75) });
         y = lineY - 25;
+
 
         page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 12 });
         y -= 25;
@@ -253,5 +254,7 @@ export default function ShareProofOfPaymentPage() {
         </Suspense>
     )
 }
+
+    
 
     
