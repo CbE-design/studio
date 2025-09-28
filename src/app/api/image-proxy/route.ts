@@ -11,7 +11,7 @@ export async function GET(request: Request) {
 
   try {
     const response = await fetch(imageUrl, {
-      cache: 'no-store',
+      cache: 'force-cache', // Cache the logo since it won't change
     });
 
     if (!response.ok) {
@@ -24,6 +24,7 @@ export async function GET(request: Request) {
     return new NextResponse(imageBytes, {
       headers: {
         'Content-Type': contentType,
+        'Cache-Control': 'public, max-age=31536000, immutable',
       },
     });
   } catch (error) {
