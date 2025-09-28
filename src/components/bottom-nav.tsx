@@ -13,7 +13,7 @@ const navItems = [
   { href: '/cards', label: 'Cards', icon: CreditCard },
   { href: '#', label: 'Transact', icon: PlusCircle, isTransact: true },
   { href: '/recipients', label: 'Recipients', icon: Users },
-  { href: '#', label: 'More', icon: MoreHorizontal },
+  { href: '/more', label: 'More', icon: MoreHorizontal },
 ];
 
 export function BottomNav() {
@@ -26,9 +26,11 @@ export function BottomNav() {
   };
 
   const isActive = (href: string) => {
-    if (href === '/dashboard') return pathname.startsWith('/dashboard');
+    // Exact match for most, but startsWith for dashboard/recipients to catch sub-pages
+    if (href === '/dashboard') return pathname === '/dashboard';
     if (href === '/cards') return pathname.startsWith('/cards');
     if (href === '/recipients') return pathname.startsWith('/recipients');
+    if (href === '/more') return pathname.startsWith('/more');
     return pathname === href;
   }
 
