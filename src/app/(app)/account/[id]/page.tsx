@@ -81,7 +81,7 @@ export default function AccountDetailsPage() {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
   
-  const [account, setAccount] = useState<Account | undefined>(undefined);
+  const [account, setAccount] = useState<Account | null>(null);
   const [isAccountLoading, setIsAccountLoading] = useState(true);
 
   useEffect(() => {
@@ -102,10 +102,11 @@ export default function AccountDetailsPage() {
                 setAccount({ id: docSnap.id, ...docSnap.data() } as Account);
             } else {
                 console.log("No such document!");
-                setAccount(undefined);
+                setAccount(null);
             }
         } catch (error) {
             console.error("Error fetching account details:", error);
+            setAccount(null);
         } finally {
             setIsAccountLoading(false);
         }

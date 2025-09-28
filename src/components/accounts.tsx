@@ -42,7 +42,7 @@ export function Accounts() {
   const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
 
   // Show skeleton while user is logging in OR accounts are fetching
-  if (isUserLoading || (isAccountsLoading && accounts === null)) {
+  if (isUserLoading || isAccountsLoading) {
     return <AccountSkeleton />;
   }
 

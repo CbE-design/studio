@@ -94,7 +94,7 @@ export default function RecipientDetailsPage() {
     };
 
     fetchRecipient();
-  }, [firestore, user, recipientId, isUserLoading]);
+  }, [firestore, user?.uid, recipientId, isUserLoading]);
   
   const isLoading = isUserLoading || isRecipientLoading;
 
@@ -125,7 +125,7 @@ export default function RecipientDetailsPage() {
   const getInitials = (name: string) => {
     if (!name) return '??';
     const names = name.split(' ');
-    if (names.length > 1) {
+    if (names.length > 1 && names[0] && names[names.length-1]) {
       return `${names[0][0]}${names[names.length-1][0]}`.toUpperCase();
     }
     return name.substring(0, 2).toUpperCase();
