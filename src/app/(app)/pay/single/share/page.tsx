@@ -75,25 +75,28 @@ function ShareProofOfPaymentContent() {
         const textColor = rgb(0, 0, 0);
         const grayColor = rgb(0.3, 0.3, 0.3);
         const margin = 40;
-        let y = height - margin;
+        let y = height - margin - 30; // Start y position lower
 
+        // Define line position first
+        const lineY = y - 5;
+        
         // Add Nedbank Logo
         const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/Nedbank_logo_small.jpg?alt=media&token=319e4fd6-4a34-4ae3-a912-e5894c901d91';
         const proxyLogoUrl = `/api/image-proxy?url=${encodeURIComponent(logoUrl)}`;
         const logoImageBytes = await fetch(proxyLogoUrl).then(res => res.arrayBuffer());
         const logoImage = await pdfDoc.embedJpg(logoImageBytes);
         const logoDims = logoImage.scale(0.05);
+
+        // Draw the logo right above the line
         page.drawImage(logoImage, {
             x: margin,
-            y: y - logoDims.height,
+            y: lineY,
             width: logoDims.width,
             height: logoDims.height,
         });
 
-        y -= (logoDims.height + 25);
-        
-        page.drawLine({ start: { x: margin, y }, end: { x: width - margin, y }, thickness: 1, color: rgb(0.75, 0.75, 0.75) });
-        y -= 25;
+        page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 1, color: rgb(0.75, 0.75, 0.75) });
+        y = lineY - 25;
 
         page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 12 });
         y -= 25;
