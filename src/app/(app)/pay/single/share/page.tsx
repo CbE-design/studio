@@ -81,17 +81,17 @@ function ShareProofOfPaymentContent() {
         const logoImage = await pdfDoc.embedJpg(logoImageBytes);
         const logoDims = logoImage.scale(0.04);
         
-        y -= logoDims.height + 5;
+        const lineY = y - logoDims.height - 5;
         
         page.drawImage(logoImage, {
             x: margin,
-            y: y + 5,
+            y: lineY, // Position logo directly on the line
             width: logoDims.width,
             height: logoDims.height,
         });
 
-        page.drawLine({ start: { x: margin, y: y }, end: { x: width - margin, y: y }, thickness: 0.5, color: rgb(0.75, 0.75, 0.75) });
-        y -= 25;
+        page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 0.5, color: rgb(0.75, 0.75, 0.75) });
+        y = lineY - 25;
 
         page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 12 });
         y -= 25;
@@ -99,16 +99,15 @@ function ShareProofOfPaymentContent() {
         page.drawText('Nedbank Limited confirms that the following payment has been made:', { x: margin, y, font, size: 9 });
         y -= 25;
 
-        const drawDetailRow = (label: string, value: string, isLabelBold = false) => {
-            const labelFont = isLabelBold ? boldFont : font;
-            page.drawText(label, { x: margin, y, font: labelFont, size: 9 });
+        const drawDetailRow = (label: string, value: string) => {
+            page.drawText(label, { x: margin, y, font, size: 9 });
             page.drawText(':', { x: margin + 120, y, font, size: 9 });
             page.drawText(value, { x: margin + 130, y, font, size: 9 });
             y -= 15;
         };
-
-        drawDetailRow('Date of Payment', detailsForPdf.dateOfPayment, true);
-        drawDetailRow('Reference Number', detailsForPdf.referenceNumber, true);
+        
+        drawDetailRow('Date of Payment', detailsForPdf.dateOfPayment);
+        drawDetailRow('Reference Number', detailsForPdf.referenceNumber);
         y -= 15;
 
         page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 10 });
