@@ -1,11 +1,11 @@
 
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, CalendarIcon, ChevronRight, LoaderCircle, PlusCircle, X } from 'lucide-react';
+import { ArrowLeft, CalendarIcon, ChevronRight, ChevronUp, ChevronDown, LoaderCircle, PlusCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { format, add } from 'date-fns';
+import { format } from 'date-fns';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
 import type { Account } from '@/app/lib/definitions';
 import { collection, query } from 'firebase/firestore';
@@ -25,52 +25,101 @@ const AccountSelector = ({
   selectedAccount: string | null;
   onSelectAccount: (accountId: string) => void;
 }) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScroll, setCanScroll] = useState({ up: false, down: false });
+
+  const checkScrollability = () => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      setCanScroll({
+        up: scrollTop > 0,
+        down: scrollTop < scrollHeight - clientHeight,
+      });
+    }
+  };
+
+  useEffect(() => {
+    checkScrollability();
+    const container = scrollContainerRef.current;
+    container?.addEventListener('scroll', checkScrollability);
+    return () => container?.removeEventListener('scroll', checkScrollability);
+  }, [accounts]);
+  
+  const scroll = (direction: 'up' | 'down') => {
+    scrollContainerRef.current?.scrollBy({
+      top: direction === 'up' ? -160 : 160, // Adjust scroll amount as needed
+      behavior: 'smooth',
+    });
+  };
+
   return (
-    <div className="flex overflow-x-auto space-x-4 pb-2 -mx-4 px-4">
-      {accounts.map((account) => (
-        <Card
-          key={account.id}
-          className={cn(
-            'min-w-[150px] w-[150px] border-2 rounded-lg transition-all cursor-pointer',
-            selectedAccount === account.id
-              ? 'border-primary bg-white'
-              : 'border-gray-200 bg-white'
-          )}
-          onClick={() => onSelectAccount(account.id)}
-        >
-          <CardContent className="p-0 relative flex flex-col justify-between h-full">
-            <div className="p-3">
-              <p
+    <div className="flex justify-center items-center gap-2">
+       <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => scroll('up')}
+        disabled={!canScroll.up}
+        className="text-primary disabled:text-gray-300"
+      >
+        <ChevronUp className="h-6 w-6" />
+      </Button>
+      <div
+        ref={scrollContainerRef}
+        className="flex flex-col space-y-4 h-40 overflow-y-auto no-scrollbar" // h-40 allows viewing one card at a time with some peek
+      >
+        {accounts.map((account) => (
+          <Card
+            key={account.id}
+            className={cn(
+              'min-w-[200px] w-[200px] border-2 rounded-lg transition-all cursor-pointer shadow-sm',
+              selectedAccount === account.id
+                ? 'border-primary bg-white'
+                : 'border-gray-200 bg-white'
+            )}
+            onClick={() => onSelectAccount(account.id)}
+          >
+            <CardContent className="p-0 relative flex flex-col justify-between h-full">
+              <div className="p-3">
+                <p
+                  className={cn(
+                    'font-semibold text-sm',
+                    selectedAccount === account.id
+                      ? 'text-primary'
+                      : 'text-gray-600'
+                  )}
+                >
+                  {account.name}
+                </p>
+                <p className="text-xs text-gray-400">{account.accountNumber.slice(-10)}</p>
+              </div>
+              <div
                 className={cn(
-                  'font-semibold text-sm',
+                  'p-3 text-white font-bold rounded-b-md',
                   selectedAccount === account.id
-                    ? 'text-primary'
-                    : 'text-gray-600'
+                    ? 'bg-primary'
+                    : 'bg-gray-300'
                 )}
               >
-                {account.name.split(' ')[0].toUpperCase()}
-              </p>
-              <p className="text-xs text-gray-400">{account.accountNumber.slice(-10)}</p>
-            </div>
-            <div
-              className={cn(
-                'p-3 text-white font-bold rounded-b-md',
-                selectedAccount === account.id
-                  ? 'bg-primary'
-                  : 'bg-gray-300'
-              )}
-            >
-              {formatCurrency(account.balance, account.currency)}
-            </div>
-             {selectedAccount === account.id && (
-              <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-primary" />
-            )}
-          </CardContent>
-        </Card>
-      ))}
+                {formatCurrency(account.balance, account.currency)}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+       <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => scroll('down')}
+        disabled={!canScroll.down}
+        className="text-primary disabled:text-gray-300"
+      >
+        <ChevronDown className="h-6 w-6" />
+      </Button>
     </div>
   );
 };
+
 
 const LoadingSkeleton = () => (
     <div className="flex flex-col h-screen">
@@ -183,7 +232,7 @@ function AmountPageContent() {
 
     return (
         <div className="flex flex-col h-screen bg-gray-50">
-            <header className="gradient-background text-primary-foreground p-4 flex flex-col justify-between sticky top-0 z-10 h-[180px]">
+            <header className="gradient-background text-primary-foreground p-4 flex flex-col justify-between sticky top-0 z-10 h-[220px]">
                 <div className="w-full flex items-center justify-between">
                     <Button variant="ghost" size="icon" className="-ml-2" onClick={() => router.back()}>
                         <ArrowLeft />
@@ -197,25 +246,25 @@ function AmountPageContent() {
                         <X />
                     </Button>
                 </div>
-                <div className="w-full flex justify-center items-end">
-                    <span className="text-3xl font-light mr-1">R</span>
+                <div className="w-full flex justify-center items-end text-center">
                     <input
                     type="text"
                     inputMode="decimal"
                     value={amount}
                     onChange={handleAmountChange}
                     onBlur={handleAmountBlur}
-                    className="w-auto max-w-full bg-transparent text-5xl font-light focus:outline-none text-center"
-                    placeholder="0.00"
+                    className="w-full bg-transparent text-5xl font-light focus:outline-none text-center"
+                    placeholder="R 0.00"
                     />
                 </div>
+                 <div className="h-10" />
             </header>
             <div className="w-full h-1 bg-yellow-400"></div>
             <p className="text-xs text-center text-gray-500 py-1 bg-gray-200">R999 999.90 daily payment limit remaining</p>
             
             <main className="flex-1 overflow-y-auto bg-gray-50 p-4 space-y-6">
-                <div>
-                    <h2 className="font-semibold text-gray-700 mb-2">From which account?</h2>
+                <div className="space-y-2">
+                    <h2 className="font-semibold text-gray-700 mb-2 text-center">From which account?</h2>
                      <AccountSelector
                         accounts={allAccounts.filter(a => a.type !== 'Credit')}
                         selectedAccount={fromAccount}
@@ -283,5 +332,3 @@ export default function AmountPage() {
         </Suspense>
     );
 }
-
-    
