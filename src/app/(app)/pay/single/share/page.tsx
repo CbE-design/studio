@@ -84,7 +84,7 @@ function ShareProofOfPaymentContent() {
         
         page.drawImage(logoImage, {
             x: margin,
-            y: lineY - logoDims.height,
+            y: lineY,
             width: logoDims.width,
             height: logoDims.height,
         });
