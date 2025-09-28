@@ -20,7 +20,7 @@ export default function RootLayout({
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <link rel="apple-touch-icon" href="https://storage.googleapis.com/fpa-users-files-prod/prompt_images/8051759654719080061/a6064972-e19c-46cc-b333-e9686036f014.png" />
+        <link rel="apple-touch-icon" href="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/images.jpeg?alt=media&token=68f3444e-f792-4cba-8f08-3e02b43743ed" />
       </head>
       <body className={cn("antialiased")}>
         <FirebaseProvider>
