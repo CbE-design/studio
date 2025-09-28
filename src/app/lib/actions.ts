@@ -4,7 +4,7 @@
 import { z } from 'zod';
 import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
 import { revalidatePath } from 'next/cache';
-import { auth, db } from './firebase-admin';
+import { db, auth } from './firebase-admin';
 
 const FormSchema = z.object({
   income: z.coerce.number().positive({ message: 'Please enter a valid income.' }),
