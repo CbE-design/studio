@@ -90,7 +90,7 @@ function ShareProofOfPaymentContent() {
         // Draw the logo right above the line
         page.drawImage(logoImage, {
             x: margin - 18,
-            y: lineY - 1,
+            y: lineY - logoDims.height + 2,
             width: logoDims.width,
             height: logoDims.height,
         });
