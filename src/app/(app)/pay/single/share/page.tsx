@@ -73,25 +73,24 @@ function ShareProofOfPaymentContent() {
         const textColor = rgb(0, 0, 0);
         const grayColor = rgb(0.3, 0.3, 0.3);
         const margin = 50;
-        let y = height - margin;
-
+        
         const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/images.png?alt=media&token=9c75c65e-fc09-4827-9a36-91caa0ae3ee5';
         const proxyLogoUrl = `/api/image-proxy?url=${encodeURIComponent(logoUrl)}`;
         const logoImageBytes = await fetch(proxyLogoUrl).then(res => res.arrayBuffer());
         const logoImage = await pdfDoc.embedPng(logoImageBytes);
-        const logoDims = logoImage.scale(0.15);
+        const logoDims = logoImage.scale(0.18);
         
         const lineY = height - margin - 50;
         
         page.drawImage(logoImage, {
             x: margin,
-            y: lineY,
+            y: lineY - logoDims.height,
             width: logoDims.width,
             height: logoDims.height,
         });
 
         page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 0.5, color: rgb(0.75, 0.75, 0.75) });
-        y = lineY - 25;
+        let y = lineY - 25;
 
         page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 12, color: textColor });
         y -= 25;
