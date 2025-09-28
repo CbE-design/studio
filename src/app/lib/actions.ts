@@ -68,13 +68,21 @@ const TransactionSchema = z.object({
 
 type TransactionInput = z.infer<typeof TransactionSchema>;
 
-export async function createTransactionAction(data: TransactionInput) {
+type TransactionResult = {
+  success: boolean;
+  message: string;
+  transactionId?: string;
+  errors?: any;
+};
+
+export async function createTransactionAction(data: TransactionInput): Promise<TransactionResult> {
     console.log('createTransactionAction invoked with data:', data);
     const validatedFields = TransactionSchema.safeParse(data);
 
     if (!validatedFields.success) {
         console.error('Validation failed:', validatedFields.error.flatten().fieldErrors);
         return {
+            success: false,
             errors: validatedFields.error.flatten().fieldErrors,
             message: 'Invalid fields. Failed to create transaction.',
         };
@@ -84,6 +92,8 @@ export async function createTransactionAction(data: TransactionInput) {
         const { fromAccountId, userId, amount, recipientName, yourReference, recipientReference } = validatedFields.data;
         const numericAmount = parseFloat(amount);
         
+        const newTransactionRef = doc(collection(firestore, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
+
         await runTransaction(firestore, async (transaction) => {
             const accountRef = doc(firestore, 'users', userId, 'bankAccounts', fromAccountId);
             console.log(`Processing transaction for accountRef: ${accountRef.path}`);
@@ -103,8 +113,8 @@ export async function createTransactionAction(data: TransactionInput) {
             console.log('Account balance updated in transaction.');
 
             // Create new transaction document
-            const newTransactionRef = doc(collection(firestore, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
             const transactionData = {
+                id: newTransactionRef.id,
                 userId: userId,
                 fromAccountId: fromAccountId,
                 amount: numericAmount,
@@ -122,10 +132,17 @@ export async function createTransactionAction(data: TransactionInput) {
         console.log('Firestore transaction committed successfully.');
         revalidatePath(`/account/${fromAccountId}`);
         revalidatePath('/dashboard'); // Also revalidate dashboard in case total balance is shown
-        return { message: 'Transaction created successfully.' };
+        return { 
+            success: true,
+            message: 'Transaction created successfully.',
+            transactionId: newTransactionRef.id
+        };
 
     } catch (error: any) {
         console.error('Firestore transaction failed:', error);
-        return { message: error.message || 'An error occurred while creating the transaction.' };
+        return { 
+            success: false,
+            message: error.message || 'An error occurred while creating the transaction.'
+        };
     }
 }

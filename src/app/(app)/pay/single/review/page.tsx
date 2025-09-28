@@ -1,12 +1,15 @@
 
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, X, User, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/app/lib/data';
+import { createTransactionAction } from '@/app/lib/actions';
+import { useUser } from '@/firebase-provider';
+import { useToast } from '@/hooks/use-toast';
 
 const RecipientIcon = () => (
     <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center relative">
@@ -23,18 +26,19 @@ const RecipientIcon = () => (
 const DetailRow = ({ label, value }: { label: string; value: string | null }) => (
     <div>
         <p className="text-sm text-gray-500">{label}</p>
-        <p className="text-lg text-gray-800">{value}</p>
+        <p className="text-lg text-gray-800">{value || '-'}</p>
     </div>
 );
 
 function ReviewPaymentContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [formattedDate, setFormattedDate] = useState<string | null>(null);
+    const { user, isUserLoading } = useUser();
+    const { toast } = useToast();
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const paymentDetails = {
         fromAccountId: searchParams.get('fromAccountId'),
-        userId: searchParams.get('userId'),
         bankName: searchParams.get('bankName'),
         accountNumber: searchParams.get('accountNumber'),
         recipientName: searchParams.get('recipientName'),
@@ -44,19 +48,59 @@ function ReviewPaymentContent() {
         amount: searchParams.get('amount'),
         fromAccount: searchParams.get('fromAccount'),
     };
+    
+    const formattedDate = format(new Date(), 'dd MMMM yyyy');
+    
+    const handlePay = async () => {
+        if (!user || !paymentDetails.fromAccountId || !paymentDetails.amount) {
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'Cannot proceed with payment. User or account details are missing.',
+            });
+            return;
+        }
+        
+        setIsProcessing(true);
 
-    useEffect(() => {
-        setFormattedDate(format(new Date(), 'dd MMMM yyyy'));
-    }, []);
+        try {
+            const result = await createTransactionAction({
+                fromAccountId: paymentDetails.fromAccountId,
+                userId: user.uid,
+                amount: paymentDetails.amount,
+                recipientName: paymentDetails.recipientName || undefined,
+                yourReference: paymentDetails.yourReference || undefined,
+                recipientReference: paymentDetails.recipientReference || undefined,
+            });
 
-    const handlePay = () => {
-        const params = new URLSearchParams();
-        Object.entries(paymentDetails).forEach(([key, value]) => {
-            if (value) {
-                params.set(key, value);
+            if (result.success && result.transactionId) {
+                toast({
+                    title: "Payment Successful",
+                    description: "Your payment has been processed and recorded.",
+                });
+
+                const params = new URLSearchParams();
+                Object.entries(paymentDetails).forEach(([key, value]) => {
+                    if (value) params.set(key, value);
+                });
+                params.set('transactionId', result.transactionId);
+                router.push(`/pay/single/success?${params.toString()}`);
+            } else {
+                 toast({
+                    variant: 'destructive',
+                    title: "Payment Failed",
+                    description: result.message,
+                });
             }
-        });
-        router.push(`/pay/single/success?${params.toString()}`);
+        } catch (e: any) {
+             toast({
+                variant: 'destructive',
+                title: "An Unexpected Error Occurred",
+                description: e.message || "Could not process your payment.",
+            });
+        } finally {
+            setIsProcessing(false);
+        }
     }
 
     return (
@@ -92,8 +136,8 @@ function ReviewPaymentContent() {
             </main>
 
             <footer className="p-4 bg-white border-t sticky bottom-0">
-                <Button onClick={handlePay} className="w-full bg-primary hover:bg-primary/90 font-bold text-lg h-12">
-                    Pay
+                <Button onClick={handlePay} className="w-full bg-primary hover:bg-primary/90 font-bold text-lg h-12" disabled={isProcessing || isUserLoading}>
+                  {isProcessing ? <LoaderCircle className="animate-spin h-6 w-6" /> : 'Pay'}
                 </Button>
             </footer>
         </div>

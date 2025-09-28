@@ -1,29 +1,23 @@
 
 'use client';
 
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Check, Share2, LoaderCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/app/lib/data';
-import { createTransactionAction } from '@/app/lib/actions';
-import { useUser } from '@/firebase-provider';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null }) => (
     <div className="py-4 border-b last:border-b-0">
         <p className="text-sm text-gray-400">{label}</p>
-        <p className="text-lg text-gray-800">{value}</p>
+        <p className="text-lg text-gray-800">{value || '-'}</p>
     </div>
 );
 
 function PaymentSuccessContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { toast } = useToast();
-    const transactionRecorded = useRef(false);
-    const { user, isUserLoading } = useUser();
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
     const paymentDetails = {
@@ -34,73 +28,15 @@ function PaymentSuccessContent() {
         yourReference: searchParams.get('yourReference'),
         recipientReference: searchParams.get('recipientReference'),
         amount: searchParams.get('amount'),
+        transactionId: searchParams.get('transactionId'),
     };
-
+    
     useEffect(() => {
         setFormattedDate(format(new Date(), 'dd MMMM yyyy'));
+    }, []);
 
-        // Do not proceed if the transaction is already recorded, if data is loading, or if no user is present.
-        if (transactionRecorded.current || isUserLoading || !user) {
-            return;
-        }
-        
-        const recordTransaction = async () => {
-            console.log('Attempting to record transaction...');
-            if (!paymentDetails.fromAccountId || !paymentDetails.amount) {
-                 toast({
-                    variant: 'destructive',
-                    title: "Recording Failed",
-                    description: "Missing required details to save the transaction.",
-                });
-                console.error('Missing fromAccountId or amount');
-                return;
-            }
-
-            try {
-                const result = await createTransactionAction({
-                    fromAccountId: paymentDetails.fromAccountId,
-                    userId: user.uid, // Pass the user's UID
-                    amount: paymentDetails.amount,
-                    recipientName: paymentDetails.recipientName || undefined,
-                    yourReference: paymentDetails.yourReference || undefined,
-                    recipientReference: paymentDetails.recipientReference || undefined,
-                });
-    
-                if (result.message === 'Transaction created successfully.') {
-                    toast({
-                        title: "Transaction Recorded",
-                        description: "Your payment has been successfully processed and recorded.",
-                    });
-                } else {
-                     toast({
-                        variant: 'destructive',
-                        title: "Transaction Failed",
-                        description: result.message,
-                    });
-                }
-            } catch (e: any) {
-                console.error("Error in createTransactionAction:", e);
-                toast({
-                    variant: 'destructive',
-                    title: "Transaction Failed",
-                    description: e.message || "An unexpected error occurred.",
-                });
-            }
-        };
-
-        recordTransaction();
-        transactionRecorded.current = true; // Mark as recorded to prevent re-triggering.
-    // The dependency array is crucial. The effect will re-run if these values change.
-    // We need it to run when isUserLoading becomes false and user is available.
-    }, [user, isUserLoading, paymentDetails.fromAccountId, paymentDetails.amount, paymentDetails.recipientName, paymentDetails.yourReference, paymentDetails.recipientReference, toast]);
-    
     const handleShare = () => {
-        const params = new URLSearchParams();
-        Object.entries(paymentDetails).forEach(([key, value]) => {
-            if (value) {
-                params.set(key, value);
-            }
-        });
+        const params = new URLSearchParams(searchParams.toString());
         router.push(`/pay/single/share?${params.toString()}`);
     };
 
