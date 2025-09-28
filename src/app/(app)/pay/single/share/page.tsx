@@ -89,7 +89,7 @@ function ShareProofOfPaymentContent() {
             height: logoDims.height,
         });
 
-        page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 1, color: rgb(0.75, 0.75, 0.75) });
+        page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 2, color: rgb(0.3, 0.3, 0.3) });
         let y = lineY - 25;
 
         page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 12, color: textColor });
@@ -255,5 +255,7 @@ export default function ShareProofOfPaymentPage() {
         </Suspense>
     )
 }
+
+    
 
     
