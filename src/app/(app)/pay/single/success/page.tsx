@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/app/lib/data';
 import { createTransactionAction } from '@/app/lib/actions';
-import { useAuth } from '@/firebase-provider';
+import { getAuth } from 'firebase/auth';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null }) => (
     <div className="py-4 border-b last:border-b-0">
@@ -23,7 +23,7 @@ function PaymentSuccessContent() {
     const searchParams = useSearchParams();
     const { toast } = useToast();
     const transactionRecorded = useRef(false);
-    const auth = useAuth();
+    const auth = getAuth();
     const [formattedDate, setFormattedDate] = useState<string | null>(null);
 
     const paymentDetails = {
@@ -39,7 +39,7 @@ function PaymentSuccessContent() {
     useEffect(() => {
         setFormattedDate(format(new Date(), 'dd MMMM yyyy'));
 
-        if (transactionRecorded.current || !auth?.currentUser) return;
+        if (transactionRecorded.current || !auth.currentUser) return;
         
         const recordTransaction = async () => {
             if (!paymentDetails.fromAccountId || !paymentDetails.amount) {
@@ -59,8 +59,7 @@ function PaymentSuccessContent() {
                     recipientName: paymentDetails.recipientName || undefined,
                     yourReference: paymentDetails.yourReference || undefined,
                     recipientReference: paymentDetails.recipientReference || undefined,
-                    idToken: idToken,
-                });
+                }, idToken);
     
                 if (result.message === 'Transaction created successfully.') {
                     toast({
@@ -86,7 +85,7 @@ function PaymentSuccessContent() {
         recordTransaction();
         transactionRecorded.current = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [auth]);
+    }, [auth.currentUser]);
     
     const handleShare = () => {
         const params = new URLSearchParams();

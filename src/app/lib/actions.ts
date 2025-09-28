@@ -63,12 +63,11 @@ const TransactionSchema = z.object({
     recipientName: z.string().optional(),
     yourReference: z.string().optional(),
     recipientReference: z.string().optional(),
-    idToken: z.string().min(1, { message: 'Auth token is required.'}),
 });
 
 type TransactionInput = z.infer<typeof TransactionSchema>;
 
-export async function createTransactionAction(data: TransactionInput) {
+export async function createTransactionAction(data: TransactionInput, idToken: string) {
     const validatedFields = TransactionSchema.safeParse(data);
 
     if (!validatedFields.success) {
@@ -77,8 +76,6 @@ export async function createTransactionAction(data: TransactionInput) {
             message: 'Invalid fields. Failed to create transaction.',
         };
     }
-
-    const { idToken } = validatedFields.data;
 
     if (!idToken) {
         return { message: 'Authentication required.' };
