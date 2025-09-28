@@ -39,22 +39,27 @@ function PaymentSuccessContent() {
     useEffect(() => {
         setFormattedDate(format(new Date(), 'dd MMMM yyyy'));
 
-        if (transactionRecorded.current || isUserLoading || !user) return;
+        // Do not proceed if the transaction is already recorded, if data is loading, or if no user is present.
+        if (transactionRecorded.current || isUserLoading || !user) {
+            return;
+        }
         
         const recordTransaction = async () => {
+            console.log('Attempting to record transaction...');
             if (!paymentDetails.fromAccountId || !paymentDetails.amount) {
                  toast({
                     variant: 'destructive',
                     title: "Recording Failed",
                     description: "Missing required details to save the transaction.",
                 });
+                console.error('Missing fromAccountId or amount');
                 return;
             }
 
             try {
                 const result = await createTransactionAction({
                     fromAccountId: paymentDetails.fromAccountId,
-                    userId: user.uid,
+                    userId: user.uid, // Pass the user's UID
                     amount: paymentDetails.amount,
                     recipientName: paymentDetails.recipientName || undefined,
                     yourReference: paymentDetails.yourReference || undefined,
@@ -74,6 +79,7 @@ function PaymentSuccessContent() {
                     });
                 }
             } catch (e: any) {
+                console.error("Error in createTransactionAction:", e);
                 toast({
                     variant: 'destructive',
                     title: "Transaction Failed",
@@ -83,9 +89,10 @@ function PaymentSuccessContent() {
         };
 
         recordTransaction();
-        transactionRecorded.current = true;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user, isUserLoading]);
+        transactionRecorded.current = true; // Mark as recorded to prevent re-triggering.
+    // The dependency array is crucial. The effect will re-run if these values change.
+    // We need it to run when isUserLoading becomes false and user is available.
+    }, [user, isUserLoading, paymentDetails.fromAccountId, paymentDetails.amount, paymentDetails.recipientName, paymentDetails.yourReference, paymentDetails.recipientReference, toast]);
     
     const handleShare = () => {
         const params = new URLSearchParams();

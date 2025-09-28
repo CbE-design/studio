@@ -69,9 +69,11 @@ const TransactionSchema = z.object({
 type TransactionInput = z.infer<typeof TransactionSchema>;
 
 export async function createTransactionAction(data: TransactionInput) {
+    console.log('createTransactionAction invoked with data:', data);
     const validatedFields = TransactionSchema.safeParse(data);
 
     if (!validatedFields.success) {
+        console.error('Validation failed:', validatedFields.error.flatten().fieldErrors);
         return {
             errors: validatedFields.error.flatten().fieldErrors,
             message: 'Invalid fields. Failed to create transaction.',
@@ -83,7 +85,8 @@ export async function createTransactionAction(data: TransactionInput) {
         const numericAmount = parseFloat(amount);
         
         await runTransaction(firestore, async (transaction) => {
-            const accountRef = doc(firestore, `users/${userId}/bankAccounts/${fromAccountId}`);
+            const accountRef = doc(firestore, 'users', userId, 'bankAccounts', fromAccountId);
+            console.log(`Processing transaction for accountRef: ${accountRef.path}`);
             const accountDoc = await transaction.get(accountRef);
 
             if (!accountDoc.exists()) {
@@ -93,29 +96,36 @@ export async function createTransactionAction(data: TransactionInput) {
             const currentBalance = accountDoc.data()?.balance || 0;
             const newBalance = currentBalance - numericAmount;
 
+            console.log(`Current balance: ${currentBalance}, New balance: ${newBalance}`);
+
             // Update account balance
             transaction.update(accountRef, { balance: newBalance });
+            console.log('Account balance updated in transaction.');
 
             // Create new transaction document
             const newTransactionRef = doc(collection(firestore, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
-            transaction.set(newTransactionRef, {
+            const transactionData = {
                 userId: userId,
                 fromAccountId: fromAccountId,
                 amount: numericAmount,
-                type: 'debit',
+                type: 'debit' as const,
                 date: new Date().toISOString(),
                 description: `Payment to ${recipientName || 'recipient'}`,
-                recipientName: recipientName,
-                yourReference: yourReference,
-                recipientReference: recipientReference,
-            });
+                recipientName: recipientName || null,
+                yourReference: yourReference || null,
+                recipientReference: recipientReference || null,
+            };
+            transaction.set(newTransactionRef, transactionData);
+            console.log(`New transaction document set in transaction: ${newTransactionRef.path}`);
         });
 
+        console.log('Firestore transaction committed successfully.');
         revalidatePath(`/account/${fromAccountId}`);
+        revalidatePath('/dashboard'); // Also revalidate dashboard in case total balance is shown
         return { message: 'Transaction created successfully.' };
 
     } catch (error: any) {
-        console.error('Transaction failed:', error);
+        console.error('Firestore transaction failed:', error);
         return { message: error.message || 'An error occurred while creating the transaction.' };
     }
 }
