@@ -78,11 +78,11 @@ function ShareProofOfPaymentContent() {
         let y = height - margin;
 
         // Add Nedbank Logo
-        const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/Nedbank_idvPPE6CB0_1.png?alt=media&token=42ace8da-7f96-448f-84ad-3fdc66df4895';
+        const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/Nedbank_logo_small.jpg?alt=media&token=319e4fd6-4a34-4ae3-a912-e5894c901d91';
         const proxyLogoUrl = `/api/image-proxy?url=${encodeURIComponent(logoUrl)}`;
         const logoImageBytes = await fetch(proxyLogoUrl).then(res => res.arrayBuffer());
-        const logoImage = await pdfDoc.embedPng(logoImageBytes);
-        const logoDims = logoImage.scale(0.08);
+        const logoImage = await pdfDoc.embedJpg(logoImageBytes);
+        const logoDims = logoImage.scale(0.25);
         page.drawImage(logoImage, {
             x: margin,
             y: y - logoDims.height,
@@ -250,3 +250,5 @@ export default function ShareProofOfPaymentPage() {
         </Suspense>
     )
 }
+
+    
