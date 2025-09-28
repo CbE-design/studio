@@ -1,11 +1,11 @@
 {
   "name": "MoneyGO",
   "short_name": "MoneyGO",
-  "description": "Your trusted banking partner.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1A498B",
   "theme_color": "#1A498B",
+  "description": "Your trusted banking partner.",
   "icons": [
     {
       "src": "https://storage.googleapis.com/fpa-users-files-prod/prompt_images/8051759654719080061/a6064972-e19c-46cc-b333-e9686036f014.png",
