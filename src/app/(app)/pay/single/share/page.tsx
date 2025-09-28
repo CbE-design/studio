@@ -90,7 +90,7 @@ function ShareProofOfPaymentContent() {
         // Draw the logo right above the line
         page.drawImage(logoImage, {
             x: margin - 18,
-            y: lineY,
+            y: lineY - 2,
             width: logoDims.width,
             height: logoDims.height,
         });
@@ -254,3 +254,5 @@ export default function ShareProofOfPaymentPage() {
         </Suspense>
     )
 }
+
+    
