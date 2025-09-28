@@ -159,7 +159,7 @@ function ShareProofOfPaymentContent() {
 
         y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y });
         y -= 5;
-        page.drawLine({ start: { x: margin, y: y }, end: { x: width - margin, y: y }, thickness: 2, color: rgb(0.6, 0.6, 0.6) });
+        page.drawLine({ start: { x: margin, y: y }, end: { x: width - margin, y: y }, thickness: 1, color: rgb(0.6, 0.6, 0.6) });
         y -= 15;
 
         y = drawWrappedText('This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification. Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information. Payments may take up to three business days. Please check your account to verify the existence of the funds.', { ...commonTextOptions, x: margin, y });
@@ -257,5 +257,3 @@ export default function ShareProofOfPaymentPage() {
         </Suspense>
     )
 }
-
-    
