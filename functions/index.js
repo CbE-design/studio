@@ -44,7 +44,6 @@ exports.provisionNewUser = onUserCreate(async (event) => {
 
   // Account 1: Savvy Bundle Current Account
   const savvyAccountRef = userDocRef.collection('bankAccounts').doc();
-  const savvyAccountId = savvyAccountRef.id;
   batch.set(savvyAccountRef, {
     name: 'Savvy Bundle Current Account',
     type: 'Cheque',
@@ -63,12 +62,11 @@ exports.provisionNewUser = onUserCreate(async (event) => {
 
   savvyTransactions.forEach(tx => {
     const txRef = savvyAccountRef.collection('transactions').doc();
-    batch.set(txRef, { ...tx, userId: uid, fromAccountId: savvyAccountId });
+    batch.set(txRef, { ...tx, userId: uid });
   });
 
   // Account 2: Savings Account
   const savingsAccountRef = userDocRef.collection('bankAccounts').doc();
-  const savingsAccountId = savingsAccountRef.id;
   batch.set(savingsAccountRef, {
     name: 'Savings Account',
     type: 'Savings',
@@ -86,12 +84,11 @@ exports.provisionNewUser = onUserCreate(async (event) => {
 
   savingsTransactions.forEach(tx => {
     const txRef = savingsAccountRef.collection('transactions').doc();
-    batch.set(txRef, { ...tx, userId: uid, fromAccountId: savingsAccountId });
+    batch.set(txRef, { ...tx, userId: uid });
   });
   
   // Account 3: Credit Card
   const creditAccountRef = userDocRef.collection('bankAccounts').doc();
-  const creditAccountId = creditAccountRef.id;
   batch.set(creditAccountRef, {
     name: 'Gold Credit Card',
     type: 'Credit',
@@ -109,7 +106,7 @@ exports.provisionNewUser = onUserCreate(async (event) => {
 
   creditTransactions.forEach(tx => {
     const txRef = creditAccountRef.collection('transactions').doc();
-    batch.set(txRef, { ...tx, userId: uid, fromAccountId: creditAccountId });
+    batch.set(txRef, { ...tx, userId: uid });
   });
 
 
@@ -119,4 +116,3 @@ exports.provisionNewUser = onUserCreate(async (event) => {
 
   return null;
 });
-

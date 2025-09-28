@@ -84,6 +84,13 @@ export default function AccountDetailsPage() {
   const [account, setAccount] = useState<Account | null>(null);
   const [isAccountLoading, setIsAccountLoading] = useState(true);
 
+  const transactionsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid || !accountId) return null;
+    return query(collection(firestore, 'users', user.uid, 'bankAccounts', accountId, 'transactions'));
+  }, [firestore, user?.uid, accountId]);
+
+  const { data: accountTransactions, isLoading: isTransactionsLoading } = useCollection<Transaction>(transactionsQuery);
+  
   useEffect(() => {
     if (!firestore || !user?.uid || !accountId) {
       if (!isUserLoading) {
@@ -112,18 +119,17 @@ export default function AccountDetailsPage() {
         }
     };
     fetchAccountData();
-  }, [firestore, user?.uid, accountId, isUserLoading]);
-
-  const transactionsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid || !accountId) return null;
-    return query(collection(firestore, 'users', user.uid, 'bankAccounts', accountId, 'transactions'));
-  }, [firestore, user?.uid, accountId]);
-
-  const { data: accountTransactions, isLoading: isTransactionsLoading } = useCollection<Transaction>(transactionsQuery);
+    // Re-fetch account data if transactions change to update balance
+  }, [firestore, user?.uid, accountId, isUserLoading, accountTransactions]);
 
   const sortedTransactions = useMemo(() => {
     if (!accountTransactions) return [];
-    return [...accountTransactions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    // Ensure all transactions have a date before sorting
+    return [...accountTransactions].sort((a, b) => {
+        const dateA = a.date ? new Date(a.date).getTime() : 0;
+        const dateB = b.date ? new Date(b.date).getTime() : 0;
+        return dateB - dateA;
+    });
   }, [accountTransactions]);
 
   const isLoading = isUserLoading || isAccountLoading;
@@ -233,7 +239,7 @@ export default function AccountDetailsPage() {
               <div key={tx.id} className="flex justify-between items-center p-4 border-b">
                 <div>
                   <p className="text-sm font-semibold">{tx.description}</p>
-                  <p className="text-sm text-gray-500">{format(new Date(tx.date), 'dd MMM yyyy')}</p>
+                  {tx.date && <p className="text-sm text-gray-500">{format(new Date(tx.date), 'dd MMM yyyy')}</p>}
                 </div>
                 <p className={cn(
                   "font-semibold",
