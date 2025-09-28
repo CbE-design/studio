@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -102,8 +103,8 @@ export default function MorePage() {
                   CD
                 </AvatarFallback>
               </Avatar>
-              <p className="font-bold text-gray-800 uppercase">
-                CORRIE DIRK VAN
+              <p className="font-bold text-gray-800">
+                Corrie
               </p>
               <p className="text-sm text-gray-500">3120634863</p>
             </div>
