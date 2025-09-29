@@ -15,7 +15,8 @@ import { useEffect } from 'react';
 
 // Custom SVG Icons
 const OffersIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 100 100" fill="none" className="text-primary h-8 w-8">
+        <rect width="100" height="100" fill="currentColor"/>
         <path d="M62.5 12.5L87.5 27.5V72.5L62.5 87.5H37.5L12.5 72.5V27.5L37.5 12.5H62.5Z" fill="#00573D"/>
         <path d="M81.25 29.375V70.625L60.625 81.25H39.375L18.75 70.625V29.375L39.375 18.75H60.625L81.25 29.375Z" stroke="white" strokeWidth="6.25"/>
         <path d="M60.625 18.75L39.375 43.75V81.25L60.625 56.25V18.75Z" fill="white"/>
