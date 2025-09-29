@@ -71,6 +71,8 @@ function ReviewPaymentContent() {
                 recipientName: paymentDetails.recipientName || undefined,
                 yourReference: paymentDetails.yourReference || undefined,
                 recipientReference: paymentDetails.recipientReference || undefined,
+                bankName: paymentDetails.bankName || undefined,
+                accountNumber: paymentDetails.accountNumber || undefined,
             });
 
             if (result.success && result.transactionId) {

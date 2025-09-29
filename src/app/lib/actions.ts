@@ -64,6 +64,8 @@ const TransactionSchema = z.object({
     recipientName: z.string().optional(),
     yourReference: z.string().optional(),
     recipientReference: z.string().optional(),
+    bankName: z.string().optional(),
+    accountNumber: z.string().optional(),
 });
 
 type TransactionInput = z.infer<typeof TransactionSchema>;
@@ -89,7 +91,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
     }
 
     try {
-        const { fromAccountId, userId, amount, recipientName, yourReference, recipientReference } = validatedFields.data;
+        const { fromAccountId, userId, amount, recipientName, yourReference, recipientReference, bankName, accountNumber } = validatedFields.data;
         const numericAmount = parseFloat(amount);
         
         const newTransactionRef = doc(collection(firestore, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
@@ -124,6 +126,8 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
                 recipientName: recipientName || null,
                 yourReference: yourReference || null,
                 recipientReference: recipientReference || null,
+                bank: bankName || null,
+                accountNumber: accountNumber || null,
             };
             transaction.set(newTransactionRef, transactionData);
             console.log(`New transaction document set in transaction: ${newTransactionRef.path}`);

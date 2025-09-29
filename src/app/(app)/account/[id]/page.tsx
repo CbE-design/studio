@@ -265,19 +265,21 @@ export default function AccountDetailsPage() {
                     </CardHeader>
                     <CardContent className="p-0">
                         {groupedTransactions[dateKey].map(tx => (
-                            <div key={tx.id} className="flex items-start gap-4 p-4 border-b last:border-b-0">
-                                <div className="mt-1">{getTransactionIcon(tx.description)}</div>
-                                <div className="flex-1">
-                                    <p className="font-semibold text-sm text-gray-800">{tx.description}</p>
-                                    <p className="text-xs text-gray-500">{tx.yourReference || tx.recipientReference || 'No reference'}</p>
+                            <Link href={`/account/${accountId}/transaction/${tx.id}`} key={tx.id}>
+                                <div className="flex items-start gap-4 p-4 border-b last:border-b-0 cursor-pointer hover:bg-gray-50">
+                                    <div className="mt-1">{getTransactionIcon(tx.description)}</div>
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-sm text-gray-800">{tx.description}</p>
+                                        <p className="text-xs text-gray-500">{tx.yourReference || tx.recipientReference || 'No reference'}</p>
+                                    </div>
+                                    <p className={cn(
+                                        "font-semibold text-sm",
+                                        tx.type === 'debit' ? 'text-gray-900' : 'text-green-600'
+                                    )}>
+                                        {tx.type === 'debit' ? '-' : ''}{formatCurrency(tx.amount, account.currency)}
+                                    </p>
                                 </div>
-                                <p className={cn(
-                                    "font-semibold text-sm",
-                                    tx.type === 'debit' ? 'text-gray-900' : 'text-green-600'
-                                )}>
-                                    {tx.type === 'debit' ? '-' : ''}{formatCurrency(tx.amount, account.currency)}
-                                </p>
-                            </div>
+                            </Link>
                         ))}
                     </CardContent>
                 </Card>

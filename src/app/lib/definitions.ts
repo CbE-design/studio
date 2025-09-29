@@ -21,6 +21,8 @@ export type Transaction = {
   recipientName?: string | null;
   yourReference?: string;
   recipientReference?: string;
+  bank?: string;
+  accountNumber?: string;
 };
 
 export type Beneficiary = {
