@@ -15,7 +15,11 @@ import { useEffect } from 'react';
 
 // Custom SVG Icons
 const OffersIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8"><path d="M7 10h12v5a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-5Z"/><path d="M12 10V8a2 2 0 0 0-4 0v2"/><path d="M8 10a2 2 0 0 0-4 0v2h4"/><path d="M16 10a2 2 0 0 1 4 0v2h-4"/><path d="M12 10a2 2 0 0 1-4 0"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+        <path d="M62.5 12.5L87.5 27.5V72.5L62.5 87.5H37.5L12.5 72.5V27.5L37.5 12.5H62.5Z" fill="#00573D"/>
+        <path d="M81.25 29.375V70.625L60.625 81.25H39.375L18.75 70.625V29.375L39.375 18.75H60.625L81.25 29.375Z" stroke="white" strokeWidth="6.25"/>
+        <path d="M60.625 18.75L39.375 43.75V81.25L60.625 56.25V18.75Z" fill="white"/>
+    </svg>
 );
 const ApplicationsIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M10 14h4"/><path d="M10 18h4"/><path d="M10 10h4"/></svg>
