@@ -40,7 +40,7 @@ const FilterIcon = () => (
 const NotificationItem = ({ notification, isRead, onClick }: { notification: Transaction, isRead: boolean, onClick: () => void }) => {
     const date = parseISO(notification.date);
     return (
-        <div onClick={onClick} className="flex items-center justify-between py-4 border-b cursor-pointer bg-white px-4">
+        <div onClick={onClick} className="flex items-center justify-between py-4 border-b cursor-pointer bg-white px-4 last:border-b-0">
             <div className="flex items-center gap-4">
                 {!isRead && <div className="h-2 w-2 rounded-full bg-green-500 shrink-0"></div>}
                 <div className={cn(isRead && 'ml-6')}>
@@ -83,7 +83,7 @@ export default function NotificationsPage() {
 
     useEffect(() => {
         if (!firestore || !user?.uid) {
-            setIsTransactionsLoading(false);
+            if (!isUserLoading) setIsTransactionsLoading(false);
             return;
         }
 
@@ -91,13 +91,16 @@ export default function NotificationsPage() {
             setIsTransactionsLoading(true);
             try {
                 const accountsSnapshot = await getDocs(collection(firestore, 'users', user.uid, 'bankAccounts'));
-                const allTransactions: Transaction[] = [];
+                let allTransactions: Transaction[] = [];
 
                 for (const accountDoc of accountsSnapshot.docs) {
-                    const transactionsQuery = query(collection(firestore, 'users', user.uid, 'bankAccounts', accountDoc.id, 'transactions'));
-                    const snapshot = await getDocs(transactionsQuery);
-                    snapshot.forEach(doc => {
-                        allTransactions.push({ id: doc.id, ...doc.data() } as Transaction);
+                    const transactionsCollectionRef = collection(firestore, 'users', user.uid, 'bankAccounts', accountDoc.id, 'transactions');
+                    const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
+                    transactionsSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (data.date) { // Ensure transaction has a date before adding
+                            allTransactions.push({ id: doc.id, ...data } as Transaction);
+                        }
                     });
                 }
                 
@@ -120,7 +123,6 @@ export default function NotificationsPage() {
     };
 
     const filteredTransactions = useMemo(() => {
-        if (!transactions) return [];
         return transactions.filter(tx => 
             (tx.description?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
             (tx.recipientName?.toLowerCase() || '').includes(searchTerm.toLowerCase())
@@ -128,25 +130,21 @@ export default function NotificationsPage() {
     }, [transactions, searchTerm]);
 
     const groupedTransactions = useMemo(() => {
-        const groups: { [key: string]: Transaction[] } = {
-            'Today': [],
-            'Yesterday': [],
-            'Older': [],
-        };
-
-        filteredTransactions.forEach(tx => {
-            if (!tx.date) return;
+        return filteredTransactions.reduce((acc, tx) => {
             const date = parseISO(tx.date);
+            let groupName = 'Older';
             if (isToday(date)) {
-                groups['Today'].push(tx);
+                groupName = 'Today';
             } else if (isYesterday(date)) {
-                groups['Yesterday'].push(tx);
-            } else {
-                groups['Older'].push(tx);
+                groupName = 'Yesterday';
             }
-        });
-
-        return groups;
+            
+            if (!acc[groupName]) {
+                acc[groupName] = [];
+            }
+            acc[groupName].push(tx);
+            return acc;
+        }, {} as Record<string, Transaction[]>);
     }, [filteredTransactions]);
 
     const groupOrder = ['Today', 'Yesterday', 'Older'];
@@ -154,14 +152,14 @@ export default function NotificationsPage() {
 
     return (
         <div className="flex flex-col h-screen bg-gray-100">
-            <header className="gradient-background text-primary-foreground p-4 flex items-center sticky top-0 z-20">
+            <header className="gradient-background text-primary-foreground p-4 flex items-center sticky top-0 z-30">
                 <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
                     <ArrowLeft />
                 </Button>
                 <h1 className="text-xl font-semibold">Transaction notifications</h1>
             </header>
 
-            <div className="p-4 bg-white sticky top-[68px] z-20 border-b">
+            <div className="p-4 bg-white sticky top-[68px] z-30 border-b">
                 <div className="flex items-center gap-2">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -184,14 +182,16 @@ export default function NotificationsPage() {
                         <p>No notifications to show.</p>
                      </div>
                 ) : (
-                    <div>
+                    <>
                         {groupOrder.map((groupName) => {
                             const items = groupedTransactions[groupName];
-                            if (items.length === 0) return null;
+                            if (!items || items.length === 0) return null;
 
                             return (
                                 <div key={groupName}>
-                                    <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 sticky top-[140px] z-10">{groupName}</h2>
+                                    <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 sticky top-[140px] z-20">
+                                        {groupName}
+                                    </h2>
                                     <div className="bg-white">
                                         {items.map(tx => (
                                             <NotificationItem
@@ -205,7 +205,7 @@ export default function NotificationsPage() {
                                 </div>
                             );
                         })}
-                    </div>
+                    </>
                 )}
             </main>
         </div>
