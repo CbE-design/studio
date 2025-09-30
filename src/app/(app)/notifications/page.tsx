@@ -126,6 +126,8 @@ export default function NotificationsPage() {
         );
     }, [transactions, searchTerm]);
 
+    const groupOrder = ['Today', 'Yesterday', 'Older'];
+
     const groupedTransactions = useMemo(() => {
         const groups: { [key: string]: Transaction[] } = {
             'Today': [],
@@ -183,8 +185,11 @@ export default function NotificationsPage() {
                      </div>
                 ) : (
                     <div>
-                        {Object.entries(groupedTransactions).map(([group, items]) => (
-                            items.length > 0 && (
+                        {groupOrder.map((group) => {
+                            const items = groupedTransactions[group];
+                            if (items.length === 0) return null;
+
+                            return (
                                 <div key={group}>
                                     <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 sticky top-[140px] z-10">{group}</h2>
                                     <div>
@@ -198,8 +203,8 @@ export default function NotificationsPage() {
                                         ))}
                                     </div>
                                 </div>
-                            )
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </main>
