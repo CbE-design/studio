@@ -186,7 +186,7 @@ export default function NotificationsPage() {
                         {Object.entries(groupedTransactions).map(([group, items]) => (
                             items.length > 0 && (
                                 <div key={group}>
-                                    <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 sticky top-[140px] z-10 w-full">{group}</h2>
+                                    <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 sticky top-[140px] z-10">{group}</h2>
                                     <div>
                                         {items.map(tx => (
                                             <NotificationItem
