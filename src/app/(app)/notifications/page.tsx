@@ -40,7 +40,7 @@ const FilterIcon = () => (
 const NotificationItem = ({ notification, isRead, onClick }: { notification: Transaction, isRead: boolean, onClick: () => void }) => {
     const date = new Date(notification.date);
     return (
-        <div onClick={onClick} className="flex items-center justify-between py-4 border-b cursor-pointer">
+        <div onClick={onClick} className="flex items-center justify-between py-4 border-b cursor-pointer bg-white px-4">
             <div className="flex items-center gap-4">
                 {!isRead && <div className="h-2 w-2 rounded-full bg-green-500 shrink-0"></div>}
                 <div className={cn(isRead && 'ml-6')}>
@@ -109,7 +109,7 @@ export default function NotificationsPage() {
                 }
                 allTransactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
                 setTransactions(allTransactions);
-            } catch (error) {
+            } catch (error) => {
                 console.error("Error fetching transactions:", error);
             } finally {
                 setIsTransactionsLoading(false);
@@ -139,6 +139,7 @@ export default function NotificationsPage() {
         };
 
         filteredTransactions.forEach(tx => {
+            if (!tx.date) return;
             const date = new Date(tx.date);
             if (isToday(date)) {
                 groups['Today'].push(tx);
@@ -155,7 +156,7 @@ export default function NotificationsPage() {
     const isLoading = isUserLoading || isTransactionsLoading;
 
     return (
-        <div className="flex flex-col h-screen bg-white">
+        <div className="flex flex-col h-screen bg-gray-100">
             <header className="gradient-background text-primary-foreground p-4 flex items-center sticky top-0 z-20">
                 <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
                     <ArrowLeft />
@@ -186,19 +187,21 @@ export default function NotificationsPage() {
                         <p>No notifications to show.</p>
                      </div>
                 ) : (
-                    <div className="px-4">
+                    <div>
                         {Object.entries(groupedTransactions).map(([group, items]) => (
                             items.length > 0 && (
                                 <div key={group}>
-                                    <h2 className="bg-gray-100 text-gray-600 font-bold p-2 my-2 -mx-4 px-4 sticky top-[140px] z-10">{group}</h2>
-                                    {items.map(tx => (
-                                        <NotificationItem
-                                            key={tx.id}
-                                            notification={tx}
-                                            isRead={readIds.has(tx.id)}
-                                            onClick={() => handleRead(tx.id)}
-                                        />
-                                    ))}
+                                    <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 sticky top-[140px] z-10">{group}</h2>
+                                    <div>
+                                        {items.map(tx => (
+                                            <NotificationItem
+                                                key={tx.id}
+                                                notification={tx}
+                                                isRead={readIds.has(tx.id)}
+                                                onClick={() => handleRead(tx.id)}
+                                            />
+                                        ))}
+                                    </div>
                                 </div>
                             )
                         ))}
