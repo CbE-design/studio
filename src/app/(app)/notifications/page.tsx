@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Search, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useUser, useFirestore, useMemoFirebase, useCollection } from '@/firebase-provider';
+import { useUser, useFirestore } from '@/firebase-provider';
 import { collection, query, getDocs } from 'firebase/firestore';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -82,16 +82,9 @@ export default function NotificationsPage() {
     const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
     const [readIds, setReadIds] = useState<Set<string>>(new Set());
 
-    const accountsQuery = useMemoFirebase(() => {
-        if (!firestore || !user?.uid) return null;
-        return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
-    }, [firestore, user?.uid]);
-
-    const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
-
     useEffect(() => {
-        if (isUserLoading || isAccountsLoading) return;
-        if (!firestore || !user?.uid || !accounts) {
+        if (isUserLoading) return;
+        if (!firestore || !user?.uid) {
             setIsTransactionsLoading(false);
             return;
         }
@@ -99,9 +92,11 @@ export default function NotificationsPage() {
         const fetchAllTransactions = async () => {
             setIsTransactionsLoading(true);
             try {
+                const accountsSnapshot = await getDocs(collection(firestore, 'users', user.uid, 'bankAccounts'));
                 const allTransactions: Transaction[] = [];
-                for (const account of accounts) {
-                    const transactionsColRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
+
+                for (const accountDoc of accountsSnapshot.docs) {
+                    const transactionsColRef = collection(firestore, 'users', user.uid, 'bankAccounts', accountDoc.id, 'transactions');
                     const snapshot = await getDocs(transactionsColRef);
                     snapshot.forEach(doc => {
                         allTransactions.push({ id: doc.id, ...doc.data() } as Transaction);
@@ -109,7 +104,7 @@ export default function NotificationsPage() {
                 }
                 allTransactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
                 setTransactions(allTransactions);
-            } catch (error) => {
+            } catch (error) {
                 console.error("Error fetching transactions:", error);
             } finally {
                 setIsTransactionsLoading(false);
@@ -117,7 +112,7 @@ export default function NotificationsPage() {
         };
 
         fetchAllTransactions();
-    }, [firestore, user?.uid, isUserLoading, accounts, isAccountsLoading]);
+    }, [firestore, user?.uid, isUserLoading]);
 
     const handleRead = (id: string) => {
         setReadIds(prev => new Set(prev).add(id));
@@ -191,7 +186,7 @@ export default function NotificationsPage() {
                         {Object.entries(groupedTransactions).map(([group, items]) => (
                             items.length > 0 && (
                                 <div key={group}>
-                                    <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 sticky top-[140px] z-10">{group}</h2>
+                                    <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 sticky top-[140px] z-10 w-full">{group}</h2>
                                     <div>
                                         {items.map(tx => (
                                             <NotificationItem
