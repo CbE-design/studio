@@ -60,7 +60,7 @@ const menuItems = [
   {
     icon: Bell,
     label: 'Notifications',
-    href: '#',
+    href: '/notifications',
   },
   {
     icon: ApplicationsIcon,
