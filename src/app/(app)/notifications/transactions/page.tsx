@@ -55,13 +55,13 @@ const NotificationItem = ({ notification, isExpanded, onToggle }: { notification
                 <div className="flex items-center gap-4">
                     {!notification.id.startsWith('read-') && <div className="h-2 w-2 rounded-full bg-green-500 shrink-0"></div>}
                     <div className={cn(notification.id.startsWith('read-') && 'ml-6')}>
-                        <p className={cn("text-base uppercase", !notification.id.startsWith('read-') && "font-bold")}>
+                        <p className={cn("text-base uppercase text-black", !notification.id.startsWith('read-') && "font-bold")}>
                             {notification.description}
                         </p>
                         <p className="text-sm text-gray-500">{format(date, "dd MMMM yyyy 'at' HH:mm")}</p>
                     </div>
                 </div>
-                <p className={cn("text-base", !notification.id.startsWith('read-') && "font-bold")}>
+                <p className={cn("text-base text-black", !notification.id.startsWith('read-') && "font-bold")}>
                     {formatCurrency(notification.amount, 'ZAR')}
                 </p>
             </div>
