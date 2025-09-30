@@ -10,7 +10,7 @@ import { useUser, useFirestore } from '@/firebase-provider';
 import { collection, query, getDocs } from 'firebase/firestore';
 import type { Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
-import { format, isToday, isYesterday } from 'date-fns';
+import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/app/lib/data';
 
@@ -38,7 +38,7 @@ const FilterIcon = () => (
 );
 
 const NotificationItem = ({ notification, isRead, onClick }: { notification: Transaction, isRead: boolean, onClick: () => void }) => {
-    const date = new Date(notification.date);
+    const date = parseISO(notification.date);
     return (
         <div onClick={onClick} className="flex items-center justify-between py-4 border-b cursor-pointer bg-white px-4">
             <div className="flex items-center gap-4">
@@ -57,16 +57,15 @@ const NotificationItem = ({ notification, isRead, onClick }: { notification: Tra
     );
 };
 
-
 const LoadingSkeleton = () => (
-    <div className="px-4 pt-4">
-        <Skeleton className="h-8 w-1/3 mb-4" />
-        <div className="space-y-4">
+    <div>
+        <div className="p-4"><Skeleton className="h-8 w-1/3" /></div>
+        <div className="px-4 space-y-px">
             <Skeleton className="h-16 w-full" />
             <Skeleton className="h-16 w-full" />
         </div>
-        <Skeleton className="h-8 w-1/3 mt-8 mb-4" />
-        <div className="space-y-4">
+        <div className="p-4 mt-4"><Skeleton className="h-8 w-1/3" /></div>
+        <div className="px-4 space-y-px">
             <Skeleton className="h-16 w-full" />
             <Skeleton className="h-16 w-full" />
         </div>
@@ -83,7 +82,6 @@ export default function NotificationsPage() {
     const [readIds, setReadIds] = useState<Set<string>>(new Set());
 
     useEffect(() => {
-        if (isUserLoading) return;
         if (!firestore || !user?.uid) {
             setIsTransactionsLoading(false);
             return;
@@ -96,22 +94,25 @@ export default function NotificationsPage() {
                 const allTransactions: Transaction[] = [];
 
                 for (const accountDoc of accountsSnapshot.docs) {
-                    const transactionsColRef = collection(firestore, 'users', user.uid, 'bankAccounts', accountDoc.id, 'transactions');
-                    const snapshot = await getDocs(transactionsColRef);
+                    const transactionsQuery = query(collection(firestore, 'users', user.uid, 'bankAccounts', accountDoc.id, 'transactions'));
+                    const snapshot = await getDocs(transactionsQuery);
                     snapshot.forEach(doc => {
                         allTransactions.push({ id: doc.id, ...doc.data() } as Transaction);
                     });
                 }
-                allTransactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                
+                allTransactions.sort((a, b) => parseISO(b.date).getTime() - parseISO(a.date).getTime());
                 setTransactions(allTransactions);
-            } catch (error: any) {
+            } catch (error) {
                 console.error("Error fetching transactions:", error);
             } finally {
                 setIsTransactionsLoading(false);
             }
         };
 
-        fetchAllTransactions();
+        if(!isUserLoading) {
+            fetchAllTransactions();
+        }
     }, [firestore, user?.uid, isUserLoading]);
 
     const handleRead = (id: string) => {
@@ -126,8 +127,6 @@ export default function NotificationsPage() {
         );
     }, [transactions, searchTerm]);
 
-    const groupOrder = ['Today', 'Yesterday', 'Older'];
-
     const groupedTransactions = useMemo(() => {
         const groups: { [key: string]: Transaction[] } = {
             'Today': [],
@@ -137,7 +136,7 @@ export default function NotificationsPage() {
 
         filteredTransactions.forEach(tx => {
             if (!tx.date) return;
-            const date = new Date(tx.date);
+            const date = parseISO(tx.date);
             if (isToday(date)) {
                 groups['Today'].push(tx);
             } else if (isYesterday(date)) {
@@ -149,7 +148,8 @@ export default function NotificationsPage() {
 
         return groups;
     }, [filteredTransactions]);
-    
+
+    const groupOrder = ['Today', 'Yesterday', 'Older'];
     const isLoading = isUserLoading || isTransactionsLoading;
 
     return (
@@ -180,7 +180,7 @@ export default function NotificationsPage() {
                 {isLoading ? (
                     <LoadingSkeleton />
                 ) : transactions.length === 0 ? (
-                     <div className="text-center p-8 text-gray-500">
+                     <div className="text-center p-8 text-gray-500 bg-white mt-4 mx-4 rounded-lg">
                         <p>No notifications to show.</p>
                      </div>
                 ) : (
@@ -192,7 +192,7 @@ export default function NotificationsPage() {
                             return (
                                 <div key={groupName}>
                                     <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 sticky top-[140px] z-10">{groupName}</h2>
-                                    <div>
+                                    <div className="bg-white">
                                         {items.map(tx => (
                                             <NotificationItem
                                                 key={tx.id}
