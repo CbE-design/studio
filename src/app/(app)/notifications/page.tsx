@@ -3,12 +3,12 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Search, LoaderCircle } from 'lucide-react';
+import { ArrowLeft, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useUser, useFirestore } from '@/firebase-provider';
 import { collection, query, getDocs } from 'firebase/firestore';
-import type { Account, Transaction } from '@/app/lib/definitions';
+import type { Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, isToday, isYesterday } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -104,7 +104,7 @@ export default function NotificationsPage() {
                 }
                 allTransactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
                 setTransactions(allTransactions);
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error fetching transactions:", error);
             } finally {
                 setIsTransactionsLoading(false);
@@ -185,13 +185,13 @@ export default function NotificationsPage() {
                      </div>
                 ) : (
                     <div>
-                        {groupOrder.map((group) => {
-                            const items = groupedTransactions[group];
+                        {groupOrder.map((groupName) => {
+                            const items = groupedTransactions[groupName];
                             if (items.length === 0) return null;
 
                             return (
-                                <div key={group}>
-                                    <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 sticky top-[140px] z-10">{group}</h2>
+                                <div key={groupName}>
+                                    <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 sticky top-[140px] z-10">{groupName}</h2>
                                     <div>
                                         {items.map(tx => (
                                             <NotificationItem
