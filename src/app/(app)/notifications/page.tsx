@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useUser, useFirestore } from '@/firebase-provider';
+import { useUser, useFirestore, useMemoFirebase } from '@/firebase-provider';
 import { collection, query, getDocs } from 'firebase/firestore';
 import type { Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -37,22 +37,42 @@ const FilterIcon = () => (
   </svg>
 );
 
-const NotificationItem = ({ notification, isRead, onClick }: { notification: Transaction, isRead: boolean, onClick: () => void }) => {
+const DetailRow = ({ label, value }: { label: string; value: string | null | undefined }) => {
+    if (!value) return null;
+    return (
+        <div>
+            <p className="text-xs text-gray-500">{label}</p>
+            <p className="text-base font-semibold text-gray-800">{value}</p>
+        </div>
+    );
+};
+
+const NotificationItem = ({ notification, isExpanded, onToggle }: { notification: Transaction, isExpanded: boolean, onToggle: () => void }) => {
     const date = parseISO(notification.date);
     return (
-        <div onClick={onClick} className="flex items-center justify-between py-4 border-b cursor-pointer bg-white px-4 last:border-b-0">
-            <div className="flex items-center gap-4">
-                {!isRead && <div className="h-2 w-2 rounded-full bg-green-500 shrink-0"></div>}
-                <div className={cn(isRead && 'ml-6')}>
-                    <p className={cn("text-base uppercase", !isRead && "font-bold")}>
-                        {notification.type} - {notification.recipientName || notification.description}
-                    </p>
-                    <p className="text-sm text-gray-500">{format(date, "dd MMMM yyyy 'at' HH:mm")}</p>
+        <div className="border-b bg-white last:border-b-0">
+            <div onClick={onToggle} className="flex items-center justify-between p-4 cursor-pointer">
+                <div className="flex items-center gap-4">
+                    {!notification.id.startsWith('read-') && <div className="h-2 w-2 rounded-full bg-green-500 shrink-0"></div>}
+                    <div className={cn(notification.id.startsWith('read-') && 'ml-6')}>
+                        <p className={cn("text-base uppercase", !notification.id.startsWith('read-') && "font-bold")}>
+                            {notification.description}
+                        </p>
+                        <p className="text-sm text-gray-500">{format(date, "dd MMMM yyyy 'at' HH:mm")}</p>
+                    </div>
                 </div>
+                <p className={cn("text-base", !notification.id.startsWith('read-') && "font-bold")}>
+                    {formatCurrency(notification.amount, 'ZAR')}
+                </p>
             </div>
-            <p className={cn("text-base", !isRead && "font-bold")}>
-                {formatCurrency(notification.amount, 'ZAR')}
-            </p>
+            {isExpanded && (
+                <div className="px-4 pb-4 space-y-4 bg-white">
+                    <DetailRow label="Transaction Type" value={notification.type?.toUpperCase()} />
+                    <DetailRow label="Account number" value={notification.accountNumber} />
+                    <DetailRow label="Location" value={notification.bank} />
+                    <DetailRow label="Contract reference number" value={notification.recipientReference} />
+                </div>
+            )}
         </div>
     );
 };
@@ -79,47 +99,47 @@ export default function NotificationsPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
-    const [readIds, setReadIds] = useState<Set<string>>(new Set());
+    const [expandedId, setExpandedId] = useState<string | null>(null);
+
+    const accountsQuery = useMemoFirebase(() => {
+      if (!firestore || !user?.uid) return null;
+      return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
+    }, [firestore, user?.uid]);
+    const { data: accounts } = useCollection(accountsQuery);
 
     useEffect(() => {
-        if (!firestore || !user?.uid) {
-            if (!isUserLoading) setIsTransactionsLoading(false);
-            return;
-        }
+        if (!accounts || isUserLoading) return;
 
         const fetchAllTransactions = async () => {
             setIsTransactionsLoading(true);
             try {
-                const accountsSnapshot = await getDocs(collection(firestore, 'users', user.uid, 'bankAccounts'));
                 let allTransactions: Transaction[] = [];
 
-                for (const accountDoc of accountsSnapshot.docs) {
-                    const transactionsCollectionRef = collection(firestore, 'users', user.uid, 'bankAccounts', accountDoc.id, 'transactions');
+                for (const account of accounts) {
+                    const transactionsCollectionRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
                     const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
                     transactionsSnapshot.forEach(doc => {
                         const data = doc.data();
                         if (data.date) {
-                            allTransactions.push({ id: doc.id, ...data } as Transaction);
+                             allTransactions.push({ id: doc.id, ...data, accountNumber: account.accountNumber } as Transaction);
                         }
                     });
                 }
                 
                 allTransactions.sort((a, b) => parseISO(b.date).getTime() - parseISO(a.date).getTime());
                 setTransactions(allTransactions);
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error fetching transactions:", error);
             } finally {
                 setIsTransactionsLoading(false);
             }
         };
 
-        if(!isUserLoading) {
-            fetchAllTransactions();
-        }
-    }, [firestore, user?.uid, isUserLoading]);
-
-    const handleRead = (id: string) => {
-        setReadIds(prev => new Set(prev).add(id));
+        fetchAllTransactions();
+    }, [accounts, firestore, user?.uid, isUserLoading]);
+    
+    const handleToggle = (id: string) => {
+        setExpandedId(prevId => (prevId === id ? null : id));
     };
 
     const filteredTransactions = useMemo(() => {
@@ -189,16 +209,16 @@ export default function NotificationsPage() {
 
                             return (
                                 <div key={groupName}>
-                                    <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4">
+                                    <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 uppercase">
                                         {groupName}
                                     </h2>
-                                    <div className="bg-white">
+                                    <div>
                                         {items.map(tx => (
                                             <NotificationItem
                                                 key={tx.id}
                                                 notification={tx}
-                                                isRead={readIds.has(tx.id)}
-                                                onClick={() => handleRead(tx.id)}
+                                                isExpanded={expandedId === tx.id}
+                                                onToggle={() => handleToggle(tx.id)}
                                             />
                                         ))}
                                     </div>
