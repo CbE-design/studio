@@ -98,7 +98,7 @@ export default function NotificationsPage() {
                     const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
                     transactionsSnapshot.forEach(doc => {
                         const data = doc.data();
-                        if (data.date) { // Ensure transaction has a date before adding
+                        if (data.date) {
                             allTransactions.push({ id: doc.id, ...data } as Transaction);
                         }
                     });
@@ -183,13 +183,13 @@ export default function NotificationsPage() {
                      </div>
                 ) : (
                     <>
-                        {groupOrder.map((groupName) => {
+                        {groupOrder.map(groupName => {
                             const items = groupedTransactions[groupName];
                             if (!items || items.length === 0) return null;
 
                             return (
                                 <div key={groupName}>
-                                    <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 sticky top-[140px] z-20">
+                                    <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4">
                                         {groupName}
                                     </h2>
                                     <div className="bg-white">
