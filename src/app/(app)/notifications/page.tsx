@@ -6,11 +6,11 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Search, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useUser, useFirestore, useMemoFirebase } from '@/firebase-provider';
-import { collectionGroup, query, where, orderBy, onSnapshot } from 'firebase/firestore';
-import type { Transaction } from '@/app/lib/definitions';
+import { useUser, useFirestore, useMemoFirebase, useCollection } from '@/firebase-provider';
+import { collection, query, getDocs } from 'firebase/firestore';
+import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
-import { format, isToday, isYesterday, formatDistanceToNow } from 'date-fns';
+import { format, isToday, isYesterday } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/app/lib/data';
 
@@ -82,30 +82,42 @@ export default function NotificationsPage() {
     const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
     const [readIds, setReadIds] = useState<Set<string>>(new Set());
 
+    const accountsQuery = useMemoFirebase(() => {
+        if (!firestore || !user?.uid) return null;
+        return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
+    }, [firestore, user?.uid]);
+
+    const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
+
     useEffect(() => {
-        if (!firestore || !user?.uid) {
-            if(!isUserLoading) setIsTransactionsLoading(false);
+        if (isUserLoading || isAccountsLoading) return;
+        if (!firestore || !user?.uid || !accounts) {
+            setIsTransactionsLoading(false);
             return;
         }
 
-        setIsTransactionsLoading(true);
-        const transactionsQuery = query(
-            collectionGroup(firestore, 'transactions'),
-            where('userId', '==', user.uid),
-            orderBy('date', 'desc')
-        );
+        const fetchAllTransactions = async () => {
+            setIsTransactionsLoading(true);
+            try {
+                const allTransactions: Transaction[] = [];
+                for (const account of accounts) {
+                    const transactionsColRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
+                    const snapshot = await getDocs(transactionsColRef);
+                    snapshot.forEach(doc => {
+                        allTransactions.push({ id: doc.id, ...doc.data() } as Transaction);
+                    });
+                }
+                allTransactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                setTransactions(allTransactions);
+            } catch (error) {
+                console.error("Error fetching transactions:", error);
+            } finally {
+                setIsTransactionsLoading(false);
+            }
+        };
 
-        const unsubscribe = onSnapshot(transactionsQuery, (snapshot) => {
-            const fetchedTransactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Transaction));
-            setTransactions(fetchedTransactions);
-            setIsTransactionsLoading(false);
-        }, (error) => {
-            console.error("Error fetching transactions:", error);
-            setIsTransactionsLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, [firestore, user?.uid, isUserLoading]);
+        fetchAllTransactions();
+    }, [firestore, user?.uid, isUserLoading, accounts, isAccountsLoading]);
 
     const handleRead = (id: string) => {
         setReadIds(prev => new Set(prev).add(id));
