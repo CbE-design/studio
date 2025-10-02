@@ -55,15 +55,22 @@ export function AccountsCarousel() {
         {
           title: 'Savings & Investments',
           content: (
-            <div key="savings" className="space-y-4">
-              <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
+            <div key="savings" className="space-y-2">
+               <div className="flex flex-row justify-between items-center p-3 border-b border-white/20">
                 <div>
-                  <p className="text-xs">Tax certificates</p>
+                  <p className="text-sm font-normal normal-case">Nedbank Justinvest Money Market Investment</p>
+                  <p className="text-base font-normal">R18 502 191.17</p>
+                </div>
+                <ChevronRightIcon className="h-6 w-6" />
+              </div>
+              <div className="flex flex-row justify-between items-center p-3 border-b border-white/20">
+                <div>
+                  <p className="text-sm">Tax certificates</p>
                   <p className="text-base font-normal">Tax certificates</p>
                 </div>
                 <ChevronRightIcon className="h-6 w-6" />
               </div>
-              <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
+              <div className="flex flex-row justify-between items-center p-3">
                 <div>
                   <p className="text-base font-normal">Save & Invest</p>
                 </div>
