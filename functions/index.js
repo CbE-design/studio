@@ -214,6 +214,8 @@ const initialSavvyBundleTransactions = [
     { timestamp: new Date('2022-10-20'), description: 'ATM CASH 377121716833693', amount: '-R400.00' },
     { timestamp: new Date('2022-10-20'), description: 'Instant payment fee', amount: '-R49.00' },
     { timestamp: new Date('2022-10-21'), description: 'Wynkas', amount: '-R10000.00' },
+    { timestamp: new Date('2022-10-21'), description: 'Banking Fee', amount: '-R7997.87' },
+    { timestamp: new Date('2022-10-21'), description: 'Interaccount Transfer from Just Invest', amount: '+R18949581.42' },
 ];
 
 /**
