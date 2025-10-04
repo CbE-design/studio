@@ -34,7 +34,7 @@ export default function LoginPage() {
       // In a real app, you would fetch the user's email securely.
       // For this prototype, we'll use a hardcoded email with the PIN as the password.
       // Make sure a user with these credentials exists in your Firebase project.
-      await signInWithEmailAndPassword(auth, 'test@test.com', completedPin);
+      await signInWithEmailAndPassword(auth, 'cbenterprise@outlook.com', completedPin);
       toast({
         title: 'Login Successful',
         description: 'You have been signed in.',
