@@ -94,11 +94,11 @@ export default function SignupPage() {
               />
             </div>
              <div>
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Password (must be at least 6 characters)</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

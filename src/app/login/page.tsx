@@ -82,7 +82,7 @@ export default function LoginPage() {
         <p className="text-muted-foreground mb-8">Enter your PIN to sign in.</p>
         
         <div className="w-full max-w-xs">
-          <PinInput length={5} onComplete={handlePinComplete} />
+          <PinInput length={6} onComplete={handlePinComplete} />
         </div>
 
         <div
