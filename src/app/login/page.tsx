@@ -43,7 +43,7 @@ export default function LoginPage() {
     } catch (error: any) {
       console.error('Sign-in failed:', error);
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-        setErrorMessage('Invalid PIN. Please try again.');
+        setErrorMessage('Invalid PIN. Please try again or create an account.');
       } else {
         setErrorMessage('Login failed. Please try again.');
       }
@@ -105,13 +105,16 @@ export default function LoginPage() {
         </div>
 
         <div className="mt-auto pt-8">
-            <Link href="#" className="font-semibold text-primary hover:underline text-sm">
-                Can&apos;t sign in?
-            </Link>
+            <p className="text-center text-sm text-muted-foreground">
+                No account?{' '}
+                <Link href="/signup" className="font-semibold text-primary hover:underline">
+                    Sign up
+                </Link>
+            </p>
              <p className="text-center text-sm text-muted-foreground mt-4">
-                Not you?{' '}
-                <Link href="/login" className="font-semibold text-primary hover:underline">
-                    Switch user
+                Can&apos;t sign in?{' '}
+                <Link href="#" className="font-semibold text-primary hover:underline">
+                    Get help
                 </Link>
             </p>
         </div>
