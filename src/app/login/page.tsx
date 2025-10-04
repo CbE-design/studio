@@ -10,18 +10,21 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from '@/firebase-provider';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { PinInput } from '@/components/pin-input';
 import Link from 'next/link';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export default function LoginPage() {
-  const [pin, setPin] = useState('');
+  const [email, setEmail] = useState('cbenterprise@outlook.com');
+  const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const auth = useAuth();
   const { toast } = useToast();
 
-  const handleLogin = async (completedPin: string) => {
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (!auth) {
       setErrorMessage('Firebase is not initialized. Please try again later.');
       return;
@@ -31,10 +34,7 @@ export default function LoginPage() {
     setErrorMessage(undefined);
 
     try {
-      // In a real app, you would fetch the user's email securely.
-      // For this prototype, we'll use a hardcoded email with the PIN as the password.
-      // Make sure a user with these credentials exists in your Firebase project.
-      await signInWithEmailAndPassword(auth, 'cbenterprise@outlook.com', completedPin);
+      await signInWithEmailAndPassword(auth, email, password);
       toast({
         title: 'Login Successful',
         description: 'You have been signed in.',
@@ -43,18 +43,13 @@ export default function LoginPage() {
     } catch (error: any) {
       console.error('Sign-in failed:', error);
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-        setErrorMessage('Invalid PIN. Please try again or create an account.');
+        setErrorMessage('Invalid credentials. Please try again or create an account.');
       } else {
         setErrorMessage('Login failed. Please try again.');
       }
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handlePinComplete = (completedPin: string) => {
-    setPin(completedPin);
-    handleLogin(completedPin);
   };
   
   return (
@@ -79,23 +74,45 @@ export default function LoginPage() {
             <AvatarFallback>VS</AvatarFallback>
         </Avatar>
         <h1 className="text-xl font-semibold">Van Schalkwyk Family Trust</h1>
-        <p className="text-muted-foreground mb-8">Enter your PIN to sign in.</p>
+        <p className="text-muted-foreground mb-8">Enter your credentials to sign in.</p>
         
-        <div className="w-full max-w-xs">
-          <PinInput length={6} onComplete={handlePinComplete} />
-        </div>
+        <form onSubmit={handleLogin} className="w-full max-w-sm space-y-4 text-left">
+          <div>
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              'Sign In'
+            )}
+          </Button>
+        </form>
 
         <div
           className="flex h-8 items-center justify-center space-x-1 mt-4"
           aria-live="polite"
           aria-atomic="true"
         >
-          {isLoading && (
-              <>
-                <LoaderCircle className="h-5 w-5 text-primary animate-spin" />
-                <p className="text-sm text-primary">Signing in...</p>
-              </>
-          )}
           {errorMessage && !isLoading && (
             <>
               <AlertCircle className="h-5 w-5 text-red-500" />
@@ -112,7 +129,7 @@ export default function LoginPage() {
                 </Link>
             </p>
              <p className="text-center text-sm text-muted-foreground mt-4">
-                Can&apos;t sign in?{' '}
+                Can't sign in?{' '}
                 <Link href="#" className="font-semibold text-primary hover:underline">
                     Get help
                 </Link>
