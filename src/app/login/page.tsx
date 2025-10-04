@@ -9,21 +9,19 @@ import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from '@/firebase-provider';
 import { useToast } from '@/hooks/use-toast';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { PinInput } from '@/components/pin-input';
 import Link from 'next/link';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [pin, setPin] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const auth = useAuth();
   const { toast } = useToast();
 
-  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleLogin = async (completedPin: string) => {
     if (!auth) {
       setErrorMessage('Firebase is not initialized. Please try again later.');
       return;
@@ -33,7 +31,10 @@ export default function LoginPage() {
     setErrorMessage(undefined);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      // In a real app, you would fetch the user's email securely.
+      // For this prototype, we'll use a hardcoded email with the PIN as the password.
+      // Make sure a user with these credentials exists in your Firebase project.
+      await signInWithEmailAndPassword(auth, 'test@test.com', completedPin);
       toast({
         title: 'Login Successful',
         description: 'You have been signed in.',
@@ -42,7 +43,7 @@ export default function LoginPage() {
     } catch (error: any) {
       console.error('Sign-in failed:', error);
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-        setErrorMessage('Invalid email or password. Please try again.');
+        setErrorMessage('Invalid PIN. Please try again.');
       } else {
         setErrorMessage('Login failed. Please try again.');
       }
@@ -51,6 +52,11 @@ export default function LoginPage() {
     }
   };
 
+  const handlePinComplete = (completedPin: string) => {
+    setPin(completedPin);
+    handleLogin(completedPin);
+  };
+  
   return (
     <div className="flex flex-col h-screen bg-background">
       <header className="flex items-center justify-between p-4 gradient-background text-primary-foreground">
@@ -67,64 +73,47 @@ export default function LoginPage() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto px-6 py-8">
-        <div className="space-y-8">
-          <div>
-            <h1 className="text-3xl font-headline">Welcome back.</h1>
-            <p className="text-muted-foreground">Sign in to continue.</p>
-          </div>
-          
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-             <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" aria-disabled={isLoading}>
-              {isLoading ? (
-                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <>
-                  Sign In <ArrowRight className="ml-auto h-5 w-5" />
-                </>
-              )}
-            </Button>
-            
-            <div
-              className="flex h-8 items-end space-x-1"
-              aria-live="polite"
-              aria-atomic="true"
-            >
-              {errorMessage && (
-                <>
-                  <AlertCircle className="h-5 w-5 text-red-500" />
-                  <p className="text-sm text-red-500">{errorMessage}</p>
-                </>
-              )}
-            </div>
-          </form>
+      <main className="flex-1 overflow-y-auto px-6 py-8 flex flex-col items-center text-center">
+        <Avatar className="h-20 w-20 mb-4">
+            <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="User Avatar" />
+            <AvatarFallback>VS</AvatarFallback>
+        </Avatar>
+        <h1 className="text-xl font-semibold">Van Schalkwyk Family Trust</h1>
+        <p className="text-muted-foreground mb-8">Enter your PIN to sign in.</p>
+        
+        <div className="w-full max-w-xs">
+          <PinInput length={5} onComplete={handlePinComplete} />
+        </div>
 
-          <p className="text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{' '}
-            <Link href="/signup" className="font-semibold text-primary hover:underline">
-              Sign up
+        <div
+          className="flex h-8 items-center justify-center space-x-1 mt-4"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          {isLoading && (
+              <>
+                <LoaderCircle className="h-5 w-5 text-primary animate-spin" />
+                <p className="text-sm text-primary">Signing in...</p>
+              </>
+          )}
+          {errorMessage && !isLoading && (
+            <>
+              <AlertCircle className="h-5 w-5 text-red-500" />
+              <p className="text-sm text-red-500">{errorMessage}</p>
+            </>
+          )}
+        </div>
+
+        <div className="mt-auto pt-8">
+            <Link href="#" className="font-semibold text-primary hover:underline text-sm">
+                Can&apos;t sign in?
             </Link>
-          </p>
+             <p className="text-center text-sm text-muted-foreground mt-4">
+                Not you?{' '}
+                <Link href="/login" className="font-semibold text-primary hover:underline">
+                    Switch user
+                </Link>
+            </p>
         </div>
       </main>
     </div>
