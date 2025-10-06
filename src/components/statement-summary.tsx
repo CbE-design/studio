@@ -19,9 +19,7 @@ export function StatementSummaryPage({ account, user, openingBalance, closingBal
     const eConfirmLogo = PlaceHolderImages.find(img => img.id === 'statement-econfirm');
     const barcode = PlaceHolderImages.find(img => img.id === 'statement-barcode');
     const nLogo = { imageUrl: 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/images.png?alt=media&token=9c75c65e-fc09-4827-9a36-91caa0ae3ee5', imageHint: 'logo', description: 'N logo' };
-    const creditGraph = PlaceHolderImages.find(img => img.id === 'statement-credit-graph');
-    const debitGraph = PlaceHolderImages.find(img => img.id === 'statement-debit-graph');
-
+    
     const formatCurrency = (val: number) => `R${val.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")}`;
 
     return (
@@ -122,22 +120,9 @@ export function StatementSummaryPage({ account, user, openingBalance, closingBal
                 </div>
             </div>
 
-            {/* Graphs */}
-            <div className="mt-6 grid grid-cols-2 gap-4 text-xs">
-                 <div>
-                    <div className="flex justify-between font-bold">
-                        <p>Total funds received/credits</p>
-                        <p>{formatCurrency(totalCredits)}</p>
-                    </div>
-                    {creditGraph && <Image src={creditGraph.imageUrl} alt={creditGraph.description} data-ai-hint={creditGraph.imageHint} width={200} height={100} className="w-full mt-2" />}
-                </div>
-                <div>
-                    <div className="flex justify-between font-bold">
-                        <p>Total funds used/debits</p>
-                        <p>{formatCurrency(totalDebits)}</p>
-                    </div>
-                    {debitGraph && <Image src={debitGraph.imageUrl} alt={debitGraph.description} data-ai-hint={debitGraph.imageHint} width={200} height={100} className="w-full mt-2" />}
-                </div>
+            {/* Graphs placeholder area */}
+            <div className="mt-6 h-32 bg-gray-100 rounded-md flex items-center justify-center text-gray-400">
+                <p>Graph Area</p>
             </div>
             
             {/* Footer */}
