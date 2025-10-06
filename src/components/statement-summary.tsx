@@ -5,6 +5,7 @@ import type { Account, User } from '@/app/lib/definitions';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { format } from 'date-fns';
 import Image from 'next/image';
+import { FinancialGraph } from './financial-graph';
 
 interface StatementSummaryProps {
     account: Account;
@@ -21,6 +22,12 @@ export function StatementSummaryPage({ account, user, openingBalance, closingBal
     const nLogo = { imageUrl: 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/images.png?alt=media&token=9c75c65e-fc09-4827-9a36-91caa0ae3ee5', imageHint: 'logo', description: 'N logo' };
     
     const formatCurrency = (val: number) => `R${val.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")}`;
+
+    // Placeholder data for graphs, since it's not in the main data model
+    const graphData = {
+        fundsReceived: { totalCredits: totalCredits, otherCredits: totalCredits },
+        fundsUsed: { totalDebits: totalDebits, totalChargesAndFees: 0, otherDebits: totalDebits }
+    };
 
     return (
         <div className="bg-white p-6 rounded-lg shadow-md text-gray-800 text-[8px] leading-tight">
@@ -121,9 +128,7 @@ export function StatementSummaryPage({ account, user, openingBalance, closingBal
             </div>
 
             {/* Graphs placeholder area */}
-            <div className="mt-6 h-32 bg-gray-100 rounded-md flex items-center justify-center text-gray-400">
-                <p>Graph Area</p>
-            </div>
+            <FinancialGraph {...graphData} />
             
             {/* Footer */}
             <div className="mt-8 flex justify-between items-end">
