@@ -3,7 +3,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import type { Account, Transaction } from '@/app/lib/definitions';
+import type { Account, Transaction, User } from '@/app/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download, LoaderCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,15 +12,18 @@ import { PDFDocument, StandardFonts, rgb, PDFFont } from 'pdf-lib';
 import { useToast } from '@/hooks/use-toast';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
 import { collection, doc, getDoc, query } from 'firebase/firestore';
+import { StatementSummaryPage } from '@/components/statement-summary';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const StatementLoadingSkeleton = () => (
   <div className="p-4">
     <Skeleton className="h-10 w-1/4 mb-4" />
     <Skeleton className="h-96 w-full" />
+    <Skeleton className="h-96 w-full mt-4" />
   </div>
 );
 
-const StatementComponent = ({ account, transactions }: { account: Account, transactions: Transaction[] }) => {
+const StatementTransactionsPage = ({ account, transactions, openingBalance }: { account: Account, transactions: Transaction[], openingBalance: number }) => {
     
     const formatCurrency = (amount: number, currency: string = 'ZAR') => {
         return new Intl.NumberFormat('en-ZA', {
@@ -30,32 +33,17 @@ const StatementComponent = ({ account, transactions }: { account: Account, trans
         }).format(amount);
     };
 
-    const getRunningBalance = (index: number) => {
-        let balance = account.balance; // Start with the final balance
-        // To get the balance at transaction `index`, we reverse the effect of all subsequent transactions
-        for (let i = 0; i < index; i++) {
-            const tx = transactions[i];
-            if (tx.type === 'credit') {
-                balance -= tx.amount;
-            } else {
-                balance += tx.amount;
-            }
-        }
-        return balance;
-    }
-
-    const openingBalance = getRunningBalance(transactions.length);
+    let runningBalance = openingBalance;
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="bg-white p-6 rounded-lg shadow-md mt-4">
             <div className="flex justify-between items-center pb-4 border-b">
                  <div className="text-left">
-                    <h2 className="text-xl font-bold">{account.name}</h2>
+                    <h2 className="text-xl font-bold">{account.name} - Transactions</h2>
                     <p className="text-gray-600">{account.accountNumber}</p>
                 </div>
                 <div className="text-right">
-                    <p className="text-gray-500">Statement Date</p>
-                    <p className="font-semibold">{format(new Date(), 'dd MMMM yyyy')}</p>
+                    <p className="text-gray-500">Page 2 of 2</p>
                 </div>
             </div>
             
@@ -72,14 +60,14 @@ const StatementComponent = ({ account, transactions }: { account: Account, trans
                     </thead>
                     <tbody>
                          <tr className="border-b">
-                            <td className="p-2">{format(new Date(transactions[transactions.length - 1]?.date || new Date()), 'dd/MM/yyyy')}</td>
+                            <td className="p-2">{format(new Date(transactions[0]?.date || new Date()), 'dd/MM/yyyy')}</td>
                             <td className="p-2 font-semibold">Opening Balance</td>
                             <td className="p-2"></td>
                             <td className="p-2"></td>
                             <td className="p-2 text-right font-medium">{formatCurrency(openingBalance)}</td>
                         </tr>
-                        {transactions.map((tx, index) => {
-                             const balanceAfterTx = getRunningBalance(transactions.length - 1 - index);
+                        {transactions.map((tx) => {
+                             runningBalance += tx.type === 'credit' ? tx.amount : -tx.amount;
                              return (
                                 <tr key={tx.id} className="border-b last:border-0">
                                     <td className="p-2">{format(new Date(tx.date), 'dd/MM/yyyy')}</td>
@@ -90,7 +78,7 @@ const StatementComponent = ({ account, transactions }: { account: Account, trans
                                     <td className="p-2 text-right text-green-600">
                                         {tx.type === 'credit' ? formatCurrency(tx.amount) : ''}
                                     </td>
-                                    <td className="p-2 text-right font-medium">{formatCurrency(balanceAfterTx)}</td>
+                                    <td className="p-2 text-right font-medium">{formatCurrency(runningBalance)}</td>
                                 </tr>
                              )
                         })}
@@ -114,11 +102,19 @@ export default function StatementPage() {
     const [account, setAccount] = useState<Account | null>(null);
     const [isAccountLoading, setIsAccountLoading] = useState(true);
 
+    const [userData, setUserData] = useState<User | null>(null);
+
     useEffect(() => {
-        if (!firestore || !user?.uid || !accountId) {
-            if (!isUserLoading) setIsAccountLoading(false);
-            return;
+        if (!firestore || !user?.uid) return;
+
+        const fetchUserData = async () => {
+             const userDocRef = doc(firestore, 'users', user.uid);
+             const userDoc = await getDoc(userDocRef);
+             if (userDoc.exists()) {
+                setUserData(userDoc.data() as User);
+             }
         }
+        fetchUserData();
 
         const fetchAccountData = async () => {
             setIsAccountLoading(true);
@@ -138,7 +134,7 @@ export default function StatementPage() {
             }
         };
         fetchAccountData();
-    }, [firestore, user?.uid, accountId, isUserLoading]);
+    }, [firestore, user, accountId, isUserLoading]);
 
     const transactionsQuery = useMemoFirebase(() => {
         if (!firestore || !user?.uid || !accountId) return null;
@@ -149,108 +145,279 @@ export default function StatementPage() {
 
     const sortedTransactions = useMemo(() => {
         if (!accountTransactions) return [];
-        // Sort ascending for statement view
         return [...accountTransactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     }, [accountTransactions]);
     
+    const {openingBalance, closingBalance, totalDebits, totalCredits} = useMemo(() => {
+        if (!account || !sortedTransactions || sortedTransactions.length === 0) {
+            return { openingBalance: 0, closingBalance: account?.balance || 0, totalDebits: 0, totalCredits: 0 };
+        }
+
+        const debits = sortedTransactions.filter(tx => tx.type === 'debit').reduce((sum, tx) => sum + tx.amount, 0);
+        const credits = sortedTransactions.filter(tx => tx.type === 'credit').reduce((sum, tx) => sum + tx.amount, 0);
+        
+        const closing = account.balance;
+        const opening = closing + debits - credits;
+        
+        return { openingBalance: opening, closingBalance: closing, totalDebits: debits, totalCredits: credits };
+
+    }, [account, sortedTransactions]);
+
     const isLoading = isUserLoading || isAccountLoading || isTransactionsLoading;
     const error = !account && !isLoading ? new Error('Account not found') : null;
 
     const handleDownloadPdf = async () => {
-        if (!account || !sortedTransactions) return;
+        if (!account || !sortedTransactions || !userData) return;
         setGeneratingPdf(true);
 
         try {
             const pdfDoc = await PDFDocument.create();
-            let page = pdfDoc.addPage([595.28, 841.89]); // A4 size
-            const { width, height } = page.getSize();
             const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
             const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+            const fontLight = await pdfDoc.embedFont(StandardFonts.Helvetica); // Placeholder for a true light font
+
+            // Colors
             const primaryColor = rgb(0.0, 0.447, 0.243); // #00723E
             const black = rgb(0, 0, 0);
             const gray = rgb(0.3, 0.3, 0.3);
             const red = rgb(0.8, 0, 0);
-            const green = rgb(0, 0.6, 0);
+            const green = rgb(0.1, 0.7, 0.1);
+            const lightGreen = rgb(0.9, 1, 0.9);
+            const lightGray = rgb(0.95, 0.95, 0.95);
+
+            // Fetch images
+            const nLogoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/images.png?alt=media&token=9c75c65e-fc09-4827-9a36-91caa0ae3ee5';
+            const eConfirmLogoUrl = PlaceHolderImages.find(i => i.id === 'statement-econfirm')?.imageUrl!;
+            const barcodeUrl = PlaceHolderImages.find(i => i.id === 'statement-barcode')?.imageUrl!;
+            const creditGraphUrl = PlaceHolderImages.find(i => i.id === 'statement-credit-graph')?.imageUrl!;
+            const debitGraphUrl = PlaceHolderImages.find(i => i.id === 'statement-debit-graph')?.imageUrl!;
+            
+            const [nLogoBytes, eConfirmBytes, barcodeBytes, creditGraphBytes, debitGraphBytes] = await Promise.all([
+                 fetch(`/api/image-proxy?url=${encodeURIComponent(nLogoUrl)}`).then(res => res.arrayBuffer()),
+                 fetch(`/api/image-proxy?url=${encodeURIComponent(eConfirmLogoUrl)}`).then(res => res.arrayBuffer()),
+                 fetch(`/api/image-proxy?url=${encodeURIComponent(barcodeUrl)}`).then(res => res.arrayBuffer()),
+                 fetch(`/api/image-proxy?url=${encodeURIComponent(creditGraphUrl)}`).then(res => res.arrayBuffer()),
+                 fetch(`/api/image-proxy?url=${encodeURIComponent(debitGraphUrl)}`).then(res => res.arrayBuffer()),
+            ]);
+
+            const nLogoImage = await pdfDoc.embedPng(nLogoBytes);
+            const eConfirmImage = await pdfDoc.embedPng(eConfirmBytes);
+            const barcodeImage = await pdfDoc.embedPng(barcodeBytes);
+            const creditGraphImage = await pdfDoc.embedPng(creditGraphBytes);
+            const debitGraphImage = await pdfDoc.embedPng(debitGraphBytes);
+            
+            // --- Summary Page (Page 1) ---
+            let page = pdfDoc.addPage([595, 842]); // A4
+            let { width, height } = page.getSize();
+            let y = height;
             const margin = 40;
 
-            const formatCurrency = (amount: number) => new Intl.NumberFormat('en-ZA', {
-                style: 'decimal',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-            }).format(amount);
+            // Header section
+            y -= 60;
+            page.drawImage(eConfirmImage, { x: margin, y, width: 80, height: 40 });
+            page.drawImage(nLogoImage, { x: width - margin - 50, y: y + 20, width: 50, height: 26 });
+            y -= 50;
 
-            // --- Header ---
-            const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/images.png?alt=media&token=9c75c65e-fc09-4827-9a36-91caa0ae3ee5';
-            const proxyLogoUrl = `/api/image-proxy?url=${encodeURIComponent(logoUrl)}`;
-            const logoImageBytes = await fetch(proxyLogoUrl).then(res => res.arrayBuffer());
-            const logoImage = await pdfDoc.embedPng(logoImageBytes);
-            const logoDims = logoImage.scale(0.25);
+            // Barcode and Addresses
+            page.drawImage(barcodeImage, { x: margin, y, width: 250, height: 20 });
             
-            page.drawImage(logoImage, {
+            const rightAddressX = width - margin - 200;
+            page.drawText('135 Rivonia Road, Sandown, 2196', { x: rightAddressX, y, font, size: 8, color: gray });
+            page.drawText('P O Box 1144, Johannesburg, 2000, South Africa', { x: rightAddressX, y: y-10, font, size: 8, color: gray });
+            
+            y -= 20;
+            page.drawText('Mr', { x: margin, y, font, size: 9, color: black });
+            y -= 12;
+            page.drawText((userData.firstName + ' ' + userData.lastName).toUpperCase(), { x: margin, y, font: boldFont, size: 9, color: black });
+            y -= 12;
+            page.drawText(account.name.toUpperCase(), { x: margin, y, font: boldFont, size: 9, color: black });
+            y -= 24; // More space for address
+            page.drawText('PO BOX 135', { x: margin, y, font, size: 9, color: black });
+            y -= 12;
+            page.drawText('RIVONIA', { x: margin, y, font, size: 9, color: black });
+            y -= 12;
+            page.drawText('JOHANNESBURG', { x: margin, y, font, size: 9, color: black });
+            y -= 12;
+            page.drawText('2128', { x: margin, y, font, size: 9, color: black });
+
+            let rightDetailsY = y + 50;
+            page.drawText('Bank VAT Reg No 4320116074', { x: rightAddressX, y: rightDetailsY, font, size: 8, color: gray });
+            rightDetailsY -= 10;
+            page.drawText('Lost cards 0800 110 929', { x: rightAddressX, y: rightDetailsY, font, size: 8, color: gray });
+            rightDetailsY -= 10;
+            page.drawText('Client services 0860 555 111', { x: rightAddressX, y: rightDetailsY, font, size: 8, color: gray });
+            rightDetailsY -= 10;
+            page.drawText('nedbank.co.za', { x: rightAddressX, y: rightDetailsY, font: boldFont, size: 8, color: primaryColor });
+            rightDetailsY -= 12;
+            page.drawLine({start: {x: rightAddressX, y: rightDetailsY+2}, end: {x: width - margin, y: rightDetailsY+2}, thickness: 0.5, color: gray})
+            page.drawText('Tax invoice', { x: rightAddressX, y: rightDetailsY - 10, font, size: 8, color: gray });
+
+
+            // Important message
+            y -= 30;
+            page.drawRectangle({ x: margin, y: y-50, width: width - margin*2, height: 50, color: primaryColor });
+            page.drawText('Important message', { x: margin + 10, y: y-15, font: boldFont, size: 9, color: rgb(1,1,1) });
+            page.drawText('From 28 February 2023, we will no longer send monthly investment statements by email or SMS.', { x: margin + 10, y: y-30, font, size: 8, color: rgb(1,1,1) });
+            page.drawText("Visit www.nedbank.co.za/statement for more information.", { x: margin + 10, y: y-42, font, size: 8, color: rgb(1,1,1) });
+            
+            y -= 75;
+
+            // Account Summary
+            page.drawText('Please examine this statement soonest. If no error is reported within 30 days after receipt, the statement will be considered as being correct.', { x: margin, y, font, size: 7, color: gray });
+            y -= 20;
+
+            page.drawRectangle({ x: margin, y: y - 25, width: width - margin * 2, height: 25, color: primaryColor });
+            page.drawText('Account summary', { x: margin + 10, y: y - 15, font: boldFont, size: 10, color: rgb(1,1,1) });
+            
+            y -= 35;
+            page.drawRectangle({ x: margin, y: y - 25, width: width - margin * 2, height: 25, color: lightGray });
+            page.drawText('Account type', { x: margin + 10, y: y - 15, font, size: 9, color: black });
+            page.drawText('Account number', { x: width/2 + 10, y: y - 15, font, size: 9, color: black });
+
+            y -= 30;
+            page.drawText(account.name, { x: margin + 10, y, font: boldFont, size: 11, color: black });
+            page.drawText(account.accountNumber, { x: width/2 + 10, y, font: boldFont, size: 11, color: black });
+
+            y -= 15;
+            page.drawLine({start: {x: margin, y}, end: {x: width-margin, y}, thickness: 0.5, color: lightGray})
+            y -= 15;
+
+            const summaryCol1 = margin + 10;
+            const summaryCol2 = margin + 150;
+            const summaryCol3 = width/2 + 10;
+            const summaryCol4 = width/2 + 150;
+
+            page.drawText('Statement date:', { x: summaryCol1, y, font, size: 8 });
+            page.drawText(format(new Date(), 'dd/MM/yyyy'), { x: summaryCol2, y, font, size: 8 });
+            page.drawText('Envelope:', { x: summaryCol3, y, font, size: 8 });
+            y-=12;
+            page.drawText('Statement period:', { x: summaryCol1, y, font, size: 8 });
+            page.drawText(`${format(new Date(sortedTransactions[0].date), 'dd/MM/yyyy')} - ${format(new Date(), 'dd/MM/yyyy')}`, { x: summaryCol2, y, font, size: 8 });
+            page.drawText('Total pages:', { x: summaryCol3, y, font, size: 8 });
+            page.drawText('2', { x: summaryCol4, y, font, size: 8 });
+             y-=12;
+            page.drawText('Statement frequency:', { x: summaryCol1, y, font, size: 8 });
+            page.drawText('Monthly', { x: summaryCol2, y, font, size: 8 });
+
+
+            // Bank charges & Cashflow
+            y -= 40;
+            page.drawText('Bank charges summary', { x: margin, y, font: boldFont, size: 10, color: primaryColor });
+            page.drawText('Cashflow', { x: width/2 + 10, y, font: boldFont, size: 10, color: primaryColor });
+            y -= 15;
+            page.drawLine({start: {x: margin, y}, end: {x: width-margin, y}, thickness: 1, color: lightGray})
+            y -= 15;
+
+            const chargesY = y;
+            const formatCurrency = (val: number) => `R${val.toFixed(2)}`;
+
+            page.drawText('Other charges', { x: margin, y: chargesY, font, size: 8 });
+            page.drawText(formatCurrency(0), { x: summaryCol2, y: chargesY, font, size: 8, color: gray });
+            page.drawText('Opening balance', { x: summaryCol3, y: chargesY, font, size: 8 });
+            page.drawText(formatCurrency(openingBalance), { x: summaryCol4, y: chargesY, font, size: 8, color: gray });
+            y -= 12;
+            page.drawText('Bank charge(s) (total)', { x: margin, y, font, size: 8 });
+            page.drawText(formatCurrency(0), { x: summaryCol2, y, font, size: 8, color: gray });
+            page.drawText('Funds received/Credits', { x: summaryCol3, y, font, size: 8 });
+            page.drawText(formatCurrency(totalCredits), { x: summaryCol4, y, font, size: 8, color: gray });
+            y -= 12;
+            page.drawText('"VAT inclusive @', { x: margin, y, font, size: 8 });
+            page.drawText('15.000%', { x: summaryCol2, y, font, size: 8, color: gray });
+            page.drawText('Funds used/Debits', { x: summaryCol3, y, font, size: 8 });
+            page.drawText(formatCurrency(totalDebits), { x: summaryCol4, y, font, size: 8, color: gray });
+            y -= 12;
+            page.drawText('VAT calculated monthly', { x: margin, y, font, size: 8 });
+            page.drawText('Closing balance', { x: summaryCol3, y, font, size: 8 });
+            page.drawText(formatCurrency(closingBalance), { x: summaryCol4, y, font: boldFont, size: 8, color: gray });
+            y -= 12;
+            page.drawText('Annual credit interest rate', { x: summaryCol3, y, font, size: 8 });
+            page.drawText('0.000%', { x: summaryCol4, y, font, size: 8, color: gray });
+
+
+            // Graphs
+            y -= 40;
+            const graphSectionY = y;
+            page.drawText('Total funds received/credits', {x: margin, y, font: boldFont, size: 9});
+            page.drawText(formatCurrency(totalCredits), {x: summaryCol2, y, font: boldFont, size: 9});
+            page.drawText('Total funds used/debits', {x: width/2+10, y, font: boldFont, size: 9});
+            page.drawText(formatCurrency(totalDebits), {x: summaryCol4, y, font: boldFont, size: 9});
+
+            y -= 110;
+            page.drawImage(creditGraphImage, {x: margin, y, width: 200, height: 100});
+            page.drawImage(debitGraphImage, {x: width/2+10, y, width: 200, height: 100});
+
+            // Footer
+            y -= 30;
+            page.drawText('see money differently', { x: margin, y, font: boldFont, size: 12, color: primaryColor });
+            const footerTextX = width / 2;
+            const footerText = 'We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services. Authorised financial services and registered credit provider (NCRCP16). Nedbank Ltd Reg No 1951/000009/06.';
+            const footerLines = footerText.split('. ');
+            let currentFooterY = y;
+            footerLines.forEach(line => {
+                page.drawText(line + (line.endsWith('.') ? '' : '.'), { x: footerTextX, y: currentFooterY, font, size: 6, color: gray, maxWidth: width/2 - margin });
+                currentFooterY -= 7;
+            })
+            page.drawText('Page 1 of 2', {x: width - margin - 50, y: y-10, font: boldFont, size: 8});
+
+
+            // --- Transactions Page (Page 2) ---
+            page = pdfDoc.addPage([595.28, 841.89]); // A4 size
+            let txPageY = page.getSize().height - margin;
+
+            // Header
+            page.drawImage(nLogoImage, {
                 x: margin,
-                y: height - margin - logoDims.height,
-                width: logoDims.width,
-                height: logoDims.height,
+                y: txPageY - nLogoImage.height,
+                width: nLogoImage.width * 0.4,
+                height: nLogoImage.height * 0.4,
             });
-
-            page.drawText('STATEMENT', { x: width - margin - 100, y: height - margin - 20, font: boldFont, size: 16, color: black });
-            page.drawText(account.name, { x: width - margin - 150, y: height - margin - 45, font: font, size: 10, color: gray });
-            page.drawText(account.accountNumber, { x: width - margin - 150, y: height - margin - 60, font: font, size: 10, color: gray });
-            page.drawText(`Date: ${format(new Date(), 'dd MMMM yyyy')}`, { x: width - margin - 150, y: height - margin - 75, font: font, size: 10, color: gray });
-
-            // --- Table ---
-            let y = height - margin - logoDims.height - 60;
-            const tableTop = y;
-
+            page.drawText('STATEMENT', { x: width - margin - 100, y: txPageY - 20, font: boldFont, size: 16, color: black });
+            page.drawText(account.name, { x: width - margin - 150, y: txPageY - 45, font: font, size: 10, color: gray });
+            page.drawText(`Page 2 of 2`, { x: width - margin - 150, y: txPageY - 60, font, size: 8, color: gray });
+            
+            // Table
+            txPageY -= 100;
+            
             // Table Header
-            page.drawRectangle({ x: margin, y: y - 22, width: width - margin * 2, height: 22, color: primaryColor });
+            page.drawRectangle({ x: margin, y: txPageY - 22, width: width - margin * 2, height: 22, color: primaryColor });
             const headers = ['Date', 'Description', `Debits(${account.currency})`, `Credits(${account.currency})`, `Balance(${account.currency})`];
-            const colWidths = [60, 215, 80, 80, 80];
+            const colWidths = [80, 215, 80, 80, 80];
             let x = margin + 5;
             headers.forEach((header, i) => {
-                page.drawText(header, { x: x, y: y - 15, font: boldFont, size: 9, color: rgb(1, 1, 1) });
+                page.drawText(header, { x: x, y: txPageY - 15, font: boldFont, size: 9, color: rgb(1, 1, 1) });
                 x += colWidths[i];
             });
-            y -= 30; // Row height
+            txPageY -= 30;
             
-            // Calculate opening balance
-            const getRunningBalance = (index: number) => {
-                let balance = account.balance; // Start with the final balance
-                for (let i = 0; i < index; i++) {
-                    const tx = sortedTransactions[i];
-                    balance = tx.type === 'credit' ? balance - tx.amount : balance + tx.amount;
-                }
-                return balance;
-            }
-            const openingBalance = getRunningBalance(sortedTransactions.length);
-
             // Opening Balance Row
-            page.drawText(format(new Date(sortedTransactions[0]?.date || Date.now()), 'dd/MM/yyyy'), { x: margin + 5, y, font, size: 9, color: black });
-            page.drawText('Opening Balance', { x: margin + colWidths[0], y, font, size: 9, color: black });
-            page.drawText(formatCurrency(openingBalance), { x: width - margin - colWidths[4] + 10, y, font, size: 9, color: black });
-            y -= 20;
+            page.drawText(format(new Date(sortedTransactions[0]?.date || Date.now()), 'dd/MM/yyyy'), { x: margin + 5, y: txPageY, font, size: 9, color: black });
+            page.drawText('Opening Balance', { x: margin + colWidths[0], y: txPageY, font: boldFont, size: 9, color: black });
+            page.drawText(formatCurrency(openingBalance), { x: width - margin - colWidths[4] + 10, y: txPageY, font: boldFont, size: 9, color: black });
+            txPageY -= 20;
 
             // Transaction Rows
             let currentBalance = openingBalance;
             for (const tx of sortedTransactions) {
-                 if (y < margin + 40) { // Check for page break
+                 if (txPageY < margin + 40) { // Check for page break
                     page = pdfDoc.addPage();
-                    y = height - margin;
+                    txPageY = height - margin;
                  }
                 currentBalance = tx.type === 'credit' ? currentBalance + tx.amount : currentBalance - tx.amount;
-                page.drawText(format(new Date(tx.date), 'dd/MM/yyyy'), { x: margin + 5, y, font, size: 9, color: black });
-                page.drawText(tx.description.substring(0, 40), { x: margin + colWidths[0], y, font, size: 9, color: black });
+                page.drawText(format(new Date(tx.date), 'dd/MM/yyyy'), { x: margin + 5, y: txPageY, font, size: 9, color: black });
+                page.drawText(tx.description.substring(0, 40), { x: margin + colWidths[0], y: txPageY, font, size: 9, color: black });
+                
                 if(tx.type === 'debit') {
-                   page.drawText(formatCurrency(tx.amount), { x: margin + colWidths[0] + colWidths[1] + 10, y, font, size: 9, color: red });
+                   page.drawText(formatCurrency(tx.amount), { x: margin + colWidths[0] + colWidths[1] + 10, y: txPageY, font, size: 9, color: red });
                 } else {
-                   page.drawText(formatCurrency(tx.amount), { x: margin + colWidths[0] + colWidths[1] + colWidths[2] + 10, y, font, size: 9, color: green });
+                   page.drawText(formatCurrency(tx.amount), { x: margin + colWidths[0] + colWidths[1] + colWidths[2] + 10, y: txPageY, font, size: 9, color: green });
                 }
-                page.drawText(formatCurrency(currentBalance), { x: width - margin - colWidths[4] + 10, y, font, size: 9, color: black });
-                y -= 20;
+                
+                page.drawText(formatCurrency(currentBalance), { x: width - margin - colWidths[4] + 10, y: txPageY, font: boldFont, size: 9, color: black });
+                txPageY -= 20;
             }
 
             // --- Footer ---
-            page.drawText('seemoneydifferently', { x: (width / 2) - 50, y: margin, font: boldFont, size: 10, color: primaryColor });
+            page.drawText('see money differently', { x: (width / 2) - 50, y: margin, font: boldFont, size: 10, color: primaryColor });
 
 
             const pdfBytes = await pdfDoc.save();
@@ -302,9 +469,17 @@ export default function StatementPage() {
             <main className="flex-1 overflow-y-auto p-4">
                 {isLoading && <StatementLoadingSkeleton />}
                 {error && <p className="p-4 text-red-500 bg-red-50 rounded-md">{error.message}</p>}
-                {!isLoading && !error && account && sortedTransactions.length > 0 && (
+                {!isLoading && !error && account && sortedTransactions.length > 0 && userData && (
                     <div className="max-w-4xl mx-auto my-4">
-                        <StatementComponent account={account} transactions={sortedTransactions} />
+                        <StatementSummaryPage 
+                            account={account} 
+                            user={userData}
+                            openingBalance={openingBalance}
+                            closingBalance={closingBalance}
+                            totalCredits={totalCredits}
+                            totalDebits={totalDebits}
+                        />
+                        <StatementTransactionsPage account={account} transactions={sortedTransactions} openingBalance={openingBalance} />
                     </div>
                 )}
                  {!isLoading && !error && account && sortedTransactions.length === 0 && (
@@ -316,3 +491,4 @@ export default function StatementPage() {
         </div>
     );
 }
+

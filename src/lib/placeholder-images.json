@@ -1,10 +1,9 @@
-
 {
   "placeholderImages": [
     {
       "id": "atm-map",
       "description": "A stylized map showing ATM locations.",
-      "imageUrl": "https://picsum.photos/seed/moneygo-map/1200/800",
+      "imageUrl": "https://images.unsplash.com/photo-1717700299588-ee73dc7de1fa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y2l0eSUyMG1hcHxlbnwwfHx8fDE3NTk3MTY3NDN8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "city map"
     },
     {
@@ -18,6 +17,30 @@
       "description": "Customer Obsessed Enterprise Award logo.",
       "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/Screenshot_2025-09-21-05-24-56-38_ccee45d3a323cb0330d71aa2e13568e6~2.jpg?alt=media&token=8b805715-5151-4a27-9c90-1659a935519c",
       "imageHint": "enterprise award"
+    },
+    {
+      "id": "statement-econfirm",
+      "description": "Nedbank eConfirm logo for statement",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/Screenshot_2025-09-26_16-43-16-51_ccee45d3a323cb0330d71aa2e13568e6.jpg?alt=media&token=e110c733-4f9e-4e69-b50a-8a1dd324f46a",
+      "imageHint": "confirm logo"
+    },
+    {
+      "id": "statement-barcode",
+      "description": "Barcode for bank statement",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2Fbarcode.png?alt=media&token=f4561081-0675-47f2-a279-373b98e578c7",
+      "imageHint": "barcode"
+    },
+    {
+      "id": "statement-credit-graph",
+      "description": "Credit graph for bank statement",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2Fgraph1.png?alt=media&token=a05423f0-466d-4951-b856-11f4963503f8",
+      "imageHint": "bar chart"
+    },
+    {
+      "id": "statement-debit-graph",
+      "description": "Debit graph for bank statement",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%(MISSING)20Buttons%2Fgraph2.png?alt=media&token=8544a034-7a1f-4c57-a36c-9c748c14828b",
+      "imageHint": "bar chart"
     }
   ]
 }
