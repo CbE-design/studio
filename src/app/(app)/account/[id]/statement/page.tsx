@@ -60,7 +60,7 @@ const StatementTransactionsPage = ({ account, transactions, openingBalance }: { 
                     </thead>
                     <tbody>
                          <tr className="border-b">
-                            <td className="p-2">{format(new Date(transactions[0]?.date || new Date()), 'dd/MM/yyyy')}</td>
+                            <td className="p-2">{transactions.length > 0 ? format(new Date(transactions[0]?.date || new Date()), 'dd/MM/yyyy') : format(new Date(), 'dd/MM/yyyy')}</td>
                             <td className="p-2 font-semibold">Opening Balance</td>
                             <td className="p-2"></td>
                             <td className="p-2"></td>
@@ -216,18 +216,18 @@ export default function StatementPage() {
             const margin = 40;
 
             // Header section
-            y -= 60;
+            y -= 70;
             page.drawImage(eConfirmImage, { x: margin, y, width: 80, height: 40 });
-            page.drawImage(nLogoImage, { x: width - margin - 50, y: y + 20, width: 50, height: 26 });
-            y -= 50;
-
-            page.drawImage(barcodeImage, { x: margin, y: y+20, width: 250, height: 20 });
+            page.drawImage(nLogoImage, { x: width - margin - 50, y: y + 5, width: 50, height: 26 });
+            
+            y -= 45;
+            page.drawImage(barcodeImage, { x: margin, y, width: 250, height: 20 });
             
             const rightAddressX = width - margin - 200;
-            page.drawText('135 Rivonia Road, Sandown, 2196', { x: rightAddressX, y: y + 20, font, size: 8, color: gray });
-            page.drawText('P O Box 1144, Johannesburg, 2000, South Africa', { x: rightAddressX, y: y + 10, font, size: 8, color: gray });
+            page.drawText('135 Rivonia Road, Sandown, 2196', { x: rightAddressX, y: y + 45, font, size: 8, color: gray });
+            page.drawText('P O Box 1144, Johannesburg, 2000, South Africa', { x: rightAddressX, y: y + 35, font, size: 8, color: gray });
             
-            y -= 20;
+            y -= 25;
             page.drawText('Mr', { x: margin, y, font, size: 9, color: black });
             y -= 12;
             page.drawText((userData.firstName || 'UNDEFINED' + ' ' + (userData.lastName || 'UNDEFINED')).toUpperCase(), { x: margin, y, font: boldFont, size: 9, color: black });
@@ -309,17 +309,17 @@ export default function StatementPage() {
             const formatCurrencyLocal = (val: number) => `R${val.toFixed(2)}`;
 
             page.drawText('Other charges', { x: margin, y, font, size: 8 });
-            page.drawText(formatCurrencyLocal(0), { x: summaryCol2, y, font, size: 8, color: gray, xAlign: 'right', yAlign: 'center' });
+            page.drawText(formatCurrencyLocal(0), { x: summaryCol2, y, font, size: 8, color: gray});
             page.drawText('Opening balance', { x: summaryCol3, y, font, size: 8 });
             page.drawText(formatCurrencyLocal(openingBalance), { x: summaryCol4, y, font, size: 8, color: gray });
             y -= 12;
             page.drawText('Bank charge(s) (total)', { x: margin, y, font, size: 8 });
-            page.drawText(formatCurrencyLocal(0), { x: summaryCol2, y, font, size: 8, color: gray, xAlign: 'right', yAlign: 'center' });
+            page.drawText(formatCurrencyLocal(0), { x: summaryCol2, y, font, size: 8, color: gray});
             page.drawText('Funds received/Credits', { x: summaryCol3, y, font, size: 8 });
             page.drawText(formatCurrencyLocal(totalCredits), { x: summaryCol4, y, font, size: 8, color: gray });
             y -= 12;
             page.drawText('"VAT inclusive @', { x: margin, y, font, size: 8 });
-            page.drawText('15.000%', { x: summaryCol2, y, font, size: 8, color: gray, xAlign: 'right', yAlign: 'center' });
+            page.drawText('15.000%', { x: summaryCol2, y, font, size: 8, color: gray });
             page.drawText('Funds used/Debits', { x: summaryCol3, y, font, size: 8 });
             page.drawText(formatCurrencyLocal(totalDebits), { x: summaryCol4, y, font, size: 8, color: gray });
             y -= 12;
@@ -335,7 +335,6 @@ export default function StatementPage() {
                 const START_X = margin;
                 const CHART_WIDTH = 200;
                 const BAR_HEIGHT = 8;
-                const AXIS_HEIGHT = 60;
                 let Y_START = y;
                 const GAP_BETWEEN_CHARTS = 280;
 
@@ -353,12 +352,12 @@ export default function StatementPage() {
                 const Y_ROW_OTHER_CREDITS = Y_START;
                 page.drawText('Other credits', { x: START_X, y: Y_ROW_OTHER_CREDITS, size: FONT_SIZE-1 });
                 page.drawRectangle({ x: START_X, y: Y_ROW_OTHER_CREDITS - 10, width: otherCreditsBarWidth, height: BAR_HEIGHT, color: primaryColor });
-                page.drawText(`${formatCurrencyLocal(received.otherCredits)}`, { x: START_X + 5, y: Y_ROW_OTHER_CREDITS - 10, size: FONT_SIZE-1, color: black });
+                page.drawText(`${formatCurrencyLocal(received.otherCredits)}`, { x: START_X + 5, y: Y_ROW_OTHER_CREDITS - 8, size: FONT_SIZE-1, color: black });
                 
                 const Y_ROW_TOTAL_RECEIVED = Y_START - 20;
                 page.drawText('Total', { x: START_X, y: Y_ROW_TOTAL_RECEIVED, size: FONT_SIZE-1 });
                 page.drawRectangle({ x: START_X, y: Y_ROW_TOTAL_RECEIVED - 10, width: CHART_WIDTH, height: BAR_HEIGHT, color: primaryColor });
-                page.drawText(`${formatCurrencyLocal(receivedTotal)}`, { x: START_X + CHART_WIDTH + 5, y: Y_ROW_TOTAL_RECEIVED-10, size: FONT_SIZE-1, color: black });
+                page.drawText(`${formatCurrencyLocal(receivedTotal)}`, { x: START_X + CHART_WIDTH + 5, y: Y_ROW_TOTAL_RECEIVED-8, size: FONT_SIZE-1, color: black });
                 
                 Y_START -= 50;
 
@@ -389,17 +388,17 @@ export default function StatementPage() {
                 const Y_ROW_CHARGES = Y_START;
                 page.drawText('Total charges and fees', { x: CHART_START_X-40, y: Y_ROW_CHARGES, size: FONT_SIZE-1 });
                 page.drawRectangle({ x: CHART_START_X, y: Y_ROW_CHARGES - 10, width: chargesBarWidth, height: BAR_HEIGHT, color: primaryColor });
-                page.drawText(`${formatCurrencyLocal(totalChargesAndFees)}`, { x: CHART_START_X + CHART_WIDTH + 5, y: Y_ROW_CHARGES-10, size: FONT_SIZE-1 });
+                page.drawText(`${formatCurrencyLocal(totalChargesAndFees)}`, { x: CHART_START_X + CHART_WIDTH + 5, y: Y_ROW_CHARGES-8, size: FONT_SIZE-1 });
 
                 const Y_ROW_OTHER_DEBITS = Y_START - 20;
                 page.drawText('Other debits', { x: CHART_START_X-40, y: Y_ROW_OTHER_DEBITS, size: FONT_SIZE-1 });
                 page.drawRectangle({ x: CHART_START_X, y: Y_ROW_OTHER_DEBITS - 10, width: otherDebitsBarWidth, height: BAR_HEIGHT, color: primaryColor });
-                page.drawText(`${formatCurrencyLocal(otherDebits)}`, { x: CHART_START_X + 5, y: Y_ROW_OTHER_DEBITS - 10, size: FONT_SIZE-1 });
+                page.drawText(`${formatCurrencyLocal(otherDebits)}`, { x: CHART_START_X + 5, y: Y_ROW_OTHER_DEBITS - 8, size: FONT_SIZE-1 });
                 
                 const Y_ROW_TOTAL_USED = Y_START - 40;
                 page.drawText('Total', { x: CHART_START_X - 40, y: Y_ROW_TOTAL_USED, size: FONT_SIZE-1 });
                 page.drawRectangle({ x: CHART_START_X, y: Y_ROW_TOTAL_USED-10, width: CHART_WIDTH, height: BAR_HEIGHT, color: primaryColor });
-                page.drawText(`${formatCurrencyLocal(usedTotal)}`, { x: CHART_START_X + CHART_WIDTH + 5, y: Y_ROW_TOTAL_USED-10, size: FONT_SIZE-1 });
+                page.drawText(`${formatCurrencyLocal(usedTotal)}`, { x: CHART_START_X + CHART_WIDTH + 5, y: Y_ROW_TOTAL_USED-8, size: FONT_SIZE-1 });
                 
                 Y_START -= 70;
                 
@@ -418,29 +417,29 @@ export default function StatementPage() {
             });
 
             // Footer
-            y = 100;
+            y = 80;
             page.drawText('see money differently', { x: margin, y, font: boldFont, size: 12, color: primaryColor });
-            const footerTextX = width / 2;
+            const footerTextX = width / 2 - 40;
             const footerText = 'We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services. Authorised financial services and registered credit provider (NCRCP16). Nedbank Ltd Reg No 1951/000009/06.';
             const footerLines = footerText.split('. ');
-            let currentFooterY = y;
+            let currentFooterY = y - 20;
             footerLines.forEach(line => {
                 page.drawText(line + (line.endsWith('.') ? '' : '.'), { x: footerTextX, y: currentFooterY, font, size: 6, color: gray, maxWidth: width/2 - margin });
                 currentFooterY -= 7;
             })
-            page.drawText('Page 1 of 2', {x: width - margin - 50, y: y-10, font: boldFont, size: 8});
+            page.drawText('Page 1 of 2', {x: width - margin - 50, y: y-50, font: boldFont, size: 8});
 
             // --- Transactions Page (Page 2) ---
             let txPage: any = pdfDoc.addPage(PageSizes.A4);
             let pageCount = 2;
             
-            const addPageHeader = (p: any, pageNum: number) => {
+            const addPageHeader = (p: any, pageNum: number, totalPages: number) => {
                 const {width, height} = p.getSize();
-                p.drawImage(eConfirmImage, { x: margin, y: height - 60, width: 80, height: 40 });
-                p.drawImage(nLogoImage, { x: width - margin - 50, y: height - 46, width: 50, height: 26 });
+                p.drawImage(eConfirmImage, { x: margin, y: height - 70, width: 80, height: 40 });
+                p.drawImage(nLogoImage, { x: width - margin - 50, y: height - 65, width: 50, height: 26 });
                 p.drawText('STATEMENT', { x: width / 2 - 40, y: height - 80, font: boldFont, size: 16, color: black });
                 p.drawText(`${account.name} - ${account.accountNumber}`, { x: margin, y: height - 100, font: font, size: 10, color: gray });
-                p.drawText(`Page ${pageNum} of 2`, { x: width - margin - 100, y: height - 115, font, size: 8, color: gray });
+                p.drawText(`Page ${pageNum} of ${totalPages}`, { x: width - margin - 100, y: height - 115, font, size: 8, color: gray });
             }
             
             const addPageFooter = (p: any) => {
@@ -448,7 +447,8 @@ export default function StatementPage() {
                  p.drawText('see money differently', { x: (width / 2) - 50, y: margin, font: boldFont, size: 10, color: primaryColor });
             }
             
-            addPageHeader(txPage, pageCount);
+            const totalPages = Math.ceil(sortedTransactions.length / 25) + 1; // Rough estimate, 25 rows per page
+            addPageHeader(txPage, pageCount, totalPages);
 
             let txPageY = txPage.getSize().height - 150;
             
@@ -458,7 +458,7 @@ export default function StatementPage() {
             txPage.drawRectangle({ x: margin, y: txPageY - 22, width: width - margin * 2, height: 22, color: primaryColor });
             let currentX = margin + 5;
             headers.forEach((header, i) => {
-                txPage.drawText(header, { x: currentX, y: txPageY - 15, font: boldFont, size: 9, color: rgb(1, 1, 1) });
+                txPage.drawText(header, { x: currentX, y: txPageY - 15, font: boldFont, size: 9, color: rgb(1, 1, 1), align: 'left' });
                 currentX += colWidths[i];
             });
             txPageY -= 30;
@@ -468,10 +468,15 @@ export default function StatementPage() {
                  rowData.forEach((cell, i) => {
                     const fontToUse = isHeader || i === 4 ? boldFont : font;
                     let cellColor = black;
+                    let textAlign: 'left' | 'right' = 'left';
+                    if(i >= 2) textAlign = 'right';
+                    
                     if(i === 2) cellColor = red;
                     if(i === 3) cellColor = green;
+                    
+                    const calculatedX = textAlign === 'right' ? xPos + colWidths[i] - 10 : xPos;
 
-                    p.drawText(cell, { x: xPos, y: yPos, font: fontToUse, size: 9, color: cellColor });
+                    p.drawText(cell, { x: calculatedX, y: yPos, font: fontToUse, size: 9, color: cellColor, align: textAlign });
                     xPos += colWidths[i];
                  });
             }
@@ -481,7 +486,7 @@ export default function StatementPage() {
                 'Opening Balance',
                 '',
                 '',
-                formatCurrencyLocal(openingBalance)
+                formatCurrency(openingBalance)
             ], true);
             txPageY -= 20;
 
@@ -491,16 +496,16 @@ export default function StatementPage() {
                     addPageFooter(txPage);
                     txPage = pdfDoc.addPage(PageSizes.A4);
                     pageCount++;
-                    addPageHeader(txPage, pageCount);
+                    addPageHeader(txPage, pageCount, totalPages);
                     txPageY = height - 150;
                  }
                 currentBalance = tx.type === 'credit' ? currentBalance + tx.amount : currentBalance - tx.amount;
                 const rowData = [
                     format(new Date(tx.date), 'dd/MM/yyyy'),
                     tx.description.substring(0, 35),
-                    tx.type === 'debit' ? formatCurrencyLocal(tx.amount) : '',
-                    tx.type === 'credit' ? formatCurrencyLocal(tx.amount) : '',
-                    formatCurrencyLocal(currentBalance)
+                    tx.type === 'debit' ? formatCurrency(tx.amount) : '',
+                    tx.type === 'credit' ? formatCurrency(tx.amount) : '',
+                    formatCurrency(currentBalance)
                 ];
                 drawRow(txPage, txPageY, rowData);
                 txPageY -= 20;
