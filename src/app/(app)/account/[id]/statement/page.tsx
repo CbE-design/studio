@@ -379,12 +379,19 @@ export default function StatementPage() {
             let txPageY = txPage.getSize().height - margin;
 
             // Header
-            txPage.drawImage(nLogoImage, {
+            txPage.drawImage(eConfirmImage, {
                 x: margin,
-                y: txPageY - nLogoImage.height,
-                width: nLogoImage.width * 0.4,
-                height: nLogoImage.height * 0.4,
+                y: txPageY - 40,
+                width: 80,
+                height: 40,
             });
+            txPage.drawImage(nLogoImage, {
+                x: txPage.getWidth() - margin - 50,
+                y: txPageY - 26,
+                width: 50,
+                height: 26,
+            });
+            txPageY -= 40; // Adjust space for header images
             txPage.drawText('STATEMENT', { x: width - margin - 100, y: txPageY - 20, font: boldFont, size: 16, color: black });
             txPage.drawText(account.name, { x: width - margin - 150, y: txPageY - 45, font: font, size: 10, color: gray });
             txPage.drawText(`Page 2 of 2`, { x: width - margin - 150, y: txPageY - 60, font, size: 8, color: gray });
@@ -415,6 +422,8 @@ export default function StatementPage() {
                  if (txPageY < margin + 40) { // Check for page break
                     txPage = pdfDoc.addPage();
                     txPageY = height - margin;
+                    // Add header to new page
+                    txPage.drawImage(eConfirmImage, { x: margin, y: txPageY - 40, width: 80, height: 40 });
                  }
                 currentBalance = tx.type === 'credit' ? currentBalance + tx.amount : currentBalance - tx.amount;
                 txPage.drawText(format(new Date(tx.date), 'dd/MM/yyyy'), { x: margin + 5, y: txPageY, font, size: 9, color: black });
