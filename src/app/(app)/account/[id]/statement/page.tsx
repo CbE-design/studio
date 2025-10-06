@@ -176,6 +176,20 @@ export default function StatementPage() {
             const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
             const fontLight = await pdfDoc.embedFont(StandardFonts.Helvetica); // Placeholder for a true light font
 
+            // Helper to embed either PNG or JPEG
+            const embedImage = async (imageBytes: ArrayBuffer) => {
+                try {
+                    return await pdfDoc.embedPng(imageBytes);
+                } catch (pngError) {
+                    try {
+                        return await pdfDoc.embedJpg(imageBytes);
+                    } catch (jpgError) {
+                        console.error("Failed to embed image as PNG or JPG", { pngError, jpgError });
+                        throw new Error("Unsupported image format. Please use PNG or JPEG.");
+                    }
+                }
+            };
+
             // Colors
             const primaryColor = rgb(0.0, 0.447, 0.243); // #00723E
             const black = rgb(0, 0, 0);
@@ -200,11 +214,11 @@ export default function StatementPage() {
                  fetch(`/api/image-proxy?url=${encodeURIComponent(debitGraphUrl)}`).then(res => res.arrayBuffer()),
             ]);
 
-            const nLogoImage = await pdfDoc.embedPng(nLogoBytes);
-            const eConfirmImage = await pdfDoc.embedPng(eConfirmBytes);
-            const barcodeImage = await pdfDoc.embedPng(barcodeBytes);
-            const creditGraphImage = await pdfDoc.embedPng(creditGraphBytes);
-            const debitGraphImage = await pdfDoc.embedPng(debitGraphBytes);
+            const nLogoImage = await embedImage(nLogoBytes);
+            const eConfirmImage = await embedImage(eConfirmBytes);
+            const barcodeImage = await embedImage(barcodeBytes);
+            const creditGraphImage = await embedImage(creditGraphBytes);
+            const debitGraphImage = await embedImage(debitGraphBytes);
             
             // --- Summary Page (Page 1) ---
             let page = pdfDoc.addPage([595, 842]); // A4
@@ -361,63 +375,63 @@ export default function StatementPage() {
 
 
             // --- Transactions Page (Page 2) ---
-            page = pdfDoc.addPage([595.28, 841.89]); // A4 size
-            let txPageY = page.getSize().height - margin;
+            let txPage = pdfDoc.addPage([595.28, 841.89]); // A4 size
+            let txPageY = txPage.getSize().height - margin;
 
             // Header
-            page.drawImage(nLogoImage, {
+            txPage.drawImage(nLogoImage, {
                 x: margin,
                 y: txPageY - nLogoImage.height,
                 width: nLogoImage.width * 0.4,
                 height: nLogoImage.height * 0.4,
             });
-            page.drawText('STATEMENT', { x: width - margin - 100, y: txPageY - 20, font: boldFont, size: 16, color: black });
-            page.drawText(account.name, { x: width - margin - 150, y: txPageY - 45, font: font, size: 10, color: gray });
-            page.drawText(`Page 2 of 2`, { x: width - margin - 150, y: txPageY - 60, font, size: 8, color: gray });
+            txPage.drawText('STATEMENT', { x: width - margin - 100, y: txPageY - 20, font: boldFont, size: 16, color: black });
+            txPage.drawText(account.name, { x: width - margin - 150, y: txPageY - 45, font: font, size: 10, color: gray });
+            txPage.drawText(`Page 2 of 2`, { x: width - margin - 150, y: txPageY - 60, font, size: 8, color: gray });
             
             // Table
             txPageY -= 100;
             
             // Table Header
-            page.drawRectangle({ x: margin, y: txPageY - 22, width: width - margin * 2, height: 22, color: primaryColor });
+            txPage.drawRectangle({ x: margin, y: txPageY - 22, width: width - margin * 2, height: 22, color: primaryColor });
             const headers = ['Date', 'Description', `Debits(${account.currency})`, `Credits(${account.currency})`, `Balance(${account.currency})`];
             const colWidths = [80, 215, 80, 80, 80];
             let x = margin + 5;
             headers.forEach((header, i) => {
-                page.drawText(header, { x: x, y: txPageY - 15, font: boldFont, size: 9, color: rgb(1, 1, 1) });
+                txPage.drawText(header, { x: x, y: txPageY - 15, font: boldFont, size: 9, color: rgb(1, 1, 1) });
                 x += colWidths[i];
             });
             txPageY -= 30;
             
             // Opening Balance Row
-            page.drawText(format(new Date(sortedTransactions[0]?.date || Date.now()), 'dd/MM/yyyy'), { x: margin + 5, y: txPageY, font, size: 9, color: black });
-            page.drawText('Opening Balance', { x: margin + colWidths[0], y: txPageY, font: boldFont, size: 9, color: black });
-            page.drawText(formatCurrency(openingBalance), { x: width - margin - colWidths[4] + 10, y: txPageY, font: boldFont, size: 9, color: black });
+            txPage.drawText(format(new Date(sortedTransactions[0]?.date || Date.now()), 'dd/MM/yyyy'), { x: margin + 5, y: txPageY, font, size: 9, color: black });
+            txPage.drawText('Opening Balance', { x: margin + colWidths[0], y: txPageY, font: boldFont, size: 9, color: black });
+            txPage.drawText(formatCurrency(openingBalance), { x: width - margin - colWidths[4] + 10, y: txPageY, font: boldFont, size: 9, color: black });
             txPageY -= 20;
 
             // Transaction Rows
             let currentBalance = openingBalance;
             for (const tx of sortedTransactions) {
                  if (txPageY < margin + 40) { // Check for page break
-                    page = pdfDoc.addPage();
+                    txPage = pdfDoc.addPage();
                     txPageY = height - margin;
                  }
                 currentBalance = tx.type === 'credit' ? currentBalance + tx.amount : currentBalance - tx.amount;
-                page.drawText(format(new Date(tx.date), 'dd/MM/yyyy'), { x: margin + 5, y: txPageY, font, size: 9, color: black });
-                page.drawText(tx.description.substring(0, 40), { x: margin + colWidths[0], y: txPageY, font, size: 9, color: black });
+                txPage.drawText(format(new Date(tx.date), 'dd/MM/yyyy'), { x: margin + 5, y: txPageY, font, size: 9, color: black });
+                txPage.drawText(tx.description.substring(0, 40), { x: margin + colWidths[0], y: txPageY, font, size: 9, color: black });
                 
                 if(tx.type === 'debit') {
-                   page.drawText(formatCurrency(tx.amount), { x: margin + colWidths[0] + colWidths[1] + 10, y: txPageY, font, size: 9, color: red });
+                   txPage.drawText(formatCurrency(tx.amount), { x: margin + colWidths[0] + colWidths[1] + 10, y: txPageY, font, size: 9, color: red });
                 } else {
-                   page.drawText(formatCurrency(tx.amount), { x: margin + colWidths[0] + colWidths[1] + colWidths[2] + 10, y: txPageY, font, size: 9, color: green });
+                   txPage.drawText(formatCurrency(tx.amount), { x: margin + colWidths[0] + colWidths[1] + colWidths[2] + 10, y: txPageY, font, size: 9, color: green });
                 }
                 
-                page.drawText(formatCurrency(currentBalance), { x: width - margin - colWidths[4] + 10, y: txPageY, font: boldFont, size: 9, color: black });
+                txPage.drawText(formatCurrency(currentBalance), { x: width - margin - colWidths[4] + 10, y: txPageY, font: boldFont, size: 9, color: black });
                 txPageY -= 20;
             }
 
             // --- Footer ---
-            page.drawText('see money differently', { x: (width / 2) - 50, y: margin, font: boldFont, size: 10, color: primaryColor });
+            txPage.drawText('see money differently', { x: (width / 2) - 50, y: margin, font: boldFont, size: 10, color: primaryColor });
 
 
             const pdfBytes = await pdfDoc.save();
@@ -491,4 +505,3 @@ export default function StatementPage() {
         </div>
     );
 }
-
