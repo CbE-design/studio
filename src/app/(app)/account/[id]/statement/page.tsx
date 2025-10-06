@@ -374,8 +374,8 @@ export default function StatementPage() {
                 // RIGHT GRAPH
                 const used = graphData.fundsUsed;
                 const usedTotal = used.totalDebits;
-                const totalChargesAndFees = used.totalChargesAndFees;
-                const otherDebits = used.otherDebits;
+                const totalChargesAndFees = 0; // Placeholder
+                const otherDebits = used.totalDebits; // Placeholder
                 const chargesBarWidth = (usedTotal > 0) ? (totalChargesAndFees / usedTotal) * CHART_WIDTH : 0;
                 const otherDebitsBarWidth = (usedTotal > 0) ? (otherDebits / usedTotal) * CHART_WIDTH : 0;
                 const CHART_START_X = START_X + GAP_BETWEEN_CHARTS;
@@ -414,7 +414,7 @@ export default function StatementPage() {
 
             drawFinancialGraphs(page, {
                 fundsReceived: { totalCredits: totalCredits, otherCredits: totalCredits },
-                fundsUsed: { totalDebits: totalDebits, totalChargesAndFees: 0, otherDebits: totalDebits }
+                fundsUsed: { totalDebits: totalDebits }
             });
 
             // Footer
@@ -431,16 +431,15 @@ export default function StatementPage() {
             page.drawText('Page 1 of 2', {x: width - margin - 50, y: y-10, font: boldFont, size: 8});
 
             // --- Transactions Page (Page 2) ---
-            let txPage: any = page;
-            let pageCount = 1;
-            let txPageY = 0; // Will be set after first page is finalized
-
+            let txPage: any = pdfDoc.addPage(PageSizes.A4);
+            let pageCount = 2;
+            
             const addPageHeader = (p: any, pageNum: number) => {
                 const {width, height} = p.getSize();
                 p.drawImage(eConfirmImage, { x: margin, y: height - 60, width: 80, height: 40 });
                 p.drawImage(nLogoImage, { x: width - margin - 50, y: height - 46, width: 50, height: 26 });
-                p.drawText('STATEMENT', { x: width - margin - 150, y: height - 80, font: boldFont, size: 16, color: black });
-                p.drawText(account.name, { x: width - margin - 200, y: height - 100, font: font, size: 10, color: gray });
+                p.drawText('STATEMENT', { x: width / 2 - 40, y: height - 80, font: boldFont, size: 16, color: black });
+                p.drawText(`${account.name} - ${account.accountNumber}`, { x: margin, y: height - 100, font: font, size: 10, color: gray });
                 p.drawText(`Page ${pageNum} of 2`, { x: width - margin - 100, y: height - 115, font, size: 8, color: gray });
             }
             
@@ -449,11 +448,9 @@ export default function StatementPage() {
                  p.drawText('see money differently', { x: (width / 2) - 50, y: margin, font: boldFont, size: 10, color: primaryColor });
             }
             
-            txPage = pdfDoc.addPage(PageSizes.A4);
-            pageCount++;
             addPageHeader(txPage, pageCount);
 
-            txPageY = txPage.getSize().height - 150;
+            let txPageY = txPage.getSize().height - 150;
             
             const colWidths = [80, 215, 80, 80, 80];
             const headers = ['Date', 'Description', `Debits(${account.currency})`, `Credits(${account.currency})`, `Balance(${account.currency})`];
