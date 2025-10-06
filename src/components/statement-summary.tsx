@@ -23,7 +23,6 @@ export function StatementSummaryPage({ account, user, openingBalance, closingBal
     
     const formatCurrency = (val: number) => `R${val.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")}`;
 
-    // Placeholder data for graphs, since it's not in the main data model
     const graphData = {
         fundsReceived: { totalCredits: totalCredits, otherCredits: totalCredits },
         fundsUsed: { totalDebits: totalDebits, totalChargesAndFees: 0, otherDebits: totalDebits }
@@ -31,14 +30,13 @@ export function StatementSummaryPage({ account, user, openingBalance, closingBal
 
     return (
         <div className="bg-white p-6 rounded-lg shadow-md text-gray-800 text-[8px] leading-tight">
-            {/* Header */}
             <div className="grid grid-cols-2 gap-4 items-start mb-4">
                 <div className="space-y-4">
                     {eConfirmLogo && <Image src={eConfirmLogo.imageUrl} alt={eConfirmLogo.description} data-ai-hint={eConfirmLogo.imageHint} width={80} height={40} />}
                     {barcode && <Image src={barcode.imageUrl} alt={barcode.description} data-ai-hint={barcode.imageHint} width={250} height={20} />}
                      <div className="text-[9px]">
                         <p>Mr</p>
-                        <p className="font-bold">{(user.firstName + ' ' + user.lastName).toUpperCase()}</p>
+                        <p className="font-bold">{(user.firstName || 'UNDEFINED' + ' ' + (user.lastName || 'UNDEFINED')).toUpperCase()}</p>
                         <p className="font-bold">{account.name.toUpperCase()}</p>
                         <br />
                         <p>PO BOX 135</p>
@@ -64,7 +62,6 @@ export function StatementSummaryPage({ account, user, openingBalance, closingBal
                 </div>
             </div>
             
-            {/* Important Message */}
             <div className="bg-primary text-white p-3 my-4">
                 <p className="font-bold text-sm">Important message</p>
                 <p className="text-xs">From 28 February 2023, we will no longer send monthly investment statements by email or SMS. But don't worry - you can still view your statements on the Money app or Online Banking anytime. Visit www.nedbank.co.za/statement for more information.</p>
@@ -72,7 +69,6 @@ export function StatementSummaryPage({ account, user, openingBalance, closingBal
             
             <p className="text-[7px] text-gray-500 mb-2">Please examine this statement soonest. If no error is reported within 30 days after receipt, the statement will be considered as being correct.</p>
             
-            {/* Account Summary */}
             <div className="border border-gray-200">
                 <div className="bg-primary text-white p-2">
                     <h2 className="font-bold text-sm">Account summary</h2>
@@ -102,7 +98,6 @@ export function StatementSummaryPage({ account, user, openingBalance, closingBal
                 </div>
             </div>
 
-            {/* Bank Charges & Cashflow */}
             <div className="mt-6 grid grid-cols-2 gap-4">
                 <div>
                     <h3 className="text-primary font-bold text-sm mb-1">Bank charges summary</h3>
@@ -127,10 +122,8 @@ export function StatementSummaryPage({ account, user, openingBalance, closingBal
                 </div>
             </div>
 
-            {/* Graphs placeholder area */}
             <FinancialGraph {...graphData} />
             
-            {/* Footer */}
             <div className="mt-8 flex justify-between items-end">
                 <div>
                     <p className="text-primary font-bold text-lg">see money differently</p>
