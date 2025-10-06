@@ -15,6 +15,14 @@ import { collection, doc, getDoc, query } from 'firebase/firestore';
 import { StatementSummaryPage } from '@/components/statement-summary';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
+const formatCurrency = (amount: number, currency: string = 'ZAR') => {
+    return new Intl.NumberFormat('en-ZA', {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(amount);
+};
+
 const StatementLoadingSkeleton = () => (
   <div className="p-4">
     <Skeleton className="h-10 w-1/4 mb-4" />
@@ -25,14 +33,6 @@ const StatementLoadingSkeleton = () => (
 
 const StatementTransactionsPage = ({ account, transactions, openingBalance }: { account: Account, transactions: Transaction[], openingBalance: number }) => {
     
-    const formatCurrency = (amount: number, currency: string = 'ZAR') => {
-        return new Intl.NumberFormat('en-ZA', {
-            style: 'decimal',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        }).format(amount);
-    };
-
     let runningBalance = openingBalance;
 
     return (
@@ -188,7 +188,7 @@ export default function StatementPage() {
                 }
             };
 
-            const primaryColor = rgb(0.0, 0.447, 0.243); // #00723E
+            const primaryColor = rgb(0, 0.447, 0.243); // #00723E
             const black = rgb(0, 0, 0);
             const gray = rgb(0.3, 0.3, 0.3);
             const red = rgb(0.8, 0, 0);
@@ -221,13 +221,13 @@ export default function StatementPage() {
             page.drawImage(nLogoImage, { x: width - margin - 50, y: y + 5, width: 50, height: 26 });
             
             y -= 45;
-            page.drawImage(barcodeImage, { x: margin, y, width: 250, height: 20 });
+            page.drawImage(barcodeImage, { x: margin, y: y - 10, width: 250, height: 20 });
             
             const rightAddressX = width - margin - 200;
             page.drawText('135 Rivonia Road, Sandown, 2196', { x: rightAddressX, y: y + 45, font, size: 8, color: gray });
             page.drawText('P O Box 1144, Johannesburg, 2000, South Africa', { x: rightAddressX, y: y + 35, font, size: 8, color: gray });
             
-            y -= 25;
+            y -= 35;
             page.drawText('Mr', { x: margin, y, font, size: 9, color: black });
             y -= 12;
             page.drawText((userData.firstName || 'UNDEFINED' + ' ' + (userData.lastName || 'UNDEFINED')).toUpperCase(), { x: margin, y, font: boldFont, size: 9, color: black });
@@ -242,7 +242,7 @@ export default function StatementPage() {
             y -= 12;
             page.drawText('2128', { x: margin, y, font, size: 9, color: black });
 
-            let rightDetailsY = y + 70;
+            let rightDetailsY = y + 82;
             page.drawText('Bank VAT Reg No 4320116074', { x: rightAddressX, y: rightDetailsY, font, size: 8, color: gray });
             rightDetailsY -= 10;
             page.drawText('Lost cards 0800 110 929', { x: rightAddressX, y: rightDetailsY, font, size: 8, color: gray });
