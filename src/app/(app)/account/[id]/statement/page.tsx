@@ -162,7 +162,7 @@ export default function StatementPage() {
 
         try {
             const pdfDoc = await PDFDocument.create();
-            const page = pdfDoc.addPage([595.28, 841.89]); // A4 size
+            let page = pdfDoc.addPage([595.28, 841.89]); // A4 size
             const { width, height } = page.getSize();
             const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
             const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
