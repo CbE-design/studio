@@ -3,7 +3,7 @@
 
 import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Check, Share2, LoaderCircle } from 'lucide-react';
+import { Check, LoaderCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/app/lib/data';
@@ -35,11 +35,6 @@ function PaymentSuccessContent() {
         setFormattedDate(format(new Date(), 'dd MMMM yyyy'));
     }, []);
 
-    const handleShare = () => {
-        const params = new URLSearchParams(searchParams.toString());
-        router.push(`/pay/single/share?${params.toString()}`);
-    };
-
     return (
         <div className="flex flex-col h-screen bg-white">
             <header className="gradient-background text-primary-foreground p-6 text-center h-48 flex flex-col justify-center items-center">
@@ -60,15 +55,9 @@ function PaymentSuccessContent() {
             </main>
             
              <footer className="p-4 bg-white sticky bottom-0">
-                <div className="flex flex-col items-center justify-center space-y-4">
-                     <Button variant="link" className="text-primary text-lg font-semibold" onClick={handleShare}>
-                        <Share2 className="mr-2 h-5 w-5" />
-                        Share proof of payment
-                    </Button>
-                    <Button className="w-full bg-primary hover:bg-primary/90 font-bold h-12" onClick={() => router.push('/dashboard')}>
-                        Done
-                    </Button>
-                </div>
+                <Button className="w-full bg-primary hover:bg-primary/90 font-bold h-12" onClick={() => router.push('/dashboard')}>
+                    Done
+                </Button>
             </footer>
         </div>
     );
