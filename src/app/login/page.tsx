@@ -71,9 +71,9 @@ export default function LoginPage() {
       <main className="flex-1 overflow-y-auto px-6 py-8 flex flex-col items-center text-center">
         <Avatar className="h-20 w-20 mb-4">
             <AvatarImage src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2FIMG_20251004_130049.jpg?alt=media&token=6d303043-9f10-4721-8444-cc62a1009dc9" alt="User Avatar" />
-            <AvatarFallback>VS</AvatarFallback>
+            <AvatarFallback>C</AvatarFallback>
         </Avatar>
-        <h1 className="text-xl font-semibold">Van Schalkwyk Family Trust</h1>
+        <h1 className="text-xl font-semibold">Corrie</h1>
         <p className="text-muted-foreground mb-8">Enter your credentials to sign in.</p>
         
         <form onSubmit={handleLogin} className="w-full max-w-sm space-y-4 text-left">

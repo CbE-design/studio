@@ -33,12 +33,14 @@ function ShareProofOfPaymentContent() {
       accountNumber: searchParams.get('accountNumber'),
   };
 
-  const [payerName, setPayerName] = useState('VAN SCHALKWYK FAMILY TRUST');
+  const [payerName, setPayerName] = useState('DIRK VAN SCHALKWYK');
 
   useEffect(() => {
-    if (user?.displayName) {
-      setPayerName(user.displayName.toUpperCase());
-    }
+    // This is set to a hardcoded value per the request.
+    // If you wanted it to be dynamic based on the logged-in user, you would use:
+    // if (user?.displayName) {
+    //   setPayerName(user.displayName.toUpperCase());
+    // }
   }, [user]);
 
   const handleShare = async () => {

@@ -18,11 +18,7 @@ const BankIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 22h16"/>
         <path d="M2 18V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v9"/>
-        <path d="M4 18v-5"/>
-        <path d="M8 18v-5"/>
-        <path d="M12 18v-5"/>
-        <path d="M16 18v-5"/>
-        <path d="M20 18v-5"/>
+        <path d="M4 18v-5"/><path d="M8 18v-5"/><path d="M12 18v-5"/><path d="M16 18v-5"/><path d="M20 18v-5"/>
         <path d="m2 9 10-4 10 4"/>
     </svg>
 );
@@ -190,12 +186,12 @@ export default function RecipientDetailsPage() {
                     
                     <div>
                         <Label htmlFor="your-reference" className="text-gray-500 text-xs">Your reference</Label>
-                        <Input id="your-reference" defaultValue="Van Schalkwyk Family Trust" className="bg-white" />
+                        <Input id="your-reference" defaultValue="Corrie" className="bg-white" />
                     </div>
 
                     <div>
                         <Label htmlFor="recipient-reference" className="text-gray-500 text-xs">Recipient's reference</Label>
-                        <Input id="recipient-reference" defaultValue="Van Schalkwyk Family Trust" className="bg-white" />
+                        <Input id="recipient-reference" defaultValue="Corrie" className="bg-white" />
                     </div>
                 </div>
             </div>
