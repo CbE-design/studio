@@ -219,10 +219,12 @@ export default function AccountDetailsPage() {
       
       <main className="flex-1 overflow-y-auto">
         <div className="bg-white">
-            <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 border-b">
-                <p>Failed transactions</p>
-                <ChevronRight className="h-5 w-5 text-gray-400" />
-            </div>
+            <Link href={`/account/${accountId}/failed-transactions`}>
+              <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 border-b">
+                  <p>Failed transactions</p>
+                  <ChevronRight className="h-5 w-5 text-gray-400" />
+              </div>
+            </Link>
             <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 border-b">
                 <p>Once-off payments</p>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
@@ -294,3 +296,5 @@ export default function AccountDetailsPage() {
     </div>
   );
 }
+
+    
