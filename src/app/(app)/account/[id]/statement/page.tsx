@@ -204,6 +204,7 @@ export default function StatementPage() {
             ]);
 
             const nLogoImage = await embedImage(nLogoBytes);
+            const nLogoDims = nLogoImage.scale(0.35);
             const eConfirmImage = await embedImage(eConfirmBytes);
             const barcodeImage = await embedImage(barcodeBytes);
             
@@ -217,7 +218,7 @@ export default function StatementPage() {
 
             // Header
             page.drawImage(eConfirmImage, { x: margin, y: y - 30, width: 80, height: 40 });
-            page.drawImage(nLogoImage, { x: width - margin - 50, y: y - 25, width: 50, height: 26 });
+            page.drawImage(nLogoImage, { x: width - margin - nLogoDims.width, y: y - nLogoDims.height, width: nLogoDims.width, height: nLogoDims.height });
             y -= 80;
 
             // Barcode and Right-side addresses
@@ -363,7 +364,7 @@ export default function StatementPage() {
             const addPageHeader = (p: any, pageNum: number, total: number) => {
                 const { width, height } = p.getSize();
                 p.drawImage(eConfirmImage, { x: margin, y: height - 60, width: 80, height: 40 });
-                p.drawImage(nLogoImage, { x: width - margin - 50, y: height - 55, width: 50, height: 26 });
+                p.drawImage(nLogoImage, { x: width - margin - nLogoDims.width, y: height - 55, width: nLogoDims.width, height: nLogoDims.height });
                 p.drawText('STATEMENT', { x: (width / 2) - 30, y: height - 50, font: boldFont, size: 14, color: black });
                 p.drawText(`${account.name} - ${account.accountNumber}`, { x: margin, y: height - 80, font, size: 10, color: gray });
                 p.drawText(`Page ${pageNum} of ${total}`, { x: width - margin - 60, y: height - 80, font, size: 8, color: gray });
@@ -518,4 +519,4 @@ export default function StatementPage() {
     );
 }
 
-  
+    
