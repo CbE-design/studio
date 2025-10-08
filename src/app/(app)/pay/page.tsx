@@ -2,10 +2,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ChevronRight, User } from 'lucide-react';
+import { ArrowLeft, ChevronRight, User, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
+import type { Transaction, Beneficiary } from '@/app/lib/definitions';
+import { collection, query, getDocs } from 'firebase/firestore';
+import { useEffect, useMemo, useState } from 'react';
+import { format, parseISO } from 'date-fns';
+import { formatCurrency } from '@/app/lib/data';
 
 const paymentOptions = [
   {
@@ -145,8 +151,78 @@ const paymentOptions = [
   },
 ];
 
+const PaymentItem = ({ tx }: { tx: Transaction }) => (
+    <div className="flex items-center justify-between p-3 border-b last:border-b-0">
+        <div>
+            <p className="font-semibold text-gray-800 text-base">{tx.recipientName}</p>
+            <p className="text-gray-500 text-sm">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
+        </div>
+        <p className="font-semibold text-gray-900">{formatCurrency(tx.amount)}</p>
+    </div>
+);
+
 export default function PayPage() {
   const router = useRouter();
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
+
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
+
+  const beneficiariesQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'users', user.uid, 'beneficiaries'));
+  }, [firestore, user?.uid]);
+
+  const accountsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
+  }, [firestore, user?.uid]);
+  
+  const { data: accounts } = useCollection(accountsQuery);
+  const { data: beneficiaries, isLoading: isBeneficiariesLoading } = useCollection<Beneficiary>(beneficiariesQuery);
+
+  useEffect(() => {
+    if (!accounts || isUserLoading) return;
+
+    const fetchAllTransactions = async () => {
+        setIsTransactionsLoading(true);
+        if (!user?.uid) {
+            setIsTransactionsLoading(false);
+            return;
+        }
+        let allTransactions: Transaction[] = [];
+
+        for (const account of accounts) {
+            const transactionsCollectionRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
+            const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
+            transactionsSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.type === 'debit' && data.transactionType?.startsWith('EFT_')) {
+                     allTransactions.push({ id: doc.id, ...data } as Transaction);
+                }
+            });
+        }
+        
+        allTransactions.sort((a, b) => parseISO(b.date).getTime() - parseISO(a.date).getTime());
+        setTransactions(allTransactions);
+        setIsTransactionsLoading(false);
+    };
+
+    fetchAllTransactions();
+  }, [accounts, firestore, user?.uid, isUserLoading]);
+
+  const { savedPayments, onceOffPayments } = useMemo(() => {
+    if (!beneficiaries || !transactions) {
+        return { savedPayments: [], onceOffPayments: [] };
+    }
+    const savedAccountNumbers = new Set(beneficiaries.map(b => b.accountNumber));
+    const savedPayments = transactions.filter(tx => tx.accountNumber && savedAccountNumbers.has(tx.accountNumber));
+    const onceOffPayments = transactions.filter(tx => !tx.accountNumber || !savedAccountNumbers.has(tx.accountNumber));
+    return { savedPayments, onceOffPayments };
+  }, [beneficiaries, transactions]);
+  
+  const isLoading = isUserLoading || isBeneficiariesLoading || isTransactionsLoading;
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -185,11 +261,23 @@ export default function PayPage() {
                 <TabsTrigger value="recipient" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none data-[state=active]:text-primary font-semibold">Recipient payments</TabsTrigger>
                 <TabsTrigger value="once-off" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none data-[state=active]:text-primary font-semibold">Once-off payments</TabsTrigger>
               </TabsList>
-              <TabsContent value="recipient" className="pt-4">
-                 <p className="text-gray-500 text-sm text-center py-8">There are no recipient payments to display.</p>
+              <TabsContent value="recipient" className="pt-4 bg-white rounded-b-lg border border-t-0">
+                 {isLoading ? (
+                    <div className="p-8 text-center"><LoaderCircle className="h-6 w-6 animate-spin mx-auto text-primary" /></div>
+                 ) : savedPayments.length > 0 ? (
+                    savedPayments.map(tx => <PaymentItem key={tx.id} tx={tx} />)
+                 ) : (
+                    <p className="text-gray-500 text-sm text-center py-8">There are no recipient payments to display.</p>
+                 )}
               </TabsContent>
-              <TabsContent value="once-off" className="pt-4">
-                 <p className="text-gray-500 text-sm text-center py-8">There are no once-off payments to display.</p>
+              <TabsContent value="once-off" className="pt-4 bg-white rounded-b-lg border border-t-0">
+                {isLoading ? (
+                    <div className="p-8 text-center"><LoaderCircle className="h-6 w-6 animate-spin mx-auto text-primary" /></div>
+                ) : onceOffPayments.length > 0 ? (
+                    onceOffPayments.map(tx => <PaymentItem key={tx.id} tx={tx} />)
+                ) : (
+                   <p className="text-gray-500 text-sm text-center py-8">There are no once-off payments to display.</p>
+                )}
               </TabsContent>
             </Tabs>
           </div>
