@@ -8,7 +8,7 @@ import { formatCurrency } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { format, isThisWeek, isLastWeek, startOfWeek } from 'date-fns';
+import { format, isThisWeek, startOfWeek, subDays } from 'date-fns';
 import { useMemo, useState, useEffect } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -131,6 +131,10 @@ export default function AccountDetailsPage() {
         return dateB - dateA;
     });
 
+    const today = new Date();
+    const startOfThisWeek = startOfWeek(today, { weekStartsOn: 1 });
+    const startOfLastWeek = subDays(startOfThisWeek, 7);
+
     return sorted.reduce((acc, tx) => {
       if (!tx.date) return acc;
       const date = new Date(tx.date);
@@ -138,7 +142,7 @@ export default function AccountDetailsPage() {
 
       if (isThisWeek(date, { weekStartsOn: 1 })) {
         group = 'THIS WEEK';
-      } else if (isLastWeek(date, { weekStartsOn: 1 })) {
+      } else if (date >= startOfLastWeek && date < startOfThisWeek) {
         group = 'LAST WEEK';
       } else {
         group = `OLDER`;
@@ -288,4 +292,3 @@ export default function AccountDetailsPage() {
     </div>
   );
 }
-
