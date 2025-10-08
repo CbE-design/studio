@@ -52,7 +52,7 @@ function ReviewPaymentContent() {
     const formattedDate = format(new Date(), 'dd MMMM yyyy');
     
     const handlePay = async () => {
-        if (!user || !paymentDetails.fromAccountId || !paymentDetails.amount) {
+        if (!user || !paymentDetails.fromAccountId || !paymentDetails.amount || !paymentDetails.paymentType) {
             toast({
                 variant: 'destructive',
                 title: 'Error',
@@ -73,9 +73,10 @@ function ReviewPaymentContent() {
                 recipientReference: paymentDetails.recipientReference || undefined,
                 bankName: paymentDetails.bankName || undefined,
                 accountNumber: paymentDetails.accountNumber || undefined,
+                paymentType: paymentDetails.paymentType,
             });
 
-            if (result.success && result.transactionId) {
+            if (result.success) {
                 toast({
                     title: "Payment Successful",
                     description: "Your payment has been processed and recorded.",
@@ -85,7 +86,7 @@ function ReviewPaymentContent() {
                 Object.entries(paymentDetails).forEach(([key, value]) => {
                     if (value) params.set(key, value);
                 });
-                params.set('transactionId', result.transactionId);
+                params.set('transactionId', result.transactionId || 'unknown');
                 router.push(`/pay/single/success?${params.toString()}`);
             } else {
                  toast({
