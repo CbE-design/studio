@@ -273,7 +273,7 @@ export default function AccountDetailsPage() {
                                   <p className="font-semibold text-sm text-gray-800">{tx.description}</p>
                               </div>
                                <p className="font-semibold text-sm text-gray-900">
-                                  {tx.type === 'debit' ? '-' : '+'}{formatCurrency(tx.amount, account.currency)}
+                                  {tx.type === 'debit' ? `-${formatCurrency(tx.amount, account.currency)}` : formatCurrency(tx.amount, account.currency)}
                               </p>
                           </div>
                        </Link>
