@@ -34,11 +34,8 @@ function BankSelector() {
     );
   }, [searchTerm, sortedBanks]);
 
-  const popularBanks = useMemo(() => filteredBanks.filter(b => b.popular), [filteredBanks]);
-  
   const groupedBanks = useMemo(() => {
     return filteredBanks
-      .filter(b => !b.popular)
       .reduce((acc, bank) => {
         const firstLetter = bank.name.charAt(0).toUpperCase();
         const group = /[A-Z]/.test(firstLetter) ? firstLetter : '#';
@@ -79,22 +76,9 @@ function BankSelector() {
 
       <main className="flex-1 overflow-y-auto">
         <div className="px-4">
-          {popularBanks.length > 0 && (
-            <div>
-              <h2 className="bg-gray-100 text-gray-600 font-bold p-2 my-2 -mx-4 px-4 sticky top-[140px] z-10">POPULAR</h2>
-              {popularBanks.map(bank => (
-                <div key={bank.name} onClick={() => handleBankSelect(bank.name)} className="block hover:bg-gray-50 cursor-pointer">
-                  <div className="py-3 border-b">
-                    <p className="font-semibold text-sm">{bank.name}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
           {sortedGroups.map(group => (
             <div key={group}>
-              <h2 className="bg-gray-100 text-gray-600 font-bold p-2 my-2 -mx-4 px-4 sticky top-[140px] z-10">{group}</h2>
+              <h2 className="bg-gray-100 text-gray-600 font-bold p-2 my-2 -mx-4 px-4">{group}</h2>
               {groupedBanks[group].map(bank => (
                 <div key={bank.name} onClick={() => handleBankSelect(bank.name)} className="block hover:bg-gray-50 cursor-pointer">
                   <div className="py-3 border-b">
