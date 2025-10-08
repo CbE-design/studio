@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import Link from 'next/link';
 
 function SinglePaymentForm() {
   const router = useRouter();
@@ -91,10 +92,12 @@ function SinglePaymentForm() {
         </div>
 
         <div className="bg-white p-4 rounded-lg space-y-4 mt-8">
-            <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
-                <Users className="h-5 w-5 mr-3 text-primary" />
-                <span className="flex-1 text-gray-700">Select from saved recipients</span>
-            </div>
+            <Link href="/recipients">
+                <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
+                    <Users className="h-5 w-5 mr-3 text-primary" />
+                    <span className="flex-1 text-gray-700">Select from saved recipients</span>
+                </div>
+            </Link>
             <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
                 <Landmark className="h-5 w-5 mr-3 text-primary" />
                 <span className="flex-1 text-gray-700">Select from bank-approved recipients</span>
