@@ -2,20 +2,19 @@
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, MessageSquare, ChevronRight, Search, FileText, ShoppingCart, Home, Landmark, University, CircleDollarSign, LandmarkIcon, Building, HandCoins } from 'lucide-react';
+import { ArrowLeft, MessageSquare, ChevronRight, Search, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { format, isThisWeek, isLastWeek, startOfWeek } from 'date-fns';
 import { useMemo, useState, useEffect } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
 import { collection, doc, getDoc, query } from 'firebase/firestore';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const FilterIcon = () => (
   <svg
@@ -74,18 +73,6 @@ const LoadingSkeleton = () => (
     </div>
   </div>
 );
-
-const getTransactionIcon = (description: string) => {
-    const lowerCaseDesc = description.toLowerCase();
-    if (lowerCaseDesc.includes('purchase')) return <ShoppingCart className="h-5 w-5 text-gray-500" />;
-    if (lowerCaseDesc.includes('salary')) return <CircleDollarSign className="h-5 w-5 text-gray-500" />;
-    if (lowerCaseDesc.includes('payment to')) return <HandCoins className="h-5 w-5 text-gray-500" />;
-    if (lowerCaseDesc.includes('debit order')) return <Building className="h-5 w-5 text-gray-500" />;
-    if (lowerCaseDesc.includes('atm')) return <LandmarkIcon className="h-5 w-5 text-gray-500" />;
-    if (lowerCaseDesc.includes('transfer')) return <University className="h-5 w-5 text-gray-500" />;
-    if (lowerCaseDesc.includes('loan')) return <Home className="h-5 w-5 text-gray-500" />;
-    return <Landmark className="h-5 w-5 text-gray-500" />;
-};
 
 export default function AccountDetailsPage() {
   const router = useRouter();
@@ -146,11 +133,21 @@ export default function AccountDetailsPage() {
 
     return sorted.reduce((acc, tx) => {
       if (!tx.date) return acc;
-      const dateKey = format(new Date(tx.date), 'yyyy-MM-dd');
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
+      const date = new Date(tx.date);
+      let group;
+
+      if (isThisWeek(date, { weekStartsOn: 1 })) {
+        group = 'THIS WEEK';
+      } else if (isLastWeek(date, { weekStartsOn: 1 })) {
+        group = 'LAST WEEK';
+      } else {
+        group = `OLDER`;
       }
-      acc[dateKey].push(tx);
+      
+      if (!acc[group]) {
+        acc[group] = [];
+      }
+      acc[group].push(tx);
       return acc;
     }, {} as Record<string, Transaction[]>);
 
@@ -229,7 +226,7 @@ export default function AccountDetailsPage() {
                 <p>Once-off payments</p>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
             </div>
-            <Link href={`/account/${accountId}/statement`}>
+             <Link href={`/account/${accountId}/statement`}>
               <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 border-b">
                 <p>View Statement</p>
                 <FileText className="h-5 w-5 text-gray-400" />
@@ -237,11 +234,11 @@ export default function AccountDetailsPage() {
             </Link>
         </div>
         
-        <div className="p-4 space-y-4 bg-gray-50">
+        <div className="p-4 space-y-4 bg-white border-b">
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <Input placeholder="Search" className="bg-white pl-10" />
+              <Input placeholder="Search" className="bg-gray-100 pl-10" />
             </div>
             <div className="flex items-center gap-1 text-primary font-medium">
               <span>Filter</span>
@@ -250,44 +247,39 @@ export default function AccountDetailsPage() {
           </div>
         </div>
 
-        <div className="bg-gray-50 px-4 space-y-4">
+        <div className="bg-white">
           {isTransactionsLoading ? (
             <div className="p-4 space-y-2">
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
             </div>
           ) : Object.keys(groupedTransactions).length > 0 ? (
-            Object.keys(groupedTransactions).map(dateKey => (
-                <Card key={dateKey} className="overflow-hidden shadow-sm">
-                    <CardHeader className="bg-gray-100 p-3">
-                        <CardTitle className="text-sm font-semibold text-gray-600">
-                          {format(new Date(dateKey), 'EEEE, dd MMMM yyyy')}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                        {groupedTransactions[dateKey].map(tx => (
-                            <Link href={`/account/${accountId}/transaction/${tx.id}`} key={tx.id}>
-                                <div className="flex items-start gap-4 p-4 border-b last:border-b-0 cursor-pointer hover:bg-gray-50">
-                                    <div className="mt-1">{getTransactionIcon(tx.description)}</div>
-                                    <div className="flex-1">
-                                        <p className="font-semibold text-sm text-gray-800">{tx.description}</p>
-                                        <p className="text-xs text-gray-500">{tx.yourReference || tx.recipientReference || 'No reference'}</p>
-                                    </div>
-                                    <p className={cn(
-                                        "font-semibold text-sm",
-                                        tx.type === 'debit' ? 'text-gray-900' : 'text-green-600'
-                                    )}>
-                                        {tx.type === 'debit' ? '-' : ''}{formatCurrency(tx.amount, account.currency)}
-                                    </p>
-                                </div>
-                            </Link>
-                        ))}
-                    </CardContent>
-                </Card>
+            ['THIS WEEK', 'LAST WEEK', 'OLDER'].map(group => (
+              groupedTransactions[group] && (
+                <div key={group}>
+                  <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 text-sm">{group}</h2>
+                  <div className="px-4">
+                    {groupedTransactions[group].map(tx => (
+                       <Link href={`/account/${accountId}/transaction/${tx.id}`} key={tx.id}>
+                          <div className="flex items-center justify-between py-3 border-b last:border-b-0 cursor-pointer">
+                              <div>
+                                  <p className="text-xs text-gray-500">{format(new Date(tx.date), 'dd MMM yyyy')}</p>
+                                  <p className="font-semibold text-sm text-gray-800">{tx.description}</p>
+                              </div>
+                               <p className="font-semibold text-sm text-gray-900">
+                                  {tx.type === 'debit' ? '-' : '+'}{formatCurrency(tx.amount, account.currency)}
+                              </p>
+                          </div>
+                       </Link>
+                    ))}
+                  </div>
+                </div>
+              )
             ))
           ) : (
-             <div className="text-center p-8 text-gray-500 bg-white rounded-lg shadow-sm">
+             <div className="text-center p-8 text-gray-500 bg-white">
                 <p>No transactions found for this account.</p>
              </div>
           )}
@@ -297,4 +289,3 @@ export default function AccountDetailsPage() {
   );
 }
 
-    
