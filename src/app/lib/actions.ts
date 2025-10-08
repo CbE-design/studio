@@ -96,7 +96,6 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
         const { fromAccountId, userId, amount, recipientName, yourReference, recipientReference, bankName, accountNumber, paymentType } = validatedFields.data;
         const numericAmount = parseFloat(amount);
         
-        // Map payment type from form to TransactionType for fee calculation
         const transactionType: TransactionType = paymentType === 'Instant Pay' ? 'EFT_IMMEDIATE' : 'EFT_STANDARD';
         
         await runTransaction(firestore, async (transaction) => {
@@ -110,17 +109,15 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             const accountData = accountDoc.data() as Account;
             const currentBalance = accountData.balance || 0;
             
-            // --- 1. Calculate Fee ---
-            const fee = calculateFee(numericAmount, transactionType, accountData.type);
+            const { amount: feeAmount, description: feeDescription } = calculateFee(numericAmount, transactionType, accountData.type);
 
-            const totalDebit = numericAmount + fee;
+            const totalDebit = numericAmount + feeAmount;
             if (currentBalance < totalDebit) {
                 throw new Error("Insufficient funds to complete the transaction and cover fees.");
             }
             
             const newBalance = currentBalance - totalDebit;
 
-            // --- 2. Create Main Transaction ---
             const newTransactionRef = doc(collection(firestore, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
             mainTxId = newTransactionRef.id;
             const mainTransactionData = {
@@ -140,23 +137,21 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             };
             transaction.set(newTransactionRef, mainTransactionData);
 
-            // --- 3. Create Fee Transaction (if applicable) ---
-            if (fee > 0) {
+            if (feeAmount > 0) {
                 const feeTransactionRef = doc(collection(firestore, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
                 const feeTransactionData = {
                     id: feeTransactionRef.id,
                     userId: userId,
                     fromAccountId: fromAccountId,
-                    amount: fee,
+                    amount: feeAmount,
                     type: 'debit' as const,
                     transactionType: 'BANK_FEE' as TransactionType,
                     date: new Date().toISOString(),
-                    description: `Fee for ${paymentType}`,
+                    description: feeDescription,
                 };
                 transaction.set(feeTransactionRef, feeTransactionData);
             }
 
-            // --- 4. Update Account Balance ---
             transaction.update(accountRef, { balance: newBalance });
         });
 

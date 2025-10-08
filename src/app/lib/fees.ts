@@ -5,100 +5,108 @@ import type { Account, TransactionType } from './definitions';
 // It can be easily updated when Nedbank (or any bank) publishes its annual pricing guide.
 export const NEDBANK_FEE_SCHEDULE = {
   Cheque: {
-    // 1. ATM Withdrawals (Vary by bank/location)
     ATM_WITHDRAWAL_OWN: {
       type: 'TIERED',
       baseFee: 2.50,
       perR100: 1.50,
-      limit: null // No free limit
+      limit: null, // No free limit
+      description: 'SASW CASH'
     },
     ATM_WITHDRAWAL_OTHER: {
       type: 'TIERED',
       baseFee: 10.00,
       perR100: 2.00,
-      limit: null
+      limit: null,
+      description: 'ATM CASH withdrawal'
     },
-    // 2. Electronic Funds Transfers (EFTs)
     EFT_IMMEDIATE: {
       type: 'FIXED',
-      amount: 40.00, // E.g., R40.00 for immediate payment
-      limit: null
+      amount: 40.00,
+      limit: null,
+      description: 'Instant payment fee'
     },
     EFT_STANDARD: {
-      type: 'FIXED', // Simplified from FREE_PLUS_FIXED for prototype
+      type: 'FIXED',
       amount: 1.00,
+      description: 'EFT payment fee'
     },
-    // 3. Point-of-Sale (POS) purchases
     POS_PURCHASE: {
       type: 'FREE',
+      description: 'Point of Sale'
     },
-    // 4. Debit Orders
     DEBIT_ORDER: {
       type: 'FIXED',
       amount: 3.50,
+      description: 'Debit Order'
     },
     BANK_FEE: {
-        type: 'FREE' // Fees should not incur other fees
+        type: 'FREE',
+        description: 'Bank Fee'
     }
   },
   Savings: {
-    // Define fees for savings accounts...
-    // For now, let's assume they are the same as cheque for simplicity
-     EFT_IMMEDIATE: { type: 'FIXED', amount: 40.00 },
-     EFT_STANDARD: { type: 'FIXED', amount: 1.00 },
-     BANK_FEE: { type: 'FREE' }
+     EFT_IMMEDIATE: { type: 'FIXED', amount: 40.00, description: 'Instant payment fee' },
+     EFT_STANDARD: { type: 'FIXED', amount: 1.00, description: 'EFT payment fee' },
+     BANK_FEE: { type: 'FREE', description: 'Bank Fee' }
   },
   Student: {
-    // Define fees for student accounts...
-     EFT_IMMEDIATE: { type: 'FIXED', amount: 10.00 },
-     EFT_STANDARD: { type: 'FREE' },
-     BANK_FEE: { type: 'FREE' }
+     EFT_IMMEDIATE: { type: 'FIXED', amount: 10.00, description: 'Instant payment fee' },
+     EFT_STANDARD: { type: 'FREE', description: 'EFT payment fee' },
+     BANK_FEE: { type: 'FREE', description: 'Bank Fee' }
   },
   Credit: {
-    // No direct EFTs, but might have other fees.
-    BANK_FEE: { type: 'FREE' }
+    BANK_FEE: { type: 'FREE', description: 'Bank Fee' }
   }
 };
+
+type FeeResult = {
+    amount: number;
+    description: string;
+}
 
 /**
  * Calculates the banking fee for a given transaction.
  * @param transactionAmount The amount of the transaction.
  * @param transactionType The type of transaction (e.g., 'EFT_IMMEDIATE').
  * @param accountType The type of account (e.g., 'Cheque').
- * @returns The calculated fee amount, or 0 if no fee applies.
+ * @returns An object containing the calculated fee amount and its description.
  */
 export function calculateFee(
   transactionAmount: number,
   transactionType: TransactionType,
   accountType: Account['type']
-): number {
+): FeeResult {
   
+  const defaultResult = { amount: 0, description: 'No fee' };
   const accountFeeSchedule = NEDBANK_FEE_SCHEDULE[accountType];
   if (!accountFeeSchedule) {
-    return 0; // No fee schedule for this account type
+    return defaultResult;
   }
 
   const feeRule = accountFeeSchedule[transactionType as keyof typeof accountFeeSchedule];
   if (!feeRule) {
-    return 0; // No fee rule for this transaction type
+    return defaultResult;
   }
 
   // @ts-ignore - feeRule type is not fully inferred here but logic is sound
+  const description = feeRule.description || 'Bank Fee';
+
+  // @ts-ignore
   switch (feeRule.type) {
     case 'FIXED':
       // @ts-ignore
-      return feeRule.amount;
+      return { amount: feeRule.amount, description };
     
     case 'TIERED':
-      // Note: Math.ceil ensures any part of R100 incurs the fee. e.g. R100.01 is treated as two R100 blocks.
       const hundreds = Math.ceil(transactionAmount / 100);
       // @ts-ignore
-      return feeRule.baseFee + (hundreds * feeRule.perR100);
+      const amount = feeRule.baseFee + (hundreds * feeRule.perR100);
+      return { amount, description };
       
     case 'FREE':
-      return 0;
+      return { amount: 0, description };
       
     default:
-      return 0;
+      return defaultResult;
   }
 }
