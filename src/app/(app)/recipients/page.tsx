@@ -3,7 +3,7 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, UserPlus, LoaderCircle } from 'lucide-react';
+import { Search, UserPlus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -76,9 +76,12 @@ export default function RecipientsPage() {
   return (
     <div className="flex flex-col h-screen bg-white">
       <header className="bg-white text-gray-800 p-4 flex items-center justify-between shadow-sm sticky top-0 z-20 border-b">
+        <Button variant="ghost" size="icon" className="-ml-2" onClick={() => router.back()}>
+          <ArrowLeft />
+        </Button>
         <h1 className="text-xl font-bold">Recipients</h1>
         <Button variant="ghost" size="icon">
-          <UserPlus className="h-8 w-8 text-primary" />
+          <UserPlus className="h-7 w-7 text-primary" />
         </Button>
       </header>
 
