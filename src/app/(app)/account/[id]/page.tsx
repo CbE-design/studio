@@ -270,7 +270,7 @@ export default function AccountDetailsPage() {
                           <div className="flex items-center justify-between py-3 border-b last:border-b-0 cursor-pointer">
                               <div>
                                   <p className="text-xs text-gray-500">{format(new Date(tx.date), 'dd MMM yyyy')}</p>
-                                  <p className="font-semibold text-sm text-gray-800">{tx.description}</p>
+                                  <p className="font-semibold text-sm text-gray-800 uppercase">{tx.description}</p>
                               </div>
                                <p className="font-semibold text-sm text-gray-900">
                                   {tx.type === 'debit' ? `-${formatCurrency(tx.amount, account.currency)}` : formatCurrency(tx.amount, account.currency)}
