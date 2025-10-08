@@ -6,7 +6,7 @@ import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@
 import { revalidatePath } from 'next/cache';
 import { collection, doc, runTransaction } from 'firebase/firestore';
 import { firestore } from '@/app/lib/firebase';
-import type { TransactionType } from './definitions';
+import type { TransactionType, Account } from './definitions';
 import { calculateFee } from './fees';
 
 const FormSchema = z.object({
@@ -92,6 +92,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
     }
 
     try {
+        let mainTxId: string | undefined;
         const { fromAccountId, userId, amount, recipientName, yourReference, recipientReference, bankName, accountNumber, paymentType } = validatedFields.data;
         const numericAmount = parseFloat(amount);
         
@@ -106,7 +107,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
                 throw new Error("Account not found.");
             }
 
-            const accountData = accountDoc.data();
+            const accountData = accountDoc.data() as Account;
             const currentBalance = accountData.balance || 0;
             
             // --- 1. Calculate Fee ---
@@ -121,6 +122,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
 
             // --- 2. Create Main Transaction ---
             const newTransactionRef = doc(collection(firestore, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
+            mainTxId = newTransactionRef.id;
             const mainTransactionData = {
                 id: newTransactionRef.id,
                 userId: userId,
@@ -161,16 +163,10 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
         revalidatePath(`/account/${fromAccountId}`);
         revalidatePath('/dashboard');
         
-        const mainTxId = (await (await runTransaction(firestore, async (t) => {
-            const newTransactionRef = doc(collection(firestore, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
-            return newTransactionRef.id;
-        })));
-
-
         return { 
             success: true,
             message: 'Transaction created successfully.',
-            transactionId: mainTxId, // It's complex to get the ID out of the main transaction, returning a placeholder
+            transactionId: mainTxId,
         };
 
     } catch (error: any) {

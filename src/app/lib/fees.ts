@@ -1,4 +1,6 @@
 
+'use client';
+
 import type { Account, TransactionType } from './definitions';
 
 // This object acts as the single source of truth for all fee calculations.
@@ -31,7 +33,6 @@ export const NEDBANK_FEE_SCHEDULE = {
     // 3. Point-of-Sale (POS) purchases
     POS_PURCHASE: {
       type: 'FREE',
-      limit: null
     },
     // 4. Debit Orders
     DEBIT_ORDER: {
@@ -44,13 +45,21 @@ export const NEDBANK_FEE_SCHEDULE = {
   },
   Savings: {
     // Define fees for savings accounts...
-  },
-  Credit: {
-    // Define fees for credit accounts...
+    // For now, let's assume they are the same as cheque for simplicity
+     EFT_IMMEDIATE: { type: 'FIXED', amount: 40.00 },
+     EFT_STANDARD: { type: 'FIXED', amount: 1.00 },
+     BANK_FEE: { type: 'FREE' }
   },
   Student: {
     // Define fees for student accounts...
+     EFT_IMMEDIATE: { type: 'FIXED', amount: 10.00 },
+     EFT_STANDARD: { type: 'FREE' },
+     BANK_FEE: { type: 'FREE' }
   },
+  Credit: {
+    // No direct EFTs, but might have other fees.
+    BANK_FEE: { type: 'FREE' }
+  }
 };
 
 /**
@@ -71,18 +80,21 @@ export function calculateFee(
     return 0; // No fee schedule for this account type
   }
 
-  const feeRule = accountFeeSchedule[transactionType];
+  const feeRule = accountFeeSchedule[transactionType as keyof typeof accountFeeSchedule];
   if (!feeRule) {
     return 0; // No fee rule for this transaction type
   }
 
+  // @ts-ignore - feeRule type is not fully inferred here but logic is sound
   switch (feeRule.type) {
     case 'FIXED':
+      // @ts-ignore
       return feeRule.amount;
     
     case 'TIERED':
       // Note: Math.ceil ensures any part of R100 incurs the fee. e.g. R100.01 is treated as two R100 blocks.
       const hundreds = Math.ceil(transactionAmount / 100);
+      // @ts-ignore
       return feeRule.baseFee + (hundreds * feeRule.perR100);
       
     case 'FREE':

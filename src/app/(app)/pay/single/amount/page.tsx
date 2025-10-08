@@ -1,13 +1,13 @@
 
 'use client';
 
-import { Suspense, useEffect, useState, useRef } from 'react';
+import { Suspense, useEffect, useState, useRef, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, CalendarIcon, ChevronRight, ChevronUp, ChevronDown, LoaderCircle, PlusCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
-import type { Account } from '@/app/lib/definitions';
+import type { Account, TransactionType } from '@/app/lib/definitions';
 import { collection, query } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -15,6 +15,7 @@ import { formatCurrency } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
+import { calculateFee } from '@/app/lib/fees';
 
 const AccountSelector = ({
   accounts,
@@ -187,7 +188,20 @@ function AmountPageContent() {
             }
         }
     }, [allAccounts, fromAccount]);
+    
+    const { estimatedFee, transactionType } = useMemo(() => {
+        const numericAmount = parseFloat(amount) || 0;
+        const selectedAccountType = allAccounts?.find(acc => acc.id === fromAccount)?.type || 'Cheque';
+        let txType: TransactionType = 'EFT_STANDARD';
+        if (paymentDetails.paymentType === 'Instant Pay') {
+            txType = 'EFT_IMMEDIATE';
+        }
+        
+        const fee = calculateFee(numericAmount, txType, selectedAccountType);
+        return { estimatedFee: fee, transactionType: txType };
+    }, [amount, fromAccount, allAccounts, paymentDetails.paymentType]);
 
+    const totalDeduction = (parseFloat(amount) || 0) + estimatedFee;
 
     const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/[^0-9.]/g, '');
@@ -260,7 +274,18 @@ function AmountPageContent() {
                  <div className="h-10" />
             </header>
             <div className="w-full h-1 bg-yellow-400"></div>
-            <p className="text-xs text-center text-gray-500 py-1 bg-gray-200">R999 999.90 daily payment limit remaining</p>
+            <div className="text-xs text-center text-gray-500 py-1 bg-gray-200">
+                {estimatedFee > 0 ? (
+                    <span>
+                        Estimated Fee: <span className="font-semibold">{formatCurrency(estimatedFee)}</span>. 
+                        Total deduction: <span className="font-semibold">{formatCurrency(totalDeduction)}</span>.
+                    </span>
+                ) : (
+                    <span>
+                        R999 999.90 daily payment limit remaining
+                    </span>
+                )}
+            </div>
             
             <main className="flex-1 overflow-y-auto bg-gray-50 p-4 space-y-6">
                 <div className="space-y-2">
