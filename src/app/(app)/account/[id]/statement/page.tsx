@@ -204,7 +204,7 @@ export default function StatementPage() {
             ]);
 
             const nLogoImage = await embedImage(nLogoBytes);
-            const nLogoDims = nLogoImage.scale(0.35);
+            const nLogoDims = nLogoImage.scale(0.22);
             const eConfirmImage = await embedImage(eConfirmBytes);
             const barcodeImage = await embedImage(barcodeBytes);
             
@@ -518,5 +518,7 @@ export default function StatementPage() {
         </div>
     );
 }
+
+    
 
     
