@@ -1,6 +1,4 @@
 
-'use client';
-
 import type { Account, TransactionType } from './definitions';
 
 // This object acts as the single source of truth for all fee calculations.
