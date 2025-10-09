@@ -9,10 +9,10 @@ import { ArrowLeft, Download, LoaderCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
-import { collection, doc, getDoc, query, type Timestamp } from 'firebase/firestore';
+import { collection, doc, getDoc, query } from 'firebase/firestore';
 import { StatementSummaryPage } from '@/components/statement-summary';
 import { StatementTransactionsPage } from '@/components/statement-transactions';
-import { generateStatementPdf } from '@/app/lib/statement-generator';
+import { generateStatementPdf, type StatementData } from '@/app/lib/statement-generator';
 
 const StatementLoadingSkeleton = () => (
   <div className="p-4">
@@ -45,13 +45,12 @@ export default function StatementPage() {
              const userDoc = await getDoc(userDocRef);
              if (userDoc.exists()) {
                 const data = userDoc.data();
-                // Convert Firestore Timestamp to a plain string to pass to server action
                 const plainUser: User = {
                     id: data.id,
                     email: data.email,
-                    firstName: data.firstName,
-                    lastName: data.lastName,
-                    createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+                    firstName: data.firstName || 'Corrie',
+                    lastName: data.lastName || 'Tester',
+                    createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
                 };
                 setUserData(plainUser);
              }
@@ -90,43 +89,85 @@ export default function StatementPage() {
         return [...accountTransactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     }, [accountTransactions]);
     
-    const {openingBalance, closingBalance, totalDebits, totalCredits} = useMemo(() => {
-        if (!account || !sortedTransactions || sortedTransactions.length === 0) {
-            return { openingBalance: 0, closingBalance: account?.balance || 0, totalDebits: 0, totalCredits: 0 };
-        }
+    const statementData = useMemo<StatementData | null>(() => {
+        if (!account || !userData || !sortedTransactions) return null;
 
-        const debits = sortedTransactions.filter(tx => tx.type === 'debit').reduce((sum, tx) => sum + tx.amount, 0);
-        const credits = sortedTransactions.filter(tx => tx.type === 'credit').reduce((sum, tx) => sum + tx.amount, 0);
-        
-        const closing = account.balance;
-        const opening = closing + debits - credits;
-        
-        return { openingBalance: opening, closingBalance: closing, totalDebits: debits, totalCredits: credits };
+        const totalCredits = sortedTransactions.filter(tx => tx.type === 'credit').reduce((sum, tx) => sum + tx.amount, 0);
+        const totalDebits = sortedTransactions.filter(tx => tx.type === 'debit').reduce((sum, tx) => sum + tx.amount, 0);
+        const closingBalance = account.balance;
+        const openingBalance = closingBalance + totalDebits - totalCredits;
 
-    }, [account, sortedTransactions]);
+        // Categorize transactions for graphs
+        const atmTellerDeposits = 0; // Placeholder
+        const electronicPaymentsReceived = totalCredits - atmTellerDeposits; // Simplified
+        const transfersIn = 0; // Placeholder
+        const otherCredits = 0; // Placeholder
+
+        const accountPayments = sortedTransactions.filter(tx => tx.type === 'debit' && tx.transactionType === 'EFT_STANDARD').reduce((sum, tx) => sum + tx.amount, 0);
+        const electronicTransfers = sortedTransactions.filter(tx => tx.type === 'debit' && tx.transactionType === 'EFT_IMMEDIATE').reduce((sum, tx) => sum + tx.amount, 0);
+        const totalChargesAndFees = sortedTransactions.filter(tx => tx.transactionType === 'BANK_FEE').reduce((sum, tx) => sum + tx.amount, 0);
+        const otherDebits = totalDebits - accountPayments - electronicTransfers - totalChargesAndFees;
+
+
+        return {
+            account,
+            user: userData,
+            transactions: sortedTransactions.map(tx => ({ ...tx, date: new Date(tx.date).toISOString() })),
+            accountSummary: {
+                accountType: account.type,
+                accountNumber: account.accountNumber,
+                statementDate: new Date().toLocaleDateString('en-GB'),
+                envelope: '1 of 1',
+                statementPeriod: `${sortedTransactions.length > 0 ? new Date(sortedTransactions[0].date).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB')} - ${new Date().toLocaleDateString('en-GB')}`,
+                totalPages: '2', // Placeholder
+                statementFrequency: 'Monthly',
+                clientVatNumber: '',
+            },
+            bankSummary: {
+                cashFees: 0.00, // Placeholder
+                otherCharges: totalChargesAndFees, // Simplified
+                bankChargesTotal: totalChargesAndFees,
+                vatIncluded: 15.000,
+                vatCalculatedMonthly: 0.00,
+                openingBalance,
+                fundsReceivedCredits: totalCredits,
+                fundsUsedDebits: totalDebits,
+                closingBalance,
+                annualCreditInterestRate: 0.000,
+            },
+            graphsData: {
+                fundsReceived: {
+                    totalCredits: totalCredits,
+                    atmTellerDeposits,
+                    electronicPaymentsReceived,
+                    transfersIn,
+                    otherCredits,
+                },
+                fundsUsed: {
+                    totalDebits: totalDebits,
+                    accountPayments,
+                    electronicTransfers,
+                    totalChargesAndFees,
+                    otherDebits,
+                }
+            }
+        };
+    }, [account, userData, sortedTransactions]);
 
     const isLoading = isUserLoading || isAccountLoading || isTransactionsLoading;
     const error = !account && !isLoading ? new Error('Account not found') : null;
 
     const handleDownloadPdf = async () => {
-        if (!account || !sortedTransactions || !userData) return;
+        if (!statementData) return;
         setGeneratingPdf(true);
 
         try {
-            const pdfBytes = await generateStatementPdf({
-                account,
-                user: userData,
-                transactions: sortedTransactions,
-                openingBalance,
-                closingBalance,
-                totalCredits,
-                totalDebits,
-            });
+            const pdfBytes = await generateStatementPdf(statementData);
             
             const blob = new Blob([pdfBytes], { type: 'application/pdf' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `statement-${account.id}-${new Date().toISOString().split('T')[0]}.pdf`;
+            link.download = `statement-${statementData.account.id}-${new Date().toISOString().split('T')[0]}.pdf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -153,7 +194,7 @@ export default function StatementPage() {
                 </Button>
                 <h1 className="font-semibold">Bank Statement</h1>
               </div>
-              <Button onClick={handleDownloadPdf} variant="outline" size="sm" disabled={isLoading || generatingPdf || !account || !sortedTransactions || sortedTransactions.length === 0}>
+              <Button onClick={handleDownloadPdf} variant="outline" size="sm" disabled={isLoading || generatingPdf || !statementData || statementData.transactions.length === 0}>
                 {generatingPdf ? (
                     <>
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -171,17 +212,16 @@ export default function StatementPage() {
             <main className="flex-1 overflow-y-auto p-4">
                 {isLoading && <StatementLoadingSkeleton />}
                 {error && <p className="p-4 text-red-500 bg-red-50 rounded-md">{error.message}</p>}
-                {!isLoading && !error && account && sortedTransactions && sortedTransactions.length > 0 && userData && (
+                {!isLoading && !error && statementData && statementData.transactions.length > 0 && (
                     <div className="max-w-4xl mx-auto my-4">
                         <StatementSummaryPage 
-                            account={account} 
-                            user={userData}
-                            openingBalance={openingBalance}
-                            closingBalance={closingBalance}
-                            totalCredits={totalCredits}
-                            totalDebits={totalDebits}
+                           statementData={statementData}
                         />
-                        <StatementTransactionsPage account={account} transactions={sortedTransactions} openingBalance={openingBalance} />
+                        <StatementTransactionsPage 
+                            account={statementData.account} 
+                            transactions={statementData.transactions} 
+                            openingBalance={statementData.bankSummary.openingBalance}
+                        />
                     </div>
                 )}
                  {!isLoading && !error && account && (!sortedTransactions || sortedTransactions.length === 0) && (
