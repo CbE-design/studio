@@ -177,7 +177,7 @@ function ShareProofOfPaymentContent() {
             y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y });
             y -= commonTextOptions.lineHeight;
         });
-
+        
         y -= 5; // Extra space
         
         y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y });
