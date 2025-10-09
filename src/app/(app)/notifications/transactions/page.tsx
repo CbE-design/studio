@@ -47,7 +47,7 @@ const DetailRow = ({ label, value }: { label: string; value: string | null | und
     );
 };
 
-const NotificationItem = ({ notification, isExpanded, onToggle }: { notification: Transaction, isExpanded: boolean, onToggle: () => void }) => {
+const NotificationItem = ({ notification, isExpanded, onToggle, isRead }: { notification: Transaction, isExpanded: boolean, onToggle: () => void, isRead: boolean }) => {
     const date = parseISO(notification.date);
     const description = notification.recipientName ? `Payment: ${notification.recipientName}` : notification.description;
     
@@ -55,15 +55,15 @@ const NotificationItem = ({ notification, isExpanded, onToggle }: { notification
         <div className="border-b bg-white last:border-b-0">
             <div onClick={onToggle} className="flex items-center justify-between p-4 cursor-pointer">
                 <div className="flex items-center gap-4">
-                    {!notification.id.startsWith('read-') && <div className="h-2 w-2 rounded-full bg-green-500 shrink-0"></div>}
-                    <div className={cn(notification.id.startsWith('read-') && 'ml-6')}>
-                        <p className={cn("text-base uppercase text-black", !notification.id.startsWith('read-') && "font-bold")}>
+                    {!isRead && <div className="h-2 w-2 rounded-full bg-green-500 shrink-0"></div>}
+                    <div className={cn(isRead && 'ml-6')}>
+                        <p className={cn("text-base uppercase text-black", !isRead && "font-bold")}>
                             {description}
                         </p>
                         <p className="text-sm text-gray-500">{format(date, "dd MMMM yyyy 'at' HH:mm")}</p>
                     </div>
                 </div>
-                <p className={cn("text-base text-black", !notification.id.startsWith('read-') && "font-bold")}>
+                <p className={cn("text-base text-black", !isRead && "font-bold")}>
                     {formatCurrency(notification.amount, 'ZAR')}
                 </p>
             </div>
@@ -102,6 +102,17 @@ export default function TransactionNotificationsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
     const [expandedId, setExpandedId] = useState<string | null>(null);
+    const [readIds, setReadIds] = useState<string[]>([]);
+
+    useEffect(() => {
+        try {
+            const storedIds = JSON.parse(localStorage.getItem('readTransactionIds') || '[]');
+            setReadIds(storedIds);
+        } catch (e) {
+            console.error("Failed to parse readTransactionIds from localStorage", e);
+            setReadIds([]);
+        }
+    }, []);
 
     const accountsQuery = useMemoFirebase(() => {
       if (!firestore || !user?.uid) return null;
@@ -147,6 +158,11 @@ export default function TransactionNotificationsPage() {
     
     const handleToggle = (id: string) => {
         setExpandedId(prevId => (prevId === id ? null : id));
+        if (!readIds.includes(id)) {
+            const newReadIds = [...readIds, id];
+            setReadIds(newReadIds);
+            localStorage.setItem('readTransactionIds', JSON.stringify(newReadIds));
+        }
     };
 
     const filteredTransactions = useMemo(() => {
@@ -226,6 +242,7 @@ export default function TransactionNotificationsPage() {
                                                 notification={tx}
                                                 isExpanded={expandedId === tx.id}
                                                 onToggle={() => handleToggle(tx.id)}
+                                                isRead={readIds.includes(tx.id)}
                                             />
                                         ))}
                                     </div>
