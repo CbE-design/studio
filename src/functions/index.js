@@ -20,6 +20,7 @@ setGlobalOptions({ region: 'us-central1' });
 
 // This is the specific list of transactions to be seeded into the Savvy Bundle Current Account.
 const initialSavvyBundleTransactions = [
+    { timestamp: new Date('2022-09-29'), description: 'BANKING FEE', amount: '-R23987.87', transactionType: 'BANK_FEE' },
     { timestamp: new Date('2022-10-01'), description: 'Hantie lening', amount: '+R25000.00', transactionType: 'EFT_STANDARD' },
     { timestamp: new Date('2022-10-01'), description: 'Hantie lening', amount: '+R20000.00', transactionType: 'EFT_STANDARD' },
     { timestamp: new Date('2022-10-01'), description: 'Hantie lening', amount: '+R10000.00', transactionType: 'EFT_STANDARD' },
@@ -214,7 +215,6 @@ const initialSavvyBundleTransactions = [
     { timestamp: new Date('2022-10-20'), description: 'ATM CASH 377121716833693', amount: '-R400.00', transactionType: 'ATM_WITHDRAWAL_OTHER' },
     { timestamp: new Date('2022-10-20'), description: 'INSTANT PAYMENT FEE', amount: '-R49.00', transactionType: 'BANK_FEE' },
     { timestamp: new Date('2022-10-21'), description: 'WYNKAS', amount: '-R10000.00', transactionType: 'EFT_STANDARD' },
-    { timestamp: new Date('2022-10-21'), description: 'BANKING FEE', amount: '-R7997.87', transactionType: 'BANK_FEE' },
     { timestamp: new Date('2022-10-21'), description: 'INTERACCOUNT TRANSFER FROM JUST INVEST', amount: '+R18949581.42', transactionType: 'EFT_STANDARD' },
 ];
 
