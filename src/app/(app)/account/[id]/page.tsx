@@ -230,6 +230,12 @@ export default function AccountDetailsPage() {
                 <p>Once-off payments</p>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
             </div>
+            <Link href={`/account/${accountId}/confirmation-letter`}>
+                <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 border-b">
+                    <p>Confirmation Letter</p>
+                    <FileText className="h-5 w-5 text-gray-400" />
+                </div>
+            </Link>
              <Link href={`/account/${accountId}/statement`}>
               <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 border-b">
                 <p>View Statement</p>

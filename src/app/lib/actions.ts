@@ -6,8 +6,10 @@ import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@
 import { revalidatePath } from 'next/cache';
 import { collection, doc, runTransaction } from 'firebase/firestore';
 import { firestore } from '@/app/lib/firebase';
-import type { TransactionType, Account } from './definitions';
+import type { TransactionType, Account, User } from './definitions';
 import { calculateFee } from './fees';
+import { generateConfirmationPdf } from './confirmation-letter-generator';
+
 
 const FormSchema = z.object({
   income: z.coerce.number().positive({ message: 'Please enter a valid income.' }),
@@ -170,5 +172,22 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             success: false,
             message: error.message || 'An error occurred while creating the transaction.'
         };
+    }
+}
+
+
+export async function generateConfirmationLetterAction(
+    account: Account,
+    user: User
+): Promise<Uint8Array | { error: string }> {
+    try {
+        if (!account || !user) {
+            throw new Error("User and account data are required.");
+        }
+        const pdfBytes = await generateConfirmationPdf(account, user);
+        return pdfBytes;
+    } catch (e: any) {
+        console.error("Failed to generate confirmation letter:", e);
+        return { error: e.message || "An unknown error occurred during PDF generation." };
     }
 }
