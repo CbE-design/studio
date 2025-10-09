@@ -108,7 +108,7 @@ const paymentOptions = [
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-8 w-8 text-primary"
-        viewBox="0 0 24 24"
+        viewBox="00 24 24"
         fill="none"
         stroke="currentColor"
         strokeWidth="1.5"
@@ -155,7 +155,7 @@ const PaymentItem = ({ tx }: { tx: Transaction & { accountId: string } }) => (
     <Link href={`/account/${tx.accountId}/transaction/${tx.id}`}>
         <div className="flex items-center justify-between p-3 border-b last:border-b-0 cursor-pointer hover:bg-gray-50">
             <div>
-                <p className="font-semibold text-gray-800 text-base">{tx.recipientName}</p>
+                <p className="font-semibold text-gray-800 text-base">{tx.recipientName || tx.description}</p>
                 <p className="text-gray-500 text-sm">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
             </div>
             <p className="font-semibold text-gray-900">{formatCurrency(tx.amount)}</p>
@@ -199,8 +199,9 @@ export default function PayPage() {
             const transactionsCollectionRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
             const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
             transactionsSnapshot.forEach(doc => {
-                const data = doc.data();
-                if (data.type === 'debit') { // Only show payments made
+                const data = doc.data() as Transaction;
+                // Only show debit payments and exclude bank fees
+                if (data.type === 'debit' && data.transactionType !== 'BANK_FEE') {
                      allTransactions.push({ 
                          id: doc.id, 
                          ...data,
