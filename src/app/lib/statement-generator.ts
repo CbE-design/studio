@@ -77,7 +77,7 @@ async function loadResources(pdfDoc: PDFDocument): Promise<PDFResources> {
     return { pdfDoc, font, boldFont, nLogoImage, eConfirmImage, barcodeImage, nLogoDims };
 }
 
-function drawSummaryPage(page: PDFPage, data: StatementData, resources: PDFResources) {
+function drawSummaryPageContent(page: PDFPage, data: StatementData, resources: PDFResources) {
     const { account, user, openingBalance, closingBalance, totalCredits, totalDebits } = data;
     const { font, boldFont, nLogoImage, eConfirmImage, barcodeImage, nLogoDims } = resources;
     const { width, height } = page.getSize();
@@ -159,7 +159,6 @@ function drawSummaryPage(page: PDFPage, data: StatementData, resources: PDFResou
     page.drawText('Statement date:', { x: summaryCol1, y, font, size: 8 });
     page.drawText(format(new Date(), 'dd/MM/yyyy'), { x: summaryCol2, y, font, size: 8 });
     page.drawText('Total pages:', { x: width/2 + 10, y, font, size: 8 });
-    page.drawText('{{totalPages}}', { x: width/2 + 150, y, font, size: 8 }); // Placeholder
     y -= 12;
     page.drawText('Statement period:', { x: summaryCol1, y, font, size: 8 });
     page.drawText(statementPeriod, { x: summaryCol2, y, font, size: 8 });
@@ -184,11 +183,9 @@ function drawSummaryPage(page: PDFPage, data: StatementData, resources: PDFResou
     y -= 12;
     page.drawText('Closing balance', { x: cashflowCol1, y, font: boldFont, size: 8 });
     page.drawText(formatCurrency(closingBalance), { x: cashflowCol2, y, font: boldFont, size: 8, color: COLORS.gray });
-
-    drawFooter(page, 1, '{{totalPages}}', resources);
 }
 
-function drawPageHeader(page: PDFPage, pageNum: number, totalPages: string, data: StatementData, resources: PDFResources) {
+function drawPageHeader(page: PDFPage, data: StatementData, resources: PDFResources) {
     const { account } = data;
     const { eConfirmImage, nLogoImage, nLogoDims, boldFont } = resources;
     const { width, height } = page.getSize();
@@ -197,23 +194,36 @@ function drawPageHeader(page: PDFPage, pageNum: number, totalPages: string, data
     page.drawImage(nLogoImage, { x: width - MARGIN - nLogoDims.width, y: height - 55, width: nLogoDims.width, height: nLogoDims.height });
     page.drawText('STATEMENT', { x: (width / 2) - 30, y: height - 50, font: boldFont, size: 14, color: COLORS.black });
     page.drawText(`${account.name} - ${account.accountNumber}`, { x: MARGIN, y: height - 80, font: resources.font, size: 10, color: COLORS.gray });
-    page.drawText(`Page ${pageNum} of ${totalPages}`, { x: width - MARGIN - 60, y: height - 80, font: resources.font, size: 8, color: COLORS.gray });
 }
 
-function drawFooter(page: PDFPage, pageNum: number, totalPages: string, resources: PDFResources) {
+function drawFooter(page: PDFPage, resources: PDFResources) {
     const { boldFont } = resources;
     const { width } = page.getSize();
     page.drawText('see money differently', { x: (width / 2) - 50, y: MARGIN, font: boldFont, size: 10, color: COLORS.primary });
-    page.drawText(`Page ${pageNum} of ${totalPages}`, { x: width - MARGIN - 50, y: MARGIN, font: boldFont, size: 8 });
 }
 
-function drawTransactionsPage(page: PDFPage, pageNum: number, totalPages: string, transactions: Transaction[], openingBalance: number, data: StatementData, resources: PDFResources) {
+function drawPageNumber(page: PDFPage, pageNum: number, totalPages: number, resources: PDFResources) {
+    const { font, boldFont } = resources;
+    const { width } = page.getSize();
+    const pageNumText = `Page ${pageNum} of ${totalPages}`;
+
+    if (pageNum === 1) { // Summary page has different footer
+         page.drawText(String(totalPages), { x: width/2 + 150, y: 470, font: font, size: 8 });
+         page.drawText(pageNumText, { x: width - MARGIN - 50, y: MARGIN, font: boldFont, size: 8 });
+    } else { // Transaction pages
+        page.drawText(pageNumText, { x: width - MARGIN - 60, y: page.getSize().height - 80, font: font, size: 8, color: COLORS.gray });
+        page.drawText(pageNumText, { x: width - MARGIN - 50, y: MARGIN, font: boldFont, size: 8 });
+    }
+}
+
+
+function drawTransactionsPageContent(page: PDFPage, transactions: Transaction[], openingBalance: number, data: StatementData, resources: PDFResources) {
     const { account } = data;
     const { font, boldFont } = resources;
     const { width } = page.getSize();
     let y = page.getSize().height - 110;
 
-    drawPageHeader(page, pageNum, totalPages, data, resources);
+    drawPageHeader(page, data, resources);
     
     const headers = ['Date', 'Description', `Debits(${account.currency})`, `Credits(${account.currency})`, `Balance(${account.currency})`];
     const colWidths = [80, 200, 80, 80, 80];
@@ -258,14 +268,12 @@ function drawTransactionsPage(page: PDFPage, pageNum: number, totalPages: string
     };
 
     let runningBalance = openingBalance;
-    if (pageNum === 2) { // Only draw opening balance on the first transaction page
-        drawRow([
-            format(transactions.length > 0 ? new Date(transactions[0].date) : new Date(), 'dd/MM/yyyy'),
-            'Opening Balance',
-            '', '',
-            formatCurrency(openingBalance)
-        ], true);
-    }
+    drawRow([
+        format(transactions.length > 0 ? new Date(transactions[0].date) : new Date(), 'dd/MM/yyyy'),
+        'Opening Balance',
+        '', '',
+        formatCurrency(openingBalance)
+    ], true);
     
     for (const tx of transactions) {
         runningBalance += tx.type === 'credit' ? tx.amount : -tx.amount;
@@ -283,7 +291,7 @@ function drawTransactionsPage(page: PDFPage, pageNum: number, totalPages: string
         }
     }
 
-    drawFooter(page, pageNum, totalPages, resources);
+    drawFooter(page, resources);
     return { remainingTransactions: [], lastBalance: runningBalance };
 }
 
@@ -291,52 +299,39 @@ function drawTransactionsPage(page: PDFPage, pageNum: number, totalPages: string
 export async function generateStatementPdf(data: StatementData): Promise<Uint8Array> {
     const pdfDoc = await PDFDocument.create();
     const resources = await loadResources(pdfDoc);
-
-    const TX_PER_PAGE = 35;
-    const totalPages = Math.ceil(data.transactions.length / TX_PER_PAGE) + 1;
-    const totalPagesStr = String(totalPages);
+    const pages: PDFPage[] = [];
 
     // --- Page 1: Summary ---
     const summaryPage = pdfDoc.addPage(PageSizes.A4);
-    drawSummaryPage(summaryPage, data, resources);
+    drawSummaryPageContent(summaryPage, data, resources);
+    drawFooter(summaryPage, resources);
+    pages.push(summaryPage);
 
     // --- Subsequent Pages: Transactions ---
-    let remainingTransactions = data.transactions;
-    let pageCount = 2;
-    let lastBalance = data.openingBalance;
+    const TX_PER_PAGE = 35;
+    let transactionsToProcess = data.transactions;
+    let runningBalanceForPage = data.openingBalance;
 
-    while (remainingTransactions.length > 0) {
+    while (transactionsToProcess.length > 0) {
         const txPage = pdfDoc.addPage(PageSizes.A4);
-        const { remainingTransactions: nextRemaining, lastBalance: nextBalance } = drawTransactionsPage(
+        pages.push(txPage);
+
+        const { remainingTransactions, lastBalance } = drawTransactionsPageContent(
             txPage,
-            pageCount,
-            totalPagesStr,
-            remainingTransactions,
-            lastBalance,
+            transactionsToProcess.slice(0, TX_PER_PAGE),
+            runningBalanceForPage,
             data,
             resources
         );
-        remainingTransactions = nextRemaining;
-        lastBalance = nextBalance;
-        pageCount++;
+        transactionsToProcess = remainingTransactions;
+        runningBalanceForPage = lastBalance;
     }
 
-    // Replace total pages placeholder
-    pdfDoc.getPages().forEach(page => {
-        const text = page.getTextContent();
-        if(text.includes('{{totalPages}}')) {
-             // This is a simplified approach. pdf-lib doesn't have a direct text replacement API.
-             // For a real-world scenario, you'd track the coordinate of the placeholder and redraw.
-             // For this case, we just redraw in the same spot on the first page.
-             const { width } = page.getSize();
-             page.drawText(totalPagesStr, { x: width/2 + 150, y: 470, font: resources.font, size: 8 });
-        }
-         if(text.includes('Page 1 of {{totalPages}}')) {
-             page.drawText(`Page 1 of ${totalPagesStr}`, {x: width - MARGIN - 50, y: MARGIN, font: resources.boldFont, size: 8});
-        }
+    // Finally, iterate through all created pages to add page numbers
+    const totalPages = pages.length;
+    pages.forEach((page, index) => {
+        drawPageNumber(page, index + 1, totalPages, resources);
     });
 
     return pdfDoc.save();
 }
-
-
