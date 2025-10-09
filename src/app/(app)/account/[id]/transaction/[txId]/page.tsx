@@ -109,6 +109,7 @@ function TransactionDetailsContent() {
     params.set('recipientReference', transaction.recipientReference || '');
     params.set('bankName', transaction.bank || '');
     params.set('accountNumber', transaction.accountNumber || '');
+    params.set('date', transaction.date); // Pass the original transaction date
     router.push(`/pay/single/share?${params.toString()}`);
   };
 

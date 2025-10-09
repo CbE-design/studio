@@ -31,6 +31,7 @@ function ShareProofOfPaymentContent() {
       recipientReference: searchParams.get('recipientReference'),
       bankName: searchParams.get('bankName'),
       accountNumber: searchParams.get('accountNumber'),
+      date: searchParams.get('date'), // Read the date from query params
   };
 
   const [payerName, setPayerName] = useState('DIRK VAN SCHALKWYK');
@@ -48,13 +49,13 @@ function ShareProofOfPaymentContent() {
     setIsGenerating(true);
 
     try {
-        const now = new Date();
+        const paymentDate = paymentDetails.date ? new Date(paymentDetails.date) : new Date();
         const generateRandomSuffix = (length: number) => Math.random().toString().substring(2, 2 + length);
         const generateSecurityCode = () => Array.from({ length: 40 }, () => '0123456789ABCDEF'[Math.floor(Math.random() * 16)]).join('');
 
         const detailsForPdf = {
-            dateOfPayment: format(now, 'dd/MM/yyyy'),
-            referenceNumber: `${format(now, 'yyyy-MM-dd')}/NEDBANK/${generateRandomSuffix(12)}`,
+            dateOfPayment: format(paymentDate, 'dd/MM/yyyy'),
+            referenceNumber: `${format(paymentDate, 'yyyy-MM-dd')}/NEDBANK/${generateRandomSuffix(12)}`,
             recipient: paymentDetails.recipientName,
             amount: Number(paymentDetails.amount || '0'),
             recipientReference: paymentDetails.recipientReference,
