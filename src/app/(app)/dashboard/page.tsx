@@ -15,14 +15,20 @@ import { useEffect } from 'react';
 
 // Custom SVG Icons
 const OffersIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
-        <path d="M14.5 10.4c.3-.3.8-.4 1.2-.2l6.2 2.3c.4.1.7.5.7.9v2.2c0 .4-.2.8-.6 1l-3.3 1.7" />
-        <path d="M13.6 15.6a2 2 0 0 1-2.2 2.2l-4.5 1.1c-.5.1-.9-.2-1-.7l-1.3-4.2c-.1-.5.2-.9.7-1l4.5-1.1c.5-.1 1 .2 1.1.7z" />
-        <path d="M8.8 15.2c-1.4.9-3.2 1.3-5.1 1" />
-        <path d="m15 6-3.4 3.4" />
-        <path d="M9.2 11.2 5.6 7.6c-.4-.4-.5-1-.1-1.4l1.5-1.5c.4-.4 1-.5 1.4-.1l3.6 3.6" />
-        <path d="M12.6 7.6 12 7" />
-        <path d="m18 12.2-5.4-1.6" />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#228B22" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+        <path d="M12 21.5C9.37 21.5 7 19.33 7 16.5V11c0-2.21 1.79-4 4-4s4 1.79 4 4v5.5c0 2.83-2.37 5-5 5z"/>
+        <path d="M11 7c0-1.1-.9-2-2-2s-2 .9-2 2"/>
+        <path d="M13 7c0-1.1.9-2 2-2s2 .9 2 2"/>
+        <path d="M9 13H5.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5H9"/>
+        <path d="M14.5 13H18c.28 0 .5-.22.5-.5s-.22-.5-.5-.5H14.5"/>
+        <path d="M19 12h-2"/>
+        <path d="M17.5 11c0-.28-.22-.5-.5-.5s-.5.22-.5.5V12"/>
+        <path d="M7 12H5"/>
+        <path d="M6.5 11c0-.28.22-.5.5-.5s.5.22.5.5V12"/>
+        <path d="M12 21.5c-2.76 0-5-2.24-5-5V11c0-2.76 2.24-5 5-5s5 2.24 5 5v5.5c0 2.76-2.24 5-5 5z"/>
+        <path d="M12 11h.01"/>
+        <path d="M12 16h.01"/>
+        <path d="M12 21h.01"/>
     </svg>
 );
 
