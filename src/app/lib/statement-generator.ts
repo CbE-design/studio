@@ -4,7 +4,7 @@
 import { PDFDocument, StandardFonts, rgb, PDFFont, PageSizes, PDFPage } from 'pdf-lib';
 import { format } from 'date-fns';
 import type { Account, Transaction, User } from './definitions';
-import { PlaceHolderImages } from './placeholder-images';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 type StatementData = {
     account: Account;
@@ -338,4 +338,5 @@ export async function generateStatementPdf(data: StatementData): Promise<Uint8Ar
 
     return pdfDoc.save();
 }
+
 
