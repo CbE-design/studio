@@ -1,4 +1,5 @@
 
+
 export type Account = {
   id: string;
   name: string;
@@ -54,3 +55,5 @@ export type User = {
     lastName?: string;
     createdAt: any;
 }
+
+    

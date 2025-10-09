@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Menu, ArrowRight, AlertCircle, LoaderCircle } from 'lucide-react';
+import { MessageSquare, Menu, AlertCircle, LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from '@/firebase-provider';
@@ -139,3 +139,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    

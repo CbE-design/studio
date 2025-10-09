@@ -15,13 +15,14 @@ export function PinInput({ length, onComplete }: PinInputProps) {
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
     const value = e.target.value;
+    // Allow only single digits
     if (!/^[0-9]$/.test(value) && value !== '') return;
 
     const newPin = [...pin];
     newPin[index] = value;
     setPin(newPin);
 
-    // Focus next input
+    // Focus next input if a digit was entered
     if (value !== '' && index < length - 1) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -50,8 +51,9 @@ export function PinInput({ length, onComplete }: PinInputProps) {
         <div key={index} className="relative w-10 h-12 flex items-center justify-center">
            <input
             ref={(el) => (inputRefs.current[index] = el)}
-            type="password"
-            inputMode="numeric"
+            type="number" // Use type "number" for better mobile keyboard
+            pattern="[0-9]*" // Helps with mobile keyboard
+            inputMode="numeric" // Standard attribute for numeric input
             maxLength={1}
             value={pin[index]}
             onChange={(e) => handleChange(e, index)}
@@ -73,3 +75,5 @@ export function PinInput({ length, onComplete }: PinInputProps) {
     </div>
   );
 }
+
+    

@@ -183,9 +183,9 @@ export default function DashboardPage() {
 
             <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-y-6">
-              {widgets.map((widget, index) => (
+              {widgets.map((widget) => (
                   <WidgetItem 
-                    key={index} 
+                    key={widget.label} 
                     icon={widget.icon} 
                     label={widget.label} 
                     href={widget.href}
@@ -198,3 +198,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

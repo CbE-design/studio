@@ -71,7 +71,7 @@ const StatementTransactionsPage = ({ account, transactions, openingBalance }: { 
                              return (
                                 <tr key={tx.id} className="border-b last:border-0">
                                     <td className="p-2">{format(new Date(tx.date), 'dd/MM/yyyy')}</td>
-                                    <td className="p-2">{tx.description}</td>
+                                    <td className="p-2">{tx.recipientName?.toUpperCase() || tx.description}</td>
                                     <td className="p-2 text-right text-red-600">
                                         {tx.type === 'debit' ? formatCurrency(tx.amount) : ''}
                                     </td>
@@ -437,7 +437,7 @@ export default function StatementPage() {
                 currentBalance = tx.type === 'credit' ? currentBalance + tx.amount : currentBalance - tx.amount;
                 const rowData = [
                     format(new Date(tx.date), 'dd/MM/yyyy'),
-                    tx.description.substring(0, 35),
+                    (tx.recipientName?.toUpperCase() || tx.description).substring(0, 35),
                     tx.type === 'debit' ? formatCurrency(tx.amount) : '',
                     tx.type === 'credit' ? formatCurrency(tx.amount) : '',
                     formatCurrency(currentBalance)
@@ -478,7 +478,7 @@ export default function StatementPage() {
                 </Button>
                 <h1 className="font-semibold">Bank Statement</h1>
               </div>
-              <Button onClick={handleDownloadPdf} variant="outline" size="sm" disabled={isLoading || generatingPdf || !account || sortedTransactions.length === 0}>
+              <Button onClick={handleDownloadPdf} variant="outline" size="sm" disabled={isLoading || generatingPdf || !account || !sortedTransactions || sortedTransactions.length === 0}>
                 {generatingPdf ? (
                     <>
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -496,7 +496,7 @@ export default function StatementPage() {
             <main className="flex-1 overflow-y-auto p-4">
                 {isLoading && <StatementLoadingSkeleton />}
                 {error && <p className="p-4 text-red-500 bg-red-50 rounded-md">{error.message}</p>}
-                {!isLoading && !error && account && sortedTransactions.length > 0 && userData && (
+                {!isLoading && !error && account && sortedTransactions && sortedTransactions.length > 0 && userData && (
                     <div className="max-w-4xl mx-auto my-4">
                         <StatementSummaryPage 
                             account={account} 
@@ -509,7 +509,7 @@ export default function StatementPage() {
                         <StatementTransactionsPage account={account} transactions={sortedTransactions} openingBalance={openingBalance} />
                     </div>
                 )}
-                 {!isLoading && !error && account && sortedTransactions.length === 0 && (
+                 {!isLoading && !error && account && (!sortedTransactions || sortedTransactions.length === 0) && (
                     <div className="text-center p-8 text-gray-500 bg-white rounded-lg shadow-sm max-w-4xl mx-auto my-4">
                         <p>No transactions found for this account to generate a statement.</p>
                     </div>
@@ -518,7 +518,5 @@ export default function StatementPage() {
         </div>
     );
 }
-
-    
 
     

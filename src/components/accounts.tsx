@@ -19,7 +19,7 @@ const AccountSkeleton = () => (
       </div>
       <ChevronRight className="h-6 w-6" />
     </div>
-    <div className="flex flex-row justify-between items-center p-3 border-b border-white/20">
+    <div className="flex flex-row justify-between items-center p-3">
       <div>
         <Skeleton className="h-5 w-32 bg-white/20" />
         <Skeleton className="h-6 w-28 mt-1 bg-white/20" />
@@ -54,7 +54,10 @@ export function Accounts() {
           const isDormant = account.name === 'Savvy Bundle Current Account';
           return (
             <Link href={`/account/${account.id}`} key={account.id}>
-              <div className={`flex flex-row justify-between items-center p-3 cursor-pointer ${index < accounts.length - 1 ? 'border-b border-white/20' : ''}`}>
+              <div className={cn(
+                "flex flex-row justify-between items-center p-3 cursor-pointer",
+                index < accounts.length - 1 ? 'border-b border-white/20' : ''
+              )}>
                 <div>
                   <p className={cn("text-sm font-normal normal-case", isDormant && "text-white/60")}>{account.name}</p>
                   <p className={cn("text-base font-normal", isDormant && "text-white/60")}>{formatCurrency(account.balance, account.currency)}</p>
@@ -73,3 +76,5 @@ export function Accounts() {
     </div>
   );
 }
+
+    
