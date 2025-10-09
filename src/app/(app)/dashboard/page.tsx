@@ -15,12 +15,12 @@ import { useEffect } from 'react';
 
 // Custom SVG Icons
 const OffersIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#228B22" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
         <path d="M12 21.5C9.37 21.5 7 19.33 7 16.5V11c0-2.21 1.79-4 4-4s4 1.79 4 4v5.5c0 2.83-2.37 5-5 5z"/>
         <path d="M11 7c0-1.1-.9-2-2-2s-2 .9-2 2"/>
         <path d="M13 7c0-1.1.9-2 2-2s2 .9 2 2"/>
         <path d="M9 13H5.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5H9"/>
-        <path d="M14.5 13H18c.28 0 .5-.22-.5-.5s-.22-.5-.5-.5H14.5"/>
+        <path d="M14.5 13H18c.28 0 .5-.22.5-.5s-.22-.5-.5-.5H14.5"/>
         <path d="M19 12h-2"/>
         <path d="M17.5 11c0-.28-.22-.5-.5-.5s-.5.22-.5.5V12"/>
         <path d="M7 12H5"/>
