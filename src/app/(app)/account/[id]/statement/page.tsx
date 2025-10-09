@@ -9,7 +9,7 @@ import { ArrowLeft, Download, LoaderCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
-import { collection, doc, getDoc, query } from 'firebase/firestore';
+import { collection, doc, getDoc, query, type Timestamp } from 'firebase/firestore';
 import { StatementSummaryPage } from '@/components/statement-summary';
 import { StatementTransactionsPage } from '@/components/statement-transactions';
 import { generateStatementPdf } from '@/app/lib/statement-generator';
@@ -44,7 +44,16 @@ export default function StatementPage() {
              const userDocRef = doc(firestore, 'users', user.uid);
              const userDoc = await getDoc(userDocRef);
              if (userDoc.exists()) {
-                setUserData(userDoc.data() as User);
+                const data = userDoc.data();
+                // Convert Firestore Timestamp to a plain string to pass to server action
+                const plainUser: User = {
+                    id: data.id,
+                    email: data.email,
+                    firstName: data.firstName,
+                    lastName: data.lastName,
+                    createdAt: (data.createdAt as Timestamp)?.toDate().toISOString() || new Date().toISOString(),
+                };
+                setUserData(plainUser);
              }
         }
         fetchUserData();

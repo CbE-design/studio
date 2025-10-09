@@ -1,5 +1,4 @@
 
-
 export type Account = {
   id: string;
   name: string;
@@ -53,7 +52,7 @@ export type User = {
     email: string;
     firstName?: string;
     lastName?: string;
-    createdAt: any;
+    createdAt: string;
 }
 
     
