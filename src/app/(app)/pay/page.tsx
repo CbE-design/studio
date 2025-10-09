@@ -151,14 +151,16 @@ const paymentOptions = [
   },
 ];
 
-const PaymentItem = ({ tx }: { tx: Transaction }) => (
-    <div className="flex items-center justify-between p-3 border-b last:border-b-0">
-        <div>
-            <p className="font-semibold text-gray-800 text-base">{tx.recipientName}</p>
-            <p className="text-gray-500 text-sm">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
+const PaymentItem = ({ tx }: { tx: Transaction & { accountId: string } }) => (
+    <Link href={`/account/${tx.accountId}/transaction/${tx.id}`}>
+        <div className="flex items-center justify-between p-3 border-b last:border-b-0 cursor-pointer hover:bg-gray-50">
+            <div>
+                <p className="font-semibold text-gray-800 text-base">{tx.recipientName}</p>
+                <p className="text-gray-500 text-sm">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
+            </div>
+            <p className="font-semibold text-gray-900">{formatCurrency(tx.amount)}</p>
         </div>
-        <p className="font-semibold text-gray-900">{formatCurrency(tx.amount)}</p>
-    </div>
+    </Link>
 );
 
 export default function PayPage() {
@@ -166,7 +168,7 @@ export default function PayPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<(Transaction & { accountId: string })[]>([]);
   const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
 
   const beneficiariesQuery = useMemoFirebase(() => {
@@ -191,15 +193,19 @@ export default function PayPage() {
             setIsTransactionsLoading(false);
             return;
         }
-        let allTransactions: Transaction[] = [];
+        let allTransactions: (Transaction & { accountId: string })[] = [];
 
         for (const account of accounts) {
             const transactionsCollectionRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
             const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
             transactionsSnapshot.forEach(doc => {
                 const data = doc.data();
-                if (data.type === 'debit' && data.transactionType?.startsWith('EFT_')) {
-                     allTransactions.push({ id: doc.id, ...data } as Transaction);
+                if (data.type === 'debit') { // Only show payments made
+                     allTransactions.push({ 
+                         id: doc.id, 
+                         ...data,
+                         accountId: account.id,
+                     } as Transaction & { accountId: string });
                 }
             });
         }
