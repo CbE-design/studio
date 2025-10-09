@@ -180,7 +180,7 @@ function drawSummaryPageContent(page: PDFPage, data: StatementData, resources: P
     const ACCOUNT_SUMMARY_BAR_HEIGHT = 20;
     page.drawRectangle({ x: MARGIN, y: y - ACCOUNT_SUMMARY_BAR_HEIGHT, width: width - MARGIN * 2, height: ACCOUNT_SUMMARY_BAR_HEIGHT, color: COLORS.primary });
     page.drawText('Account summary', { x: MARGIN + 4, y: y - 14, font: boldFont, size: 10, color: COLORS.white });
-    page.drawText('Account number', { x: MARGIN + 400, y: y - 14, font, size: 10, color: COLORS.white });
+    page.drawText('Account number', { x: width - MARGIN - 120, y: y - 14, font, size: 10, color: COLORS.white });
     
     const accountNumberText = accountSummary.accountNumber;
     const accountNumberWidth = boldFont.widthOfTextAtSize(accountNumberText, 10);
@@ -190,29 +190,30 @@ function drawSummaryPageContent(page: PDFPage, data: StatementData, resources: P
     const LINE_HEIGHT = 15;
     const COL_1_X = MARGIN + 4;
     const COL_2_X = MARGIN + 104;
-    const COL_4_X = MARGIN + 400;
-    const COL_5_X = width - MARGIN - 4;
+    const COL_3_X = MARGIN + 280;
+    const COL_4_X = COL_3_X + 100;
+    const RIGHT_EDGE = width - MARGIN - 4;
     
     y -= LINE_HEIGHT;
     page.drawText('Account type', { x: COL_1_X, y, font, size: 9 });
     page.drawText(accountSummary.accountType, { x: COL_2_X, y, font, size: 9 });
-    page.drawText('Envelope:', { x: COL_4_X, y, font, size: 9 });
-    const envelopeWidth = font.widthOfTextAtSize(accountSummary.envelope, 9);
-    page.drawText(accountSummary.envelope, { x: COL_5_X - envelopeWidth, y, font, size: 9 });
+    page.drawText('Envelope:', { x: COL_3_X, y, font, size: 9 });
+    const envelopeText = accountSummary.envelope;
+    page.drawText(envelopeText, { x: RIGHT_EDGE - font.widthOfTextAtSize(envelopeText, 9), y, font, size: 9 });
     
     y -= LINE_HEIGHT;
     page.drawText('Statement date:', { x: COL_1_X, y, font, size: 9 });
     page.drawText(accountSummary.statementDate, { x: COL_2_X, y, font, size: 9 });
-    page.drawText('Total pages:', { x: COL_4_X, y, font, size: 9 });
-    const totalPagesWidth = font.widthOfTextAtSize(accountSummary.totalPages, 9);
-    page.drawText(accountSummary.totalPages, { x: COL_5_X - totalPagesWidth, y, font, size: 9 });
+    page.drawText('Total pages:', { x: COL_3_X, y, font, size: 9 });
+    const totalPagesText = accountSummary.totalPages;
+    page.drawText(totalPagesText, { x: RIGHT_EDGE - font.widthOfTextAtSize(totalPagesText, 9), y, font, size: 9 });
 
     y -= LINE_HEIGHT;
     page.drawText('Statement period:', { x: COL_1_X, y, font, size: 9 });
     page.drawText(accountSummary.statementPeriod, { x: COL_2_X, y, font, size: 9 });
-    page.drawText('Client VAT number:', { x: COL_4_X, y, font, size: 9 });
-    const vatWidth = font.widthOfTextAtSize(accountSummary.clientVatNumber, 9);
-    page.drawText(accountSummary.clientVatNumber, { x: COL_5_X - vatWidth, y, font, size: 9 });
+    page.drawText('Client VAT number:', { x: COL_3_X, y, font, size: 9 });
+    const vatText = accountSummary.clientVatNumber || '-';
+    page.drawText(vatText, { x: RIGHT_EDGE - font.widthOfTextAtSize(vatText, 9), y, font, size: 9 });
     
     y -= LINE_HEIGHT;
     page.drawText('Statement frequency:', { x: COL_1_X, y, font, size: 9 });
@@ -224,51 +225,59 @@ function drawSummaryPageContent(page: PDFPage, data: StatementData, resources: P
 
     // --- Bank charges summary (Left) & Cashflow (Right) ---
     const SECTION_TITLE_Y = y - LINE_HEIGHT;
-    const COL_2_RIGHT_EDGE = COL_2_X + 50;
+    const CHARGES_RIGHT_EDGE = MARGIN + 180;
     page.drawText('Bank charges summary', { x: COL_1_X, y: SECTION_TITLE_Y, font: boldFont, size: 9 });
-    page.drawText('Cashflow', { x: COL_4_X, y: SECTION_TITLE_Y, font: boldFont, size: 9 });
+    page.drawText('Cashflow', { x: COL_3_X, y: SECTION_TITLE_Y, font: boldFont, size: 9 });
 
     let y_charges = SECTION_TITLE_Y - LINE_HEIGHT;
-    page.drawText('Cash fees', { x: COL_1_X, y: y_charges, font, size: 9 });
     const cashFeeText = formatCurrency(bankSummary.cashFees);
-    page.drawText(cashFeeText, { x: COL_2_RIGHT_EDGE - font.widthOfTextAtSize(cashFeeText, 9), y: y_charges, font, size: 9});
+    page.drawText('Cash fees', { x: COL_1_X, y: y_charges, font, size: 9 });
+    page.drawText(cashFeeText, { x: CHARGES_RIGHT_EDGE - font.widthOfTextAtSize(cashFeeText, 9), y: y_charges, font, size: 9});
     y_charges -= LINE_HEIGHT;
-    page.drawText('Other charges', { x: COL_1_X, y: y_charges, font, size: 9 });
+    
     const otherChargesText = formatCurrency(bankSummary.otherCharges);
-    page.drawText(otherChargesText, { x: COL_2_RIGHT_EDGE - font.widthOfTextAtSize(otherChargesText, 9), y: y_charges, font, size: 9});
+    page.drawText('Other charges', { x: COL_1_X, y: y_charges, font, size: 9 });
+    page.drawText(otherChargesText, { x: CHARGES_RIGHT_EDGE - font.widthOfTextAtSize(otherChargesText, 9), y: y_charges, font, size: 9});
     y_charges -= LINE_HEIGHT;
-    page.drawText('Bank charge(s) (total)', { x: COL_1_X, y: y_charges, font, size: 9 });
+    
     const totalChargesText = formatCurrency(bankSummary.bankChargesTotal);
-    page.drawText(totalChargesText, { x: COL_2_RIGHT_EDGE - font.widthOfTextAtSize(totalChargesText, 9), y: y_charges, font, size: 9});
+    page.drawText('Bank charge(s) (total)', { x: COL_1_X, y: y_charges, font, size: 9 });
+    page.drawText(totalChargesText, { x: CHARGES_RIGHT_EDGE - font.widthOfTextAtSize(totalChargesText, 9), y: y_charges, font, size: 9});
     y_charges -= LINE_HEIGHT;
-    page.drawText('VAT included @', { x: COL_1_X, y: y_charges, font, size: 9 });
+    
     const vatIncludedText = `${bankSummary.vatIncluded.toFixed(3)}%`;
-    page.drawText(vatIncludedText, { x: COL_2_RIGHT_EDGE - font.widthOfTextAtSize(vatIncludedText, 9), y: y_charges, font, size: 9});
+    page.drawText('VAT included @', { x: COL_1_X, y: y_charges, font, size: 9 });
+    page.drawText(vatIncludedText, { x: CHARGES_RIGHT_EDGE - font.widthOfTextAtSize(vatIncludedText, 9), y: y_charges, font, size: 9});
     y_charges -= LINE_HEIGHT;
-    page.drawText('VAT calculated monthly', { x: COL_1_X, y: y_charges, font, size: 9 });
+
     const vatMonthlyText = formatCurrency(bankSummary.vatCalculatedMonthly);
-    page.drawText(vatMonthlyText, { x: COL_2_RIGHT_EDGE - font.widthOfTextAtSize(vatMonthlyText, 9), y: y_charges, font, size: 9});
+    page.drawText('VAT calculated monthly', { x: COL_1_X, y: y_charges, font, size: 9 });
+    page.drawText(vatMonthlyText, { x: CHARGES_RIGHT_EDGE - font.widthOfTextAtSize(vatMonthlyText, 9), y: y_charges, font, size: 9});
 
     let y_cashflow = SECTION_TITLE_Y - LINE_HEIGHT;
-    page.drawText('Opening balance', { x: COL_4_X, y: y_cashflow, font, size: 9 });
     const openBalText = formatCurrency(bankSummary.openingBalance);
-    page.drawText(openBalText, { x: COL_5_X - font.widthOfTextAtSize(openBalText, 9), y: y_cashflow, font, size: 9 });
+    page.drawText('Opening balance', { x: COL_3_X, y: y_cashflow, font, size: 9 });
+    page.drawText(openBalText, { x: RIGHT_EDGE - font.widthOfTextAtSize(openBalText, 9), y: y_cashflow, font, size: 9 });
     y_cashflow -= LINE_HEIGHT;
-    page.drawText('Funds received/Credits', { x: COL_4_X, y: y_cashflow, font, size: 9 });
+
     const creditsText = formatCurrency(bankSummary.fundsReceivedCredits);
-    page.drawText(creditsText, { x: COL_5_X - font.widthOfTextAtSize(creditsText, 9), y: y_cashflow, font, size: 9 });
+    page.drawText('Funds received/Credits', { x: COL_3_X, y: y_cashflow, font, size: 9 });
+    page.drawText(creditsText, { x: RIGHT_EDGE - font.widthOfTextAtSize(creditsText, 9), y: y_cashflow, font, size: 9 });
     y_cashflow -= LINE_HEIGHT;
-    page.drawText('Funds used/Debits', { x: COL_4_X, y: y_cashflow, font, size: 9 });
+    
     const debitsText = formatCurrency(bankSummary.fundsUsedDebits);
-    page.drawText(debitsText, { x: COL_5_X - font.widthOfTextAtSize(debitsText, 9), y: y_cashflow, font, size: 9 });
+    page.drawText('Funds used/Debits', { x: COL_3_X, y: y_cashflow, font, size: 9 });
+    page.drawText(debitsText, { x: RIGHT_EDGE - font.widthOfTextAtSize(debitsText, 9), y: y_cashflow, font, size: 9 });
     y_cashflow -= LINE_HEIGHT;
-    page.drawText('Closing balance', { x: COL_4_X, y: y_cashflow, font: boldFont, size: 9 });
+
     const closeBalText = formatCurrency(bankSummary.closingBalance);
-    page.drawText(closeBalText, { x: COL_5_X - boldFont.widthOfTextAtSize(closeBalText, 9), y: y_cashflow, font: boldFont, size: 9 });
+    page.drawText('Closing balance', { x: COL_3_X, y: y_cashflow, font: boldFont, size: 9 });
+    page.drawText(closeBalText, { x: RIGHT_EDGE - boldFont.widthOfTextAtSize(closeBalText, 9), y: y_cashflow, font: boldFont, size: 9 });
     y_cashflow -= LINE_HEIGHT;
-    page.drawText('Annual credit interest rate', { x: COL_4_X, y: y_cashflow, font, size: 9 });
+
     const interestText = `${bankSummary.annualCreditInterestRate.toFixed(3)}%`;
-    page.drawText(interestText, { x: COL_5_X - font.widthOfTextAtSize(interestText, 9), y: y_cashflow, font, size: 9 });
+    page.drawText('Annual credit interest rate', { x: COL_3_X, y: y_cashflow, font, size: 9 });
+    page.drawText(interestText, { x: RIGHT_EDGE - font.widthOfTextAtSize(interestText, 9), y: y_cashflow, font, size: 9 });
     
     y = Math.min(y_charges, y_cashflow) - 15;
     page.drawLine({ start: { x: MARGIN, y }, end: { x: width - MARGIN, y }, thickness: 1 });
@@ -279,7 +288,6 @@ function drawSummaryPageContent(page: PDFPage, data: StatementData, resources: P
 
 function drawFinancialGraphs(page: PDFPage, graphsData: GraphData, startY: number, resources: PDFResources) {
     const { font, boldFont } = resources;
-    const { width } = page.getSize();
     
     const CHART_WIDTH = 150;
     const BAR_HEIGHT = 10;
@@ -287,17 +295,26 @@ function drawFinancialGraphs(page: PDFPage, graphsData: GraphData, startY: numbe
 
     const START_X_LEFT = MARGIN;
     const START_X_RIGHT = MARGIN + 280;
-    const VALUE_COLUMN_WIDTH = 70;
     
+    const LABEL_WIDTH_LEFT = 110;
+    const BAR_X_LEFT = START_X_LEFT + LABEL_WIDTH_LEFT;
+    const VALUE_X_LEFT = BAR_X_LEFT + CHART_WIDTH + 5;
+    const VALUE_RIGHT_EDGE_LEFT = START_X_RIGHT - 10;
+
+    const LABEL_WIDTH_RIGHT = 100;
+    const BAR_X_RIGHT = START_X_RIGHT + LABEL_WIDTH_RIGHT;
+    const VALUE_X_RIGHT = BAR_X_RIGHT + CHART_WIDTH + 5;
+    const VALUE_RIGHT_EDGE_RIGHT = page.getSize().width - MARGIN;
+
     let y = startY;
 
     // --- LEFT GRAPH: Total funds received/credits ---
     const received = graphsData.fundsReceived;
     const receivedTotal = received.totalCredits;
     
-    page.drawText('Total funds received/credits', { x: START_X_LEFT, y, font: boldFont, size: 9 });
     const totalReceivedText = formatCurrency(receivedTotal);
-    page.drawText(totalReceivedText, { x: START_X_LEFT + CHART_WIDTH + VALUE_COLUMN_WIDTH - font.widthOfTextAtSize(totalReceivedText, 9), y, font: boldFont, size: 9, color: COLORS.primary });
+    page.drawText('Total funds received/credits', { x: START_X_LEFT, y, font: boldFont, size: 9 });
+    page.drawText(totalReceivedText, { x: VALUE_RIGHT_EDGE_LEFT - boldFont.widthOfTextAtSize(totalReceivedText, 9), y, font: boldFont, size: 9, color: COLORS.primary });
     y -= ROW_HEIGHT;
 
     const receivedRows = [
@@ -310,26 +327,25 @@ function drawFinancialGraphs(page: PDFPage, graphsData: GraphData, startY: numbe
     receivedRows.forEach(row => {
         const barWidth = receivedTotal > 0 ? (row.value / receivedTotal) * CHART_WIDTH : 0;
         page.drawText(row.label, { x: START_X_LEFT, y: y + 2, font, size: 9 });
-        page.drawRectangle({ x: START_X_LEFT + CHART_WIDTH / 2 - 25, y: y, width: barWidth, height: BAR_HEIGHT, color: COLORS.primary, opacity: 0.2 });
+        page.drawRectangle({ x: BAR_X_LEFT, y: y, width: barWidth, height: BAR_HEIGHT, color: COLORS.primary, opacity: 0.2 });
         const valueText = formatCurrency(row.value);
-        page.drawText(valueText, { x: START_X_LEFT + CHART_WIDTH + VALUE_COLUMN_WIDTH - font.widthOfTextAtSize(valueText, 9), y: y + 2, font, size: 9 });
+        page.drawText(valueText, { x: VALUE_RIGHT_EDGE_LEFT - font.widthOfTextAtSize(valueText, 9), y: y + 2, font, size: 9 });
         y -= ROW_HEIGHT;
     });
 
     page.drawText('Total', { x: START_X_LEFT, y: y + 2, font: boldFont, size: 9 });
-    page.drawRectangle({ x: START_X_LEFT + CHART_WIDTH / 2 - 25, y: y, width: CHART_WIDTH, height: BAR_HEIGHT, color: COLORS.primary });
+    page.drawRectangle({ x: BAR_X_LEFT, y: y, width: CHART_WIDTH, height: BAR_HEIGHT, color: COLORS.primary });
     const totalReceivedTextBottom = formatCurrency(receivedTotal);
-    page.drawText(totalReceivedTextBottom, { x: START_X_LEFT + CHART_WIDTH + VALUE_COLUMN_WIDTH - boldFont.widthOfTextAtSize(totalReceivedTextBottom, 9), y: y + 2, font: boldFont, size: 9 });
-    y -= ROW_HEIGHT;
+    page.drawText(totalReceivedTextBottom, { x: VALUE_RIGHT_EDGE_LEFT - boldFont.widthOfTextAtSize(totalReceivedTextBottom, 9), y: y + 2, font: boldFont, size: 9 });
     
     // --- RIGHT GRAPH: Total funds used/debits ---
-    y = startY; 
+    y = startY; // Reset Y for the right column
     const used = graphsData.fundsUsed;
     const usedTotal = used.totalDebits;
     
-    page.drawText('Total funds used/debits', { x: START_X_RIGHT, y, font: boldFont, size: 9 });
     const totalUsedText = formatCurrency(usedTotal);
-    page.drawText(totalUsedText, { x: START_X_RIGHT + CHART_WIDTH + VALUE_COLUMN_WIDTH - font.widthOfTextAtSize(totalUsedText, 9), y, font: boldFont, size: 9, color: COLORS.primary });
+    page.drawText('Total funds used/debits', { x: START_X_RIGHT, y, font: boldFont, size: 9 });
+    page.drawText(totalUsedText, { x: VALUE_RIGHT_EDGE_RIGHT - boldFont.widthOfTextAtSize(totalUsedText, 9), y, font: boldFont, size: 9, color: COLORS.primary });
     y -= ROW_HEIGHT;
     
     const usedRows = [
@@ -342,17 +358,16 @@ function drawFinancialGraphs(page: PDFPage, graphsData: GraphData, startY: numbe
     usedRows.forEach(row => {
         const barWidth = usedTotal > 0 ? (row.value / usedTotal) * CHART_WIDTH : 0;
         page.drawText(row.label, { x: START_X_RIGHT, y: y+2, font, size: 9 });
-        page.drawRectangle({ x: START_X_RIGHT + CHART_WIDTH/2 - 25, y, width: barWidth, height: BAR_HEIGHT, color: COLORS.primary, opacity: 0.2 });
+        page.drawRectangle({ x: BAR_X_RIGHT, y, width: barWidth, height: BAR_HEIGHT, color: COLORS.primary, opacity: 0.2 });
         const valueText = formatCurrency(row.value);
-        page.drawText(valueText, { x: START_X_RIGHT + CHART_WIDTH + VALUE_COLUMN_WIDTH - font.widthOfTextAtSize(valueText, 9), y: y+2, font, size: 9 });
+        page.drawText(valueText, { x: VALUE_RIGHT_EDGE_RIGHT - font.widthOfTextAtSize(valueText, 9), y: y+2, font, size: 9 });
         y -= ROW_HEIGHT;
     });
 
     page.drawText('Total', { x: START_X_RIGHT, y: y+2, font: boldFont, size: 9 });
-    page.drawRectangle({ x: START_X_RIGHT + CHART_WIDTH/2 - 25, y, width: CHART_WIDTH, height: BAR_HEIGHT, color: COLORS.primary });
+    page.drawRectangle({ x: BAR_X_RIGHT, y, width: CHART_WIDTH, height: BAR_HEIGHT, color: COLORS.primary });
     const totalUsedTextBottom = formatCurrency(usedTotal);
-    page.drawText(totalUsedTextBottom, { x: START_X_RIGHT + CHART_WIDTH + VALUE_COLUMN_WIDTH - boldFont.widthOfTextAtSize(totalUsedTextBottom, 9), y: y+2, font: boldFont, size: 9 });
-    y -= ROW_HEIGHT;
+    page.drawText(totalUsedTextBottom, { x: VALUE_RIGHT_EDGE_RIGHT - boldFont.widthOfTextAtSize(totalUsedTextBottom, 9), y: y+2, font: boldFont, size: 9 });
 }
 
 
@@ -374,17 +389,17 @@ function drawFooter(page: PDFPage, resources: PDFResources) {
 }
 
 function drawPageNumber(page: PDFPage, pageNum: number, totalPages: number, resources: PDFResources) {
-    const { font, boldFont } = resources;
+    const { font } = resources;
     const { width } = page.getSize();
     const pageNumText = `Page ${pageNum} of ${totalPages}`;
 
-    const textWidth = boldFont.widthOfTextAtSize(pageNumText, 8);
+    const textWidth = font.widthOfTextAtSize(pageNumText, 8);
     
     if (pageNum > 1) { 
         page.drawText(pageNumText, { x: width - MARGIN - textWidth, y: page.getSize().height - 80, font: font, size: 8, color: COLORS.gray });
     }
     
-    page.drawText(pageNumText, { x: width - MARGIN - textWidth, y: MARGIN, font: boldFont, size: 8 });
+    page.drawText(pageNumText, { x: width - MARGIN - textWidth, y: MARGIN, font: font, size: 8 });
 }
 
 
@@ -396,39 +411,60 @@ function drawTransactionsPageContent(page: PDFPage, transactions: Transaction[],
 
     drawPageHeader(page, data, resources);
     
-    const headers = ['Date', 'Description', `Debits(${account.currency})`, `Credits(${account.currency})`, `Balance(${account.currency})`];
-    const colXs = [MARGIN, 120, 290, 380, 470];
-    const colWidths = [80, 170, 90, 90, 90];
     const tableRightEdge = width - MARGIN;
+    const colXs = {
+        date: MARGIN,
+        description: 120,
+        debits: 380,
+        credits: 470,
+        balance: tableRightEdge,
+    };
+    
+    const colRightEdges = {
+        date: colXs.description - 5,
+        description: colXs.debits - 5,
+        debits: colXs.credits - 5,
+        credits: colXs.balance - 5,
+        balance: tableRightEdge
+    }
 
     page.drawRectangle({ x: MARGIN, y: y - 20, width: tableRightEdge - MARGIN, height: 20, color: COLORS.primary });
     
-    headers.forEach((header, i) => {
-        let xPos = colXs[i] + 5;
-        if (i >= 2) { 
-            const textWidth = boldFont.widthOfTextAtSize(header, 9);
-            xPos = colXs[i] + colWidths[i] - textWidth - 5;
-        }
-        page.drawText(header, { x: xPos, y: y - 14, font: boldFont, size: 9, color: COLORS.white });
-    });
+    page.drawText('Date', { x: colXs.date + 5, y: y - 14, font: boldFont, size: 9, color: COLORS.white });
+    page.drawText('Description', { x: colXs.description + 5, y: y - 14, font: boldFont, size: 9, color: COLORS.white });
+    const debitsHeader = `Debits(${account.currency})`;
+    page.drawText(debitsHeader, { x: colRightEdges.debits - boldFont.widthOfTextAtSize(debitsHeader, 9), y: y - 14, font: boldFont, size: 9, color: COLORS.white });
+    const creditsHeader = `Credits(${account.currency})`;
+    page.drawText(creditsHeader, { x: colRightEdges.credits - boldFont.widthOfTextAtSize(creditsHeader, 9), y: y - 14, font: boldFont, size: 9, color: COLORS.white });
+    const balanceHeader = `Balance(${account.currency})`;
+    page.drawText(balanceHeader, { x: colRightEdges.balance - boldFont.widthOfTextAtSize(balanceHeader, 9), y: y - 14, font: boldFont, size: 9, color: COLORS.white });
+    
     y -= 25;
 
-    const drawRow = (rowData: string[], isHeader = false) => {
+    const drawRow = (rowData: (string|null)[], isHeader = false) => {
         if (y < MARGIN + 40) return false; 
+        const fontToUse = isHeader || rowData.length -1 ? boldFont : font;
 
-        rowData.forEach((cell, i) => {
-            const fontToUse = isHeader || i === 4 ? boldFont : font;
-            let cellColor = i === 2 ? COLORS.red : i === 3 ? COLORS.green : COLORS.black;
-            if (isHeader) cellColor = COLORS.black;
-            
-            let calculatedX = colXs[i] + 5;
-            if (i >= 2) {
-                const textWidth = fontToUse.widthOfTextAtSize(cell, 9);
-                calculatedX = colXs[i] + colWidths[i] - textWidth - 5;
-            }
+        // Date
+        page.drawText(rowData[0] || '', { x: colXs.date + 5, y, font: fontToUse, size: 9, color: COLORS.black });
+        // Description
+        page.drawText(rowData[1] || '', { x: colXs.description + 5, y, font: fontToUse, size: 9, color: COLORS.black });
+        // Debits
+        if(rowData[2]) {
+            const debitText = rowData[2];
+            page.drawText(debitText, { x: colRightEdges.debits - font.widthOfTextAtSize(debitText, 9), y, font: font, size: 9, color: COLORS.red });
+        }
+        // Credits
+        if(rowData[3]) {
+            const creditText = rowData[3];
+            page.drawText(creditText, { x: colRightEdges.credits - font.widthOfTextAtSize(creditText, 9), y, font: font, size: 9, color: COLORS.green });
+        }
+        // Balance
+        if(rowData[4]) {
+            const balanceText = rowData[4];
+            page.drawText(balanceText, { x: colRightEdges.balance - fontToUse.widthOfTextAtSize(balanceText, 9), y, font: fontToUse, size: 9, color: COLORS.black });
+        }
 
-            page.drawText(cell, { x: calculatedX, y, font: fontToUse, size: 9, color: cellColor });
-        });
         y -= 5;
         page.drawLine({ start: { x: MARGIN, y }, end: { x: tableRightEdge, y }, thickness: 0.5, color: COLORS.lightGray });
         y -= 15;
@@ -442,7 +478,7 @@ function drawTransactionsPageContent(page: PDFPage, transactions: Transaction[],
     drawRow([
         format(firstTransactionDate, 'dd/MM/yyyy'),
         'Opening Balance',
-        '', '',
+        null, null,
         openingBalanceText
     ], true);
     
@@ -453,8 +489,8 @@ function drawTransactionsPageContent(page: PDFPage, transactions: Transaction[],
         const rowData = [
             format(new Date(tx.date), 'dd/MM/yyyy'),
             (tx.recipientName?.toUpperCase() || tx.description).substring(0, 35),
-            tx.type === 'debit' ? formatCurrency(tx.amount, '') : '',
-            tx.type === 'credit' ? formatCurrency(tx.amount, '') : '',
+            tx.type === 'debit' ? formatCurrency(tx.amount, '') : null,
+            tx.type === 'credit' ? formatCurrency(tx.amount, '') : null,
             formatCurrency(runningBalance, '')
         ];
         
@@ -479,12 +515,9 @@ export async function generateStatementPdf(data: StatementData): Promise<Uint8Ar
 
     // --- Page 1: Summary ---
     const summaryPage = pdfDoc.addPage(PageSizes.A4);
-    drawSummaryPageContent(summaryPage, data, resources);
-    drawFooter(summaryPage, resources);
     pages.push(summaryPage);
 
     // --- Subsequent Pages: Transactions ---
-    const TX_PER_PAGE = 35; // Approximate number of transactions per page
     let transactionsToProcess = [...data.transactions];
     let balanceForPage = data.bankSummary.openingBalance;
 
@@ -505,11 +538,17 @@ export async function generateStatementPdf(data: StatementData): Promise<Uint8Ar
             balanceForPage = lastBalance;
         }
     }
-
-
+    
     const totalPages = pages.length;
+
+    // Now that we have all pages, draw content that depends on total page count
+    // Draw Summary Content on Page 1
+    const finalStatementData = {...data, accountSummary: {...data.accountSummary, totalPages: String(totalPages)}};
+    drawSummaryPageContent(summaryPage, finalStatementData, resources);
+    drawFooter(summaryPage, resources);
+
+    // Draw page numbers on all pages
     pages.forEach((page, index) => {
-        const adjustedData = {...data, accountSummary: {...data.accountSummary, totalPages: String(totalPages)}};
         drawPageNumber(page, index + 1, totalPages, resources);
     });
 
