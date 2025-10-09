@@ -49,6 +49,8 @@ const DetailRow = ({ label, value }: { label: string; value: string | null | und
 
 const NotificationItem = ({ notification, isExpanded, onToggle }: { notification: Transaction, isExpanded: boolean, onToggle: () => void }) => {
     const date = parseISO(notification.date);
+    const description = notification.recipientName ? `Payment: ${notification.recipientName}` : notification.description;
+    
     return (
         <div className="border-b bg-white last:border-b-0">
             <div onClick={onToggle} className="flex items-center justify-between p-4 cursor-pointer">
@@ -56,7 +58,7 @@ const NotificationItem = ({ notification, isExpanded, onToggle }: { notification
                     {!notification.id.startsWith('read-') && <div className="h-2 w-2 rounded-full bg-green-500 shrink-0"></div>}
                     <div className={cn(notification.id.startsWith('read-') && 'ml-6')}>
                         <p className={cn("text-base uppercase text-black", !notification.id.startsWith('read-') && "font-bold")}>
-                            {notification.description}
+                            {description}
                         </p>
                         <p className="text-sm text-gray-500">{format(date, "dd MMMM yyyy 'at' HH:mm")}</p>
                     </div>
@@ -124,7 +126,8 @@ export default function TransactionNotificationsPage() {
                     const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
                     transactionsSnapshot.forEach(doc => {
                         const data = doc.data();
-                        if (data.date) {
+                        // Filter out bank fees and ensure date exists
+                        if (data.date && data.transactionType !== 'BANK_FEE') {
                              allTransactions.push({ id: doc.id, ...data, accountNumber: account.accountNumber } as Transaction);
                         }
                     });
