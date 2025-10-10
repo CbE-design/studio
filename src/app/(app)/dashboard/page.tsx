@@ -18,55 +18,90 @@ import { collection, getDocs, query } from 'firebase/firestore';
 
 // Custom SVG Icons
 const OffersIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
-        <path d="M12 21.5c-2.76 0-5-2.24-5-5V11c0-2.76 2.24-5 5-5s5 2.24 5 5v5.5c0 2.76-2.24 5-5 5z"/>
-        <path d="M11 7c0-1.1-.9-2-2-2s-2 .9-2 2"/>
-        <path d="M13 7c0-1.1.9-2 2-2s2 .9 2 2"/>
-        <path d="M9 13H5.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5H9"/>
-        <path d="M14.5 13H18c.28 0 .5-.22.5-.5s-.22-.5-.5-.5H14.5"/>
-        <path d="M19 12h-2"/>
-        <path d="M17.5 11c0-.28-.22-.5-.5-.5s-.5.22.5.5V12"/>
-        <path d="M7 12H5"/>
-        <path d="M6.5 11c0-.28.22-.5.5-.5s.5.22.5.5V12"/>
-        <path d="M12 11h.01"/>
-        <path d="M12 16h.01"/>
-        <path d="M12 21h.01"/>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+        <path d="M16.2 8.3a3.5 3.5 0 1 0-4.95 0"/>
+        <path d="M10.85 9.15s-1.85 1.85-3.35 3.35A5.5 5.5 0 0 0 12 21a5.5 5.5 0 0 0 4.5-8.5c-1.5-1.5-3.35-3.35-3.35-3.35z"/>
+        <path d="M12.5 8.8l-1.4-1.4"/>
+        <path d="M15.5 13.5c0 2-2.5 3-5 0"/>
     </svg>
 );
 
 
 const ApplicationsIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M10 14h4"/><path d="M10 18h4"/><path d="M10 10h4"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <path d="M9 12h2"></path>
+        <path d="M15 12h-2"></path>
+        <path d="M9 17h6"></path>
+        <path d="M11 12a2 2 0 0 1-2-2 2 2 0 0 1 2-2h2a2 2 0 1 1 0 4h-2z"></path>
+        <path d="M14 2v6h6"></path>
+    </svg>
 );
 const InsureIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8"><path d="M22 12a10.06 10.06 1 0 0-20 0Z"/><path d="M12 12v8a4 4 0 0 0 8 0 M12 12a4 4 0 0 0-8 0"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+       <path d="M22 12a10.06 10.06 1 0 0-20 0Z"/><path d="M12 12v8a4 4 0 0 0 8 0 M12 12a4 4 0 0 0-8 0"/>
+    </svg>
 );
 const NedbankConnectIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8"><rect x="7" y="2" width="10" height="20" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+        <rect x="7" y="2" width="10" height="20" rx="2" ry="2"/>
+        <path d="M11 7h2"/>
+        <path d="M11 11h2"/>
+        <path d="M11 15h2"/>
+    </svg>
 );
 const DiscsAndFinesIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8"><path d="M14 16.5 19 12l-5-4.5"/><path d="m10 7.5-5 4.5 5 4.5"/><path d="M2 12h11.5"/><path d="M17.5 12H22"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+        <path d="M19 17h2l.64-2.55a4 4 0 0 0-3.03-4.38L14 8.5V6a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2.5L1.39 10.07a4 4 0 0 0-3.03 4.38L-1 17h2"/>
+        <path d="M19 17a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm-14 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/>
+        <path d="M5 13V7.5a1.5 1.5 0 0 1 1.5-1.5h9A1.5 1.5 0 0 1 17 7.5V13"/>
+    </svg>
 );
 const ShopIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.16"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+        <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
+        <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.16"/>
+    </svg>
 );
 const PayShapIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="text-primary h-8 w-8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM8.5 16.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3.5-3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3.5 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0-7a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8" style={{ color: 'rgb(255, 109, 0)'}}>
+        <path d="m12 1.5-2.5 5 2.5 5 2.5-5-2.5-5z"/>
+        <path d="m5.5 6.5-2.5 5 2.5 5 2.5-5-2.5-5z"/>
+        <path d="m18.5 6.5-2.5 5 2.5 5 2.5-5-2.5-5z"/>
+    </svg>
 );
 const LatestIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8"><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-4-2V12"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/><path d="M16 5.5a2.5 2.5 0 0 0-5 0"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+        <path d="M20 12v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>
+        <path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/>
+        <path d="M12 18a4 4 0 0 0 4-4H8a4 4 0 0 0 4 4z"/>
+        <path d="M10 6a2 2 0 1 1 4 0"/>
+    </svg>
 );
 const QuickPayIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w_8"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2Z"/><path d="M12 6v6l4 2"/><path d="M16.2 7.8c3.2 1.2 5.3 4.9 4.1 8.2s-4.9 5.3-8.2 4.1-5.3-4.9-4.1-8.2c.8-2.3 2.6-4 4.8-4.8"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+        <path d="M3 8.5v3.5a4 4 0 0 0 4 4h10a4 4 0 0 0 4-4V8.5"/><path d="M8 16V4.5a2.5 2.5 0 0 1 2.5-2.5h3A2.5 2.5 0 0 1 16 4.5V16"/>
+        <path d="M12 12h.01"/><path d="M16 8h.01"/><path d="M8 8h.01"/>
+    </svg>
 );
 const GetCashIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8"><path d="M17 9V7a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2"/><path d="M17 9h.01"/><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M9 16h6"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+        <path d="M3 6h18v12H3z"/><path d="M7 6v12"/><path d="M17 6v12"/>
+        <path d="M12 10a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v2z"/>
+        <path d="M14 12h4"/><path d="M14 8h4"/>
+    </svg>
 );
 const HomeLoansIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <path d="M9 22V12h6v10"/>
+    </svg>
 );
 const StatementsIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+        <path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/>
+    </svg>
 );
 
 const widgets = [
@@ -86,9 +121,8 @@ const widgets = [
 
 const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementType, label: string, href: string, isNew?: boolean }) => (
     <Link href={href}>
-        <div className="flex flex-col items-center justify-start space-y-2 text-center h-full">
-            <div className="w-8 h-px bg-gray-300" />
-            <div className="relative flex items-center justify-center w-12 h-12">
+        <div className="flex flex-col items-center justify-center space-y-2 text-center h-full bg-white p-2 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+             <div className="relative flex items-center justify-center w-14 h-14 bg-gray-50 rounded-lg">
                 {isNew && (
                     <div className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs font-semibold text-white bg-green-500 rounded-sm z-10">
                         New
@@ -96,8 +130,7 @@ const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementTyp
                 )}
                 <Icon />
             </div>
-            <div className="w-8 h-px bg-gray-300" />
-            <p className="text-xs text-gray-700 font-medium h-8 flex items-center text-center">{label}</p>
+            <p className="text-xs text-gray-700 font-medium h-8 flex items-center justify-center text-center px-1">{label}</p>
         </div>
     </Link>
 );
@@ -237,7 +270,7 @@ export default function DashboardPage() {
             </div>
 
             <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-y-6">
+            <div className="grid grid-cols-4 gap-2">
               {widgets.map((widget) => (
                   <WidgetItem 
                     key={widget.label} 
@@ -254,4 +287,3 @@ export default function DashboardPage() {
   );
 }
 
-    
