@@ -11,13 +11,51 @@
 
 const { setGlobalOptions } = require('firebase-functions/v2');
 const { onUserCreate } = require('firebase-functions/v2/auth');
+const { onCall } = require('firebase-functions/v2/https');
 const admin = require('firebase-admin');
+const nodemailer = require('nodemailer');
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
 
 // Set global options for functions (e.g., region, memory)
 setGlobalOptions({ region: 'us-central1' });
+
+
+/**
+ * Placeholder for sending an email.
+ * In a real app, you would configure this with a real email service like SendGrid or Mailgun.
+ */
+exports.sendEmail = onCall(async (request) => {
+    const { to, subject, html, attachments } = request.data;
+
+    // For now, this function only logs that it would send an email.
+    // To send a real email, you would need to:
+    // 1. Set up an email service (e.g., SendGrid, Mailgun).
+    // 2. Add your service's API key to Firebase environment configuration.
+    // 3. Replace the logging below with the email service's SDK.
+    
+    console.log("--- SIMULATING EMAIL ---");
+    console.log(`To: ${to}`);
+    console.log(`Subject: ${subject}`);
+    console.log(`Body starts with: ${html.substring(0, 100)}...`);
+    console.log(`Attachment present: ${attachments && attachments.length > 0}`);
+
+    // Example with Nodemailer (requires further setup like SMTP credentials)
+    /*
+    try {
+        // Example: const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: 'your-email', pass: 'your-password' } });
+        // await transporter.sendMail({ from, to, subject, html, attachments });
+        return { success: true, message: "Email simulation successful." };
+    } catch (error) {
+        console.error("Email sending failed:", error);
+        throw new functions.https.HttpsError('internal', 'Failed to send email.');
+    }
+    */
+    
+    return { success: true, message: "Email would be sent in a real application." };
+});
+
 
 // This is the specific list of transactions to be seeded into the Savvy Bundle Current Account.
 const initialSavvyBundleTransactions = [
