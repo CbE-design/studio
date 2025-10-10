@@ -34,7 +34,7 @@ function ShareProofOfPaymentContent() {
       date: searchParams.get('date'), // Read the date from query params
   };
 
-  const [payerName, setPayerName] = useState('DIRK VAN SCHALKWYK');
+  const [payerName, setPayerName] = useState('Van Schalkwyk Family Trust');
 
   useEffect(() => {
     // This is set to a hardcoded value per the request.
