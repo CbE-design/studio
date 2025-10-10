@@ -11,6 +11,8 @@ import { doc, getDoc } from 'firebase/firestore';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/app/lib/data';
+import { generateProofOfPaymentAction } from '@/app/lib/actions';
+import { useToast } from '@/hooks/use-toast';
 
 const DetailRow = ({ label, value }: { label: string; value: string | undefined }) => (
   <div className="py-4">
@@ -48,10 +50,12 @@ function TransactionDetailsContent() {
 
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
+  const { toast } = useToast();
 
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [account, setAccount] = useState<Account | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     if (!firestore || !user?.uid || !accountId || !txId) {
@@ -100,17 +104,38 @@ function TransactionDetailsContent() {
     router.push(`/pay/single/amount?${params.toString()}`);
   }
   
-  const handleShare = () => {
+  const handleShare = async () => {
     if (!transaction) return;
-    const params = new URLSearchParams();
-    params.set('recipientName', transaction.recipientName || '');
-    params.set('amount', String(transaction.amount || '0'));
-    params.set('yourReference', transaction.yourReference || '');
-    params.set('recipientReference', transaction.recipientReference || '');
-    params.set('bankName', transaction.bank || '');
-    params.set('accountNumber', transaction.accountNumber || '');
-    params.set('date', transaction.date); // Pass the original transaction date
-    router.push(`/pay/single/share?${params.toString()}`);
+    setIsGenerating(true);
+    try {
+      const result = await generateProofOfPaymentAction(transaction);
+      if ('error' in result) {
+        throw new Error(result.error);
+      }
+      
+      const pdfBytes = result;
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `proof-of-payment-${transaction.id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast({
+        title: 'Download Started',
+        description: 'Your proof of payment is downloading.',
+      });
+
+    } catch (e: any) {
+        console.error("Failed to generate and download PDF:", e);
+        toast({
+          variant: 'destructive',
+          title: 'Download Failed',
+          description: e.message || 'An unknown error occurred.',
+        });
+    } finally {
+        setIsGenerating(false);
+    }
   };
 
 
@@ -149,9 +174,13 @@ function TransactionDetailsContent() {
         <Button onClick={handlePayAgain} className="w-full font-bold h-12">
           Pay again
         </Button>
-        <Button onClick={handleShare} variant="outline" className="w-full font-bold h-12">
-            <Share2 className="mr-2 h-5 w-5" />
-            Share proof of payment
+        <Button onClick={handleShare} variant="outline" className="w-full font-bold h-12" disabled={isGenerating}>
+            {isGenerating ? (
+                <LoaderCircle className="mr-2 h-5 w-5 animate-spin" />
+            ) : (
+                <Share2 className="mr-2 h-5 w-5" />
+            )}
+            {isGenerating ? 'Generating...' : 'Share proof of payment'}
         </Button>
       </footer>
     </div>

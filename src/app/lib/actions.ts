@@ -6,9 +6,10 @@ import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@
 import { revalidatePath } from 'next/cache';
 import { collection, doc, runTransaction } from 'firebase/firestore';
 import { firestore } from '@/app/lib/firebase';
-import type { TransactionType, Account, User } from './definitions';
+import type { Transaction, TransactionType, Account, User } from './definitions';
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
+import { generateProofOfPaymentPdf } from './pop-generator';
 
 
 const FormSchema = z.object({
@@ -188,6 +189,22 @@ export async function generateConfirmationLetterAction(
         return pdfBytes;
     } catch (e: any) {
         console.error("Failed to generate confirmation letter:", e);
+        return { error: e.message || "An unknown error occurred during PDF generation." };
+    }
+}
+
+
+export async function generateProofOfPaymentAction(
+    transaction: Transaction
+): Promise<Uint8Array | { error: string }> {
+    try {
+        if (!transaction) {
+            throw new Error("Transaction data is required.");
+        }
+        const pdfBytes = await generateProofOfPaymentPdf(transaction);
+        return pdfBytes;
+    } catch (e: any) {
+        console.error("Failed to generate proof of payment:", e);
         return { error: e.message || "An unknown error occurred during PDF generation." };
     }
 }

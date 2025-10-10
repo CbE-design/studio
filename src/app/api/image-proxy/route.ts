@@ -10,11 +10,15 @@ export async function GET(request: Request) {
   }
 
   try {
-    const response = await fetch(imageUrl, {
+    // Use a temporary proxy for development if needed, or fetch directly.
+    const fetchUrl = imageUrl;
+    
+    const response = await fetch(fetchUrl, {
       cache: 'force-cache', // Cache the logo since it won't change
     });
 
     if (!response.ok) {
+      console.error(`Failed to fetch image: ${response.status} ${response.statusText}`, await response.text());
       throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
     }
 
