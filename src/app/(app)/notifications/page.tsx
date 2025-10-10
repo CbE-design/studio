@@ -5,6 +5,11 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, ChevronRight, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
+import { collection, getDocs, query } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import type { Transaction } from '@/app/lib/definitions';
 
 const WrenchAndGearIcon = () => (
   <svg
@@ -26,23 +31,66 @@ const WrenchAndGearIcon = () => (
 );
 
 
-const notificationOptions = [
-  {
-    title: 'Transactions',
-    href: '/notifications/transactions',
-  },
-  {
-    title: 'Messages',
-    href: '#',
-  },
-  {
-    title: 'Offers for you',
-    href: '#',
-  },
-];
-
 export default function NotificationsHubPage() {
   const router = useRouter();
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const accountsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
+  }, [firestore, user?.uid]);
+  const { data: accounts, isLoading: isAccountsLoading } = useCollection(accountsQuery);
+  
+  useEffect(() => {
+    if (!accounts || isUserLoading || isAccountsLoading) return;
+
+    const fetchAndCountTransactions = async () => {
+        if (!user?.uid) return;
+
+        let allTransactions: Transaction[] = [];
+        for (const account of accounts) {
+            const transactionsCollectionRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
+            const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
+            transactionsSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.date && data.transactionType !== 'BANK_FEE') {
+                     allTransactions.push({ id: doc.id, ...data } as Transaction);
+                }
+            });
+        }
+        
+        try {
+            const readIds = JSON.parse(localStorage.getItem('readTransactionIds') || '[]');
+            const newUnreadCount = allTransactions.filter(tx => !readIds.includes(tx.id)).length;
+            setUnreadCount(newUnreadCount);
+        } catch (e) {
+            console.error("Failed to parse readTransactionIds from localStorage", e);
+            setUnreadCount(allTransactions.length);
+        }
+    };
+    
+    fetchAndCountTransactions();
+  }, [accounts, firestore, user?.uid, isUserLoading, isAccountsLoading]);
+
+  const notificationOptions = [
+    {
+      title: 'Transactions',
+      href: '/notifications/transactions',
+      badge: unreadCount > 0 ? (unreadCount > 9 ? '9+' : String(unreadCount)) : null,
+    },
+    {
+      title: 'Messages',
+      href: '#',
+      badge: null,
+    },
+    {
+      title: 'Offers for you',
+      href: '#',
+      badge: null,
+    },
+  ];
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -68,6 +116,11 @@ export default function NotificationsHubPage() {
                     <span className="flex-1 font-medium text-gray-700 text-lg">
                       {option.title}
                     </span>
+                    {option.badge && (
+                      <Badge className="bg-green-600 text-white mr-2">
+                        {option.badge}
+                      </Badge>
+                    )}
                     <ChevronRight className="h-5 w-5 text-gray-400" />
                   </div>
                 </Link>

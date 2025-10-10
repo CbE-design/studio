@@ -8,29 +8,31 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { AccountsCarousel } from '@/components/accounts-carousel';
-import { useUser } from '@/firebase-provider';
+import { useUser, useCollection, useFirestore, useMemoFirebase } from '@/firebase-provider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import type { Transaction } from '@/app/lib/definitions';
+import { collection, getDocs, query } from 'firebase/firestore';
 
 // Custom SVG Icons
 const OffersIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
-        <path d="M12 21.5C9.37 21.5 7 19.33 7 16.5V11c0-2.21 1.79-4 4-4s4 1.79 4 4v5.5c0 2.83-2.37 5-5 5z"/>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+        <path d="M12 21.5c-2.76 0-5-2.24-5-5V11c0-2.76 2.24-5 5-5s5 2.24 5 5v5.5c0 2.76-2.24 5-5 5z"/>
         <path d="M11 7c0-1.1-.9-2-2-2s-2 .9-2 2"/>
         <path d="M13 7c0-1.1.9-2 2-2s2 .9 2 2"/>
         <path d="M9 13H5.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5H9"/>
         <path d="M14.5 13H18c.28 0 .5-.22.5-.5s-.22-.5-.5-.5H14.5"/>
         <path d="M19 12h-2"/>
-        <path d="M17.5 11c0-.28-.22-.5-.5-.5s-.5.22-.5.5V12"/>
+        <path d="M17.5 11c0-.28-.22-.5-.5-.5s-.5.22.5.5V12"/>
         <path d="M7 12H5"/>
         <path d="M6.5 11c0-.28.22-.5.5-.5s.5.22.5.5V12"/>
-        <path d="M12 21.5c-2.76 0-5-2.24-5-5V11c0-2.76 2.24-5 5-5s5 2.24 5 5v5.5c0 2.76-2.24 5-5 5z"/>
         <path d="M12 11h.01"/>
         <path d="M12 16h.01"/>
         <path d="M12 21h.01"/>
     </svg>
 );
+
 
 const ApplicationsIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M10 14h4"/><path d="M10 18h4"/><path d="M10 10h4"/></svg>
@@ -136,13 +138,52 @@ const LoadingSkeleton = () => (
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const firestore = useFirestore();
+  const [unreadCount, setUnreadCount] = useState(0);
 
+  const accountsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
+  }, [firestore, user?.uid]);
+  const { data: accounts, isLoading: isAccountsLoading } = useCollection(accountsQuery);
+  
   useEffect(() => {
     // If loading is finished and there is no user, redirect to login
     if (!isUserLoading && !user) {
       router.push('/login');
     }
   }, [user, isUserLoading, router]);
+
+  useEffect(() => {
+    if (!accounts || isUserLoading || isAccountsLoading) return;
+
+    const fetchAndCountTransactions = async () => {
+        if (!user?.uid) return;
+
+        let allTransactions: Transaction[] = [];
+        for (const account of accounts) {
+            const transactionsCollectionRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
+            const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
+            transactionsSnapshot.forEach(doc => {
+                const data = doc.data();
+                if (data.date && data.transactionType !== 'BANK_FEE') {
+                     allTransactions.push({ id: doc.id, ...data } as Transaction);
+                }
+            });
+        }
+        
+        try {
+            const readIds = JSON.parse(localStorage.getItem('readTransactionIds') || '[]');
+            const newUnreadCount = allTransactions.filter(tx => !readIds.includes(tx.id)).length;
+            setUnreadCount(newUnreadCount);
+        } catch (e) {
+            console.error("Failed to parse readTransactionIds from localStorage", e);
+            setUnreadCount(allTransactions.length);
+        }
+    };
+    
+    fetchAndCountTransactions();
+  }, [accounts, firestore, user?.uid, isUserLoading, isAccountsLoading, router]);
 
   if (isUserLoading || !user) {
     return <LoadingSkeleton />;
@@ -164,7 +205,14 @@ export default function DashboardPage() {
             <span className="font-medium text-lg">Corrie</span>
           </div>
           <div className="flex items-center gap-4">
-            <Bell className="h-5 w-5" />
+            <Link href="/notifications">
+              <div className="relative">
+                <Bell className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-lime-400 border-2 border-green-800" />
+                )}
+              </div>
+            </Link>
             <MessageSquare className="h-5 w-5" />
           </div>
         </div>
