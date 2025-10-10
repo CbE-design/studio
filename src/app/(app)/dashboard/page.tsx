@@ -53,7 +53,7 @@ const NedbankConnectIcon = () => (
 const DiscsAndFinesIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
         <path d="M19 17h2l.64-2.55a4 4 0 0 0-3.03-4.38L14 8.5V6a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2.5L1.39 10.07a4 4 0 0 0-3.03 4.38L-1 17h2"/>
-        <path d="M19 17a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm-14 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/>
+        <path d="M19 17a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm-14 0a2 2 0 1 1 0-4 2 2 0 0-1 0 4z"/>
         <path d="M5 13V7.5a1.5 1.5 0 0 1 1.5-1.5h9A1.5 1.5 0 0 1 17 7.5V13"/>
     </svg>
 );
@@ -226,7 +226,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col h-full bg-white text-black">
       {/* Header */}
-      <header className="bg-white text-black p-4 space-y-4 sticky top-0 z-10 border-b">
+      <header className="gradient-background text-primary-foreground p-4 space-y-4 sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Image 
