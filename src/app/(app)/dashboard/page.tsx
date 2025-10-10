@@ -137,21 +137,21 @@ const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementTyp
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col h-full bg-white text-black">
-    <header className="gradient-background text-primary-foreground p-4 space-y-4 sticky top-0 z-10">
+    <header className="bg-white text-black p-4 space-y-4 sticky top-0 z-10 border-b">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Skeleton className="w-6 h-6 rounded-md bg-white/20" />
-          <Skeleton className="h-6 w-48 bg-white/20" />
+          <Skeleton className="w-6 h-6 rounded-md bg-gray-200" />
+          <Skeleton className="h-6 w-48 bg-gray-200" />
         </div>
         <div className="flex items-center gap-4">
-          <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
-          <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
+          <Skeleton className="h-5 w-5 rounded-full bg-gray-200" />
+          <Skeleton className="h-5 w-5 rounded-full bg-gray-200" />
         </div>
       </div>
     </header>
     <main className="flex-1 overflow-y-auto bg-gray-50">
-      <div className="gradient-background text-primary-foreground p-4">
-        <Skeleton className="h-40 w-full bg-white/20 rounded-lg" />
+      <div className="bg-gray-100 p-4">
+        <Skeleton className="h-40 w-full bg-gray-200 rounded-lg" />
       </div>
       <div className="p-4">
         <Skeleton className="h-24 w-full my-6 rounded-lg bg-gray-200" />
@@ -226,7 +226,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col h-full bg-white text-black">
       {/* Header */}
-      <header className="gradient-background text-primary-foreground p-4 space-y-4 sticky top-0 z-10">
+      <header className="bg-white text-black p-4 space-y-4 sticky top-0 z-10 border-b">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Image 
