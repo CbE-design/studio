@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -177,11 +178,11 @@ export default function MorePage() {
             <div className="flex flex-col items-center">
               <Avatar className="h-16 w-16 mb-2 border-2 border-primary">
                 <AvatarFallback className="text-2xl bg-gray-100 text-primary font-bold">
-                  C
+                  V
                 </AvatarFallback>
               </Avatar>
               <p className="font-bold text-gray-800">
-                Corrie
+                Van Schalkwyk Family Trust
               </p>
               <p className="text-sm text-gray-500">3120634863</p>
             </div>
@@ -232,3 +233,5 @@ export default function MorePage() {
     </div>
   );
 }
+
+    

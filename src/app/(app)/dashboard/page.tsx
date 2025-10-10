@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -202,7 +203,7 @@ export default function DashboardPage() {
               height={24}
               className="w-6 h-6"
             />
-            <span className="font-medium text-lg">Corrie</span>
+            <span className="font-medium text-lg">Van Schalkwyk Family Trust</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/notifications">
@@ -252,3 +253,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
