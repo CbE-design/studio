@@ -1,21 +1,46 @@
 
 'use client';
 
-import { ArrowLeft, FileText, Info } from 'lucide-react';
+import { ArrowLeft, FileText, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
+import { collection, query } from 'firebase/firestore';
+import type { Account } from '@/app/lib/definitions';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useState } from 'react';
+import Link from 'next/link';
 
 export default function DocumentsPage() {
   const router = useRouter();
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
 
-  // Placeholder data - in a real app, this would be fetched
-  const documents = [
-    { name: 'January_Statement_2024.pdf', url: '#' },
-    { name: 'Tax_Certificate_2023.pdf', url: '#' },
-    { name: 'Account_Confirmation_Letter.pdf', url: '#' },
-  ];
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+
+  const accountsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
+  }, [firestore, user?.uid]);
+
+  const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
+
+  const handleAccountChange = (accountId: string) => {
+    setSelectedAccountId(accountId);
+  };
+
+  const isLoading = isUserLoading || isAccountsLoading;
+  
+  const selectedAccount = accounts?.find(acc => acc.id === selectedAccountId);
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -27,40 +52,71 @@ export default function DocumentsPage() {
       </header>
 
       <main className="flex-1 overflow-y-auto p-6 space-y-8">
-        <Alert>
-          <Info className="h-4 w-4" />
-          <AlertTitle>Manage Your Documents</AlertTitle>
-          <AlertDescription>
-            You can upload and manage your important documents here once the document storage feature is fully enabled.
-          </AlertDescription>
-        </Alert>
-
+        
         <Card>
           <CardHeader>
-            <CardTitle>My Documents</CardTitle>
+            <CardTitle>Generate Documents</CardTitle>
           </CardHeader>
-          <CardContent>
-            {documents.length > 0 ? (
-              <ul className="space-y-2">
-                {documents.map((doc) => (
-                  <li key={doc.name} className="flex items-center justify-between p-3 bg-white rounded-md border hover:bg-gray-50">
-                    <a
-                      href={doc.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center text-primary hover:underline"
-                    >
-                      <FileText className="mr-2 h-5 w-5" />
-                      <span>{doc.name}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-center text-gray-500 p-8">You haven't uploaded any documents yet.</p>
-            )}
+          <CardContent className="space-y-4">
+              <div>
+                <label htmlFor="account-select" className="text-sm font-medium text-gray-700 mb-2 block">
+                  Select an account to generate documents
+                </label>
+                {isLoading ? (
+                  <Skeleton className="h-10 w-full" />
+                ) : (
+                  <Select onValueChange={handleAccountChange} value={selectedAccountId || ""}>
+                    <SelectTrigger id="account-select">
+                      <SelectValue placeholder="Select an account..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accounts?.map((account) => (
+                        <SelectItem key={account.id} value={account.id}>
+                          {account.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+
+              {selectedAccountId && selectedAccount && (
+                <div className="bg-white rounded-lg border divide-y mt-4">
+                  <Link href={`/account/${selectedAccountId}/statement`}>
+                    <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50">
+                        <div className="flex items-center">
+                          <FileText className="mr-3 h-5 w-5 text-primary" />
+                          <p>View Statement</p>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-gray-400" />
+                    </div>
+                  </Link>
+                   <Link href={`/account/${selectedAccountId}/confirmation-letter`}>
+                    <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50">
+                        <div className="flex items-center">
+                          <FileText className="mr-3 h-5 w-5 text-primary" />
+                          <p>Confirmation Letter</p>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-gray-400" />
+                    </div>
+                  </Link>
+                </div>
+              )}
           </CardContent>
         </Card>
+
+         <Card>
+          <CardHeader>
+            <CardTitle>My Uploaded Documents</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center text-gray-500 p-8 border-2 border-dashed rounded-lg">
+                <p>You haven't uploaded any documents yet.</p>
+                <p className="text-sm mt-1">This feature is coming soon.</p>
+            </div>
+          </CardContent>
+        </Card>
+
       </main>
     </div>
   );
