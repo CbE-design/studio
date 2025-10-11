@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { calculateFee } from '@/app/lib/fees';
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 
 const AccountSelector = ({
   accounts,
@@ -26,98 +27,81 @@ const AccountSelector = ({
   selectedAccount: string | null;
   onSelectAccount: (accountId: string) => void;
 }) => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [canScroll, setCanScroll] = useState({ up: false, down: false });
+    const [api, setApi] = useState<CarouselApi>()
+ 
+    useEffect(() => {
+        if (!api) {
+            return
+        }
+        
+        const selectedIndex = accounts.findIndex(acc => acc.id === selectedAccount);
+        if (selectedIndex !== -1) {
+            api.scrollTo(selectedIndex, true);
+        }
 
-  const checkScrollability = () => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      setCanScroll({
-        up: scrollTop > 0,
-        down: scrollTop < scrollHeight - clientHeight,
-      });
-    }
-  };
+        api.on("select", () => {
+            const newSelectedIndex = api.selectedScrollSnap();
+            if (accounts[newSelectedIndex]) {
+                onSelectAccount(accounts[newSelectedIndex].id);
+            }
+        })
+    }, [api, accounts, selectedAccount, onSelectAccount])
 
-  useEffect(() => {
-    checkScrollability();
-    const container = scrollContainerRef.current;
-    container?.addEventListener('scroll', checkScrollability);
-    return () => container?.removeEventListener('scroll', checkScrollability);
-  }, [accounts]);
-  
-  const scroll = (direction: 'up' | 'down') => {
-    scrollContainerRef.current?.scrollBy({
-      top: direction === 'up' ? -160 : 160, // Adjust scroll amount as needed
-      behavior: 'smooth',
-    });
-  };
 
   return (
-    <div className="flex justify-center items-center gap-2">
-       <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => scroll('up')}
-        disabled={!canScroll.up}
-        className="text-primary disabled:text-gray-300"
-      >
-        <ChevronUp className="h-6 w-6" />
-      </Button>
-      <div
-        ref={scrollContainerRef}
-        className="flex flex-col space-y-4 h-40 overflow-y-auto no-scrollbar" // h-40 allows viewing one card at a time with some peek
-      >
-        {accounts.map((account) => (
-          <Card
-            key={account.id}
-            className={cn(
-              'min-w-[200px] w-[200px] border-2 rounded-lg transition-all cursor-pointer shadow-sm',
-              selectedAccount === account.id
-                ? 'border-primary bg-white'
-                : 'border-gray-200 bg-white'
-            )}
-            onClick={() => onSelectAccount(account.id)}
-          >
-            <CardContent className="p-0 relative flex flex-col justify-between h-full">
-              <div className="p-3">
-                <p
-                  className={cn(
-                    'font-semibold text-sm',
-                    selectedAccount === account.id
-                      ? 'text-primary'
-                      : 'text-gray-600'
-                  )}
-                >
-                  {account.name}
-                </p>
-                <p className="text-xs text-gray-400">{account.accountNumber.slice(-10)}</p>
-              </div>
-              <div
+    <Carousel setApi={setApi}
+      opts={{
+        align: "center",
+        loop: false,
+      }}
+      className="w-full max-w-sm mx-auto"
+    >
+      <CarouselContent className="-ml-2">
+        {accounts.map((account, index) => (
+          <CarouselItem key={index} className="pl-2 basis-2/3 md:basis-1/2">
+             <Card
+                key={account.id}
                 className={cn(
-                  'p-3 text-white font-bold rounded-b-md',
-                  selectedAccount === account.id
-                    ? 'bg-primary'
-                    : 'bg-gray-300'
+                'min-w-[200px] w-[200px] border-2 rounded-lg transition-all cursor-pointer shadow-sm',
+                selectedAccount === account.id
+                    ? 'border-primary bg-white'
+                    : 'border-gray-200 bg-white'
                 )}
-              >
-                {formatCurrency(account.balance, account.currency)}
-              </div>
-            </CardContent>
-          </Card>
+                onClick={() => onSelectAccount(account.id)}
+            >
+                <CardContent className="p-0 relative flex flex-col justify-between h-full">
+                <div className="p-3">
+                    <p
+                    className={cn(
+                        'font-semibold text-sm uppercase',
+                        selectedAccount === account.id
+                        ? 'text-primary'
+                        : 'text-gray-600'
+                    )}
+                    >
+                    {account.name}
+                    </p>
+                    <p className="text-xs text-gray-400">{account.accountNumber}</p>
+                </div>
+                <div
+                    className={cn(
+                    'p-3 text-white font-bold rounded-b-md',
+                    selectedAccount === account.id
+                        ? 'bg-primary'
+                        : 'bg-gray-300'
+                    )}
+                >
+                    {formatCurrency(account.balance, account.currency)}
+                </div>
+                {selectedAccount === account.id && (
+                    <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-primary" />
+                )}
+                </CardContent>
+            </Card>
+          </CarouselItem>
         ))}
-      </div>
-       <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => scroll('down')}
-        disabled={!canScroll.down}
-        className="text-primary disabled:text-gray-300"
-      >
-        <ChevronDown className="h-6 w-6" />
-      </Button>
-    </div>
+      </CarouselContent>
+    </Carousel>
   );
 };
 
@@ -169,7 +153,6 @@ function AmountPageContent() {
         paymentType: searchParams.get('paymentType'),
     };
     
-    // Set default values from previous page's state
     useEffect(() => {
         const yourRef = searchParams.get('yourReference');
         if (yourRef) setYourReference(yourRef);
@@ -177,7 +160,6 @@ function AmountPageContent() {
         if (recipientRef) setRecipientReference(recipientRef);
     }, [searchParams]);
 
-    // Set initial 'fromAccount' once accounts have loaded
     useEffect(() => {
         if (allAccounts && allAccounts.length > 0 && !fromAccount) {
             const currentAccount = allAccounts.find(acc => acc.type === 'Cheque');
@@ -244,9 +226,11 @@ function AmountPageContent() {
         return <LoadingSkeleton />;
     }
 
+    const chequeAccounts = allAccounts.filter(a => a.type === 'Cheque');
+
     return (
         <div className="flex flex-col h-screen bg-gray-50">
-            <header className="gradient-background text-primary-foreground p-4 flex flex-col justify-between sticky top-0 z-10 h-[220px]">
+            <header className="gradient-background text-primary-foreground p-4 flex flex-col justify-between sticky top-0 z-10 min-h-[240px]">
                 <div className="w-full flex items-center justify-between">
                     <Button variant="ghost" size="icon" className="-ml-2" onClick={() => router.back()}>
                         <ArrowLeft />
@@ -260,38 +244,41 @@ function AmountPageContent() {
                         <X />
                     </Button>
                 </div>
-                <div className="w-full flex justify-center items-end text-center">
-                    <input
-                    type="text"
-                    inputMode="decimal"
-                    value={amount}
-                    onChange={handleAmountChange}
-                    onBlur={handleAmountBlur}
-                    className="w-full bg-transparent text-5xl font-light focus:outline-none text-center"
-                    placeholder="R 0.00"
-                    />
+                <div className="w-full flex-grow flex flex-col justify-center items-center text-center">
+                     <label htmlFor="amount" className="text-sm opacity-80 self-start w-full px-4">Amount</label>
+                    <div className="flex items-center w-full px-4">
+                        <span className="text-4xl font-light opacity-80">R</span>
+                        <input
+                            id="amount"
+                            type="text"
+                            inputMode="decimal"
+                            value={amount}
+                            onChange={handleAmountChange}
+                            onBlur={handleAmountBlur}
+                            className="w-full bg-transparent text-5xl font-light focus:outline-none border-b-2 border-yellow-400"
+                            placeholder="0.00"
+                        />
+                    </div>
                 </div>
-                 <div className="h-10" />
+                 <div className="text-xs text-center text-primary-foreground/80 py-1">
+                    {estimatedFee > 0 ? (
+                        <span>
+                            Estimated Fee: <span className="font-semibold">{formatCurrency(estimatedFee)}</span>. 
+                            Total deduction: <span className="font-semibold">{formatCurrency(totalDeduction)}</span>.
+                        </span>
+                    ) : (
+                        <span>
+                            R1 000 000.00 daily payment limit remaining
+                        </span>
+                    )}
+                 </div>
             </header>
-            <div className="w-full h-1 bg-yellow-400"></div>
-            <div className="text-xs text-center text-gray-500 py-1 bg-gray-200">
-                {estimatedFee > 0 ? (
-                    <span>
-                        Estimated Fee: <span className="font-semibold">{formatCurrency(estimatedFee)}</span>. 
-                        Total deduction: <span className="font-semibold">{formatCurrency(totalDeduction)}</span>.
-                    </span>
-                ) : (
-                    <span>
-                        R999 999.90 daily payment limit remaining
-                    </span>
-                )}
-            </div>
             
             <main className="flex-1 overflow-y-auto bg-gray-50 p-4 space-y-6">
-                <div className="space-y-2">
-                    <h2 className="font-semibold text-gray-700 mb-2 text-center">From which account?</h2>
+                <div className="space-y-2 text-center">
+                    <h2 className="font-semibold text-gray-700 mb-2">From which account?</h2>
                      <AccountSelector
-                        accounts={allAccounts.filter(a => a.type !== 'Credit')}
+                        accounts={chequeAccounts}
                         selectedAccount={fromAccount}
                         onSelectAccount={setFromAccount}
                     />
@@ -301,7 +288,7 @@ function AmountPageContent() {
                     <h2 className="font-semibold text-gray-700">What is the payment for?</h2>
                     <div className="space-y-2">
                         <Label htmlFor="your-reference" className="text-xs text-gray-500">Your reference</Label>
-                        <Input id="your-reference" value={yourReference} onChange={e => setYourReference(e.target.value)} className="bg-white" />
+                        <Input id="your-reference" value={yourReference} onChange={e => setYourReference(e.target.value)} className="bg-white border-primary" />
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="recipient-reference" className="text-xs text-gray-500">Recipient's reference</Label>
@@ -322,14 +309,14 @@ function AmountPageContent() {
                     <div className="space-y-2">
                         <Label htmlFor="transfer-date" className="text-xs text-gray-500">Payment date</Label>
                         <div className="relative">
-                            <Input id="transfer-date" value={format(new Date(), 'EEEE, dd MMMM yyyy')} readOnly className="bg-white pr-10 border-primary" />
+                            <Input id="transfer-date" value={format(new Date(), 'EEEE, dd MMMM yyyy')} readOnly className="bg-white pr-10" />
                             <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
                         </div>
                     </div>
                     <div className="space-y-2">
                        <Label htmlFor="transfer-repeat" className="text-xs text-gray-500">Payment repeat</Label>
                        <div className="relative">
-                         <Input id="transfer-repeat" value="Never" readOnly className="bg-white pr-10 border-primary" />
+                         <Input id="transfer-repeat" value="Never" readOnly className="bg-white pr-10" />
                          <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                        </div>
                     </div>
