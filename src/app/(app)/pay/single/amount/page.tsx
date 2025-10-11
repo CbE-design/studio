@@ -273,7 +273,7 @@ function AmountPageContent() {
                 <div className="w-full flex-grow flex flex-col justify-center items-center text-center">
                      <label htmlFor="amount" className="text-sm opacity-80 self-start w-full px-4">Amount</label>
                     <div className="flex items-center w-full px-4">
-                        <span className="text-3xl font-light opacity-80">R</span>
+                        <span className="text-3xl font-light text-white opacity-80">R</span>
                         <input
                             id="amount"
                             type="text"
@@ -281,20 +281,19 @@ function AmountPageContent() {
                             value={amount}
                             onChange={handleAmountChange}
                             onBlur={handleAmountBlur}
-                            className="w-full bg-transparent text-4xl font-light focus:outline-none border-b-2 border-yellow-400"
+                            className="w-full bg-transparent text-white text-4xl font-light focus:outline-none border-b-2 border-yellow-400 placeholder-white/80"
                             placeholder="0.00"
                         />
                     </div>
                 </div>
                  <div className="text-xs text-center text-primary-foreground/80 py-1">
-                    {estimatedFee > 0 ? (
+                    {dailyLimitRemaining !== null ? (
                         <span>
-                            Estimated Fee: <span className="font-semibold">{formatCurrency(estimatedFee)}</span>. 
-                            Total deduction: <span className="font-semibold">{formatCurrency(totalDeduction)}</span>.
+                            {formatCurrency(dailyLimitRemaining)} daily payment limit remaining
                         </span>
                     ) : (
                         <span>
-                             {formatCurrency(dailyLimitRemaining)} daily payment limit remaining
+                            Calculating payment limit...
                         </span>
                     )}
                  </div>
