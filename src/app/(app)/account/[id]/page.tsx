@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, MessageSquare, ChevronRight, Search, FileText } from 'lucide-react';
+import { ArrowLeft, MessageSquare, ChevronRight, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
@@ -261,7 +261,7 @@ export default function AccountDetailsPage() {
                   <div className="px-4">
                     {groupedTransactions[group].map(tx => (
                        <Link href={`/account/${accountId}/transaction/${tx.id}`} key={tx.id}>
-                          <div className="flex items-center justify-between py-3 border-b last:border-b-0 cursor-pointer">
+                          <div className="flex items-center justify-between py-3 border-b border-gray-200 last:border-b-0 cursor-pointer">
                               <div>
                                   <p className="text-xs text-gray-500">{format(new Date(tx.date), 'dd MMM yyyy')}</p>
                                   <p className="font-semibold text-sm text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
