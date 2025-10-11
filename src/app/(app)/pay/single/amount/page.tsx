@@ -5,10 +5,10 @@ import { Suspense, useEffect, useState, useRef, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, CalendarIcon, ChevronRight, ChevronUp, ChevronDown, LoaderCircle, PlusCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { format } from 'date-fns';
+import { format, isToday, parseISO } from 'date-fns';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
-import type { Account, TransactionType } from '@/app/lib/definitions';
-import { collection, query } from 'firebase/firestore';
+import type { Account, Transaction, TransactionType } from '@/app/lib/definitions';
+import { collection, query, getDocs } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/app/lib/data';
@@ -133,6 +133,7 @@ function AmountPageContent() {
     const [amount, setAmount] = useState('');
     const [yourReference, setYourReference] = useState('');
     const [recipientReference, setRecipientReference] = useState('');
+    const [dailyLimitRemaining, setDailyLimitRemaining] = useState<number | null>(null);
 
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
@@ -170,6 +171,31 @@ function AmountPageContent() {
             }
         }
     }, [allAccounts, fromAccount]);
+    
+    useEffect(() => {
+        if (!allAccounts || isUserLoading) return;
+
+        const calculateDailyLimit = async () => {
+            if (!user?.uid) return;
+            const TOTAL_DAILY_LIMIT = 5000000.00;
+            let totalSpentToday = 0;
+
+            for (const account of allAccounts) {
+                const transactionsCollectionRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
+                const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
+                transactionsSnapshot.forEach(doc => {
+                    const tx = doc.data() as Transaction;
+                    if (tx.date && tx.type === 'debit' && tx.transactionType !== 'BANK_FEE' && isToday(parseISO(tx.date))) {
+                        totalSpentToday += tx.amount;
+                    }
+                });
+            }
+            setDailyLimitRemaining(TOTAL_DAILY_LIMIT - totalSpentToday);
+        };
+
+        calculateDailyLimit();
+
+    }, [allAccounts, firestore, user?.uid, isUserLoading]);
     
     const { estimatedFee, transactionType } = useMemo(() => {
         const numericAmount = parseFloat(amount) || 0;
@@ -220,7 +246,7 @@ function AmountPageContent() {
         router.push(`/pay/single/review?${params.toString()}`);
     }
 
-    const isLoading = isUserLoading || isAccountsLoading || !allAccounts;
+    const isLoading = isUserLoading || isAccountsLoading || !allAccounts || dailyLimitRemaining === null;
 
     if (isLoading) {
         return <LoadingSkeleton />;
@@ -247,7 +273,7 @@ function AmountPageContent() {
                 <div className="w-full flex-grow flex flex-col justify-center items-center text-center">
                      <label htmlFor="amount" className="text-sm opacity-80 self-start w-full px-4">Amount</label>
                     <div className="flex items-center w-full px-4">
-                        <span className="text-4xl font-light opacity-80">R</span>
+                        <span className="text-3xl font-light opacity-80">R</span>
                         <input
                             id="amount"
                             type="text"
@@ -255,7 +281,7 @@ function AmountPageContent() {
                             value={amount}
                             onChange={handleAmountChange}
                             onBlur={handleAmountBlur}
-                            className="w-full bg-transparent text-5xl font-light focus:outline-none border-b-2 border-yellow-400"
+                            className="w-full bg-transparent text-4xl font-light focus:outline-none border-b-2 border-yellow-400"
                             placeholder="0.00"
                         />
                     </div>
@@ -268,7 +294,7 @@ function AmountPageContent() {
                         </span>
                     ) : (
                         <span>
-                            R1 000 000.00 daily payment limit remaining
+                             {formatCurrency(dailyLimitRemaining)} daily payment limit remaining
                         </span>
                     )}
                  </div>
