@@ -14,12 +14,72 @@ const { onUserCreate } = require('firebase-functions/v2/auth');
 const { onCall } = require('firebase-functions/v2/https');
 const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
+const { Vonage } = require('@vonage/server-sdk');
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
 
 // Set global options for functions (e.g., region, memory)
 setGlobalOptions({ region: 'us-central1' });
+
+// Initialize Vonage
+const vonage = new Vonage({
+  apiKey: process.env.VONAGE_API_KEY,
+  apiSecret: process.env.VONAGE_API_SECRET
+});
+
+
+/**
+ * Sends an SMS message using the Vonage API.
+ * This is a callable function, meaning it can be invoked directly from the client-side application.
+ *
+ * @param {object} request - The request object from the client.
+ * @param {string} request.data.to - The recipient's phone number in E.164 format (e.g., +14155552671).
+ * @param {string} request.data.text - The text content of the message.
+ * @returns {Promise<{success: boolean, message: string, messageId?: string}>} - A promise that resolves with the result of the operation.
+ */
+exports.sendSms = onCall(async (request) => {
+    // 1. Authenticate the user if required (recommended for production)
+    if (!request.auth) {
+        throw new functions.https.HttpsError(
+            'unauthenticated',
+            'The function must be called while authenticated.'
+        );
+    }
+    
+    // 2. Validate the incoming data
+    const { to, text } = request.data;
+    if (!to || !text) {
+        throw new functions.https.HttpsError(
+            'invalid-argument',
+            'The function must be called with "to" and "text" arguments.'
+        );
+    }
+
+    const from = "Nedbank";
+
+    try {
+        // 3. Send the SMS using the Vonage SDK
+        const response = await vonage.sms.send({ to, from, text });
+        const messageId = response.messages[0].messageId;
+        
+        console.log(`Message sent successfully. Message ID: ${messageId}`);
+
+        // 4. Return a success response to the client
+        return { 
+            success: true, 
+            message: "SMS sent successfully!",
+            messageId: messageId
+        };
+    } catch (error) {
+        console.error("Error sending SMS:", error);
+        throw new functions.https.HttpsError(
+            'internal',
+            'Failed to send SMS.',
+            error
+        );
+    }
+});
 
 
 /**
