@@ -10,6 +10,8 @@ import type { Transaction, TransactionType, Account, User } from './definitions'
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
+import { getFunctions } from 'firebase-admin/functions';
+import { admin } from './firebase-admin';
 
 
 const FormSchema = z.object({
@@ -158,6 +160,23 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             transaction.update(accountRef, { balance: newBalance });
         });
 
+        // After successful transaction, try to send SMS
+        // Note: This part fails silently if it doesn't work, not to block the payment success flow.
+        try {
+            const functions = getFunctions(admin.app());
+            const sendSms = httpsCallable(functions, 'sendSms');
+            // This is a placeholder. In a real app, you would fetch the recipient's phone number.
+            const recipientPhoneNumber = '+14155552671';
+            
+            await sendSms({
+                to: recipientPhoneNumber,
+                text: `You have received a payment of ${amount} from VAN SCHALKWYK FAMILY TRUST. Ref: ${recipientReference || ''}`
+            });
+            console.log('SMS notification call succeeded.');
+        } catch (smsError) {
+            console.error('SMS notification call failed:', smsError);
+        }
+
         revalidatePath(`/account/${fromAccountId}`);
         revalidatePath('/dashboard');
         
@@ -207,4 +226,59 @@ export async function generateProofOfPaymentAction(
         console.error("Failed to generate proof of payment:", e);
         return { error: e.message || "An unknown error occurred during PDF generation." };
     }
+}
+
+
+export async function markTransactionAsFailedAction(
+  userId: string,
+  accountId: string,
+  transactionId: string
+): Promise<{ success: boolean; message: string }> {
+  try {
+    await runTransaction(firestore, async (firestoreTransaction) => {
+      const txRef = doc(
+        firestore,
+        `users/${userId}/bankAccounts/${accountId}/transactions/${transactionId}`
+      );
+      const txSnap = await firestoreTransaction.get(txRef);
+
+      if (!txSnap.exists()) {
+        throw new Error('Transaction not found.');
+      }
+      const txData = txSnap.data() as Transaction;
+      
+      const failedTxRef = doc(collection(firestore, `users/${userId}/bankAccounts/${accountId}/failedTransactions`));
+
+      const newFailedTxData = {
+        id: failedTxRef.id,
+        returnDate: new Date().toISOString().split('T')[0],
+        fromAccount: txData.accountNumber || 'N/A',
+        toAccount: 'N/A', // This info isn't on the transaction record
+        beneficiaryName: txData.recipientName || 'N/A',
+        branchCode: 'N/A', // This info isn't on the transaction record
+        failureReason: 'Manually marked as failed',
+      };
+      
+      firestoreTransaction.set(failedTxRef, newFailedTxData);
+      
+      const accountRef = doc(firestore, `users/${userId}/bankAccounts/${accountId}`);
+      const accountSnap = await firestoreTransaction.get(accountRef);
+
+      if (accountSnap.exists()) {
+        const accountData = accountSnap.data() as Account;
+        // Reverse the transaction amount
+        const newBalance = accountData.balance + txData.amount;
+        firestoreTransaction.update(accountRef, { balance: newBalance });
+      }
+
+      // Delete the original transaction
+      firestoreTransaction.delete(txRef);
+    });
+
+    revalidatePath(`/account/${accountId}`);
+    revalidatePath(`/account/${accountId}/failed-transactions`);
+    return { success: true, message: 'Transaction successfully marked as failed and reversed.' };
+  } catch (error: any) {
+    return { success: false, message: error.message || 'Failed to mark transaction as failed.' };
+  }
 }
