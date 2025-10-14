@@ -17,7 +17,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction): Promi
         recipient: transaction.recipientName,
         amount: Number(transaction.amount || '0'),
         recipientReference: transaction.recipientReference,
-        payer: "Corrie",
+        payer: "DIRK VAN SCHALKWYK",
         bank: transaction.bank,
         accountNumber: `...${transaction.accountNumber?.slice(-6)}`,
         channel: 'Internet payment',
