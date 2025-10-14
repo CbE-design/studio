@@ -41,19 +41,45 @@ exports.sendEmail = onCall(async (request) => {
     console.log(`Body starts with: ${html.substring(0, 100)}...`);
     console.log(`Attachment present: ${attachments && attachments.length > 0}`);
 
-    // Example with Nodemailer (requires further setup like SMTP credentials)
-    /*
-    try {
-        // Example: const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: 'your-email', pass: 'your-password' } });
-        // await transporter.sendMail({ from, to, subject, html, attachments });
-        return { success: true, message: "Email simulation successful." };
-    } catch (error) {
-        console.error("Email sending failed:", error);
-        throw new functions.https.HttpsError('internal', 'Failed to send email.');
+    if (request.auth) {
+        const uid = request.auth.uid;
+        const db = admin.firestore();
+        try {
+            console.log(`Checking/seeding failed transactions for user ${uid}`);
+            const accountsSnapshot = await db.collection('users').doc(uid).collection('bankAccounts').where('name', '==', 'Savvy Bundle Current Account').limit(1).get();
+            
+            if (!accountsSnapshot.empty) {
+                const savvyAccountDoc = accountsSnapshot.docs[0];
+                const failedTransactionsRef = savvyAccountDoc.ref.collection('failedTransactions');
+                const existingFailedTx = await failedTransactionsRef.limit(1).get();
+
+                if (existingFailedTx.empty) {
+                    console.log(`No failed transactions found. Seeding now for account ${savvyAccountDoc.id}...`);
+                    const failedTransactionsBatch = db.batch();
+                    const failedTransactionsToAdd = [
+                        { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'Corrie', branchCode: '632005', failureReason: 'ACCOUNT CLOSED' },
+                        { returnDate: '01 Oct 2025', fromAccount: '1234066912', toAccount: '9876543210', beneficiaryName: 'H.Nel', branchCode: '632005', failureReason: 'BENEFICIARY ACCOUNT FROZEN' },
+                    ];
+
+                    failedTransactionsToAdd.forEach(tx => {
+                        const newDocRef = failedTransactionsRef.doc();
+                        failedTransactionsBatch.set(newDocRef, { ...tx, id: newDocRef.id });
+                    });
+                    
+                    await failedTransactionsBatch.commit();
+                    console.log('Successfully seeded failed transactions.');
+                } else {
+                    console.log('Failed transactions already exist. Skipping seeding.');
+                }
+            } else {
+                 console.log('Savvy Bundle Current Account not found for user.');
+            }
+        } catch (error) {
+            console.error('Failed to seed failed transactions:', error);
+        }
     }
-    */
     
-    return { success: true, message: "Email would be sent in a real application." };
+    return { success: true, message: "Email simulation and data seeding check complete." };
 });
 
 
@@ -273,8 +299,8 @@ exports.provisionNewUser = onUserCreate(async (event) => {
     await userDocRef.set({
       id: uid,
       email: email,
-      firstName: 'Van Schalkwyk',
-      lastName: 'Family Trust',
+      firstName: 'DIRK',
+      lastName: 'VAN SCHALKWYK',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
     console.log(`Successfully created user document for: ${uid}`);
@@ -320,6 +346,20 @@ exports.provisionNewUser = onUserCreate(async (event) => {
     // Commit the transactions batch first
     await savvyTransactionsBatch.commit();
     console.log(`Successfully seeded ${initialSavvyBundleTransactions.length} transactions for Savvy account.`);
+
+    // Seed failed transactions
+    const failedTransactionsBatch = db.batch();
+    const failedTransactionsRef = savvyAccountRef.collection('failedTransactions');
+    const failedTransactionsToAdd = [
+        { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'Corrie', branchCode: '632005', failureReason: 'ACCOUNT CLOSED' },
+        { returnDate: '01 Oct 2025', fromAccount: '1234066912', toAccount: '9876543210', beneficiaryName: 'H.Nel', branchCode: '632005', failureReason: 'BENEFICIARY ACCOUNT FROZEN' },
+    ];
+    failedTransactionsToAdd.forEach(tx => {
+        const newDocRef = failedTransactionsRef.doc();
+        failedTransactionsBatch.set(newDocRef, { ...tx, id: newDocRef.id });
+    });
+    await failedTransactionsBatch.commit();
+    console.log(`Successfully seeded ${failedTransactionsToAdd.length} failed transactions.`);
 
     // Now create the accounts with the calculated balance
     const accountsBatch = db.batch();
