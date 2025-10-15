@@ -10,7 +10,7 @@ import type { Transaction, TransactionType, Account, User } from './definitions'
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
-import { getFunctions } from 'firebase-admin/functions';
+import { getFunctions, httpsCallable } from 'firebase-admin/functions';
 import { admin } from './firebase-admin';
 
 
@@ -170,7 +170,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             
             await sendSms({
                 to: recipientPhoneNumber,
-                text: `You have received a payment of ${amount} from VAN SCHALKWYK FAMILY TRUST. Ref: ${recipientReference || ''}`
+                text: `You have received a payment of ${amount} from CORRIE DIRK VAN SCHALKWYK. Ref: ${recipientReference || ''}`
             });
             console.log('SMS notification call succeeded.');
         } catch (smsError) {

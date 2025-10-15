@@ -52,8 +52,8 @@ export default function ConfirmationLetterPage() {
                 const plainUser: User = {
                     id: data.id,
                     email: data.email,
-                    firstName: data.firstName || 'VAN SCHALKWYK',
-                    lastName: data.lastName || 'FAMILY TRUST',
+                    firstName: data.firstName || 'CORRIE DIRK',
+                    lastName: data.lastName || 'VAN SCHALKWYK',
                     createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
                 };
                 setUserData(plainUser);
@@ -210,5 +210,3 @@ export default function ConfirmationLetterPage() {
         </div>
     );
 }
-
-    
