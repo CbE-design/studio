@@ -52,8 +52,8 @@ export default function ConfirmationLetterPage() {
                 const plainUser: User = {
                     id: data.id,
                     email: data.email,
-                    firstName: data.firstName || 'CORRIE DIRK',
-                    lastName: data.lastName || 'VAN SCHALKWYK',
+                    firstName: data.firstName || 'Van Schalkwyk Family Trust',
+                    lastName: data.lastName || '',
                     createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
                 };
                 setUserData(plainUser);
@@ -82,6 +82,7 @@ export default function ConfirmationLetterPage() {
     }, [firestore, user, accountId, isUserLoading]);
     
     const isLoading = isUserLoading || isAccountLoading || !userData || !account;
+    const accountHolderName = (`${userData?.firstName || ''} ${userData?.lastName || ''}`).trim();
 
     const handleDownloadPdf = async () => {
         if (!account || !userData) return;
@@ -154,7 +155,7 @@ export default function ConfirmationLetterPage() {
                         </div>
 
                         <div className="mb-8">
-                            <p>{`${userData.firstName || ''} ${userData.lastName || ''}`.toUpperCase()}</p>
+                            <p>{accountHolderName.toUpperCase()}</p>
                             {/* Add user address here if available */}
                         </div>
 
@@ -164,15 +165,15 @@ export default function ConfirmationLetterPage() {
                         
                         <h2 className="font-bold text-center mb-6">TO WHOM IT MAY CONCERN</h2>
                         
-                        <h3 className="font-bold mb-4">ACCOUNT CONFIRMATION FOR {`${userData.firstName || ''} ${userData.lastName || ''}`.toUpperCase()}</h3>
+                        <h3 className="font-bold mb-4">ACCOUNT CONFIRMATION FOR {accountHolderName.toUpperCase()}</h3>
 
-                        <p className="mb-4">This letter serves to confirm that {`${userData.firstName || ''} ${userData.lastName || ''}`.toUpperCase()} holds the following account with Nedbank Limited:</p>
+                        <p className="mb-4">This letter serves to confirm that {accountHolderName.toUpperCase()} holds the following account with Nedbank Limited:</p>
 
                         <table className="w-full mb-6">
                             <tbody>
                                 <tr className="border-t border-b">
                                     <td className="py-2 pr-4 font-semibold">ACCOUNT HOLDER</td>
-                                    <td className="py-2">{`${userData.firstName || ''} ${userData.lastName || ''}`.toUpperCase()}</td>
+                                    <td className="py-2">{accountHolderName.toUpperCase()}</td>
                                 </tr>
                                 <tr className="border-b">
                                     <td className="py-2 pr-4 font-semibold">ACCOUNT NUMBER</td>
@@ -210,3 +211,5 @@ export default function ConfirmationLetterPage() {
         </div>
     );
 }
+
+    

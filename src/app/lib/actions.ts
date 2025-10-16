@@ -1,7 +1,7 @@
 
 'use server';
-import 'dotenv/config';
 
+import 'dotenv/config';
 import { z } from 'zod';
 import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
 import { revalidatePath } from 'next/cache';
@@ -181,7 +181,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
                     const sendSmsFunction = getFunctions().httpsCallable('sendSms');
                     await sendSmsFunction({
                         to: benificiaryData.phoneNumber,
-                        text: `You have received a payment of ${formatCurrency(numericAmount, 'R')} from CORRIE DIRK VAN SCHALKWYK. Ref: ${recipientReference || ''}`
+                        text: `You have received a payment of ${formatCurrency(numericAmount, 'R')} from VAN SCHALKWYK FAMILY TRUST. Ref: ${recipientReference || ''}`
                     });
                     console.log('SMS notification call succeeded.');
                 }
@@ -295,3 +295,5 @@ export async function markTransactionAsFailedAction(
     return { success: false, message: error.message || 'Failed to mark transaction as failed.' };
   }
 }
+
+    

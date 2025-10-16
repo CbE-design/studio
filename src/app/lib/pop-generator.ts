@@ -23,7 +23,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction): Promi
         recipient: transaction.recipientName,
         amount: Number(transaction.amount || '0'),
         recipientReference: transaction.recipientReference,
-        payer: "CORRIE DIRK VAN SCHALKWYK",
+        payer: "VAN SCHALKWYK FAMILY TRUST",
         bank: transaction.bank,
         accountNumber: `...${transaction.accountNumber?.slice(-6)}`,
         channel: 'Internet payment',
@@ -189,3 +189,5 @@ export async function generateProofOfPaymentPdf(transaction: Transaction): Promi
     
     return await pdfDoc.save();
 }
+
+    

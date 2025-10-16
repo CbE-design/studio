@@ -186,12 +186,12 @@ export default function RecipientDetailsPage() {
                     
                     <div>
                         <Label htmlFor="your-reference" className="text-gray-500 text-xs">Your reference</Label>
-                        <Input id="your-reference" defaultValue="Corrie" className="bg-white" />
+                        <Input id="your-reference" defaultValue="VAN SCHALKWYK FAMILY TRUST" className="bg-white" />
                     </div>
 
                     <div>
                         <Label htmlFor="recipient-reference" className="text-gray-500 text-xs">Recipient's reference</Label>
-                        <Input id="recipient-reference" defaultValue="Corrie" className="bg-white" />
+                        <Input id="recipient-reference" defaultValue="VAN SCHALKWYK FAMILY TRUST" className="bg-white" />
                     </div>
                 </div>
             </div>
@@ -208,3 +208,5 @@ export default function RecipientDetailsPage() {
     </div>
   );
 }
+
+    
