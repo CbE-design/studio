@@ -10,8 +10,8 @@ import type { Transaction, TransactionType, Account, User } from './definitions'
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
-import { getFunctions, httpsCallable } from 'firebase-admin/functions';
-import { admin } from './firebase-admin';
+import { httpsCallable } from 'firebase-admin/functions';
+import { functions as adminFunctions } from './firebase-admin';
 
 
 const FormSchema = z.object({
@@ -163,8 +163,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
         // After successful transaction, try to send SMS
         // Note: This part fails silently if it doesn't work, not to block the payment success flow.
         try {
-            const functions = getFunctions(admin.app());
-            const sendSms = httpsCallable(functions, 'sendSms');
+            const sendSms = httpsCallable(adminFunctions, 'sendSms');
             // This is a placeholder. In a real app, you would fetch the recipient's phone number.
             const recipientPhoneNumber = '+14155552671';
             
