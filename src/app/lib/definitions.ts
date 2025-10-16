@@ -2,7 +2,7 @@
 export type Account = {
   id: string;
   name: string;
-  type: 'Cheque' | 'Savings' | 'Credit' | 'Student';
+  type: 'Cheque' | 'Savings' | 'Credit';
   accountNumber: string;
   balance: number;
   currency: 'USD' | 'ZAR';
@@ -55,5 +55,5 @@ export type User = {
     email: string;
     firstName?: string;
     lastName?: string;
-    createdAt: string;
+    createdAt: any;
 }

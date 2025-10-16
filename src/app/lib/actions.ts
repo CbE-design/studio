@@ -194,7 +194,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
         revalidatePath('/dashboard');
         
         return { 
-            success: true,
+            success: true, 
             message: 'Transaction created successfully.',
             transactionId: mainTxId,
         };
@@ -202,7 +202,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
     } catch (error: any) {
         console.error('Firestore transaction failed:', error);
         return { 
-            success: false,
+            success: false, 
             message: error.message || 'An error occurred while creating the transaction.'
         };
     }
