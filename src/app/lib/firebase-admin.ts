@@ -5,6 +5,7 @@ import admin from 'firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { getFunctions } from 'firebase-admin/functions';
+import 'dotenv/config';
 
 function initializeAdminApp() {
     if (admin.apps.length > 0) {
