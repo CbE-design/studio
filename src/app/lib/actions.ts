@@ -1,5 +1,6 @@
 
 'use server';
+import 'dotenv/config';
 
 import { z } from 'zod';
 import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
@@ -10,7 +11,8 @@ import type { Transaction, TransactionType, Account, User } from './definitions'
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
-import { functions as adminFunctions, db as adminDb } from './firebase-admin';
+import { getFunctions } from 'firebase-admin/functions';
+import { admin, auth, db as adminDb, initializeAdminApp } from './firebase-admin';
 import { format } from 'date-fns';
 
 
@@ -170,12 +172,13 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
         });
 
         try {
+            initializeAdminApp();
             const benificiarySnapshot = await adminDb.collection('users').doc(userId).collection('beneficiaries').where('accountNumber', '==', accountNumber).limit(1).get();
 
             if (!benificiarySnapshot.empty) {
                 const benificiaryData = benificiarySnapshot.docs[0].data();
                 if(benificiaryData && benificiaryData.phoneNumber) {
-                    const sendSmsFunction = adminFunctions.httpsCallable('sendSms');
+                    const sendSmsFunction = getFunctions().httpsCallable('sendSms');
                     await sendSmsFunction({
                         to: benificiaryData.phoneNumber,
                         text: `You have received a payment of ${formatCurrency(numericAmount, 'R')} from CORRIE DIRK VAN SCHALKWYK. Ref: ${recipientReference || ''}`
