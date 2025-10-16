@@ -10,8 +10,8 @@ import type { Transaction, TransactionType, Account, User } from './definitions'
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
-import { httpsCallable } from 'firebase-admin/functions';
-import { functions as adminFunctions } from './firebase-admin';
+import { functions as adminFunctions, db as adminDb } from './firebase-admin';
+import { format } from 'date-fns';
 
 
 const FormSchema = z.object({
@@ -102,6 +102,9 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
         const numericAmount = parseFloat(amount);
         
         const transactionType: TransactionType = paymentType === 'Instant Pay' ? 'EFT_IMMEDIATE' : 'EFT_STANDARD';
+
+        const generateRandomSuffix = (length: number) => Math.random().toString().substring(2, 2 + length);
+        const generateSecurityCode = () => Array.from({ length: 40 }, () => '0123456789ABCDEF'[Math.floor(Math.random() * 16)]).join('');
         
         await runTransaction(firestore, async (transaction) => {
             const accountRef = doc(firestore, 'users', userId, 'bankAccounts', fromAccountId);
@@ -125,7 +128,11 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
 
             const newTransactionRef = doc(collection(firestore, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
             mainTxId = newTransactionRef.id;
-            const mainTransactionData = {
+
+            const popReferenceNumber = `${format(new Date(), 'yyyy-MM-dd')}/NEDBANK/${generateRandomSuffix(12)}`;
+            const popSecurityCode = generateSecurityCode();
+
+            const mainTransactionData: Transaction = {
                 id: newTransactionRef.id,
                 userId: userId,
                 fromAccountId: fromAccountId,
@@ -139,6 +146,8 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
                 recipientReference: recipientReference || null,
                 bank: bankName || null,
                 accountNumber: accountNumber || null,
+                popReferenceNumber,
+                popSecurityCode
             };
             transaction.set(newTransactionRef, mainTransactionData);
 
@@ -160,18 +169,20 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             transaction.update(accountRef, { balance: newBalance });
         });
 
-        // After successful transaction, try to send SMS
-        // Note: This part fails silently if it doesn't work, not to block the payment success flow.
         try {
-            const sendSms = httpsCallable(adminFunctions, 'sendSms');
-            // This is a placeholder. In a real app, you would fetch the recipient's phone number.
-            const recipientPhoneNumber = '+14155552671';
-            
-            await sendSms({
-                to: recipientPhoneNumber,
-                text: `You have received a payment of ${amount} from CORRIE DIRK VAN SCHALKWYK. Ref: ${recipientReference || ''}`
-            });
-            console.log('SMS notification call succeeded.');
+            const benificiarySnapshot = await adminDb.collection('users').doc(userId).collection('beneficiaries').where('accountNumber', '==', accountNumber).limit(1).get();
+
+            if (!benificiarySnapshot.empty) {
+                const benificiaryData = benificiarySnapshot.docs[0].data();
+                if(benificiaryData && benificiaryData.phoneNumber) {
+                    const sendSmsFunction = adminFunctions.httpsCallable('sendSms');
+                    await sendSmsFunction({
+                        to: benificiaryData.phoneNumber,
+                        text: `You have received a payment of ${formatCurrency(numericAmount, 'R')} from CORRIE DIRK VAN SCHALKWYK. Ref: ${recipientReference || ''}`
+                    });
+                    console.log('SMS notification call succeeded.');
+                }
+            }
         } catch (smsError) {
             console.error('SMS notification call failed:', smsError);
         }

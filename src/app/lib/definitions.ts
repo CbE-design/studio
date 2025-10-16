@@ -26,6 +26,8 @@ export type Transaction = {
   recipientReference?: string;
   bank?: string;
   accountNumber?: string;
+  popReferenceNumber?: string;
+  popSecurityCode?: string;
 };
 
 export type Beneficiary = {
@@ -33,6 +35,7 @@ export type Beneficiary = {
   name: string;
   bank: string;
   accountNumber: string;
+  phoneNumber?: string;
 };
 
 export type AtmLocation = {
@@ -54,5 +57,3 @@ export type User = {
     lastName?: string;
     createdAt: string;
 }
-
-    

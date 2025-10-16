@@ -8,12 +8,18 @@ import { formatCurrency } from './data';
 
 export async function generateProofOfPaymentPdf(transaction: Transaction): Promise<Uint8Array> {
     const paymentDate = transaction.date ? new Date(transaction.date) : new Date();
+    
+    // --- Helper functions for generating values if they don't exist on the transaction ---
     const generateRandomSuffix = (length: number) => Math.random().toString().substring(2, 2 + length);
     const generateSecurityCode = () => Array.from({ length: 40 }, () => '0123456789ABCDEF'[Math.floor(Math.random() * 16)]).join('');
 
+    // --- Use stored values if available, otherwise generate them for backward compatibility ---
+    const referenceNumber = transaction.popReferenceNumber || `${format(paymentDate, 'yyyy-MM-dd')}/NEDBANK/${generateRandomSuffix(12)}`;
+    const securityCode = transaction.popSecurityCode || generateSecurityCode();
+
     const detailsForPdf = {
         dateOfPayment: format(paymentDate, 'dd/MM/yyyy'),
-        referenceNumber: `${format(paymentDate, 'yyyy-MM-dd')}/NEDBANK/${generateRandomSuffix(12)}`,
+        referenceNumber: referenceNumber,
         recipient: transaction.recipientName,
         amount: Number(transaction.amount || '0'),
         recipientReference: transaction.recipientReference,
@@ -21,7 +27,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction): Promi
         bank: transaction.bank,
         accountNumber: `...${transaction.accountNumber?.slice(-6)}`,
         channel: 'Internet payment',
-        securityCode: generateSecurityCode(),
+        securityCode: securityCode,
     };
 
     const pdfDoc = await PDFDocument.create();
