@@ -16,8 +16,11 @@ function initializeAdminApp() {
     }
 
     try {
-        // Since the service account key is a JSON string in the env var, we need to parse it.
-        const serviceAccountJson = JSON.parse(serviceAccount);
+        // The service account key from .env might have unescaped newlines.
+        // We need to replace them before parsing.
+        const parsedServiceAccount = serviceAccount.replace(/\\n/g, '\\n');
+        const serviceAccountJson = JSON.parse(parsedServiceAccount);
+        
         return admin.initializeApp({
             credential: admin.credential.cert(serviceAccountJson),
         });
@@ -27,8 +30,6 @@ function initializeAdminApp() {
     }
 }
 
-// Export the initialized services, but ensure initialization is done lazily when needed
-// or at the top level of a file that is guaranteed to run after env vars are loaded.
 const adminApp = initializeAdminApp();
 const db = getFirestore(adminApp);
 const auth = getAuth(adminApp);
