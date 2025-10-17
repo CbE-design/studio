@@ -122,12 +122,21 @@ export async function generateProofOfPaymentPdf(transaction: Transaction): Promi
         return lines;
     };
 
-    const drawWrappedText = (text: string, options: { x: number, y: number, font: PDFFont, size: number, color: any, lineHeight: number, maxWidth: number }) => {
-        const lines = wrapText(text, options.maxWidth, options.font, options.size);
-        let currentY = options.y;
+    const drawWrappedText = (text: string, options: { x: number, y: number, font: PDFFont, size: number, color: any, lineHeight: number, maxWidth: number, align?: 'center' | 'left' | 'right' }) => {
+        const { align = 'left', ...restOptions } = options;
+        const lines = wrapText(text, restOptions.maxWidth, restOptions.font, restOptions.size);
+        let currentY = restOptions.y;
         lines.forEach(line => {
-            page.drawText(line, { ...options, y: currentY });
-            currentY -= options.lineHeight;
+            let x = restOptions.x;
+            if (align === 'center') {
+                const textWidth = restOptions.font.widthOfTextAtSize(line, restOptions.size);
+                x = (width - textWidth) / 2;
+            } else if (align === 'right') {
+                const textWidth = restOptions.font.widthOfTextAtSize(line, restOptions.size);
+                x = width - margin - textWidth;
+            }
+            page.drawText(line, { ...restOptions, x, y: currentY });
+            currentY -= restOptions.lineHeight;
         });
         return currentY;
     };
@@ -176,18 +185,21 @@ export async function generateProofOfPaymentPdf(transaction: Transaction): Promi
     drawDetailRow('Security Code', detailsForPdf.securityCode);
     y -= 30;
 
-    const footerY = margin / 2;
-    const footerText = 'Nedbank Limited Reg No 1951/000009/06. VAT Reg No 4320116074. 135 Rivonia Road, Sandown, Sandton, 2196, South Africa.\nWe subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services.\nWe are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCR Reg No NCRCP16).';
+    // --- NEW FOOTER ---
+    const footerY = 30;
+    page.drawLine({ start: { x: margin, y: footerY + 25 }, end: { x: width - margin, y: footerY + 25 }, thickness: 0.5, color: grayColor });
+    const footerText = "Nedbank Limited. Reg. No 1951/000009/06. Nedbank is an authorised financial services and registered credit provider (NCR Reg No: NCRCP16). We subscribe to the Code of Banking Practice of the Banking Association South Africa. We also use the services of an Ombudsman. View our Complaints Policy at nedbank.co.za. Directors: M D S Rantao (Chairman), M W T Dube, N M Mde. For a full list of Directors, visit nedbank.co.za";
     
-    const footerLines = footerText.split('\n');
-    let currentFooterY = footerY + (footerLines.length - 1) * 9;
-
-    footerLines.forEach(line => {
-        page.drawText(line, { x: margin, y: currentFooterY, font, size: 6, color: grayColor, maxWidth: width - margin*2 });
-        currentFooterY -= 9;
+    drawWrappedText(footerText, {
+        x: margin,
+        y: footerY,
+        font: font,
+        size: 7,
+        color: grayColor,
+        lineHeight: 9,
+        maxWidth: width - margin * 2,
+        align: 'center'
     });
     
     return await pdfDoc.save();
 }
-
-    
