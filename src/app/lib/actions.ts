@@ -74,7 +74,7 @@ const TransactionSchema = z.object({
     yourReference: z.string().optional(),
     recipientReference: z.string().optional(),
     bankName: z.string().optional(),
-    accountNumber: z.string().optional(),
+    accountNumber: zstring().optional(),
     paymentType: z.string(), // e.g. 'Instant Pay', 'Standard EFT'
 });
 
@@ -295,5 +295,3 @@ export async function markTransactionAsFailedAction(
     return { success: false, message: error.message || 'Failed to mark transaction as failed.' };
   }
 }
-
-    

@@ -3,7 +3,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Share2, LoaderCircle } from 'lucide-react';
+import { ArrowLeft, Share2, LoaderCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFirestore, useUser } from '@/firebase-provider';
@@ -11,8 +11,19 @@ import { doc, getDoc } from 'firebase/firestore';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/app/lib/data';
-import { generateProofOfPaymentAction } from '@/app/lib/actions';
+import { generateProofOfPaymentAction, markTransactionAsFailedAction } from '@/app/lib/actions';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const DetailRow = ({ label, value }: { label: string; value: string | undefined }) => (
   <div className="py-4">
@@ -56,6 +67,7 @@ function TransactionDetailsContent() {
   const [account, setAccount] = useState<Account | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isFailing, setIsFailing] = useState(false);
 
   useEffect(() => {
     if (!firestore || !user?.uid || !accountId || !txId) {
@@ -138,6 +150,23 @@ function TransactionDetailsContent() {
     }
   };
 
+  const handleMarkAsFailed = async () => {
+    if (!user || !accountId || !txId || !transaction) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Missing required data.' });
+      return;
+    }
+    
+    setIsFailing(true);
+    const result = await markTransactionAsFailedAction(user.uid, accountId as string, txId as string);
+    if (result.success) {
+      toast({ title: 'Success', description: result.message });
+      router.push(`/account/${accountId}/failed-transactions`);
+    } else {
+      toast({ variant: 'destructive', title: 'Error', description: result.message });
+    }
+    setIsFailing(false);
+  };
+
 
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -182,6 +211,29 @@ function TransactionDetailsContent() {
             )}
             {isGenerating ? 'Generating...' : 'Share proof of payment'}
         </Button>
+         <AlertDialog>
+            <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="w-full font-bold h-12" disabled={isFailing}>
+                    <AlertTriangle className="mr-2 h-5 w-5" />
+                    Mark as Failed
+                </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This will mark the transaction as failed, move it to the failed transactions list, and reverse the funds. This action cannot be undone.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleMarkAsFailed} disabled={isFailing}>
+                        {isFailing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                        Continue
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
       </footer>
     </div>
   );
