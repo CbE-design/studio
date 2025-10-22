@@ -69,11 +69,10 @@ export default function FailedTransactionsPage() {
                     <div key={tx.id} className="p-4">
                         <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                              <DetailRow label="Beneficiary name" value={tx.beneficiaryName} />
-                             <DetailRow label="Failure reason" value={tx.failureReason} />
+                             <DetailRow label="Failure reason" value="Not Authorised" />
                              <DetailRow label="Return date" value={tx.returnDate} />
                              <DetailRow label="From account" value={tx.fromAccount} />
                              <DetailRow label="To account" value={tx.toAccount} />
-                             <DetailRow label="Branch code" value={tx.branchCode} />
                         </div>
                     </div>
                 ))}

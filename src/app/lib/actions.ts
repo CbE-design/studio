@@ -5,7 +5,7 @@ import 'dotenv/config';
 import { z } from 'zod';
 import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
 import { revalidatePath } from 'next/cache';
-import { collection, doc, runTransaction } from 'firebase/firestore';
+import { collection, doc, runTransaction, getDoc } from 'firebase/firestore';
 import { firestore } from '@/app/lib/firebase';
 import type { Transaction, TransactionType, Account, User } from './definitions';
 import { calculateFee } from './fees';
@@ -233,7 +233,15 @@ export async function generateProofOfPaymentAction(
         if (!transaction) {
             throw new Error("Transaction data is required.");
         }
-        const pdfBytes = await generateProofOfPaymentPdf(transaction);
+        
+        const accountDoc = await getDoc(doc(firestore, `users/${transaction.userId}/bankAccounts/${transaction.fromAccountId}`));
+        if (!accountDoc.exists()) {
+             throw new Error("Account for transaction not found.");
+        }
+        const accountData = accountDoc.data() as Account;
+
+
+        const pdfBytes = await generateProofOfPaymentPdf(transaction, accountData);
         return pdfBytes;
     } catch (e: any) {
         console.error("Failed to generate proof of payment:", e);
@@ -257,7 +265,7 @@ export async function markTransactionAsFailedAction(
       const accountSnap = await firestoreTransaction.get(accountRef);
 
       if (!txSnap.exists()) {
-        throw new Error('Transaction not found.');
+        throw new Error('Original transaction not found.');
       }
       if (!accountSnap.exists()) {
         throw new Error('Account not found.');
@@ -267,6 +275,7 @@ export async function markTransactionAsFailedAction(
       const accountData = accountSnap.data() as Account;
 
       // --- WRITE PHASE ---
+      
       // 1. Create a log in failedTransactions
       const failedTxRef = doc(collection(firestore, `users/${userId}/bankAccounts/${accountId}/failedTransactions`));
       const newFailedTxData = {
@@ -275,8 +284,7 @@ export async function markTransactionAsFailedAction(
         fromAccount: accountData.accountNumber || 'N/A', 
         toAccount: txData.accountNumber || 'N/A',
         beneficiaryName: txData.recipientName || txData.description,
-        branchCode: 'N/A', // This info isn't on the transaction record
-        failureReason: 'Manually marked as returned',
+        failureReason: 'Not Authorised',
         originalAmount: txData.amount,
         originalTransactionId: txData.id,
       };
@@ -301,11 +309,11 @@ export async function markTransactionAsFailedAction(
       const newBalance = accountData.balance + txData.amount;
       firestoreTransaction.update(accountRef, { balance: newBalance });
 
-      // 4. The original transaction is NOT deleted.
+      // 4. The original transaction is NOT deleted. It remains as a record.
     });
 
     revalidatePath(`/account/${accountId}`);
-    revalidatePath(`/account/${accountId}/failed-transactions`);
+    revalidatePath(`/account/${accountId}/transaction/${transactionId}`);
     return { success: true, message: 'Transaction successfully marked as returned and funds reversed.' };
   } catch (error: any) {
     console.error('Failed to mark transaction as failed:', error);

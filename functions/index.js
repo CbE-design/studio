@@ -117,8 +117,8 @@ exports.sendEmail = onCall(async (request) => {
                     console.log(`No failed transactions found. Seeding now for account ${savvyAccountDoc.id}...`);
                     const failedTransactionsBatch = db.batch();
                     const failedTransactionsToAdd = [
-                        { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'Corrie', branchCode: '632005', failureReason: 'ACCOUNT CLOSED' },
-                        { returnDate: '01 Oct 2025', fromAccount: '1234066912', toAccount: '9876543210', beneficiaryName: 'H.Nel', branchCode: '632005', failureReason: 'BENEFICIARY ACCOUNT FROZEN' },
+                        { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'Corrie', failureReason: 'Not Authorised' },
+                        { returnDate: '01 Oct 2025', fromAccount: '1234066912', toAccount: '9876543210', beneficiaryName: 'H.Nel', failureReason: 'Not Authorised' },
                     ];
 
                     failedTransactionsToAdd.forEach(tx => {
@@ -411,8 +411,8 @@ exports.provisionNewUser = onUserCreate(async (event) => {
     const failedTransactionsBatch = db.batch();
     const failedTransactionsRef = savvyAccountRef.collection('failedTransactions');
     const failedTransactionsToAdd = [
-        { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'Corrie', branchCode: '632005', failureReason: 'ACCOUNT CLOSED' },
-        { returnDate: '01 Oct 2025', fromAccount: '1234066912', toAccount: '9876543210', beneficiaryName: 'H.Nel', branchCode: '632005', failureReason: 'BENEFICIARY ACCOUNT FROZEN' },
+        { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'Corrie', failureReason: 'Not Authorised' },
+        { returnDate: '01 Oct 2025', fromAccount: '1234066912', toAccount: '9876543210', beneficiaryName: 'H.Nel', failureReason: 'Not Authorised' },
     ];
     failedTransactionsToAdd.forEach(tx => {
         const newDocRef = failedTransactionsRef.doc();
