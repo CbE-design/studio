@@ -249,42 +249,42 @@ export async function markTransactionAsFailedAction(
 ): Promise<{ success: boolean; message: string }> {
   try {
     await runTransaction(firestore, async (firestoreTransaction) => {
-      const txRef = doc(
-        firestore,
-        `users/${userId}/bankAccounts/${accountId}/transactions/${transactionId}`
-      );
-      const txSnap = await firestoreTransaction.get(txRef);
+      // --- READ PHASE ---
+      const txRef = doc(firestore, `users/${userId}/bankAccounts/${accountId}/transactions/${transactionId}`);
+      const accountRef = doc(firestore, `users/${userId}/bankAccounts/${accountId}`);
+      
+      const [txSnap, accountSnap] = await Promise.all([
+        firestoreTransaction.get(txRef),
+        firestoreTransaction.get(accountRef)
+      ]);
 
       if (!txSnap.exists()) {
         throw new Error('Transaction not found.');
       }
-      const txData = txSnap.data() as Transaction;
+      if (!accountSnap.exists()) {
+        throw new Error('Account not found.');
+      }
       
-      const failedTxRef = doc(collection(firestore, `users/${userId}/bankAccounts/${accountId}/failedTransactions`));
+      const txData = txSnap.data() as Transaction;
+      const accountData = accountSnap.data() as Account;
 
+      // --- WRITE PHASE ---
+      const failedTxRef = doc(collection(firestore, `users/${userId}/bankAccounts/${accountId}/failedTransactions`));
       const newFailedTxData = {
         id: failedTxRef.id,
         returnDate: new Date().toISOString().split('T')[0],
-        fromAccount: txData.accountNumber || 'N/A',
-        toAccount: 'N/A', // This info isn't on the transaction record
+        fromAccount: accountData.accountNumber || 'N/A', 
+        toAccount: txData.accountNumber || 'N/A',
         beneficiaryName: txData.recipientName || 'N/A',
         branchCode: 'N/A', // This info isn't on the transaction record
         failureReason: 'Manually marked as failed',
       };
       
-      firestoreTransaction.set(failedTxRef, newFailedTxData);
+      // Reverse the transaction amount
+      const newBalance = accountData.balance + txData.amount;
       
-      const accountRef = doc(firestore, `users/${userId}/bankAccounts/${accountId}`);
-      const accountSnap = await firestoreTransaction.get(accountRef);
-
-      if (accountSnap.exists()) {
-        const accountData = accountSnap.data() as Account;
-        // Reverse the transaction amount
-        const newBalance = accountData.balance + txData.amount;
-        firestoreTransaction.update(accountRef, { balance: newBalance });
-      }
-
-      // Delete the original transaction
+      firestoreTransaction.set(failedTxRef, newFailedTxData);
+      firestoreTransaction.update(accountRef, { balance: newBalance });
       firestoreTransaction.delete(txRef);
     });
 
@@ -292,6 +292,7 @@ export async function markTransactionAsFailedAction(
     revalidatePath(`/account/${accountId}/failed-transactions`);
     return { success: true, message: 'Transaction successfully marked as failed and reversed.' };
   } catch (error: any) {
+    console.error('Failed to mark transaction as failed:', error);
     return { success: false, message: error.message || 'Failed to mark transaction as failed.' };
   }
 }
