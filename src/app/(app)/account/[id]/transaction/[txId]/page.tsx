@@ -203,9 +203,8 @@ function TransactionDetailsContent() {
         {showMarkAsFailed && (
             <AlertDialog>
                 <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm" disabled={isFailing}>
-                        <AlertTriangle className="mr-2 h-4 w-4" />
-                        Fail
+                    <Button variant="destructive" size="icon" disabled={isFailing}>
+                        <AlertTriangle className="h-5 w-5" />
                     </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
