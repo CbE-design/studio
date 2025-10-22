@@ -160,8 +160,8 @@ function TransactionDetailsContent() {
     const result = await markTransactionAsFailedAction(user.uid, accountId as string, txId as string);
     if (result.success) {
       toast({ title: 'Success', description: result.message });
-      // Redirect to prevent user from being on a now-invalid page
-      router.replace(`/account/${accountId}/failed-transactions`);
+      // Redirect to the account page to see the new return transaction
+      router.push(`/account/${accountId}`);
     } else {
       toast({ variant: 'destructive', title: 'Error', description: result.message });
       setIsFailing(false);
@@ -179,12 +179,14 @@ function TransactionDetailsContent() {
       <div className="flex flex-col h-screen items-center justify-center p-4 text-center">
         <div className="text-xl text-destructive-foreground bg-destructive p-4 rounded-md">
             <h2 className="font-bold mb-2">Transaction Not Found</h2>
-            <p className="text-sm font-normal">This transaction may have been moved (e.g., marked as failed) or deleted.</p>
+            <p className="text-sm font-normal">This transaction may have been moved or deleted.</p>
         </div>
         <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
       </div>
     );
   }
+
+  const isReturnTransaction = transaction.description.startsWith('RETURN:');
 
   return (
     <div className="flex flex-col h-screen bg-white">
@@ -196,49 +198,63 @@ function TransactionDetailsContent() {
       </header>
 
       <main className="flex-1 overflow-y-auto px-6 py-2">
-        <DetailRow label="Their reference" value={transaction.recipientReference} />
+        <DetailRow label="Description" value={transaction.description} />
         <DetailRow label="Transaction date" value={format(new Date(transaction.date), 'dd MMMM yyyy')} />
         <DetailRow label="Amount" value={formatCurrency(transaction.amount, account?.currency)} />
-        <DetailRow label="Transaction Type" value="Payment" />
-        <DetailRow label="Bank name" value={transaction.bank} />
-        <DetailRow label="Account number" value={transaction.accountNumber} />
+        <DetailRow label="Transaction Type" value={transaction.type === 'debit' ? 'Payment' : 'Reversal/Return'} />
+        {!isReturnTransaction && (
+          <>
+            <DetailRow label="Bank name" value={transaction.bank} />
+            <DetailRow label="Account number" value={transaction.accountNumber} />
+            <DetailRow label="Their reference" value={transaction.recipientReference} />
+          </>
+        )}
       </main>
 
       <footer className="p-4 bg-white border-t sticky bottom-0 z-10 space-y-2">
-        <Button onClick={handlePayAgain} className="w-full font-bold h-12">
-          Pay again
-        </Button>
-        <Button onClick={handleShare} variant="outline" className="w-full font-bold h-12" disabled={isGenerating}>
-            {isGenerating ? (
-                <LoaderCircle className="mr-2 h-5 w-5 animate-spin" />
-            ) : (
-                <Share2 className="mr-2 h-5 w-5" />
-            )}
-            {isGenerating ? 'Generating...' : 'Share proof of payment'}
-        </Button>
-         <AlertDialog>
-            <AlertDialogTrigger asChild>
-                <Button variant="destructive" className="w-full font-bold h-12" disabled={isFailing}>
-                    <AlertTriangle className="mr-2 h-5 w-5" />
-                    Mark as Failed
-                </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        This will mark the transaction as failed, move it to the failed transactions list, and reverse the funds. This action cannot be undone.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleMarkAsFailed} disabled={isFailing}>
-                        {isFailing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                        Continue
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+        {!isReturnTransaction && (
+          <>
+            <Button onClick={handlePayAgain} className="w-full font-bold h-12">
+              Pay again
+            </Button>
+            <Button onClick={handleShare} variant="outline" className="w-full font-bold h-12" disabled={isGenerating}>
+                {isGenerating ? (
+                    <LoaderCircle className="mr-2 h-5 w-5 animate-spin" />
+                ) : (
+                    <Share2 className="mr-2 h-5 w-5" />
+                )}
+                {isGenerating ? 'Generating...' : 'Share proof of payment'}
+            </Button>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="w-full font-bold h-12" disabled={isFailing}>
+                        <AlertTriangle className="mr-2 h-5 w-5" />
+                        Mark as Returned
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will create a new credit transaction to reverse the funds for this payment and log it in the failed transactions list. This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleMarkAsFailed} disabled={isFailing}>
+                            {isFailing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                            Continue
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+          </>
+        )}
+        {isReturnTransaction && (
+           <Button onClick={() => router.back()} className="w-full font-bold h-12">
+              Done
+           </Button>
+        )}
       </footer>
     </div>
   );
