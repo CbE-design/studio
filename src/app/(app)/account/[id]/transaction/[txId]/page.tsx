@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/alert-dialog"
 
 const DetailRow = ({ label, value }: { label: string; value: string | undefined }) => (
-  <div className="py-4">
+  <div className="py-4 border-b last:border-b-0">
     <p className="text-sm text-gray-500">{label}</p>
     <p className="text-lg text-gray-800">{value || '-'}</p>
   </div>
@@ -201,7 +201,7 @@ function TransactionDetailsContent() {
         <DetailRow label="Description" value={transaction.description} />
         <DetailRow label="Transaction date" value={format(new Date(transaction.date), 'dd MMMM yyyy')} />
         <DetailRow label="Amount" value={formatCurrency(transaction.amount, account?.currency)} />
-        <DetailRow label="Transaction Type" value={transaction.type === 'debit' ? 'Payment' : 'Reversal/Return'} />
+        <DetailRow label="Transaction Type" value={isReturnTransaction ? 'Reversal/Return' : 'Payment'} />
         {!isReturnTransaction && (
           <>
             <DetailRow label="Bank name" value={transaction.bank} />
@@ -212,7 +212,7 @@ function TransactionDetailsContent() {
       </main>
 
       <footer className="p-4 bg-white border-t sticky bottom-0 z-10 space-y-2">
-        {!isReturnTransaction && (
+        {!isReturnTransaction && transaction.type === 'debit' && (
           <>
             <Button onClick={handlePayAgain} className="w-full font-bold h-12">
               Pay again
@@ -250,7 +250,7 @@ function TransactionDetailsContent() {
             </AlertDialog>
           </>
         )}
-        {isReturnTransaction && (
+        {(isReturnTransaction || transaction.type === 'credit') && (
            <Button onClick={() => router.back()} className="w-full font-bold h-12">
               Done
            </Button>
