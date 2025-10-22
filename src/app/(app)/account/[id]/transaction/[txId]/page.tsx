@@ -187,14 +187,44 @@ function TransactionDetailsContent() {
   }
 
   const isReturnTransaction = transaction.description.startsWith('RETURN:');
+  const showMarkAsFailed = !isReturnTransaction && transaction.type === 'debit';
+
 
   return (
     <div className="flex flex-col h-screen bg-white">
-      <header className="gradient-background text-primary-foreground p-4 flex items-center sticky top-0 z-10">
-        <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
-          <ArrowLeft />
-        </Button>
-        <h1 className="text-xl font-semibold">Transaction details</h1>
+      <header className="gradient-background text-primary-foreground p-4 flex items-center justify-between sticky top-0 z-10">
+        <div className="flex items-center">
+            <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
+                <ArrowLeft />
+            </Button>
+            <h1 className="text-xl font-semibold">Transaction details</h1>
+        </div>
+
+        {showMarkAsFailed && (
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm" disabled={isFailing}>
+                        <AlertTriangle className="mr-2 h-4 w-4" />
+                        Fail
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will create a new credit transaction to reverse the funds for this payment and log it in the failed transactions list. This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleMarkAsFailed} disabled={isFailing}>
+                            {isFailing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                            Continue
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        )}
       </header>
 
       <main className="flex-1 overflow-y-auto px-6 py-2">
@@ -225,29 +255,6 @@ function TransactionDetailsContent() {
                 )}
                 {isGenerating ? 'Generating...' : 'Share proof of payment'}
             </Button>
-            <AlertDialog>
-                <AlertDialogTrigger asChild>
-                    <Button variant="destructive" className="w-full font-bold h-12" disabled={isFailing}>
-                        <AlertTriangle className="mr-2 h-5 w-5" />
-                        Mark as Returned
-                    </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This will create a new credit transaction to reverse the funds for this payment and log it in the failed transactions list. This action cannot be undone.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleMarkAsFailed} disabled={isFailing}>
-                            {isFailing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                            Continue
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
           </>
         )}
         {(isReturnTransaction || transaction.type === 'credit') && (
