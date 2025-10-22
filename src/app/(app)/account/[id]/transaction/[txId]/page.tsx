@@ -160,11 +160,13 @@ function TransactionDetailsContent() {
     const result = await markTransactionAsFailedAction(user.uid, accountId as string, txId as string);
     if (result.success) {
       toast({ title: 'Success', description: result.message });
-      router.push(`/account/${accountId}/failed-transactions`);
+      // Redirect to prevent user from being on a now-invalid page
+      router.replace(`/account/${accountId}/failed-transactions`);
     } else {
       toast({ variant: 'destructive', title: 'Error', description: result.message });
+      setIsFailing(false);
     }
-    setIsFailing(false);
+    // No need to set isFailing to false on success, as we are navigating away.
   };
 
 
@@ -174,8 +176,11 @@ function TransactionDetailsContent() {
 
   if (!transaction) {
     return (
-      <div className="flex flex-col h-screen items-center justify-center p-4">
-        <p className="text-xl text-destructive-foreground bg-destructive p-4 rounded-md">Transaction not found.</p>
+      <div className="flex flex-col h-screen items-center justify-center p-4 text-center">
+        <div className="text-xl text-destructive-foreground bg-destructive p-4 rounded-md">
+            <h2 className="font-bold mb-2">Transaction Not Found</h2>
+            <p className="text-sm font-normal">This transaction may have been moved (e.g., marked as failed) or deleted.</p>
+        </div>
         <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
       </div>
     );
