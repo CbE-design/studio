@@ -88,10 +88,13 @@ const LatestIcon = () => (
     </svg>
 );
 const QuickPayIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
-        <path d="M3 8.5v3.5a4 4 0 0 0 4 4h10a4 4 0 0 0 4-4V8.5"/><path d="M8 16V4.5a2.5 2.5 0 0 1 2.5-2.5h3A2.5 2.5 0 0 1 16 4.5V16"/>
-        <path d="M12 12h.01"/><path d="M16 8h.01"/><path d="M8 8h.01"/>
-    </svg>
+    <Image
+        src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758635889725.jpg?alt=media&token=7ac2249c-b95f-43b6-83e6-80a4fd291ab2"
+        alt="Quick Pay icon"
+        width={32}
+        height={32}
+        className="h-8 w-8"
+    />
 );
 const GetCashIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
