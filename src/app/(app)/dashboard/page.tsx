@@ -37,9 +37,13 @@ const ApplicationsIcon = () => (
     />
 );
 const InsureIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
-       <path d="M22 12a10.06 10.06 1 0 0-20 0Z"/><path d="M12 12v8a4 4 0 0 0 8 0 M12 12a4 4 0 0 0-8 0"/>
-    </svg>
+    <Image
+        src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758630016360.jpg?alt=media&token=a946409a-39bd-47d1-ac07-9a00dca954cb"
+        alt="Insure icon"
+        width={32}
+        height={32}
+        className="h-8 w-8"
+    />
 );
 const NedbankConnectIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
