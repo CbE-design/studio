@@ -71,11 +71,13 @@ const ShopIcon = () => (
     />
 );
 const PayShapIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8" style={{ color: 'rgb(255, 109, 0)'}}>
-        <path d="m12 1.5-2.5 5 2.5 5 2.5-5-2.5-5z"/>
-        <path d="m5.5 6.5-2.5 5 2.5 5 2.5-5-2.5-5z"/>
-        <path d="m18.5 6.5-2.5 5 2.5 5 2.5-5-2.5-5z"/>
-    </svg>
+    <Image
+        src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758635261879.jpg?alt=media&token=c6e6272c-58fc-4a13-bc26-12f5c77ceb7e"
+        alt="PayShap icon"
+        width={32}
+        height={32}
+        className="h-8 w-8"
+    />
 );
 const LatestIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
