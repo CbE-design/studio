@@ -28,14 +28,13 @@ const OffersIcon = () => (
 
 
 const ApplicationsIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-        <path d="M9 12h2"></path>
-        <path d="M15 12h-2"></path>
-        <path d="M9 17h6"></path>
-        <path d="M11 12a2 2 0 0 1-2-2 2 2 0 0 1 2-2h2a2 2 0 1 1 0 4h-2z"></path>
-        <path d="M14 2v6h6"></path>
-    </svg>
+    <Image 
+        src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758629149375.jpg?alt=media&token=485765e5-456f-412c-8da5-751ff5991dd5"
+        alt="Applications icon"
+        width={32}
+        height={32}
+        className="h-8 w-8"
+    />
 );
 const InsureIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
@@ -286,5 +285,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
