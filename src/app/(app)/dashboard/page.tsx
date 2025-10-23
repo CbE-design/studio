@@ -46,12 +46,13 @@ const InsureIcon = () => (
     />
 );
 const NedbankConnectIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
-        <rect x="7" y="2" width="10" height="20" rx="2" ry="2"/>
-        <path d="M11 7h2"/>
-        <path d="M11 11h2"/>
-        <path d="M11 15h2"/>
-    </svg>
+    <Image
+        src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758631700022.jpg?alt=media&token=148194a4-0b1a-4ea4-929e-956599069261"
+        alt="Nedbank Connect icon"
+        width={32}
+        height={32}
+        className="h-8 w-8"
+    />
 );
 const DiscsAndFinesIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
