@@ -17,12 +17,13 @@ import { collection, getDocs, query } from 'firebase/firestore';
 
 // Custom SVG Icons
 const OffersIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
-        <path d="M16.2 8.3a3.5 3.5 0 1 0-4.95 0"/>
-        <path d="M10.85 9.15s-1.85 1.85-3.35 3.35A5.5 5.5 0 0 0 12 21a5.5 5.5 0 0 0 4.5-8.5c-1.5-1.5-3.35-3.35-3.35-3.35z"/>
-        <path d="M12.5 8.8l-1.4-1.4"/>
-        <path d="M15.5 13.5c0 2-2.5 3-5 0"/>
-    </svg>
+    <Image 
+        src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758622591390.jpg?alt=media&token=2f681462-7001-4654-9754-436e2c8f0ffe"
+        alt="Offers for you icon"
+        width={32}
+        height={32}
+        className="h-8 w-8"
+    />
 );
 
 
