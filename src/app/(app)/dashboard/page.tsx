@@ -90,11 +90,12 @@ const QuickPayIcon = () => (
     />
 );
 const GetCashIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
-        <path d="M3 6h18v12H3z"/><path d="M7 6v12"/><path d="M17 6v12"/>
-        <path d="M12 10a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v2z"/>
-        <path d="M14 12h4"/><path d="M14 8h4"/>
-    </svg>
+    <Image
+        src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758636434590.jpg?alt=media&token=9a2b5c0a-b399-4780-981a-3bd21e8d55e9"
+        alt="Get cash icon"
+        fill
+        className="object-contain"
+    />
 );
 const HomeLoansIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
