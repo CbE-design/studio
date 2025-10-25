@@ -3,10 +3,10 @@
 
 import { PDFDocument, StandardFonts, rgb, PDFFont } from 'pdf-lib';
 import { format } from 'date-fns';
-import type { Transaction } from './definitions';
+import type { Transaction, Account } from './definitions';
 import { formatCurrency } from './data';
 
-export async function generateProofOfPaymentPdf(transaction: Transaction): Promise<Uint8Array> {
+export async function generateProofOfPaymentPdf(transaction: Transaction, account: Account): Promise<Uint8Array> {
     const paymentDate = transaction.date ? new Date(transaction.date) : new Date();
     
     // --- Helper functions for generating values if they don't exist on the transaction ---
@@ -22,6 +22,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction): Promi
         referenceNumber: referenceNumber,
         recipient: transaction.recipientName,
         amount: Number(transaction.amount || '0'),
+        currency: account.currency,
         recipientReference: transaction.recipientReference,
         payer: "VAN SCHALKWYK FAMILY TRUST",
         bank: transaction.bank,
@@ -90,7 +91,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction): Promi
     y -= 20;
 
     drawDetailRow('Recipient', detailsForPdf.recipient || 'N/A');
-    drawDetailRow('Amount', formatCurrency(detailsForPdf.amount, 'R'));
+    drawDetailRow('Amount', formatCurrency(detailsForPdf.amount, detailsForPdf.currency));
     drawDetailRow('Recipient Reference', detailsForPdf.recipientReference || 'N/A');
     drawDetailRow('Bank', detailsForPdf.bank || 'N/A');
     drawDetailRow('Account Number', detailsForPdf.accountNumber);
