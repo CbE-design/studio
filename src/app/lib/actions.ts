@@ -11,9 +11,12 @@ import type { Transaction, TransactionType, Account, User } from './definitions'
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
-import { functions, adminDb } from './firebase-admin';
+import { functions, db as adminDb } from './firebase-admin';
 import { format } from 'date-fns';
 import { formatCurrency } from './data';
+import nodemailer from 'nodemailer';
+import { Vonage } from '@vonage/server-sdk';
+import { HttpsError, onCall } from 'firebase-functions/v2/https';
 
 
 const FormSchema = z.object({
@@ -393,3 +396,70 @@ export async function emailProofOfPaymentAction(input: EmailPopInput): Promise<{
     return { success: false, message: e.message || 'An unknown error occurred.' };
   }
 }
+
+// These are now defined as callable functions directly in actions.
+// This avoids needing a separate `functions/index.js` for these simple tasks.
+
+export const sendSms = onCall(async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
+    }
+    
+    const { to, text } = request.data;
+    if (!to || !text) {
+        throw new HttpsError('invalid-argument', 'The function must be called with "to" and "text" arguments.');
+    }
+
+    const vonage = new Vonage({
+        apiKey: process.env.VONAGE_API_KEY,
+        apiSecret: process.env.VONAGE_API_SECRET
+    });
+    const from = "Nedbank";
+
+    try {
+        const response = await vonage.sms.send({ to, from, text });
+        const messageId = response.messages[0].messageId;
+        console.log(`Message sent successfully. Message ID: ${messageId}`);
+        return { success: true, message: "SMS sent successfully!", messageId };
+    } catch (error) {
+        console.error("Error sending SMS:", error);
+        throw new HttpsError('internal', 'Failed to send SMS.', error);
+    }
+});
+
+
+export const sendEmail = onCall(async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
+    }
+
+    const { to, subject, html, attachments } = request.data;
+    if (!to || !subject || !html) {
+         throw new HttpsError('invalid-argument', 'Missing required fields: to, subject, and html.');
+    }
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.MAIL_USER || 'your-email@gmail.com',
+            pass: process.env.MAIL_PASS || 'your-app-password'
+        }
+    });
+
+    const mailOptions = {
+        from: `Nedbank <${process.env.MAIL_USER || 'your-email@gmail.com'}>`,
+        to: to,
+        subject: subject,
+        html: html,
+        attachments: attachments || [],
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Email sent successfully to ${to}`);
+        return { success: true, message: 'Email sent successfully.' };
+    } catch (error) {
+        console.error('Error sending email:', error);
+        throw new HttpsError('internal', 'Failed to send email.', error);
+    }
+});
