@@ -11,8 +11,7 @@ import type { Transaction, TransactionType, Account, User } from './definitions'
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
-import { getFunctions } from 'firebase-admin/functions';
-import { admin, auth, db as adminDb, initializeAdminApp } from './firebase-admin';
+import { functions, adminDb } from './firebase-admin';
 import { format } from 'date-fns';
 import { formatCurrency } from './data';
 
@@ -173,13 +172,12 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
         });
 
         try {
-            initializeAdminApp();
             const benificiarySnapshot = await adminDb.collection('users').doc(userId).collection('beneficiaries').where('accountNumber', '==', accountNumber).limit(1).get();
 
             if (!benificiarySnapshot.empty) {
                 const benificiaryData = benificiarySnapshot.docs[0].data();
                 if(benificiaryData && benificiaryData.phoneNumber) {
-                    const sendSmsFunction = getFunctions().httpsCallable('sendSms');
+                    const sendSmsFunction = functions.httpsCallable('sendSms');
                     await sendSmsFunction({
                         to: benificiaryData.phoneNumber,
                         text: `You have received a payment of ${formatCurrency(numericAmount, 'R')} from VAN SCHALKWYK FAMILY TRUST. Ref: ${recipientReference || ''}`
@@ -343,8 +341,6 @@ export async function emailProofOfPaymentAction(input: EmailPopInput): Promise<{
   const { email, transactionId, accountId, userId } = validatedFields.data;
 
   try {
-    initializeAdminApp();
-
     const txDocRef = doc(firestore, `users/${userId}/bankAccounts/${accountId}/transactions/${transactionId}`);
     const txSnap = await getDoc(txDocRef);
     if (!txSnap.exists()) {
@@ -384,7 +380,7 @@ export async function emailProofOfPaymentAction(input: EmailPopInput): Promise<{
       ],
     };
 
-    const sendEmailFunction = getFunctions().httpsCallable('sendEmail');
+    const sendEmailFunction = functions.httpsCallable('sendEmail');
     const result = await sendEmailFunction(emailData);
 
     if (result.data && (result.data as any).success) {
