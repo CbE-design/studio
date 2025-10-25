@@ -11,7 +11,7 @@
 
 const { setGlobalOptions } = require('firebase-functions/v2');
 const { onUserCreate } = require('firebase-functions/v2/auth');
-const { onCall } = require('firebase-functions/v2/https');
+const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
 const { Vonage } = require('@vonage/server-sdk');
@@ -41,7 +41,7 @@ const vonage = new Vonage({
 exports.sendSms = onCall(async (request) => {
     // 1. Authenticate the user if required (recommended for production)
     if (!request.auth) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
             'unauthenticated',
             'The function must be called while authenticated.'
         );
@@ -50,7 +50,7 @@ exports.sendSms = onCall(async (request) => {
     // 2. Validate the incoming data
     const { to, text } = request.data;
     if (!to || !text) {
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
             'invalid-argument',
             'The function must be called with "to" and "text" arguments.'
         );
@@ -73,7 +73,7 @@ exports.sendSms = onCall(async (request) => {
         };
     } catch (error) {
         console.error("Error sending SMS:", error);
-        throw new functions.https.HttpsError(
+        throw new HttpsError(
             'internal',
             'Failed to send SMS.',
             error
@@ -83,63 +83,57 @@ exports.sendSms = onCall(async (request) => {
 
 
 /**
- * Placeholder for sending an email.
- * In a real app, you would configure this with a real email service like SendGrid or Mailgun.
+ * Sends an email using Nodemailer.
+ * This is a callable function that can be invoked from the client-side via a server action.
+ * It requires SMTP transport configuration in environment variables.
  */
 exports.sendEmail = onCall(async (request) => {
-    const { to, subject, html, attachments } = request.data;
-
-    // For now, this function only logs that it would send an email.
-    // To send a real email, you would need to:
-    // 1. Set up an email service (e.g., SendGrid, Mailgun).
-    // 2. Add your service's API key to Firebase environment configuration.
-    // 3. Replace the logging below with the email service's SDK.
-    
-    console.log("--- SIMULATING EMAIL ---");
-    console.log(`To: ${to}`);
-    console.log(`Subject: ${subject}`);
-    console.log(`Body starts with: ${html.substring(0, 100)}...`);
-    console.log(`Attachment present: ${attachments && attachments.length > 0}`);
-
-    if (request.auth) {
-        const uid = request.auth.uid;
-        const db = admin.firestore();
-        try {
-            console.log(`Checking/seeding failed transactions for user ${uid}`);
-            const accountsSnapshot = await db.collection('users').doc(uid).collection('bankAccounts').where('name', '==', 'Savvy Bundle Current Account').limit(1).get();
-            
-            if (!accountsSnapshot.empty) {
-                const savvyAccountDoc = accountsSnapshot.docs[0];
-                const failedTransactionsRef = savvyAccountDoc.ref.collection('failedTransactions');
-                const existingFailedTx = await failedTransactionsRef.limit(1).get();
-
-                if (existingFailedTx.empty) {
-                    console.log(`No failed transactions found. Seeding now for account ${savvyAccountDoc.id}...`);
-                    const failedTransactionsBatch = db.batch();
-                    const failedTransactionsToAdd = [
-                        { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'Corrie', failureReason: 'Not Authorised' },
-                        { returnDate: '01 Oct 2025', fromAccount: '1234066912', toAccount: '9876543210', beneficiaryName: 'H.Nel', failureReason: 'Not Authorised' },
-                    ];
-
-                    failedTransactionsToAdd.forEach(tx => {
-                        const newDocRef = failedTransactionsRef.doc();
-                        failedTransactionsBatch.set(newDocRef, { ...tx, id: newDocRef.id });
-                    });
-                    
-                    await failedTransactionsBatch.commit();
-                    console.log('Successfully seeded failed transactions.');
-                } else {
-                    console.log('Failed transactions already exist. Skipping seeding.');
-                }
-            } else {
-                 console.log('Savvy Bundle Current Account not found for user.');
-            }
-        } catch (error) {
-            console.error('Failed to seed failed transactions:', error);
-        }
+    // Authenticate the user (recommended for production)
+    if (!request.auth) {
+        throw new HttpsError(
+            'unauthenticated',
+            'The function must be called while authenticated.'
+        );
     }
+
+    const { to, subject, html, attachments } = request.data;
     
-    return { success: true, message: "Email simulation and data seeding check complete." };
+    if (!to || !subject || !html) {
+         throw new HttpsError(
+            'invalid-argument',
+            'Missing required fields: to, subject, and html.'
+        );
+    }
+
+    // Configure Nodemailer transporter.
+    // For a real app, use a robust email service like SendGrid, Mailgun, or Amazon SES.
+    // Using Gmail is suitable for testing but has strict limits.
+    // Store credentials in Firebase environment variables:
+    // `firebase functions:config:set mail.user="your-email@gmail.com" mail.pass="your-app-password"`
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.MAIL_USER || 'your-email@gmail.com', // Fallback for emulator
+            pass: process.env.MAIL_PASS || 'your-app-password'   // Fallback for emulator
+        }
+    });
+
+    const mailOptions = {
+        from: `Nedbank <${process.env.MAIL_USER || 'your-email@gmail.com'}>`,
+        to: to,
+        subject: subject,
+        html: html,
+        attachments: attachments || [],
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Email sent successfully to ${to}`);
+        return { success: true, message: 'Email sent successfully.' };
+    } catch (error) {
+        console.error('Error sending email:', error);
+        throw new HttpsError('internal', 'Failed to send email.', error);
+    }
 });
 
 

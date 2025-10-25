@@ -11,7 +11,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/app/lib/data';
-import { generateProofOfPaymentAction, markTransactionAsFailedAction } from '@/app/lib/actions';
+import { generateProofOfPaymentAction, markTransactionAsFailedAction, emailProofOfPaymentAction } from '@/app/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -23,7 +23,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const DetailRow = ({ label, value }: { label: string; value: string | undefined }) => (
   <div className="py-4 border-b last:border-b-0">
@@ -68,6 +80,9 @@ function TransactionDetailsContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isFailing, setIsFailing] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [email, setEmail] = useState('');
+  const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!firestore || !user?.uid || !accountId || !txId) {
@@ -116,7 +131,7 @@ function TransactionDetailsContent() {
     router.push(`/pay/single/amount?${params.toString()}`);
   }
   
-  const handleShare = async () => {
+  const handleDownload = async () => {
     if (!transaction) return;
     setIsGenerating(true);
     try {
@@ -149,6 +164,40 @@ function TransactionDetailsContent() {
         setIsGenerating(false);
     }
   };
+
+  const handleSendEmail = async () => {
+    if (!user || !transaction || !email) return;
+    setIsSendingEmail(true);
+    try {
+      const result = await emailProofOfPaymentAction({
+        email,
+        transactionId: transaction.id,
+        userId: user.uid,
+        accountId: accountId as string,
+      });
+
+      if (result.success) {
+        toast({
+          title: 'Email Sent',
+          description: `Proof of payment sent to ${email}.`,
+        });
+        setIsEmailDialogOpen(false);
+        setEmail('');
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (e: any) {
+      console.error("Failed to send email:", e);
+      toast({
+        variant: 'destructive',
+        title: 'Email Failed',
+        description: e.message || 'Could not send the email. Please try again.',
+      });
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
 
   const handleMarkAsFailed = async () => {
     if (!user || !accountId || !txId || !transaction) {
@@ -246,14 +295,44 @@ function TransactionDetailsContent() {
             <Button onClick={handlePayAgain} className="w-full font-bold h-12">
               Pay again
             </Button>
-            <Button onClick={handleShare} variant="outline" className="w-full font-bold h-12" disabled={isGenerating}>
-                {isGenerating ? (
-                    <LoaderCircle className="mr-2 h-5 w-5 animate-spin" />
-                ) : (
+            <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
+              <DialogTrigger asChild>
+                 <Button variant="outline" className="w-full font-bold h-12">
                     <Share2 className="mr-2 h-5 w-5" />
-                )}
-                {isGenerating ? 'Generating...' : 'Share proof of payment'}
-            </Button>
+                    Share proof of payment
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Share Proof of Payment</DialogTitle>
+                    <DialogDescription>
+                        Enter the recipient's email address to send the proof of payment.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="email" className="text-right">Email</Label>
+                        <Input 
+                            id="email" 
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="col-span-3" 
+                            placeholder="recipient@example.com"
+                        />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button onClick={handleDownload} variant="secondary" disabled={isGenerating}>
+                      {isGenerating ? <LoaderCircle className="animate-spin" /> : 'Download'}
+                    </Button>
+                    <Button onClick={handleSendEmail} disabled={isSendingEmail || !email}>
+                        {isSendingEmail && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                        Send Email
+                    </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </>
         )}
         {(isReturnTransaction || transaction.type === 'credit') && (
