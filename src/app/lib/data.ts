@@ -118,13 +118,15 @@ export function formatCurrency(amount: number, currency: string = 'ZAR') {
   const isNegative = amount < 0;
   const absAmount = Math.abs(amount);
 
-  const formatter = new Intl.NumberFormat('en-ZA', {
-    style: 'decimal', // Use decimal style to avoid currency symbol for now
+  // Use en-GB which uses a comma for thousands and a period for decimals.
+  const formatter = new Intl.NumberFormat('en-GB', {
+    style: 'decimal',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 
-  const formattedNumber = formatter.format(absAmount).replace(/,/g, ' '); // Replace comma with space
+  // Replace the thousands comma with a space.
+  const formattedNumber = formatter.format(absAmount).replace(/,/g, ' ');
 
   // Determine the currency symbol
   let symbol = 'R';
@@ -138,4 +140,3 @@ export function formatCurrency(amount: number, currency: string = 'ZAR') {
   
   return `${symbol}${formattedNumber}`;
 }
-
