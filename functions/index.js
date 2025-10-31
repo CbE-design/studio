@@ -119,7 +119,7 @@ exports.sendEmail = onCall(async (request) => {
     });
 
     const mailOptions = {
-        from: `Nedbank <${process.env.MAIL_USER || 'your-email@gmail.com'}>`,
+        from: `Proof of Payment (Nedbank) <${process.env.MAIL_USER || 'your-email@gmail.com'}>`,
         to: to,
         subject: subject,
         html: html,
