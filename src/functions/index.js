@@ -1,4 +1,5 @@
 
+
 /**
  * Import function triggers from their respective submodules:
  *
@@ -10,13 +11,131 @@
 
 const { setGlobalOptions } = require('firebase-functions/v2');
 const { onUserCreate } = require('firebase-functions/v2/auth');
+const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const admin = require('firebase-admin');
+const nodemailer = require('nodemailer');
+const { Vonage } = require('@vonage/server-sdk');
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
 
 // Set global options for functions (e.g., region, memory)
 setGlobalOptions({ region: 'us-central1' });
+
+// Initialize Vonage
+const vonage = new Vonage({
+  apiKey: process.env.VONAGE_KEY,
+  apiSecret: process.env.VONAGE_SECRET
+});
+
+
+/**
+ * Sends an SMS message using the Vonage API.
+ * This is a callable function, meaning it can be invoked directly from the client-side application.
+ *
+ * @param {object} request - The request object from the client.
+ * @param {string} request.data.to - The recipient's phone number in E.164 format (e.g., +14155552671).
+ * @param {string} request.data.text - The text content of the message.
+ * @returns {Promise<{success: boolean, message: string, messageId?: string}>} - A promise that resolves with the result of the operation.
+ */
+exports.sendSms = onCall(async (request) => {
+    // 1. Authenticate the user if required (recommended for production)
+    if (!request.auth) {
+        throw new HttpsError(
+            'unauthenticated',
+            'The function must be called while authenticated.'
+        );
+    }
+    
+    // 2. Validate the incoming data
+    const { to, text } = request.data;
+    if (!to || !text) {
+        throw new HttpsError(
+            'invalid-argument',
+            'The function must be called with "to" and "text" arguments.'
+        );
+    }
+
+    const from = "Nedbank";
+
+    try {
+        // 3. Send the SMS using the Vonage SDK
+        const response = await vonage.sms.send({ to, from, text });
+        const messageId = response.messages[0].messageId;
+        
+        console.log(`Message sent successfully. Message ID: ${messageId}`);
+
+        // 4. Return a success response to the client
+        return { 
+            success: true, 
+            message: "SMS sent successfully!",
+            messageId: messageId
+        };
+    } catch (error) {
+        console.error("Error sending SMS:", error);
+        throw new HttpsError(
+            'internal',
+            'Failed to send SMS.',
+            error
+        );
+    }
+});
+
+
+/**
+ * Sends an email using Nodemailer.
+ * This is a callable function that can be invoked from the client-side via a server action.
+ * It requires SMTP transport configuration in environment variables.
+ */
+exports.sendEmail = onCall(async (request) => {
+    // Authenticate the user (recommended for production)
+    if (!request.auth) {
+        throw new HttpsError(
+            'unauthenticated',
+            'The function must be called while authenticated.'
+        );
+    }
+
+    const { to, subject, html, attachments } = request.data;
+    
+    if (!to || !subject || !html) {
+         throw new HttpsError(
+            'invalid-argument',
+            'Missing required fields: to, subject, and html.'
+        );
+    }
+
+    // Configure Nodemailer transporter.
+    // For a real app, use a robust email service like SendGrid, Mailgun, or Amazon SES.
+    // Using Gmail is suitable for testing but has strict limits.
+    // Store credentials in Firebase environment variables:
+    // `firebase functions:config:set mail.user="your-email@gmail.com" mail.pass="your-app-password"`
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.MAIL_USER || 'your-email@gmail.com', // Fallback for emulator
+            pass: process.env.MAIL_PASS || 'your-app-password'   // Fallback for emulator
+        }
+    });
+
+    const mailOptions = {
+        from: `Proof of Payment (Nedbank) <${process.env.MAIL_USER || 'your-email@gmail.com'}>`,
+        to: to,
+        subject: subject,
+        html: html,
+        attachments: attachments || [],
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Email sent successfully to ${to}`);
+        return { success: true, message: 'Email sent successfully.' };
+    } catch (error) {
+        console.error('Error sending email:', error);
+        throw new HttpsError('internal', 'Failed to send email.', error);
+    }
+});
+
 
 // This is the specific list of transactions to be seeded into the Savvy Bundle Current Account.
 const initialSavvyBundleTransactions = [
@@ -234,6 +353,8 @@ exports.provisionNewUser = onUserCreate(async (event) => {
     await userDocRef.set({
       id: uid,
       email: email,
+      firstName: 'Van Schalkwyk Family Trust',
+      lastName: '',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
     console.log(`Successfully created user document for: ${uid}`);
@@ -280,6 +401,20 @@ exports.provisionNewUser = onUserCreate(async (event) => {
     await savvyTransactionsBatch.commit();
     console.log(`Successfully seeded ${initialSavvyBundleTransactions.length} transactions for Savvy account.`);
 
+    // Seed failed transactions
+    const failedTransactionsBatch = db.batch();
+    const failedTransactionsRef = savvyAccountRef.collection('failedTransactions');
+    const failedTransactionsToAdd = [
+        { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'Corrie', failureReason: 'Not Authorised' },
+        { returnDate: '01 Oct 2025', fromAccount: '1234066912', toAccount: '9876543210', beneficiaryName: 'H.Nel', failureReason: 'Not Authorised' },
+    ];
+    failedTransactionsToAdd.forEach(tx => {
+        const newDocRef = failedTransactionsRef.doc();
+        failedTransactionsBatch.set(newDocRef, { ...tx, id: newDocRef.id });
+    });
+    await failedTransactionsBatch.commit();
+    console.log(`Successfully seeded ${failedTransactionsToAdd.length} failed transactions.`);
+
     // Now create the accounts with the calculated balance
     const accountsBatch = db.batch();
     
@@ -320,5 +455,7 @@ exports.provisionNewUser = onUserCreate(async (event) => {
 
   return null;
 });
+
+    
 
     
