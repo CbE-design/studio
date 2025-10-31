@@ -55,7 +55,7 @@ export function Accounts() {
           return (
             <Link href={`/account/${account.id}`} key={account.id}>
               <div className={cn(
-                "flex flex-row justify-between items-center p-3 cursor-pointer",
+                "flex flex-row justify-between items-center p-3 cursor-pointer text-white",
                 index < accounts.length - 1 ? 'border-b border-white/20' : ''
               )}>
                 <div>
@@ -69,12 +69,10 @@ export function Accounts() {
         })
       ) : (
          <div className="text-center py-4">
-            <p className="text-sm">No accounts found.</p>
+            <p className="text-sm text-white">No accounts found.</p>
             <p className="text-xs text-white/80">This can happen if you just signed up. Try refreshing.</p>
          </div>
       )}
     </div>
   );
 }
-
-    

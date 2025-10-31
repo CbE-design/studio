@@ -232,7 +232,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col h-full bg-white text-black">
       {/* Header */}
-      <header className="gradient-background text-primary-foreground p-4 space-y-4 sticky top-0 z-10">
+      <header className="gradient-background text-white p-4 space-y-4 sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Image 
@@ -260,7 +260,7 @@ export default function DashboardPage() {
 
       {/* Scrollable Content */}
       <main className="flex-1 overflow-y-auto bg-gray-50">
-        <div className="gradient-background text-primary-foreground p-4">
+        <div className="gradient-background text-white p-4">
             <AccountsCarousel />
         </div>
         <div className="p-4">

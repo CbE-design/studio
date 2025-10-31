@@ -70,7 +70,7 @@
 
 @layer components {
   .gradient-background {
-    background-color: #00A651;
+    background: linear-gradient(to bottom, #00A651, #008241);
   }
 }
 

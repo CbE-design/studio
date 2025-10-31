@@ -43,7 +43,7 @@ const tabs = ['Transactions', 'Debit orders', 'Scheduled', 'Card management', 'S
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col h-screen bg-gray-50">
-    <header className="gradient-background text-primary-foreground p-4 sticky top-0 z-10 space-y-4">
+    <header className="gradient-background text-white p-4 sticky top-0 z-10 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="mr-2 -ml-2">
@@ -174,7 +174,7 @@ export default function AccountDetailsPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="gradient-background text-primary-foreground p-4 sticky top-0 z-10 space-y-4">
+      <header className="gradient-background text-white p-4 sticky top-0 z-10 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
