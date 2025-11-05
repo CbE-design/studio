@@ -7,7 +7,7 @@ import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@
 import { revalidatePath } from 'next/cache';
 import { collection, doc, runTransaction, getDoc } from 'firebase/firestore';
 import { firestore } from '@/app/lib/firebase';
-import type { Transaction, TransactionType, Account, User } from './definitions';
+import type { Transaction, TransactionType, Account, User, State, TransactionInput, TransactionResult, EmailPopInput } from './definitions';
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
@@ -21,15 +21,6 @@ const FormSchema = z.object({
   budget: z.string().min(10, { message: 'Please describe your budget in more detail (at least 10 characters).' }),
 });
 
-export type State = {
-  errors?: {
-    income?: string[];
-    spendingHabits?: string[];
-    budget?: string[];
-  };
-  message: string | null;
-  data: PersonalizedFinancialTipsOutput | null;
-};
 
 export async function getFinancialTipsAction(prevState: State, formData: FormData): Promise<State> {
   const validatedFields = FormSchema.safeParse({
@@ -77,14 +68,6 @@ const TransactionSchema = z.object({
     paymentType: z.string(), // e.g. 'Instant Pay', 'Standard EFT'
 });
 
-type TransactionInput = z.infer<typeof TransactionSchema>;
-
-type TransactionResult = {
-  success: boolean;
-  message: string;
-  transactionId?: string;
-  errors?: any;
-};
 
 export async function createTransactionAction(data: TransactionInput): Promise<TransactionResult> {
     const validatedFields = TransactionSchema.safeParse(data);
@@ -326,7 +309,6 @@ const EmailPopSchema = z.object({
   userId: z.string(),
 });
 
-type EmailPopInput = z.infer<typeof EmailPopSchema>;
 
 export async function emailProofOfPaymentAction(input: EmailPopInput): Promise<{ success: boolean; message: string; }> {
   const validatedFields = EmailPopSchema.safeParse(input);

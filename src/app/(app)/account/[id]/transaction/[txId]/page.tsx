@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFirestore, useUser } from '@/firebase-provider';
 import { doc, getDoc } from 'firebase/firestore';
-import type { Account, Transaction } from '@/app/lib/definitions';
+import type { Account, Transaction, EmailPopInput } from '@/app/lib/definitions';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/app/lib/data';
 import { generateProofOfPaymentAction, markTransactionAsFailedAction, emailProofOfPaymentAction } from '@/app/lib/actions';

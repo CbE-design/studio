@@ -1,4 +1,8 @@
 
+
+import { z } from "zod";
+import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
+
 export type Account = {
   id: string;
   name: string;
@@ -57,3 +61,44 @@ export type User = {
     lastName?: string;
     createdAt: any;
 }
+
+export type State = {
+  errors?: {
+    income?: string[];
+    spendingHabits?: string[];
+    budget?: string[];
+  };
+  message: string | null;
+  data: PersonalizedFinancialTipsOutput | null;
+};
+
+
+const TransactionSchema = z.object({
+    fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
+    userId: z.string().min(1, { message: 'User ID is required.'}),
+    amount: z.string().refine(val => !isNaN(parseFloat(val)) && parseFloat(val) > 0, { message: 'Amount must be a positive number.' }),
+    recipientName: z.string().optional(),
+    yourReference: z.string().optional(),
+    recipientReference: z.string().optional(),
+    bankName: z.string().optional(),
+    accountNumber: z.string().optional(),
+    paymentType: z.string(), // e.g. 'Instant Pay', 'Standard EFT'
+});
+
+export type TransactionInput = z.infer<typeof TransactionSchema>;
+
+export type TransactionResult = {
+  success: boolean;
+  message: string;
+  transactionId?: string;
+  errors?: any;
+};
+
+const EmailPopSchema = z.object({
+  email: z.string().email(),
+  transactionId: z.string(),
+  accountId: z.string(),
+  userId: z.string(),
+});
+
+export type EmailPopInput = z.infer<typeof EmailPopSchema>;
