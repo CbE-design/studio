@@ -28,6 +28,106 @@ const vonage = new Vonage({
   apiSecret: process.env.VONAGE_API_SECRET
 });
 
+/**
+ * Adds a new beneficiary to the user's profile.
+ * This is a callable function that requires authentication.
+ */
+exports.addBeneficiary = onCall(async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
+    }
+
+    const uid = request.auth.uid;
+    const { name, bank, accountNumber } = request.data;
+
+    if (!name || !bank || !accountNumber) {
+        throw new HttpsError('invalid-argument', 'Missing required beneficiary details: name, bank, and accountNumber.');
+    }
+
+    try {
+        const beneficiaryRef = admin.firestore().collection('users').doc(uid).collection('beneficiaries').doc();
+        await beneficiaryRef.set({
+            id: beneficiaryRef.id,
+            name: name,
+            bank: bank,
+            accountNumber: accountNumber,
+            userId: uid,
+        });
+
+        return { success: true, message: 'Beneficiary added successfully.', beneficiaryId: beneficiaryRef.id };
+    } catch (error) {
+        console.error('Error adding beneficiary:', error);
+        throw new HttpsError('internal', 'Failed to add beneficiary.', error);
+    }
+});
+
+
+/**
+ * Simulates the processing of a scheduled payment.
+ * In a real app, this would be triggered by a scheduler (e.g., Cloud Scheduler).
+ */
+exports.processScheduledPayment = onCall(async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
+    }
+
+    const { paymentId, userId } = request.data;
+
+    if (!paymentId || !userId) {
+        throw new HttpsError('invalid-argument', 'Missing paymentId or userId.');
+    }
+    
+    const db = admin.firestore();
+    const paymentRef = db.doc(`users/${userId}/scheduledPayments/${paymentId}`);
+
+    try {
+        const result = await db.runTransaction(async (transaction) => {
+            const paymentDoc = await transaction.get(paymentRef);
+            if (!paymentDoc.exists || paymentDoc.data().status !== 'scheduled') {
+                throw new Error('Scheduled payment not found or already processed.');
+            }
+
+            const paymentData = paymentDoc.data();
+            const fromAccountRef = db.doc(`users/${userId}/bankAccounts/${paymentData.fromAccountId}`);
+            const fromAccountDoc = await transaction.get(fromAccountRef);
+
+            if (!fromAccountDoc.exists) {
+                throw new Error('Source account not found.');
+            }
+
+            const fromAccountData = fromAccountDoc.data();
+            if (fromAccountData.balance < paymentData.amount) {
+                transaction.update(paymentRef, { status: 'failed', failureReason: 'Insufficient funds' });
+                return { success: false, message: 'Insufficient funds.' };
+            }
+            
+            const newBalance = fromAccountData.balance - paymentData.amount;
+            transaction.update(fromAccountRef, { balance: newBalance });
+
+            const newTransactionRef = fromAccountRef.collection('transactions').doc();
+            transaction.set(newTransactionRef, {
+                id: newTransactionRef.id,
+                amount: paymentData.amount,
+                date: new Date().toISOString(),
+                description: `Scheduled Payment: ${paymentData.reference}`,
+                type: 'debit',
+                transactionType: 'EFT_STANDARD',
+                userId: userId,
+            });
+
+            transaction.update(paymentRef, { status: 'processed', processedDate: new Date().toISOString() });
+            
+            return { success: true, message: 'Scheduled payment processed successfully.' };
+        });
+        
+        return result;
+
+    } catch (error) {
+        console.error('Error processing scheduled payment:', error);
+        throw new HttpsError('internal', 'Failed to process scheduled payment.', error);
+    }
+});
+
 
 /**
  * Sends an SMS message using the Vonage API.
@@ -455,5 +555,9 @@ exports.provisionNewUser = onUserCreate(async (event) => {
 
   return null;
 });
+
+    
+
+    
 
     

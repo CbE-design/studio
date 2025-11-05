@@ -164,6 +164,24 @@
         "bankName",
         "beneficiaryName"
       ]
+    },
+    "ScheduledPayment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ScheduledPayment",
+      "type": "object",
+      "description": "Represents a future-dated or recurring payment.",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "fromAccountId": { "type": "string" },
+        "toAccountId": { "type": "string" },
+        "beneficiaryId": { "type": "string" },
+        "amount": { "type": "number" },
+        "scheduledDate": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["scheduled", "processed", "failed"] },
+        "reference": { "type": "string" }
+      },
+      "required": ["id", "userId", "fromAccountId", "amount", "scheduledDate", "status"]
     }
   },
   "auth": {
@@ -253,8 +271,18 @@
             }
           ]
         }
+      },
+       {
+        "path": "/users/{userId}/scheduledPayments/{paymentId}",
+        "definition": {
+          "entityName": "ScheduledPayment",
+          "schema": { "$ref": "#/backend/entities/ScheduledPayment" },
+          "description": "Stores user-defined scheduled payments."
+        }
       }
     ],
-    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability. It leverages path-based ownership for user-related data and segregates data based on access requirements.\n\n1.  **Users Collection:** Stores user profiles. Access is restricted to the user themselves.\n2.  **BankAccounts Collection:** Bank accounts are stored as a subcollection of the user document (`/users/{userId}/bankAccounts/{bankAccountId}`). This enforces ownership and simplifies security rules.  Authorization Independence is maintained because access control is determined solely by the path and the `userId` derived from `request.auth.uid`.  No `get()` calls are needed to check ownership.\n3.  **Transactions Collection:** Transactions are stored as a subcollection of the bank account (`/users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId}`).  Similar to bank accounts, this structure provides strong ownership and simplifies security rules. Authorization Independence is maintained as access is determined by the nested path and the `userId` which implicitly authorizes the user. No `get()` calls needed.\n4.  **Beneficiaries Collection:** Beneficiaries are stored as a subcollection of the user document (`/users/{userId}/beneficiaries/{beneficiaryId}`). This enforces ownership and simplifies security rules.  Authorization Independence is maintained because access control is determined solely by the path and the `userId` derived from `request.auth.uid`.  No `get()` calls are needed to check ownership.\n\n**Authorization Independence:** This is achieved by nesting BankAccounts, Transactions, and Beneficiaries under the /users/{userId} path. Security rules can then rely solely on `request.auth.uid == userId` to grant access, without needing to read parent documents.\n\n**Query Access Patterns (QAPs):**\n\n*   **List BankAccounts for User:**  Securely list bank accounts using `/users/{userId}/bankAccounts`. Rules will check `request.auth.uid == userId`.\n*   **List Transactions for BankAccount:** Securely list transactions using `/users/{userId}/bankAccounts/{bankAccountId}/transactions`. Rules will check `request.auth.uid == userId`.\n*   **List Beneficiaries for User:** Securely list beneficiaries using `/users/{userId}/beneficiaries`. Rules will check `request.auth.uid == userId`.\n\nThe design adheres to structural segregation by storing private user data (bank accounts, transactions, beneficiaries) under user-specific paths, ensuring uniform security requirements within each collection."
+    "reasoning": "The Firestore structure is designed to ensure authorization independence, clarity, and scalability. It leverages path-based ownership for user-related data and segregates data based on access requirements.\n\n1.  **Users Collection:** Stores user profiles. Access is restricted to the user themselves.\n2.  **BankAccounts Collection:** Bank accounts are stored as a subcollection of the user document (`/users/{userId}/bankAccounts/{bankAccountId}`). This enforces ownership and simplifies security rules.  Authorization Independence is maintained because access control is determined solely by the path and the `userId` derived from `request.auth.uid`.  No `get()` calls are needed to check ownership.\n3.  **Transactions Collection:** Transactions are stored as a subcollection of the bank account (`/users/{userId}/bankAccounts/{bankAccountId}/transactions/{transactionId}`).  Similar to bank accounts, this structure provides strong ownership and simplifies security rules. Authorization Independence is maintained as access is determined by the nested path and the `userId` which implicitly authorizes the user. No `get()` calls needed.\n4.  **Beneficiaries Collection:** Beneficiaries are stored as a subcollection of the user document (`/users/{userId}/beneficiaries/{beneficiaryId}`). This enforces ownership and simplifies security rules.  Authorization Independence is maintained because access control is determined solely by the path and the `userId` derived from `request.auth.uid`.  No `get()` calls are needed to check ownership.\n5. **ScheduledPayments Collection:** Stores future-dated payments for a user, maintaining the same ownership pattern for security.\n\n**Authorization Independence:** This is achieved by nesting BankAccounts, Transactions, and Beneficiaries under the /users/{userId} path. Security rules can then rely solely on `request.auth.uid == userId` to grant access, without needing to read parent documents.\n\n**Query Access Patterns (QAPs):**\n\n*   **List BankAccounts for User:**  Securely list bank accounts using `/users/{userId}/bankAccounts`. Rules will check `request.auth.uid == userId`.\n*   **List Transactions for BankAccount:** Securely list transactions using `/users/{userId}/bankAccounts/{bankAccountId}/transactions`. Rules will check `request.auth.uid == userId`.\n*   **List Beneficiaries for User:** Securely list beneficiaries using `/users/{userId}/beneficiaries`. Rules will check `request.auth.uid == userId`.\n\nThe design adheres to structural segregation by storing private user data (bank accounts, transactions, beneficiaries) under user-specific paths, ensuring uniform security requirements within each collection."
   }
 }
+
+    
