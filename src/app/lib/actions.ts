@@ -8,7 +8,7 @@ import { revalidatePath } from 'next/cache';
 import { collection, doc, runTransaction, getDoc } from 'firebase/firestore';
 import { firestore, functions as clientFunctions } from '@/app/lib/firebase';
 import { httpsCallable } from 'firebase/functions';
-import type { Transaction, TransactionType, Account, User, State, TransactionInput, TransactionResult, EmailPopInput } from './definitions';
+import type { Transaction, TransactionType, Account, User, State, TransactionInput, TransactionResult } from './definitions';
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
@@ -300,78 +300,5 @@ export async function markTransactionAsFailedAction(
   } catch (error: any) {
     console.error('Failed to mark transaction as failed:', error);
     return { success: false, message: error.message || 'Failed to mark transaction as failed.' };
-  }
-}
-
-const EmailPopSchema = z.object({
-  email: z.string().email(),
-  transactionId: z.string(),
-  accountId: z.string(),
-  userId: z.string(),
-});
-
-
-export async function emailProofOfPaymentAction(input: EmailPopInput): Promise<{ success: boolean; message: string; }> {
-  const validatedFields = EmailPopSchema.safeParse(input);
-  if (!validatedFields.success) {
-    return {
-      success: false,
-      message: "Invalid input provided.",
-    };
-  }
-
-  const { email, transactionId, accountId, userId } = validatedFields.data;
-
-  try {
-    const txDocRef = doc(firestore, `users/${userId}/bankAccounts/${accountId}/transactions/${transactionId}`);
-    const txSnap = await getDoc(txDocRef);
-    if (!txSnap.exists()) {
-      throw new Error('Transaction not found.');
-    }
-    const transaction = txSnap.data() as Transaction;
-    
-    const accountDocRef = doc(firestore, `users/${userId}/bankAccounts/${accountId}`);
-    const accountSnap = await getDoc(accountDocRef);
-    if (!accountSnap.exists()) {
-      throw new Error('Account not found.');
-    }
-    const account = accountSnap.data() as Account;
-
-    const pdfBytes = await generateProofOfPaymentPdf(transaction, account);
-    
-    const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
-    
-    const emailData = {
-      to: email,
-      subject: `Proof of Payment: ${transaction.recipientName || transaction.description}`,
-      html: `
-        <p>Dear Customer,</p>
-        <p>Please find attached the proof of payment for your recent transaction.</p>
-        <p><b>Recipient:</b> ${transaction.recipientName || 'N/A'}</p>
-        <p><b>Amount:</b> ${formatCurrency(transaction.amount, account.currency)}</p>
-        <p>Thank you for banking with us.</p>
-        <p><b>Nedbank</b></p>
-      `,
-      attachments: [
-        {
-          filename: `Proof-of-Payment-${transactionId}.pdf`,
-          content: pdfBase64,
-          encoding: 'base64',
-          contentType: 'application/pdf',
-        },
-      ],
-    };
-
-    const sendEmailFunction = httpsCallable(clientFunctions, 'sendEmail');
-    const result = await sendEmailFunction(emailData);
-
-    if (result.data && (result.data as any).success) {
-      return { success: true, message: 'Email sent successfully.' };
-    } else {
-      throw new Error((result.data as any).message || 'Failed to send email via Cloud Function.');
-    }
-  } catch (e: any) {
-    console.error('Failed to email proof of payment:', e);
-    return { success: false, message: e.message || 'An unknown error occurred.' };
   }
 }

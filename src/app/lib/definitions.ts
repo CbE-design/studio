@@ -93,12 +93,3 @@ export type TransactionResult = {
   transactionId?: string;
   errors?: any;
 };
-
-const EmailPopSchema = z.object({
-  email: z.string().email(),
-  transactionId: z.string(),
-  accountId: z.string(),
-  userId: z.string(),
-});
-
-export type EmailPopInput = z.infer<typeof EmailPopSchema>;
