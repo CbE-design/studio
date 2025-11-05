@@ -6,12 +6,13 @@ import { z } from 'zod';
 import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
 import { revalidatePath } from 'next/cache';
 import { collection, doc, runTransaction, getDoc } from 'firebase/firestore';
-import { firestore } from '@/app/lib/firebase';
+import { firestore, functions as clientFunctions } from '@/app/lib/firebase';
+import { httpsCallable } from 'firebase/functions';
 import type { Transaction, TransactionType, Account, User, State, TransactionInput, TransactionResult, EmailPopInput } from './definitions';
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
-import { functions, db } from './firebase-admin';
+import { db as adminDb } from './firebase-admin';
 import { format } from 'date-fns';
 import { formatCurrency } from './data';
 
@@ -154,12 +155,12 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
         });
 
         try {
-            const benificiarySnapshot = await db.collection('users').doc(userId).collection('beneficiaries').where('accountNumber', '==', accountNumber).limit(1).get();
+            const benificiarySnapshot = await adminDb.collection('users').doc(userId).collection('beneficiaries').where('accountNumber', '==', accountNumber).limit(1).get();
 
             if (!benificiarySnapshot.empty) {
                 const benificiaryData = benificiarySnapshot.docs[0].data();
                 if(benificiaryData && benificiaryData.phoneNumber) {
-                    const sendSmsFunction = functions.httpsCallable('sendSms');
+                    const sendSmsFunction = httpsCallable(clientFunctions, 'sendSms');
                     await sendSmsFunction({
                         to: benificiaryData.phoneNumber,
                         text: `You have received a payment of ${formatCurrency(numericAmount, 'R')} from VAN SCHALKWYK FAMILY TRUST. Ref: ${recipientReference || ''}`
@@ -361,7 +362,7 @@ export async function emailProofOfPaymentAction(input: EmailPopInput): Promise<{
       ],
     };
 
-    const sendEmailFunction = functions.httpsCallable('sendEmail');
+    const sendEmailFunction = httpsCallable(clientFunctions, 'sendEmail');
     const result = await sendEmailFunction(emailData);
 
     if (result.data && (result.data as any).success) {
