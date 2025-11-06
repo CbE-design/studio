@@ -3,59 +3,19 @@
 
 import 'dotenv/config';
 import { z } from 'zod';
-import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
 import { revalidatePath } from 'next/cache';
 import { collection, doc, runTransaction, getDoc } from 'firebase/firestore';
-import { firestore, functions as clientFunctions } from '@/app/lib/firebase';
-import { httpsCallable } from 'firebase/functions';
-import type { Transaction, TransactionType, Account, User, State, TransactionInput, TransactionResult } from './definitions';
+import { firestore } from '@/app/lib/firebase';
+import type { Transaction, TransactionType, Account, User, TransactionInput, TransactionResult } from './definitions';
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
 import { db as adminDb } from './firebase-admin';
 import { format } from 'date-fns';
 import { formatCurrency } from './data';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '@/app/lib/firebase';
 
-const FormSchema = z.object({
-  income: z.coerce.number().positive({ message: 'Please enter a valid income.' }),
-  spendingHabits: z.string().min(10, { message: 'Please describe your spending habits in more detail (at least 10 characters).' }),
-  budget: z.string().min(10, { message: 'Please describe your budget in more detail (at least 10 characters).' }),
-});
-
-
-export async function getFinancialTipsAction(prevState: State, formData: FormData): Promise<State> {
-  const validatedFields = FormSchema.safeParse({
-    income: formData.get('income'),
-    spendingHabits: formData.get('spendingHabits'),
-    budget: formData.get('budget'),
-  });
-
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Invalid fields. Failed to get tips.',
-      data: null,
-    };
-  }
-  
-  const { income, spendingHabits, budget } = validatedFields.data;
-
-  try {
-    const result = await getPersonalizedFinancialTips({ income, spendingHabits, budget });
-    return {
-        message: 'Success! Here are your personalized tips.',
-        data: result,
-        errors: {},
-    }
-  } catch (error) {
-    console.error(error);
-    return {
-        message: 'An unexpected error occurred while generating tips. Please try again.',
-        data: null,
-        errors: {},
-    }
-  }
-}
 
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
@@ -160,7 +120,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             if (!benificiarySnapshot.empty) {
                 const benificiaryData = benificiarySnapshot.docs[0].data();
                 if(benificiaryData && benificiaryData.phoneNumber) {
-                    const sendSmsFunction = httpsCallable(clientFunctions, 'sendSms');
+                    const sendSmsFunction = httpsCallable(functions, 'sendSms');
                     await sendSmsFunction({
                         to: benificiaryData.phoneNumber,
                         text: `You have received a payment of ${formatCurrency(numericAmount, 'R')} from VAN SCHALKWYK FAMILY TRUST. Ref: ${recipientReference || ''}`
