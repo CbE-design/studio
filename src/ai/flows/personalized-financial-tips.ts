@@ -41,7 +41,11 @@ export type PersonalizedFinancialTipsOutput = z.infer<
 export async function getPersonalizedFinancialTips(
   input: PersonalizedFinancialTipsInput
 ): Promise<PersonalizedFinancialTipsOutput> {
-  return personalizedFinancialTipsFlow(input);
+  const {output} = await personalizedFinancialTipsFlow(input);
+  if (!output) {
+    throw new Error('The AI model did not return the expected output.');
+  }
+  return output;
 }
 
 const prompt = ai.definePrompt({
