@@ -4,6 +4,8 @@
 import { TipsForm } from "@/components/tips-form";
 import { Lightbulb } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default function TipsPage() {
   return (
     <div className="space-y-8">
