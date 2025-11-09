@@ -4,7 +4,6 @@
 import 'dotenv/config';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import { collection, doc, runTransaction, getDoc } from 'firebase/firestore';
 import type { Transaction, TransactionType, Account, User, TransactionInput, TransactionResult, State } from './definitions';
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
@@ -49,7 +48,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
         const generateRandomSuffix = (length: number) => Math.random().toString().substring(2, 2 + length);
         const generateSecurityCode = () => Array.from({ length: 40 }, () => '0123456789ABCDEF'[Math.floor(Math.random() * 16)]).join('');
         
-        const accountRef = doc(adminDb, 'users', userId, 'bankAccounts', fromAccountId);
+        const accountRef = adminDb.doc(`users/${userId}/bankAccounts/${fromAccountId}`);
         
         await adminDb.runTransaction(async (transaction) => {
             const accountDoc = await transaction.get(accountRef);
@@ -70,7 +69,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             
             const newBalance = currentBalance - totalDebit;
             
-            const newTransactionRef = doc(collection(adminDb, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
+            const newTransactionRef = adminDb.collection(`users/${userId}/bankAccounts/${fromAccountId}/transactions`).doc();
             mainTxId = newTransactionRef.id;
             
             const popReferenceNumber = `${format(new Date(), 'yyyy-MM-dd')}/NEDBANK/${generateRandomSuffix(12)}`;
@@ -96,7 +95,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             transaction.set(newTransactionRef, mainTransactionData);
 
             if (feeAmount > 0) {
-                const feeTransactionRef = doc(collection(adminDb, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
+                const feeTransactionRef = adminDb.collection(`users/${userId}/bankAccounts/${fromAccountId}/transactions`).doc();
                 const feeTransactionData = {
                     id: feeTransactionRef.id,
                     userId: userId,
