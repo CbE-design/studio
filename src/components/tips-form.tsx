@@ -1,7 +1,9 @@
+
 'use client';
 
 import { useFormState, useFormStatus } from 'react-dom';
-import { getFinancialTipsAction, State } from '@/app/lib/actions';
+import { getFinancialTipsAction } from '@/app/lib/actions';
+import type { State } from '@/app/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';

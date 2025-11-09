@@ -5,16 +5,14 @@ import 'dotenv/config';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { collection, doc, runTransaction, getDoc } from 'firebase/firestore';
-import { firestore } from '@/app/lib/firebase';
-import type { Transaction, TransactionType, Account, User, TransactionInput, TransactionResult } from './definitions';
+import type { Transaction, TransactionType, Account, User, TransactionInput, TransactionResult, State } from './definitions';
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
 import { db as adminDb } from './firebase-admin';
 import { format } from 'date-fns';
 import { formatCurrency } from './data';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '@/app/lib/firebase';
+import { getPersonalizedFinancialTips } from '@/ai/flows/personalized-financial-tips';
 
 
 const TransactionSchema = z.object({
@@ -51,11 +49,12 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
         const generateRandomSuffix = (length: number) => Math.random().toString().substring(2, 2 + length);
         const generateSecurityCode = () => Array.from({ length: 40 }, () => '0123456789ABCDEF'[Math.floor(Math.random() * 16)]).join('');
         
-        await runTransaction(firestore, async (transaction) => {
-            const accountRef = doc(firestore, 'users', userId, 'bankAccounts', fromAccountId);
+        const accountRef = doc(adminDb, 'users', userId, 'bankAccounts', fromAccountId);
+        
+        await adminDb.runTransaction(async (transaction) => {
             const accountDoc = await transaction.get(accountRef);
 
-            if (!accountDoc.exists()) {
+            if (!accountDoc.exists) {
                 throw new Error("Account not found.");
             }
 
@@ -70,10 +69,10 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             }
             
             const newBalance = currentBalance - totalDebit;
-
-            const newTransactionRef = doc(collection(firestore, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
+            
+            const newTransactionRef = doc(collection(adminDb, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
             mainTxId = newTransactionRef.id;
-
+            
             const popReferenceNumber = `${format(new Date(), 'yyyy-MM-dd')}/NEDBANK/${generateRandomSuffix(12)}`;
             const popSecurityCode = generateSecurityCode();
 
@@ -97,7 +96,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             transaction.set(newTransactionRef, mainTransactionData);
 
             if (feeAmount > 0) {
-                const feeTransactionRef = doc(collection(firestore, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
+                const feeTransactionRef = doc(collection(adminDb, `users/${userId}/bankAccounts/${fromAccountId}/transactions`));
                 const feeTransactionData = {
                     id: feeTransactionRef.id,
                     userId: userId,
@@ -113,24 +112,6 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
 
             transaction.update(accountRef, { balance: newBalance });
         });
-
-        try {
-            const benificiarySnapshot = await adminDb.collection('users').doc(userId).collection('beneficiaries').where('accountNumber', '==', accountNumber).limit(1).get();
-
-            if (!benificiarySnapshot.empty) {
-                const benificiaryData = benificiarySnapshot.docs[0].data();
-                if(benificiaryData && benificiaryData.phoneNumber) {
-                    const sendSmsFunction = httpsCallable(functions, 'sendSms');
-                    await sendSmsFunction({
-                        to: benificiaryData.phoneNumber,
-                        text: `You have received a payment of ${formatCurrency(numericAmount, 'R')} from VAN SCHALKWYK FAMILY TRUST. Ref: ${recipientReference || ''}`
-                    });
-                    console.log('SMS notification call succeeded.');
-                }
-            }
-        } catch (smsError) {
-            console.error('SMS notification call failed:', smsError);
-        }
 
         revalidatePath(`/account/${fromAccountId}`);
         revalidatePath('/dashboard');
@@ -176,8 +157,8 @@ export async function generateProofOfPaymentAction(
             throw new Error("Transaction data is required.");
         }
         
-        const accountDoc = await getDoc(doc(firestore, `users/${transaction.userId}/bankAccounts/${transaction.fromAccountId}`));
-        if (!accountDoc.exists()) {
+        const accountDoc = await adminDb.doc(`users/${transaction.userId}/bankAccounts/${transaction.fromAccountId}`).get();
+        if (!accountDoc.exists) {
              throw new Error("Account for transaction not found.");
         }
         const accountData = accountDoc.data() as Account;
@@ -198,18 +179,18 @@ export async function markTransactionAsFailedAction(
   transactionId: string
 ): Promise<{ success: boolean; message: string }> {
   try {
-    await runTransaction(firestore, async (firestoreTransaction) => {
+    const accountRef = adminDb.doc(`users/${userId}/bankAccounts/${accountId}`);
+    await adminDb.runTransaction(async (firestoreTransaction) => {
       // --- READ PHASE ---
-      const txRef = doc(firestore, `users/${userId}/bankAccounts/${accountId}/transactions/${transactionId}`);
-      const accountRef = doc(firestore, `users/${userId}/bankAccounts/${accountId}`);
+      const txRef = adminDb.doc(`users/${userId}/bankAccounts/${accountId}/transactions/${transactionId}`);
       
       const txSnap = await firestoreTransaction.get(txRef);
       const accountSnap = await firestoreTransaction.get(accountRef);
 
-      if (!txSnap.exists()) {
+      if (!txSnap.exists) {
         throw new Error('Original transaction not found.');
       }
-      if (!accountSnap.exists()) {
+      if (!accountSnap.exists) {
         throw new Error('Account not found.');
       }
       
@@ -219,7 +200,7 @@ export async function markTransactionAsFailedAction(
       // --- WRITE PHASE ---
       
       // 1. Create a log in failedTransactions
-      const failedTxRef = doc(collection(firestore, `users/${userId}/bankAccounts/${accountId}/failedTransactions`));
+      const failedTxRef = adminDb.collection(`users/${userId}/bankAccounts/${accountId}/failedTransactions`).doc();
       const newFailedTxData = {
         id: failedTxRef.id,
         returnDate: new Date().toISOString().split('T')[0],
@@ -233,7 +214,7 @@ export async function markTransactionAsFailedAction(
       firestoreTransaction.set(failedTxRef, newFailedTxData);
 
       // 2. Create a new credit transaction to represent the return
-      const returnTxRef = doc(collection(firestore, `users/${userId}/bankAccounts/${accountId}/transactions`));
+      const returnTxRef = adminDb.collection(`users/${userId}/bankAccounts/${accountId}/transactions`).doc();
       const returnTxData: Transaction = {
           id: returnTxRef.id,
           userId: userId,
@@ -260,5 +241,48 @@ export async function markTransactionAsFailedAction(
   } catch (error: any) {
     console.error('Failed to mark transaction as failed:', error);
     return { success: false, message: error.message || 'Failed to mark transaction as failed.' };
+  }
+}
+
+const FormSchema = z.object({
+  income: z.coerce
+    .number()
+    .positive({ message: 'Please enter a positive number for your income.' }),
+  spendingHabits: z.string().min(10, { message: 'Please describe your spending habits in a bit more detail.' }),
+  budget: z.string().min(10, { message: 'Please describe your budget in a bit more detail.' }),
+});
+
+export async function getFinancialTipsAction(
+  prevState: State,
+  formData: FormData
+): Promise<State> {
+  const validatedFields = FormSchema.safeParse({
+    income: formData.get('income'),
+    spendingHabits: formData.get('spendingHabits'),
+    budget: formData.get('budget'),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Get Tips.',
+      data: null,
+    };
+  }
+
+  try {
+    const tips = await getPersonalizedFinancialTips(validatedFields.data);
+    return {
+        message: 'Success! Here are your personalized tips.',
+        errors: {},
+        data: tips,
+    };
+  } catch (error) {
+    console.error('Error getting financial tips:', error);
+    return {
+        message: 'An error occurred while getting your financial tips. Please try again.',
+        errors: {},
+        data: null,
+    };
   }
 }
