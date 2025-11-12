@@ -24,7 +24,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         amount: Number(transaction.amount || '0'),
         currency: account.currency,
         recipientReference: transaction.recipientReference,
-        payer: "VAN SCHALKWYK FAMILY TRUST",
+        payer: "GSS MARKETING TRUST",
         bank: transaction.bank,
         accountNumber: `...${transaction.accountNumber?.slice(-6)}`,
         channel: 'Internet payment',
