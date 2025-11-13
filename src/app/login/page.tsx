@@ -19,7 +19,7 @@ const AwardCard = ({ imageId, title, subtitle }: { imageId: string, title: strin
     if (!awardImage) return null;
 
     return (
-        <div className="flex items-center p-3 bg-white rounded-lg border border-gray-200">
+        <div className="flex items-center p-4 rounded-lg border border-gray-200">
             <Image 
                 src={awardImage.imageUrl}
                 alt={awardImage.description}
@@ -28,7 +28,7 @@ const AwardCard = ({ imageId, title, subtitle }: { imageId: string, title: strin
                 className="w-14 h-14 mr-4"
                 data-ai-hint={awardImage.imageHint}
             />
-            <div>
+            <div className="text-left">
                 <h3 className="font-semibold text-gray-800">{title}</h3>
                 <p className="text-sm text-gray-500">{subtitle}</p>
             </div>
