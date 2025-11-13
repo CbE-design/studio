@@ -75,5 +75,3 @@ export function PinInput({ length, onComplete }: PinInputProps) {
     </div>
   );
 }
-
-    
