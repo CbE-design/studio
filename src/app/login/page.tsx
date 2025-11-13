@@ -4,13 +4,15 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Menu, AlertCircle, LoaderCircle, Fingerprint, Scan, Shield, Newspaper, Wallet, User } from 'lucide-react';
+import { MessageSquare, Menu, AlertCircle, LoaderCircle, Fingerprint, Scan, Shield, Newspaper, Wallet, User, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from '@/firebase-provider';
 import { useToast } from '@/hooks/use-toast';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const AwardCard = ({ imageId, title, subtitle }: { imageId: string, title: string, subtitle: string }) => {
     const awardImage = PlaceHolderImages.find(img => img.id === imageId);
@@ -44,6 +46,10 @@ const BottomNavItem = ({ icon: Icon, label }: { icon: React.ElementType, label: 
 export default function LoginPage() {
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPasswordLogin, setShowPasswordLogin] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
   const router = useRouter();
   const auth = useAuth();
   const { toast } = useToast();
@@ -51,7 +57,16 @@ export default function LoginPage() {
   const DEMO_EMAIL = 'cbenterprise@outlook.com';
   const DEMO_PASSWORD = 'password'; 
 
-  const handleLogin = async () => {
+  const handlePinLogin = async () => {
+    handleLogin(DEMO_EMAIL, DEMO_PASSWORD);
+  };
+
+  const handlePasswordLogin = async (event: React.FormEvent) => {
+      event.preventDefault();
+      handleLogin(email, password);
+  }
+
+  const handleLogin = async (loginEmail: string, loginPass: string) => {
     if (!auth) {
       setErrorMessage('Firebase is not initialized. Please try again later.');
       return;
@@ -61,7 +76,7 @@ export default function LoginPage() {
     setErrorMessage(undefined);
 
     try {
-        await signInWithEmailAndPassword(auth, DEMO_EMAIL, DEMO_PASSWORD);
+        await signInWithEmailAndPassword(auth, loginEmail, loginPass);
         toast({
             title: 'Login Successful',
             description: 'You have been signed in.',
@@ -70,7 +85,7 @@ export default function LoginPage() {
     } catch (error: any) {
          console.error('Sign-in failed:', error);
          if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-             setErrorMessage('Authentication failed. Please use your Nedbank ID password.');
+             setErrorMessage('Authentication failed. Please check your credentials.');
          } else {
              setErrorMessage('An unexpected error occurred during login.');
          }
@@ -101,18 +116,39 @@ export default function LoginPage() {
             <h2 className="text-2xl font-bold text-gray-800">GSS MARKETING TRUST.</h2>
         </div>
         
-        <div className="flex justify-center">
-          <div className="flex flex-col items-center gap-4">
-              <Fingerprint className="h-16 w-16 text-gray-400" />
-              <Button onClick={handleLogin} className="w-64 h-12 text-lg font-bold" disabled={isLoading}>
-                 {isLoading ? <LoaderCircle className="h-6 w-6 animate-spin" /> : 'Log in'}
-              </Button>
-          </div>
-        </div>
+        {!showPasswordLogin ? (
+            <>
+                <div className="flex justify-center">
+                  <div onClick={handlePinLogin} className="flex flex-col items-center gap-4 cursor-pointer" >
+                      <Fingerprint className="h-16 w-16 text-gray-400" />
+                      <Button className="w-64 h-12 text-lg font-bold" disabled={isLoading}>
+                         {isLoading ? <LoaderCircle className="h-6 w-6 animate-spin" /> : 'Log in'}
+                      </Button>
+                  </div>
+                </div>
 
-        <Link href="#" className="inline-block text-primary font-semibold">
-          Or use your Nedbank ID password &rarr;
-        </Link>
+                <button onClick={() => setShowPasswordLogin(true)} className="inline-block text-primary font-semibold">
+                  Or use your Nedbank ID password &rarr;
+                </button>
+            </>
+        ) : (
+            <form onSubmit={handlePasswordLogin} className="space-y-4 text-left">
+                <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                </div>
+                <div>
+                    <Label htmlFor="password">Password</Label>
+                    <Input id="password" type="password" placeholder="••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                </div>
+                <Button type="submit" className="w-full h-12 text-lg font-bold" disabled={isLoading}>
+                    {isLoading ? <LoaderCircle className="h-6 w-6 animate-spin" /> : 'Sign In'}
+                </Button>
+                <Button variant="link" onClick={() => setShowPasswordLogin(false)} className="text-primary font-semibold w-full">
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Back to PIN login
+                </Button>
+            </form>
+        )}
         
         <div
           className="flex h-8 items-center justify-center space-x-1 mt-4"
