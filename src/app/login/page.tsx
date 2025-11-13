@@ -102,12 +102,12 @@ export default function LoginPage() {
         </div>
         
         <div className="flex justify-center">
-          <button onClick={handleLogin} className="flex flex-col items-center gap-4" disabled={isLoading}>
+          <div className="flex flex-col items-center gap-4">
               <Fingerprint className="h-16 w-16 text-gray-400" />
-              <Button className="w-64 h-12 text-lg font-bold" disabled={isLoading}>
+              <Button onClick={handleLogin} className="w-64 h-12 text-lg font-bold" disabled={isLoading}>
                  {isLoading ? <LoaderCircle className="h-6 w-6 animate-spin" /> : 'Log in'}
               </Button>
-          </button>
+          </div>
         </div>
 
         <Link href="#" className="inline-block text-primary font-semibold">
