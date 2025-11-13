@@ -55,7 +55,7 @@ export default function LoginPage() {
   const { toast } = useToast();
 
   const DEMO_EMAIL = 'cbenterprise@outlook.com';
-  const DEMO_PASSWORD = 'password'; 
+  const DEMO_PASSWORD = 'Ninkenel@143'; 
 
   const handlePinLogin = async () => {
     handleLogin(DEMO_EMAIL, DEMO_PASSWORD);
