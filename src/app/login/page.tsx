@@ -19,7 +19,7 @@ const AwardCard = ({ imageId, title, subtitle }: { imageId: string, title: strin
     if (!awardImage) return null;
 
     return (
-        <div className="flex items-center p-3 bg-white rounded-lg shadow-sm border border-gray-100">
+        <div className="flex items-center p-3 bg-transparent rounded-lg border border-black/20">
             <Image 
                 src={awardImage.imageUrl}
                 alt={awardImage.description}
