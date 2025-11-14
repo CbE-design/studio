@@ -272,7 +272,7 @@ function AmountPageContent() {
                     </Button>
                 </div>
                 <div className="w-full flex-grow flex flex-col justify-center items-center text-center">
-                     <label htmlFor="amount" className="text-sm opacity-80 self-start w-full px-4">Amount</label>
+                     <Label htmlFor="amount" className="text-sm opacity-80 self-start w-full px-4">Amount</Label>
                     <div className="flex items-center w-full px-4">
                         <span className="text-3xl font-light text-white opacity-80">R</span>
                         <input
@@ -314,7 +314,7 @@ function AmountPageContent() {
                     <h2 className="font-semibold text-gray-700">What is the payment for?</h2>
                     <div className="space-y-2">
                         <Label htmlFor="your-reference" className="text-xs text-gray-500">Your reference</Label>
-                        <Input id="your-reference" value={yourReference} onChange={e => setYourReference(e.target.value)} className="bg-white border-primary" />
+                        <Input id="your-reference" value={yourReference} onChange={e => setYourReference(e.target.value)} className="bg-white" />
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="recipient-reference" className="text-xs text-gray-500">Recipient's reference</Label>

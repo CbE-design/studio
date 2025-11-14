@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
@@ -98,14 +99,18 @@ function SinglePaymentForm() {
                     <span className="flex-1 text-gray-700">Select from saved recipients</span>
                 </div>
             </Link>
-            <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
-                <Landmark className="h-5 w-5 mr-3 text-primary" />
-                <span className="flex-1 text-gray-700">Select from bank-approved recipients</span>
-            </div>
-            <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
-                <Smartphone className="h-5 w-5 mr-3 text-primary" />
-                <span className="flex-1 text-gray-700">Select from phone contacts</span>
-            </div>
+            <Link href="#">
+                <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
+                    <Landmark className="h-5 w-5 mr-3 text-primary" />
+                    <span className="flex-1 text-gray-700">Select from bank-approved recipients</span>
+                </div>
+            </Link>
+            <Link href="#">
+                <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
+                    <Smartphone className="h-5 w-5 mr-3 text-primary" />
+                    <span className="flex-1 text-gray-700">Select from phone contacts</span>
+                </div>
+            </Link>
         </div>
         
         <div className="space-y-4 py-4">
