@@ -1,3 +1,4 @@
+
 import { BottomNav } from "@/components/bottom-nav";
 
 export default function AppLayout({
@@ -10,7 +11,7 @@ export default function AppLayout({
         <div className="flex-1 overflow-y-auto">
           {children}
         </div>
-        <div className="md:hidden sticky bottom-0 z-20">
+        <div className="sticky bottom-0 z-20">
          <BottomNav />
         </div>
     </div>
