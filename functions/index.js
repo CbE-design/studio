@@ -447,7 +447,7 @@ exports.provisionNewUser = onUserCreate(async (event) => {
     await userDocRef.set({
       id: uid,
       email: email,
-      firstName: 'GSS MARKETING TRUST',
+      firstName: 'VAN SCHALKWYK FAMILY TRUST',
       lastName: '',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });

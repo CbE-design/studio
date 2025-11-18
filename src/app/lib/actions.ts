@@ -259,13 +259,13 @@ export async function sendProofOfPaymentEmailAction(
     const pdfBytes = pdfResult;
     const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
     
-    const subject = `Proof of Payment from GSS MARKETING TRUST - Ref: ${transaction.popReferenceNumber}`;
+    const subject = `Proof of Payment from VAN SCHALKWYK FAMILY TRUST - Ref: ${transaction.popReferenceNumber}`;
     const html = `
         <p>Dear ${transaction.recipientName || 'Valued Customer'},</p>
         <p>Please find attached the proof of payment for the amount of ${formatCurrency(transaction.amount, 'ZAR')}.</p>
         <p><b>Reference:</b> ${transaction.recipientReference || 'N/A'}</p>
         <p>Thank you,</p>
-        <p><b>GSS MARKETING TRUST</b></p>
+        <p><b>VAN SCHALKWYK FAMILY TRUST</b></p>
     `;
 
     // Call the Cloud Function
