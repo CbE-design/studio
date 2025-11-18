@@ -8,11 +8,11 @@ import type { Transaction, TransactionType, Account, User, TransactionInput, Tra
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
-import { db as adminDb } from './firebase-admin';
+import { db as adminDb, functions } from './firebase-admin';
 import { format } from 'date-fns';
 import { formatCurrency } from './data';
 import { getPersonalizedFinancialTips } from '@/ai/flows/personalized-financial-tips';
-
+import { getCallable } from 'firebase-admin/functions';
 
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
@@ -242,6 +242,73 @@ export async function markTransactionAsFailedAction(
     return { success: false, message: error.message || 'Failed to mark transaction as failed.' };
   }
 }
+
+export async function sendProofOfPaymentEmailAction(
+  transaction: Transaction,
+  recipientEmail: string
+): Promise<{ success: boolean; message: string }> {
+  try {
+    if (!transaction) throw new Error("Transaction data is required.");
+    if (!recipientEmail) throw new Error("Recipient email is required.");
+    
+    // Generate the PDF
+    const pdfResult = await generateProofOfPaymentAction(transaction);
+    if ('error' in pdfResult) {
+      throw new Error(pdfResult.error);
+    }
+    const pdfBytes = pdfResult;
+    const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
+    
+    const subject = `Proof of Payment from GSS MARKETING TRUST - Ref: ${transaction.popReferenceNumber}`;
+    const html = `
+        <p>Dear ${transaction.recipientName || 'Valued Customer'},</p>
+        <p>Please find attached the proof of payment for the amount of ${formatCurrency(transaction.amount, 'ZAR')}.</p>
+        <p><b>Reference:</b> ${transaction.recipientReference || 'N/A'}</p>
+        <p>Thank you,</p>
+        <p><b>GSS MARKETING TRUST</b></p>
+    `;
+
+    // Call the Cloud Function
+    const sendEmailFn = getCallable(functions, 'sendEmail');
+    await sendEmailFn({
+      to: recipientEmail,
+      subject: subject,
+      html: html,
+      attachments: [{
+        filename: `proof-of-payment-${transaction.id}.pdf`,
+        content: pdfBase64,
+        encoding: 'base64',
+        contentType: 'application/pdf',
+      }]
+    });
+
+    return { success: true, message: "Email sent successfully." };
+  } catch (error: any) {
+    console.error("Failed to send proof of payment email:", error);
+    return { success: false, message: error.message || "An unknown error occurred." };
+  }
+}
+
+export async function sendProofOfPaymentSmsAction(
+  transaction: Transaction,
+  recipientNumber: string
+): Promise<{ success: boolean; message: string }> {
+  try {
+    if (!transaction) throw new Error("Transaction data is required.");
+    if (!recipientNumber) throw new Error("Recipient phone number is required.");
+
+    const text = `Nedbank: Proof of payment for ${formatCurrency(transaction.amount, 'ZAR')} to ${transaction.recipientName || 'recipient'} on ${format(new Date(transaction.date), 'dd/MM/yyyy')}. Ref: ${transaction.popReferenceNumber}`;
+
+    const sendSmsFn = getCallable(functions, 'sendSms');
+    await sendSmsFn({ to: recipientNumber, text });
+
+    return { success: true, message: "SMS sent successfully." };
+  } catch (error: any) {
+    console.error("Failed to send proof of payment SMS:", error);
+    return { success: false, message: error.message || "An unknown error occurred." };
+  }
+}
+
 
 const FormSchema = z.object({
   income: z.coerce

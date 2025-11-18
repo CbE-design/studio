@@ -13,6 +13,7 @@ const { setGlobalOptions } = require('firebase-functions/v2');
 const { onUserCreate } = require('firebase-functions/v2/auth');
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const admin = require('firebase-admin');
+const nodemailer = require('nodemailer');
 const { Vonage } = require('@vonage/server-sdk');
 
 // Initialize Firebase Admin SDK
@@ -177,6 +178,55 @@ exports.sendSms = onCall(async (request) => {
             'Failed to send SMS.',
             error
         );
+    }
+});
+
+
+/**
+ * Sends an email using Nodemailer.
+ * This is a callable function that can be invoked from the client-side via a server action.
+ * It requires SMTP transport configuration in environment variables.
+ */
+exports.sendEmail = onCall(async (request) => {
+    // This function can be called by an authenticated server action, so we don't check auth here.
+    
+    const { to, subject, html, attachments } = request.data;
+    
+    if (!to || !subject || !html) {
+         throw new HttpsError(
+            'invalid-argument',
+            'Missing required fields: to, subject, and html.'
+        );
+    }
+
+    // Configure Nodemailer transporter.
+    // For a real app, use a robust email service like SendGrid, Mailgun, or Amazon SES.
+    // Using Gmail is suitable for testing but has strict limits.
+    // Store credentials in Firebase environment variables:
+    // `firebase functions:config:set mail.user="your-email@gmail.com" mail.pass="your-app-password"`
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.MAIL_USER || 'your-email@gmail.com', // Fallback for emulator
+            pass: process.env.MAIL_PASS || 'your-app-password'   // Fallback for emulator
+        }
+    });
+
+    const mailOptions = {
+        from: `Proof of Payment (Nedbank) <${process.env.MAIL_USER || 'your-email@gmail.com'}>`,
+        to: to,
+        subject: subject,
+        html: html,
+        attachments: attachments || [],
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Email sent successfully to ${to}`);
+        return { success: true, message: 'Email sent successfully.' };
+    } catch (error) {
+        console.error('Error sending email:', error);
+        throw new HttpsError('internal', 'Failed to send email.', error);
     }
 });
 
@@ -397,7 +447,7 @@ exports.provisionNewUser = onUserCreate(async (event) => {
     await userDocRef.set({
       id: uid,
       email: email,
-      firstName: 'Van Schalkwyk Family Trust',
+      firstName: 'GSS MARKETING TRUST',
       lastName: '',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });

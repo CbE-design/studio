@@ -3,7 +3,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Download, LoaderCircle, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Download, LoaderCircle, AlertTriangle, Mail, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFirestore, useUser } from '@/firebase-provider';
@@ -11,7 +11,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/app/lib/data';
-import { generateProofOfPaymentAction, markTransactionAsFailedAction } from '@/app/lib/actions';
+import { generateProofOfPaymentAction, markTransactionAsFailedAction, sendProofOfPaymentEmailAction, sendProofOfPaymentSmsAction } from '@/app/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -24,6 +24,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const DetailRow = ({ label, value }: { label: string; value: string | undefined }) => (
   <div className="py-4 border-b last:border-b-0">
@@ -68,6 +80,10 @@ function TransactionDetailsContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isFailing, setIsFailing] = useState(false);
+
+  const [dialogOpen, setDialogOpen] = useState<'email' | 'sms' | null>(null);
+  const [recipient, setRecipient] = useState('');
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     if (!firestore || !user?.uid || !accountId || !txId) {
@@ -169,6 +185,39 @@ function TransactionDetailsContent() {
     // No need to set isFailing to false on success, as we are navigating away.
   };
 
+  const handleSend = async () => {
+    if (!transaction || !recipient) return;
+
+    setIsSending(true);
+    try {
+        let result;
+        if (dialogOpen === 'email') {
+            result = await sendProofOfPaymentEmailAction(transaction, recipient);
+        } else if (dialogOpen === 'sms') {
+            result = await sendProofOfPaymentSmsAction(transaction, recipient);
+        }
+
+        if (result?.success) {
+            toast({
+                title: 'Sent Successfully',
+                description: `Proof of payment sent to ${recipient}.`,
+            });
+            setDialogOpen(null);
+            setRecipient('');
+        } else {
+            throw new Error(result?.message || 'Failed to send.');
+        }
+    } catch (e: any) {
+        toast({
+            variant: 'destructive',
+            title: `Failed to Send ${dialogOpen === 'email' ? 'Email' : 'SMS'}`,
+            description: e.message || 'An unknown error occurred.',
+        });
+    } finally {
+        setIsSending(false);
+    }
+  }
+
 
   if (isLoading) {
     return <LoadingSkeleton />;
@@ -191,6 +240,7 @@ function TransactionDetailsContent() {
 
 
   return (
+    <Dialog onOpenChange={() => { setDialogOpen(null); setRecipient(''); }}>
     <div className="flex flex-col h-screen bg-white">
       <header className="gradient-background text-white p-4 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center">
@@ -246,10 +296,25 @@ function TransactionDetailsContent() {
             <Button onClick={handlePayAgain} className="w-full font-bold h-12">
               Pay again
             </Button>
-            <Button onClick={handleDownload} variant="outline" className="w-full font-bold h-12" disabled={isGenerating}>
-              {isGenerating ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-5 w-5" />}
-              {isGenerating ? 'Generating...' : 'Download proof of payment'}
-            </Button>
+            
+            <div className="grid grid-cols-3 gap-2">
+                <DialogTrigger asChild>
+                    <Button onClick={() => setDialogOpen('email')} variant="outline" className="w-full font-bold h-12">
+                        <Mail className="mr-2 h-5 w-5" /> Email
+                    </Button>
+                </DialogTrigger>
+
+                <DialogTrigger asChild>
+                     <Button onClick={() => setDialogOpen('sms')} variant="outline" className="w-full font-bold h-12">
+                        <MessageSquare className="mr-2 h-5 w-5" /> SMS
+                    </Button>
+                </DialogTrigger>
+
+                <Button onClick={handleDownload} variant="outline" className="w-full font-bold h-12" disabled={isGenerating}>
+                    {isGenerating ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-5 w-5" />}
+                    {isGenerating ? '' : 'PDF'}
+                </Button>
+            </div>
           </>
         )}
         {(isReturnTransaction || transaction.type === 'credit') && (
@@ -258,7 +323,40 @@ function TransactionDetailsContent() {
            </Button>
         )}
       </footer>
+
+      <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Send Proof of Payment via {dialogOpen}</DialogTitle>
+                <DialogDescription>
+                    Enter the recipient's {dialogOpen === 'email' ? 'email address' : 'phone number'}.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="recipient" className="text-right">
+                        {dialogOpen === 'email' ? 'Email' : 'Phone'}
+                    </Label>
+                    <Input
+                        id="recipient"
+                        value={recipient}
+                        onChange={(e) => setRecipient(e.target.value)}
+                        className="col-span-3"
+                        placeholder={dialogOpen === 'email' ? 'name@example.com' : '+1234567890'}
+                    />
+                </div>
+            </div>
+            <DialogFooter>
+                <DialogClose asChild>
+                    <Button type="button" variant="secondary">Cancel</Button>
+                </DialogClose>
+                <Button onClick={handleSend} disabled={isSending || !recipient}>
+                    {isSending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                    Send
+                </Button>
+            </DialogFooter>
+        </DialogContent>
     </div>
+    </Dialog>
   );
 }
 
