@@ -113,7 +113,7 @@ export default function LoginPage() {
       <main className="flex-1 overflow-y-auto px-6 py-8 text-center space-y-8">
         <div>
             <h1 className="text-2xl font-semibold text-gray-800">Welcome back,</h1>
-            <h2 className="text-2xl font-bold text-gray-800">GSS MARKETING TRUST.</h2>
+            <h2 className="text-2xl font-bold text-gray-800">VAN SCHALKWYK FAMILY TRUST.</h2>
         </div>
         
         {!showPasswordLogin ? (
