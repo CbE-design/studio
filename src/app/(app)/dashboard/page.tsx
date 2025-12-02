@@ -236,7 +236,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 text-black">
-      <header className="bg-white p-4 sticky top-0 z-20">
+      <header className="gradient-background text-white p-4 sticky top-0 z-20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Image 
