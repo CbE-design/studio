@@ -96,7 +96,7 @@ export default function LoginPage() {
   
   return (
     <div className="flex flex-col h-screen bg-background">
-      <header className="flex items-center justify-between p-4 gradient-background text-white">
+      <header className="flex items-center justify-between p-4 bg-transparent text-gray-800">
         <Image 
           src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
           alt="Nedbank Logo"
@@ -104,7 +104,7 @@ export default function LoginPage() {
           height={32}
           className="w-8 h-8"
         />
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 text-primary">
           <MessageSquare />
           <Menu />
         </div>
