@@ -128,7 +128,7 @@ const widgets = [
 const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementType, label: string, href: string, isNew?: boolean }) => (
     <Link href={href}>
         <div className="flex flex-col items-center justify-center space-y-2 text-center h-full bg-white p-2 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-             <div className="relative flex items-center justify-center w-14 h-14 rounded-lg">
+             <div className="relative flex items-center justify-center w-12 h-12 rounded-lg">
                 {isNew && (
                     <div className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs font-semibold text-white bg-green-500 rounded-sm z-10">
                         New
@@ -280,7 +280,7 @@ export default function DashboardPage() {
               </div>
 
               <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-3 gap-4">
                 {widgets.map((widget) => (
                     <WidgetItem 
                       key={widget.label} 
