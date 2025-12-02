@@ -236,7 +236,8 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 text-black">
-      <header className="gradient-background text-white p-4">
+      {/* Fixed Header */}
+      <header className="gradient-background text-white p-4 sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Image 
@@ -262,13 +263,12 @@ export default function DashboardPage() {
         </div>
       </header>
       
+      {/* Scrollable Main Content */}
       <main className="flex-1 overflow-y-auto">
-        {/* This container ensures the top part has the gradient */}
         <div className="gradient-background text-white p-4">
           <AccountsCarousel />
         </div>
         
-        {/* Widgets Section */}
         <div className="p-4 bg-gray-50">
             <div className="my-2 md:my-4 mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-gray-200">
                 <Image
