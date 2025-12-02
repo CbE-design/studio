@@ -1,19 +1,15 @@
-
 'use client';
 
-import {
-  Bell,
-  MessageSquare,
-} from 'lucide-react';
+import { Bell, MessageSquare } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AccountsCarousel } from '@/components/accounts-carousel';
 import { useUser, useCollection, useFirestore, useMemoFirebase } from '@/firebase-provider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import type { Transaction } from '@/app/lib/definitions';
-import { collection, getDocs, query } from 'firebase/firestore';
+import { useEffect, useState, useMemo } from 'react';
+import type { Account, Transaction } from '@/app/lib/definitions';
+import { collection, query, getDocs } from 'firebase/firestore';
 
 // Custom SVG Icons
 const OffersIcon = () => (
@@ -143,21 +139,21 @@ const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementTyp
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col h-full bg-white text-black">
-    <header className="bg-gray-100 text-black p-2 sticky top-0 z-10 border-b">
+    <header className="gradient-background text-white p-4 sticky top-0 z-20 shadow-sm border-b border-white/20">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Skeleton className="w-6 h-6 rounded-md bg-gray-200" />
-          <Skeleton className="h-6 w-48 bg-gray-200" />
+          <Skeleton className="w-6 h-6 rounded-md bg-white/20" />
+          <Skeleton className="h-6 w-48 bg-white/20" />
         </div>
         <div className="flex items-center gap-4">
-          <Skeleton className="h-5 w-5 rounded-full bg-gray-200" />
-          <Skeleton className="h-5 w-5 rounded-full bg-gray-200" />
+          <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
+          <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
         </div>
       </div>
     </header>
     <main className="flex-1 overflow-y-auto bg-gray-50">
-      <div className="bg-gray-100 p-4">
-        <Skeleton className="h-40 w-full bg-gray-200 rounded-lg" />
+      <div className="gradient-background text-white p-4">
+        <Skeleton className="h-40 w-full bg-white/20 rounded-lg" />
       </div>
       <div className="p-4">
         <Skeleton className="h-24 w-full my-6 rounded-lg bg-gray-200" />
@@ -175,18 +171,55 @@ const LoadingSkeleton = () => (
   </div>
 );
 
+
+function useAllTransactions() {
+    const { user, isUserLoading } = useUser();
+    const firestore = useFirestore();
+
+    const accountsQuery = useMemoFirebase(() => {
+        if (!firestore || !user?.uid) return null;
+        return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
+    }, [firestore, user?.uid]);
+    const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
+
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTransactions = async () => {
+            if (!accounts || !user?.uid) {
+              if(!isUserLoading && !isAccountsLoading) setIsLoading(false);
+              return;
+            }
+
+            setIsLoading(true);
+            let allTransactions: Transaction[] = [];
+            for (const account of accounts) {
+                const transactionsRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
+                const transactionsSnap = await getDocs(query(transactionsRef));
+                transactionsSnap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.date && data.transactionType !== 'BANK_FEE') {
+                        allTransactions.push({ id: doc.id, ...data } as Transaction);
+                    }
+                });
+            }
+            setTransactions(allTransactions);
+            setIsLoading(false);
+        };
+
+        fetchTransactions();
+    }, [accounts, firestore, user?.uid, isUserLoading, isAccountsLoading]);
+
+    return { transactions, isLoading: isLoading || isUserLoading || isAccountsLoading };
+}
+
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
-  const firestore = useFirestore();
+  const { transactions, isLoading: isTransactionsLoading } = useAllTransactions();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const accountsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
-  }, [firestore, user?.uid]);
-  const { data: accounts, isLoading: isAccountsLoading } = useCollection(accountsQuery);
-  
   useEffect(() => {
     if (!isUserLoading && !user) {
       router.push('/login');
@@ -194,40 +227,22 @@ export default function DashboardPage() {
   }, [user, isUserLoading, router]);
 
   useEffect(() => {
-    if (!accounts || isUserLoading || isAccountsLoading) return;
-  
-    const fetchAndCountTransactions = async () => {
-      if (!user?.uid) return;
-  
-      let allTransactions: Transaction[] = [];
-      for (const account of accounts) {
-        const transactionsCollectionRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
-        const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
-        transactionsSnapshot.forEach(doc => {
-          const data = doc.data();
-          if (data.date && data.transactionType !== 'BANK_FEE') {
-            allTransactions.push({ id: doc.id, ...data } as Transaction);
-          }
-        });
-      }
-      
-      try {
+    if (isTransactionsLoading || transactions.length === 0) return;
+
+    try {
         const storedIdsValue = localStorage.getItem('readTransactionIds');
         const readIds = storedIdsValue ? JSON.parse(storedIdsValue) : [];
         if (Array.isArray(readIds)) {
-            const newUnreadCount = allTransactions.filter(tx => !readIds.includes(tx.id)).length;
+            const newUnreadCount = transactions.filter(tx => !readIds.includes(tx.id)).length;
             setUnreadCount(newUnreadCount);
         } else {
-            setUnreadCount(allTransactions.length);
+            setUnreadCount(transactions.length);
         }
-      } catch (e) {
+    } catch (e) {
         console.error("Failed to parse readTransactionIds from localStorage", e);
-        setUnreadCount(allTransactions.length);
-      }
-    };
-    
-    fetchAndCountTransactions();
-  }, [accounts, firestore, user?.uid, isUserLoading, isAccountsLoading, router]);
+        setUnreadCount(transactions.length);
+    }
+  }, [transactions, isTransactionsLoading]);
   
 
   if (isUserLoading || !user) {
