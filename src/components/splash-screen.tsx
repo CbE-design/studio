@@ -1,20 +1,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-
 export function SplashScreen() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      router.push('/login');
-    }, 4500); // 4.5 second delay
-
-    return () => clearTimeout(timer); // Cleanup the timer
-  }, [router]);
-
   return (
     <main className="gradient-background flex min-h-screen flex-col items-center justify-between p-8 text-white">
       <div className="flex-1 flex items-center justify-center">
