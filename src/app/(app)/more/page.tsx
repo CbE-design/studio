@@ -94,7 +94,8 @@ export default function MorePage() {
         }
         
         try {
-            const readIds = JSON.parse(localStorage.getItem('readTransactionIds') || '[]');
+            const storedIdsValue = localStorage.getItem('readTransactionIds');
+            const readIds = storedIdsValue ? JSON.parse(storedIdsValue) : [];
             const newUnreadCount = allTransactions.filter(tx => !readIds.includes(tx.id)).length;
             setUnreadCount(newUnreadCount);
         } catch (e) {

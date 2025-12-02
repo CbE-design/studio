@@ -236,8 +236,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 text-black">
-        {/* Header section is now fixed */}
-        <header className="gradient-background text-white p-4 sticky top-0 z-20">
+      <header className="gradient-background text-white p-4 sticky top-0 z-20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Image 
@@ -263,9 +262,7 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        {/* Scrollable main content */}
         <main className="flex-1 overflow-y-auto">
-          {/* This part of the gradient stays with the scrollable content */}
           <div className="gradient-background text-white p-4">
             <AccountsCarousel />
           </div>
