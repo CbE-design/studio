@@ -125,22 +125,22 @@ const widgets = [
 const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementType, label: string, href: string, isNew?: boolean }) => (
     <Link href={href}>
         <div className="flex flex-col items-center justify-center space-y-1 text-center h-full bg-white p-1 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-             <div className="relative flex items-center justify-center w-10 h-10 rounded-lg">
+             <div className="relative flex items-center justify-center w-7 h-7 rounded-lg">
                 {isNew && (
-                    <div className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs font-semibold text-white bg-green-500 rounded-sm z-10">
+                    <div className="absolute -top-1 -right-1 px-1 py-0.5 text-[8px] font-semibold text-white bg-green-500 rounded-sm z-10">
                         New
                     </div>
                 )}
                 <Icon />
             </div>
-            <p className="text-[10px] text-gray-700 font-medium h-7 flex items-center justify-center text-center px-1">{label}</p>
+            <p className="text-[9px] text-gray-700 font-medium h-6 flex items-center justify-center text-center px-1">{label}</p>
         </div>
     </Link>
 );
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col h-full bg-white text-black">
-    <header className="gradient-background text-white p-4 sticky top-0 z-20 shadow-sm border-b border-white/20">
+    <header className="gradient-background text-white p-2 sticky top-0 z-20 shadow-sm border-white/20">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Skeleton className="w-6 h-6 rounded-md bg-white/20" />
@@ -296,7 +296,7 @@ export default function DashboardPage() {
               </div>
 
               <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-4 gap-2">
                 {widgets.map((widget) => (
                     <WidgetItem 
                       key={widget.label} 
