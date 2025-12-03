@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Bell, MessageSquare } from 'lucide-react';
@@ -47,7 +48,7 @@ const NedbankConnectIcon = () => (
     />
 );
 const DiscsAndFinesIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-6 w-6">
         <path d="M19 17h2l.64-2.55a4 4 0 0 0-3.03-4.38L14 8.5V6a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2.5L1.39 10.07a4 4 0 0 0-3.03 4.38L-1 17h2"/>
         <path d="M19 17a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm-14 0a2 2 0 1 1 0-4 2 2 0 0-1 0 4z"/>
         <path d="M5 13V7.5a1.5 1.5 0 0 1 1.5-1.5h9A1.5 1.5 0 0 1 17 7.5V13"/>
@@ -70,7 +71,7 @@ const PayShapIcon = () => (
     />
 );
 const LatestIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-6 w-6">
         <path d="M20 12v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>
         <path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/>
         <path d="M12 18a4 4 0 0 0 4-4H8a4 4 0 0 0 4 4z"/>
@@ -94,13 +95,13 @@ const GetCashIcon = () => (
     />
 );
 const HomeLoansIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-6 w-6">
         <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
         <path d="M9 22V12h6v10"/>
     </svg>
 );
 const StatementsIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-8 w-8">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-6 w-6">
         <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
         <path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/>
     </svg>
@@ -123,8 +124,8 @@ const widgets = [
 
 const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementType, label: string, href: string, isNew?: boolean }) => (
     <Link href={href}>
-        <div className="flex flex-col items-center justify-center space-y-2 text-center h-full bg-white p-2 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-             <div className="relative flex items-center justify-center w-12 h-12 rounded-lg">
+        <div className="flex flex-col items-center justify-center space-y-1 text-center h-full bg-white p-1 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+             <div className="relative flex items-center justify-center w-10 h-10 rounded-lg">
                 {isNew && (
                     <div className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs font-semibold text-white bg-green-500 rounded-sm z-10">
                         New
@@ -132,7 +133,7 @@ const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementTyp
                 )}
                 <Icon />
             </div>
-            <p className="text-xs text-gray-700 font-medium h-8 flex items-center justify-center text-center px-1">{label}</p>
+            <p className="text-[10px] text-gray-700 font-medium h-7 flex items-center justify-center text-center px-1">{label}</p>
         </div>
     </Link>
 );
@@ -295,7 +296,7 @@ export default function DashboardPage() {
               </div>
 
               <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-4 gap-3">
                 {widgets.map((widget) => (
                     <WidgetItem 
                       key={widget.label} 
