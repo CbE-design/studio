@@ -135,7 +135,7 @@ const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementTyp
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col h-full bg-white text-black">
-    <header className="gradient-background text-white p-2 sticky top-0 z-20 shadow-sm border-white/20">
+    <header className="bg-transparent text-white p-2 sticky top-0 z-20">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Skeleton className="w-6 h-6 rounded-md bg-white/20" />
@@ -247,7 +247,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 text-black">
-        <header className="gradient-background text-white p-2 sticky top-0 z-20">
+        <header className="bg-transparent text-white p-2 sticky top-0 z-20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Image 
