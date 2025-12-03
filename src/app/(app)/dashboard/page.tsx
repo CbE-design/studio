@@ -47,13 +47,6 @@ const NedbankConnectIcon = () => (
         className="object-contain"
     />
 );
-const DiscsAndFinesIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-6 w-6">
-        <path d="M19 17h2l.64-2.55a4 4 0 0 0-3.03-4.38L14 8.5V6a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1v2.5L1.39 10.07a4 4 0 0 0-3.03 4.38L-1 17h2"/>
-        <path d="M19 17a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm-14 0a2 2 0 1 1 0-4 2 2 0 0-1 0 4z"/>
-        <path d="M5 13V7.5a1.5 1.5 0 0 1 1.5-1.5h9A1.5 1.5 0 0 1 17 7.5V13"/>
-    </svg>
-);
 const ShopIcon = () => (
     <Image
         src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758633570031.jpg?alt=media&token=b776f61f-926e-48ab-9f7c-9b18821c8b02"
@@ -112,7 +105,6 @@ const widgets = [
   { icon: ApplicationsIcon, label: 'Applications', href: '#' },
   { icon: InsureIcon, label: 'Insure', href: '#' },
   { icon: NedbankConnectIcon, label: 'Nedbank Connect', new: true, href: '#' },
-  { icon: DiscsAndFinesIcon, label: 'Discs and fines', href: '#' },
   { icon: ShopIcon, label: 'Shop', href: '#' },
   { icon: PayShapIcon, label: 'PayShap', href: '#' },
   { icon: LatestIcon, label: 'Latest', href: '#' },
@@ -297,7 +289,9 @@ export default function DashboardPage() {
                   className="w-full"
                   />
               </div>
+          </div>
 
+          <div className="p-4 bg-white">
               <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
               <div className="grid grid-cols-4 gap-x-2 gap-y-4">
                 {widgets.map((widget) => (
@@ -315,5 +309,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
