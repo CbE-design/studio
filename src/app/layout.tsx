@@ -5,7 +5,6 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
-import { TimedRedirect } from '@/components/timed-redirect';
 import { Suspense } from 'react';
 
 export const metadata: Metadata = {
@@ -29,9 +28,6 @@ export default function RootLayout({
       </head>
       <body className={cn("antialiased")}>
         <FirebaseClientProvider>
-          <Suspense fallback={null}>
-            <TimedRedirect />
-          </Suspense>
           {children}
         </FirebaseClientProvider>
         <Toaster />
