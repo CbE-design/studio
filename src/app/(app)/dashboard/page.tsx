@@ -89,7 +89,7 @@ const GetCashIcon = () => (
 );
 const HomeLoansIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-6 w-6">
-        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <path d="m3 9 9-7 9 7v11a2 2_0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
         <path d="M9 22V12h6v10"/>
     </svg>
 );
@@ -242,8 +242,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 text-black">
-      <header className="sticky top-0 z-10 gradient-background text-white px-4 py-2">
+    <div className="flex flex-col h-screen bg-gray-50 text-black gradient-background">
+      <header className="sticky top-0 z-10 bg-transparent text-white px-4 py-2">
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
                 <Image 
@@ -269,7 +269,7 @@ export default function DashboardPage() {
         </div>
       </header>
       
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto bg-gray-50">
         <div className="gradient-background text-white p-4">
           <AccountsCarousel />
         </div>
