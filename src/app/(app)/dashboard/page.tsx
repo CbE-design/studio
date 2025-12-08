@@ -256,7 +256,7 @@ export default function DashboardPage() {
                           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                         </svg>
                         {unreadCount > 0 && (
-                            <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-lime-400 border-2 border-green-800" />
+                            <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800" />
                         )}
                       </div>
                   </Link>
