@@ -447,10 +447,11 @@ exports.provisionNewUser = onUserCreate(async (event) => {
     await userDocRef.set({
       id: uid,
       email: email,
-      firstName: 'VAN SCHALKWYK FAMILY TRUST',
+      firstName: 'Corrie',
       lastName: '',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
+    await admin.auth().updateUser(uid, { displayName: 'Corrie' });
     console.log(`Successfully created user document for: ${uid}`);
 
     const accountsCollectionRef = userDocRef.collection('bankAccounts');
@@ -553,5 +554,8 @@ exports.provisionNewUser = onUserCreate(async (event) => {
     
 
     
+
+    
+
 
     

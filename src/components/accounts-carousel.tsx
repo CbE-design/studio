@@ -196,16 +196,23 @@ export function AccountsCarousel() {
         });
     }, [api]);
 
+    const CurrentSlideTitle = () => {
+        const title = slides[current]?.title || 'Accounts';
+         return (
+            <div className="flex items-center gap-2 mb-2">
+                <h1 className="text-xl font-bold">{title}</h1>
+                <Eye className="h-6 w-6" />
+            </div>
+        )
+    }
+
     return (
         <div>
+            <CurrentSlideTitle />
             <Carousel setApi={setApi}>
                 <CarouselContent>
                     {slides.map((slide, index) => (
                         <CarouselItem key={index}>
-                            <div className="flex items-center gap-2 mb-6">
-                                <h1 className="text-xl font-bold">{slide.title}</h1>
-                                <Eye className="h-6 w-6" />
-                            </div>
                             {slide.content}
                         </CarouselItem>
                     ))}
@@ -229,3 +236,5 @@ export function AccountsCarousel() {
         </div>
     );
 }
+
+    
