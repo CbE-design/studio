@@ -128,8 +128,8 @@ const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementTyp
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col h-screen bg-white text-black">
-    <div className="gradient-background text-white sticky top-0 z-20">
-        <header className="px-4 py-3">
+    <div className="gradient-background text-white sticky top-0 z-20 p-4 space-y-4">
+        <header>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Skeleton className="w-6 h-6 rounded-md bg-white/20" />
@@ -141,7 +141,7 @@ const LoadingSkeleton = () => (
             </div>
           </div>
         </header>
-        <div className="px-4 pb-2">
+        <div>
           <Skeleton className="h-40 w-full bg-white/20 rounded-lg" />
         </div>
     </div>
@@ -285,7 +285,7 @@ export default function DashboardPage() {
       </div>
       
       <main className="flex-1 overflow-y-auto bg-gray-50">
-        <div className="my-2 mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-black">
+        <div className="my-1 mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-black/50">
             <Image
             src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
             alt="Advertisement banner"
@@ -305,7 +305,7 @@ export default function DashboardPage() {
                     icon={widget.icon} 
                     label={widget.label} 
                     href={widget.href}
-                    isNew={widget.new} 
+                    isNew={widget.label === 'PayShap'} 
                   />
               ))}
             </div>
@@ -314,5 +314,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
