@@ -128,22 +128,25 @@ const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementTyp
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col h-screen bg-white text-black">
-    <header className="light-gradient-background text-white p-4 sticky top-0 z-20">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Skeleton className="w-6 h-6 rounded-md bg-white/20" />
-          <Skeleton className="h-6 w-48 bg-white/20" />
+    <div className="gradient-background text-white sticky top-0 z-20">
+        <header className="px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Skeleton className="w-6 h-6 rounded-md bg-white/20" />
+              <Skeleton className="h-6 w-48 bg-white/20" />
+            </div>
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
+              <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
+            </div>
+          </div>
+        </header>
+        <div className="px-4 pb-2">
+          <Skeleton className="h-40 w-full bg-white/20 rounded-lg" />
         </div>
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
-          <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
-        </div>
-      </div>
-    </header>
+    </div>
+
     <main className="flex-1 overflow-y-auto bg-gray-50">
-      <div className="light-gradient-background text-white p-4">
-        <Skeleton className="h-40 w-full bg-white/20 rounded-lg" />
-      </div>
       <div className="p-4">
         <Skeleton className="h-24 w-full my-6 rounded-lg bg-gray-200" />
         <Skeleton className="h-8 w-1/3 mb-4 bg-gray-200" />
@@ -270,6 +273,9 @@ export default function DashboardPage() {
                   </Link>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    <line x1="8" y1="10" x2="16" y2="10"></line>
+                    <line x1="8" y1="14" x2="16" y2="14"></line>
+                    <line x1="12" y1="18" x2="16" y2="18"></line>
                   </svg>
               </div>
           </div>
