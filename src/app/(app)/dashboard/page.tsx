@@ -243,37 +243,36 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 text-black">
-      <div className="sticky top-0 z-10 gradient-background text-white">
-        <header className="p-4 bg-transparent">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <Image 
-                    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
-                    alt="Nedbank Logo"
-                    width={24}
-                    height={24}
-                    className="w-6 h-6"
-                    />
-                    <span className="font-medium text-lg">{user.displayName || 'Corrie'}</span>
-                </div>
-                <div className="flex items-center gap-4">
-                    <Link href="/notifications">
-                        <div className="relative">
-                        <Bell className="h-5 w-5" />
-                        {unreadCount > 0 && (
-                            <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-lime-400 border-2 border-green-800" />
-                        )}
-                        </div>
-                    </Link>
-                    <MessageSquare className="h-5 w-5" />
-                </div>
+      <header className="sticky top-0 z-10 p-4 gradient-background text-white">
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+                <Image 
+                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
+                alt="Nedbank Logo"
+                width={24}
+                height={24}
+                className="w-6 h-6"
+                />
+                <span className="font-medium text-lg">{user.displayName || 'Corrie'}</span>
             </div>
-        </header>
-        <div className="p-4 pt-0">
+            <div className="flex items-center gap-4">
+                <Link href="/notifications">
+                    <div className="relative">
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                        <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-lime-400 border-2 border-green-800" />
+                    )}
+                    </div>
+                </Link>
+                <MessageSquare className="h-5 w-5" />
+            </div>
+        </div>
+      </header>
+      
+      <main className="flex-1 overflow-y-auto">
+        <div className="p-4 pt-0 gradient-background text-white">
           <AccountsCarousel />
         </div>
-      </div>
-      <main className="flex-1 overflow-y-auto">
         <div className="p-4 bg-gray-50">
             <div className="my-2 md:my-4 mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-gray-200">
                 <Image
@@ -305,3 +304,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
