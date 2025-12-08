@@ -246,8 +246,8 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 text-black">
-      <div className="sticky top-0 z-10 gradient-background text-white">
-        <header className="px-4 py-3">
+      <div className="sticky top-0 z-10 gradient-background text-white p-4">
+        <header>
           <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                   <Image 
@@ -271,7 +271,7 @@ export default function DashboardPage() {
                         )}
                       </div>
                   </Link>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                     <line x1="8" y1="9" x2="16" y2="9"></line>
                     <line x1="8" y1="12" x2="13" y2="12"></line>
@@ -279,13 +279,13 @@ export default function DashboardPage() {
               </div>
           </div>
         </header>
-        <div className="px-4 py-2">
+        <div className="pt-4">
           <AccountsCarousel />
         </div>
       </div>
       
       <main className="flex-1 overflow-y-auto bg-gray-50">
-        <div className="my-1 md:my-2 mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-gray-200">
+        <div className="my-2 mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-black">
             <Image
             src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
             alt="Advertisement banner"
@@ -314,3 +314,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
