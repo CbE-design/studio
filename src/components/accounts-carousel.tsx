@@ -16,14 +16,14 @@ import { formatCurrency } from '@/app/lib/data';
 
 const AccountSkeleton = () => (
   <div className="space-y-0">
-    <div className="flex flex-row justify-between items-center p-3 border-b border-white/20">
+    <div className="flex flex-row justify-between items-center p-2 border-b border-white/20">
       <div>
         <Skeleton className="h-5 w-40 bg-white/20" />
         <Skeleton className="h-6 w-32 mt-1 bg-white/20" />
       </div>
       <ChevronRight className="h-6 w-6" />
     </div>
-    <div className="flex flex-row justify-between items-center p-3">
+    <div className="flex flex-row justify-between items-center p-2">
       <div>
         <Skeleton className="h-5 w-32 bg-white/20" />
         <Skeleton className="h-6 w-28 mt-1 bg-white/20" />
@@ -56,7 +56,7 @@ const AccountsDisplay = () => {
           return (
             <Link href={`/account/${account.id}`} key={account.id}>
               <div className={cn(
-                "flex flex-row justify-between items-center p-3 cursor-pointer text-white",
+                "flex flex-row justify-between items-center p-2 cursor-pointer text-white",
                 index < accounts.length - 1 ? 'border-b border-white/20' : ''
               )}>
                 <div>
@@ -199,9 +199,9 @@ export function AccountsCarousel() {
     const CurrentSlideTitle = () => {
         const title = slides[current]?.title || 'Accounts';
          return (
-            <div className="flex items-center gap-2 mb-2">
-                <h1 className="text-xl font-bold">{title}</h1>
-                <Eye className="h-6 w-6" />
+            <div className="flex items-center gap-2">
+                <h1 className="text-lg font-bold">{title}</h1>
+                <Eye className="h-5 w-5" />
             </div>
         )
     }
@@ -218,22 +218,21 @@ export function AccountsCarousel() {
                     ))}
                 </CarouselContent>
             </Carousel>
-            <div className="flex items-center justify-center space-x-2 py-4">
+            <div className="flex items-center justify-center space-x-2 py-2">
                 <button onClick={scrollPrev} className="p-1 disabled:opacity-50" disabled={current === 0}>
-                    <ChevronLeft className="h-8 w-8" />
+                    <ChevronLeft className="h-6 w-6" />
                 </button>
                 {Array.from({ length: count }).map((_, index) => (
                     <button
                         key={index}
                         onClick={() => api?.scrollTo(index)}
-                        className={`h-2 w-2 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
+                        className={`h-1.5 w-1.5 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
                     />
                 ))}
                 <button onClick={scrollNext} className="p-1 disabled:opacity-50" disabled={current === count - 1}>
-                    <ChevronRight className="h-8 w-8" />
+                    <ChevronRight className="h-6 w-6" />
                 </button>
             </div>
         </div>
     );
 }
-

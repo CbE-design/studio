@@ -244,7 +244,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col h-screen bg-gray-50 text-black">
       <div className="sticky top-0 z-10 gradient-background text-white">
-        <header className="p-4">
+        <header className="px-4 py-2">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Image 
@@ -269,7 +269,7 @@ export default function DashboardPage() {
                 </div>
             </div>
         </header>
-        <div className="p-4 pt-0">
+        <div className="px-4 pb-2">
           <AccountsCarousel />
         </div>
       </div>
@@ -304,7 +304,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
-
-    
