@@ -95,19 +95,19 @@ const StatementsIcon = () => (
 );
 
 const widgets = [
-  { icon: OffersIcon, label: 'Offers for you', href: '#' },
-  { icon: ApplicationsIcon, label: 'Applications', href: '#' },
-  { icon: InsureIcon, label: 'Insure', href: '#' },
-  { icon: ShopIcon, label: 'Shop', href: '#' },
-  { icon: PayShapIcon, label: 'PayShap', href: '#' },
+  { icon: OffersIcon, label: 'Offers for you', href: '#', size: 'large' },
+  { icon: ApplicationsIcon, label: 'Applications', href: '#', size: 'large' },
+  { icon: InsureIcon, label: 'Insure', href: '#', size: 'large' },
+  { icon: ShopIcon, label: 'Shop', href: '#', size: 'large' },
+  { icon: PayShapIcon, label: 'PayShap', href: '#', isNew: true, size: 'large' },
   { icon: LatestIcon, label: 'Latest', href: '#' },
-  { icon: QuickPayIcon, label: 'Quick Pay', href: '#' },
-  { icon: GetCashIcon, label: 'Get cash', href: '#' },
+  { icon: QuickPayIcon, label: 'Quick Pay', href: '#', size: 'large' },
+  { icon: GetCashIcon, label: 'Get cash', href: '#', size: 'large' },
   { icon: HomeLoansIcon, label: 'Home loans', href: '#' },
   { icon: StatementsIcon, label: 'Statements and docs', href: '/documents' },
 ];
 
-const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementType, label: string, href: string, isNew?: boolean }) => (
+const WidgetItem = ({ icon: Icon, label, href, isNew, size }: { icon: React.ElementType, label: string, href: string, isNew?: boolean, size?: 'large' | 'normal' }) => (
     <Link href={href}>
         <div className="flex flex-col items-center justify-start space-y-1 text-center h-full group">
              <div className="relative flex items-center justify-center w-10 h-10 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow">
@@ -116,7 +116,7 @@ const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementTyp
                         New
                     </div>
                 )}
-                <div className="w-6 h-6 relative">
+                <div className={cn("relative", size === 'large' ? "w-10 h-10" : "w-6 h-6")}>
                     <Icon />
                 </div>
             </div>
@@ -272,7 +272,7 @@ export default function DashboardPage() {
                       </div>
                   </Link>
                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    <path d="M3 15a2 2 0 0 0 2 2h10l4 4V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path>
                     <line x1="8" y1="9" x2="16" y2="9"></line>
                     <line x1="8" y1="12" x2="13" y2="12"></line>
                   </svg>
@@ -305,7 +305,8 @@ export default function DashboardPage() {
                     icon={widget.icon} 
                     label={widget.label} 
                     href={widget.href}
-                    isNew={widget.label === 'PayShap'} 
+                    isNew={widget.isNew} 
+                    size={widget.size as 'large' | 'normal' | undefined}
                   />
               ))}
             </div>
