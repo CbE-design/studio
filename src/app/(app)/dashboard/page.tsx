@@ -134,7 +134,7 @@ const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementTyp
 
 
 const LoadingSkeleton = () => (
-  <div className="flex flex-col h-full bg-white text-black">
+  <div className="flex flex-col h-screen bg-white text-black">
     <header className="gradient-background text-white p-4 sticky top-0 z-20">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -232,6 +232,7 @@ export default function DashboardPage() {
             const newUnreadCount = transactions.filter(tx => !readIds.includes(tx.id)).length;
             setUnreadCount(newUnreadCount);
         } else {
+            // If stored value is not an array, assume all are unread
             setUnreadCount(transactions.length);
         }
     } catch (e) {
@@ -247,9 +248,8 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 text-black">
-      <main className="flex-1 overflow-y-auto">
-        <div className="gradient-background text-white p-4">
-            <div className="flex items-center justify-between mb-4">
+      <header className="gradient-background text-white p-4 sticky top-0 z-10 border-b border-white/20">
+            <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Image 
                     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
@@ -272,6 +272,9 @@ export default function DashboardPage() {
                     <MessageSquare className="h-5 w-5" />
                 </div>
             </div>
+      </header>
+      <main className="flex-1 overflow-y-auto">
+        <div className="gradient-background text-white p-4">
             <AccountsCarousel />
         </div>
           
@@ -306,5 +309,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
