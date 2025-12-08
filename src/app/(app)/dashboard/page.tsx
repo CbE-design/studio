@@ -242,7 +242,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 text-black">
+    <div className="flex flex-col h-screen bg-gray-50 text-black">
       <header className="sticky top-0 z-10 p-4 gradient-background text-white">
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -305,4 +305,3 @@ export default function DashboardPage() {
   );
 }
 
-    
