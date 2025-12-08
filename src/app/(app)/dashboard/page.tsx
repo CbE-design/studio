@@ -273,17 +273,15 @@ export default function DashboardPage() {
         <div className="p-4 pt-0 gradient-background text-white">
           <AccountsCarousel />
         </div>
-        <div className="p-4 bg-gray-50">
-            <div className="my-2 md:my-4 mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-gray-200">
-                <Image
-                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
-                alt="Advertisement banner"
-                data-ai-hint="advertisement banner"
-                width={600}
-                height={100}
-                className="w-full"
-                />
-            </div>
+        <div className="my-2 md:my-4 mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-gray-200">
+            <Image
+            src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
+            alt="Advertisement banner"
+            data-ai-hint="advertisement banner"
+            width={600}
+            height={100}
+            className="w-full"
+            />
         </div>
 
         <div className="p-4 bg-white">
@@ -305,3 +303,4 @@ export default function DashboardPage() {
   );
 }
 
+    
