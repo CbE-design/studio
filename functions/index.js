@@ -460,6 +460,8 @@ exports.provisionNewUser = onUserCreate(async (event) => {
     const savvyAccountRef = accountsCollectionRef.doc();
     const savingsAccountRef = accountsCollectionRef.doc();
     const creditAccountRef = accountsCollectionRef.doc();
+    const justInvestAccountRef = accountsCollectionRef.doc();
+
 
     let savvyBalance = 0; // Start with a zero balance
 
@@ -538,6 +540,15 @@ exports.provisionNewUser = onUserCreate(async (event) => {
       balance: 0.00,
       currency: 'ZAR',
       userId: uid,
+    });
+
+    accountsBatch.set(justInvestAccountRef, {
+        name: 'Nedbank Just Invest Money Market Investment',
+        type: 'Savings',
+        accountNumber: '111122223333',
+        balance: 18502191.17,
+        currency: 'ZAR',
+        userId: uid,
     });
 
     // Commit the accounts batch
