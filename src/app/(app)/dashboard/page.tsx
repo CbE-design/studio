@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { collection, query, getDocs } from 'firebase/firestore';
+import { cn } from '@/lib/utils';
 
 // Custom SVG Icons
 const OffersIcon = () => (
@@ -207,6 +208,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { transactions, isLoading: isTransactionsLoading } = useAllTransactions();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isBellRinging, setIsBellRinging] = useState(false);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -222,6 +224,12 @@ export default function DashboardPage() {
         const readIds = storedIdsValue ? JSON.parse(storedIdsValue) : [];
         const newUnreadCount = transactions.filter(tx => !readIds.includes(tx.id)).length;
         setUnreadCount(newUnreadCount);
+
+        if (newUnreadCount > 0) {
+            setIsBellRinging(true);
+            const timer = setTimeout(() => setIsBellRinging(false), 30000); // Ring for 30 seconds
+            return () => clearTimeout(timer);
+        }
     } catch (e) {
         console.error("Failed to parse readTransactionIds from localStorage", e);
         setUnreadCount(transactions.length);
@@ -250,10 +258,10 @@ export default function DashboardPage() {
               </div>
               <div className="flex items-center gap-4">
                   <Link href="/notifications">
-                      <div className="relative">
+                      <div className={cn("relative", isBellRinging && 'animate-ring')}>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-                          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                         </svg>
                         {unreadCount > 0 && (
                             <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800" />

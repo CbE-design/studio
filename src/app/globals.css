@@ -86,4 +86,22 @@
   .animate-fade-in {
     animation: fade-in 1s ease-out forwards;
   }
+  @keyframes ring {
+    10%, 90% {
+      transform: rotate3d(0, 0, 1, -10deg);
+    }
+    20%, 80% {
+      transform: rotate3d(0, 0, 1, 10deg);
+    }
+    30%, 50%, 70% {
+      transform: rotate3d(0, 0, 1, -5deg);
+    }
+    40%, 60% {
+      transform: rotate3d(0, 0, 1, 5deg);
+    }
+  }
+  .animate-ring {
+    animation: ring 1.5s ease-in-out;
+    transform-origin: top center;
+  }
 }
