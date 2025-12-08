@@ -116,14 +116,14 @@ const widgets = [
 
 const WidgetItem = ({ icon: Icon, label, href, isNew }: { icon: React.ElementType, label: string, href: string, isNew?: boolean }) => (
     <Link href={href}>
-        <div className="flex flex-col items-center justify-start space-y-2 text-center h-full group">
-             <div className="relative flex items-center justify-center w-12 h-12 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow">
+        <div className="flex flex-col items-center justify-start space-y-1 text-center h-full group">
+             <div className="relative flex items-center justify-center w-10 h-10 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow">
                 {isNew && (
                     <div className="absolute -top-1.5 -right-1.5 px-1 py-0.5 text-[8px] font-semibold text-white bg-green-500 rounded-sm z-10">
                         New
                     </div>
                 )}
-                <div className="w-7 h-7 relative">
+                <div className="w-6 h-6 relative">
                     <Icon />
                 </div>
             </div>
@@ -247,7 +247,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 text-black">
-      <header className="gradient-background text-white p-4 sticky top-0 z-20 border-b border-white/20">
+      <header className="bg-transparent text-white p-4 sticky top-0 z-20 border-b border-white/20">
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
                 <Image 
@@ -308,6 +308,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-
-    
