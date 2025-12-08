@@ -218,7 +218,7 @@ export function AccountsCarousel() {
                     ))}
                 </CarouselContent>
             </Carousel>
-            <div className="flex items-center justify-center space-x-2 py-2">
+            <div className="flex items-center justify-center space-x-2 pt-1">
                 <button onClick={scrollPrev} className="p-1 disabled:opacity-50" disabled={current === 0}>
                     <ChevronLeft className="h-6 w-6" />
                 </button>
