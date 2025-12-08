@@ -82,7 +82,7 @@ const GetCashIcon = () => (
 );
 const HomeLoansIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-6 w-6">
-        <path d="m3 9 9-7 9 7v11a2 2_0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
         <path d="M9 22V12h6v10"/>
     </svg>
 );
@@ -235,37 +235,38 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 text-black">
-      <header className="sticky top-0 z-10 gradient-background text-white px-4 py-3">
-        <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-                <Image 
-                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
-                alt="Nedbank Logo"
-                width={24}
-                height={24}
-                className="w-6 h-6"
-                />
-                <span className="font-medium text-lg">{user.displayName || 'Corrie'}</span>
-            </div>
-            <div className="flex items-center gap-4">
-                <Link href="/notifications">
-                    <div className="relative">
-                    <Bell className="h-5 w-5" />
-                    {unreadCount > 0 && (
-                        <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-lime-400 border-2 border-green-800" />
-                    )}
-                    </div>
-                </Link>
-                <MessageSquare className="h-5 w-5" />
-            </div>
-        </div>
-      </header>
-      
-      <main className="flex-1 overflow-y-auto bg-gray-50">
-        <div className="gradient-background text-white px-4 pb-2">
+      <div className="sticky top-0 z-10 gradient-background text-white">
+        <header className="px-4 py-3">
+          <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                  <Image 
+                  src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
+                  alt="Nedbank Logo"
+                  width={24}
+                  height={24}
+                  className="w-6 h-6"
+                  />
+                  <span className="font-medium text-lg">{user.displayName || 'Corrie'}</span>
+              </div>
+              <div className="flex items-center gap-4">
+                  <Link href="/notifications">
+                      <div className="relative">
+                      <Bell className="h-5 w-5" />
+                      {unreadCount > 0 && (
+                          <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-lime-400 border-2 border-green-800" />
+                      )}
+                      </div>
+                  </Link>
+                  <MessageSquare className="h-5 w-5" />
+              </div>
+          </div>
+        </header>
+        <div className="px-4 pb-2">
           <AccountsCarousel />
         </div>
-        
+      </div>
+      
+      <main className="flex-1 overflow-y-auto bg-gray-50">
         <div className="my-1 md:my-2 mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-gray-200">
             <Image
             src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
@@ -295,5 +296,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
