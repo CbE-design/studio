@@ -38,7 +38,7 @@ const AwardCard = ({ imageId, title, subtitle }: { imageId: string, title: strin
 
 const BottomNavItem = ({ icon: Icon, label }: { icon: React.ElementType, label: string }) => (
     <div className="flex flex-col items-center gap-1 text-gray-600">
-        <Icon className="h-6 w-6" />
+        <Icon className="h-6 w-6" strokeWidth={1.5} />
         <span className="text-xs">{label}</span>
     </div>
 );
@@ -185,13 +185,13 @@ export default function LoginPage() {
             <div className="flex justify-around items-center">
                 <BottomNavItem icon={Newspaper} label="Latest" />
                 <div className="flex flex-col items-center gap-1 text-primary font-semibold">
-                    <Shield className="h-6 w-6" />
+                    <Shield className="h-6 w-6" strokeWidth={1.5} />
                     <span className="text-xs">Login</span>
                 </div>
                 <BottomNavItem icon={Scan} label="Scan QR" />
                 <BottomNavItem icon={Wallet} label="Balance" />
                 <div className="flex flex-col items-center gap-1 text-gray-600">
-                    <User className="h-6 w-6" />
+                    <User className="h-6 w-6" strokeWidth={1.5} />
                     <span className="text-xs">Applications</span>
                 </div>
             </div>
