@@ -220,17 +220,17 @@ export function AccountsCarousel() {
             </Carousel>
             <div className="flex items-center justify-center space-x-2 pt-1">
                 <button onClick={scrollPrev} className="p-1 disabled:opacity-50" disabled={current === 0}>
-                    <ChevronLeft className="h-6 w-6" />
+                    <ChevronLeft className="h-5 w-5" />
                 </button>
                 {Array.from({ length: count }).map((_, index) => (
                     <button
                         key={index}
                         onClick={() => api?.scrollTo(index)}
-                        className={`h-1.5 w-1.5 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
+                        className={`h-2 w-2 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
                     />
                 ))}
                 <button onClick={scrollNext} className="p-1 disabled:opacity-50" disabled={current === count - 1}>
-                    <ChevronRight className="h-6 w-6" />
+                    <ChevronRight className="h-5 w-5" />
                 </button>
             </div>
         </div>
