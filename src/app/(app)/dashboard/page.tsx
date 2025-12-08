@@ -39,14 +39,7 @@ const InsureIcon = () => (
         className="object-contain"
     />
 );
-const NedbankConnectIcon = () => (
-    <Image
-        src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%2F1758631700022.jpg?alt=media&token=148194a4-0b1a-4ea4-929e-956599069261"
-        alt="Nedbank Connect icon"
-        fill
-        className="object-contain"
-    />
-);
+
 const ShopIcon = () => (
     <Image
         src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758633570031.jpg?alt=media&token=b776f61f-926e-48ab-9f7c-9b18821c8b02"
@@ -104,7 +97,6 @@ const widgets = [
   { icon: OffersIcon, label: 'Offers for you', href: '#' },
   { icon: ApplicationsIcon, label: 'Applications', href: '#' },
   { icon: InsureIcon, label: 'Insure', href: '#' },
-  { icon: NedbankConnectIcon, label: 'Nedbank Connect', new: true, href: '#' },
   { icon: ShopIcon, label: 'Shop', href: '#' },
   { icon: PayShapIcon, label: 'PayShap', href: '#' },
   { icon: LatestIcon, label: 'Latest', href: '#' },
@@ -243,8 +235,8 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 text-black">
-      <div className="sticky top-0 z-10 gradient-background text-white px-4 py-2">
-        <header className="flex items-center justify-between">
+      <header className="sticky top-0 z-10 gradient-background text-white px-4 py-3">
+        <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
                 <Image 
                 src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
@@ -266,14 +258,15 @@ export default function DashboardPage() {
                 </Link>
                 <MessageSquare className="h-5 w-5" />
             </div>
-        </header>
-        <div className="pt-4">
-          <AccountsCarousel />
         </div>
-      </div>
+      </header>
       
       <main className="flex-1 overflow-y-auto bg-gray-50">
-        <div className="my-2 md:my-4 mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-gray-200">
+        <div className="gradient-background text-white px-4 pb-2">
+          <AccountsCarousel />
+        </div>
+        
+        <div className="my-1 md:my-2 mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-gray-200">
             <Image
             src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
             alt="Advertisement banner"
@@ -302,3 +295,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
