@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Bell, MessageSquare } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AccountsCarousel } from '@/components/accounts-carousel';
@@ -251,10 +251,13 @@ export default function DashboardPage() {
               <div className="flex items-center gap-4">
                   <Link href="/notifications">
                       <div className="relative">
-                      <Bell className="h-5 w-5" />
-                      {unreadCount > 0 && (
-                          <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-lime-400 border-2 border-green-800" />
-                      )}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        {unreadCount > 0 && (
+                            <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-lime-400 border-2 border-green-800" />
+                        )}
                       </div>
                   </Link>
                   <MessageSquare className="h-5 w-5" />
