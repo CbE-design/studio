@@ -107,8 +107,10 @@ export default function TransactionNotificationsPage() {
     useEffect(() => {
         try {
             const storedIdsValue = localStorage.getItem('readTransactionIds');
-            const storedIds = storedIdsValue ? JSON.parse(storedIdsValue) : [];
-            setReadIds(storedIds);
+            if (storedIdsValue) {
+                const storedIds = JSON.parse(storedIdsValue);
+                setReadIds(storedIds);
+            }
         } catch (e) {
             console.error("Failed to parse readTransactionIds from localStorage", e);
             setReadIds([]);

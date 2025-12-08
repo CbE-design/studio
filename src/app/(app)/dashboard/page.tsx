@@ -228,13 +228,8 @@ export default function DashboardPage() {
     try {
         const storedIdsValue = localStorage.getItem('readTransactionIds');
         const readIds = storedIdsValue ? JSON.parse(storedIdsValue) : [];
-        if (Array.isArray(readIds)) {
-            const newUnreadCount = transactions.filter(tx => !readIds.includes(tx.id)).length;
-            setUnreadCount(newUnreadCount);
-        } else {
-            // If stored value is not an array, assume all are unread
-            setUnreadCount(transactions.length);
-        }
+        const newUnreadCount = transactions.filter(tx => !readIds.includes(tx.id)).length;
+        setUnreadCount(newUnreadCount);
     } catch (e) {
         console.error("Failed to parse readTransactionIds from localStorage", e);
         setUnreadCount(transactions.length);
@@ -272,12 +267,11 @@ export default function DashboardPage() {
                 <MessageSquare className="h-5 w-5" />
             </div>
         </div>
-        <div className="pt-4">
-            <AccountsCarousel />
-        </div>
       </div>
       <main className="flex-1 overflow-y-auto">
-          
+          <div className="gradient-background text-white p-4">
+            <AccountsCarousel />
+          </div>
         <div className="p-4 bg-gray-50">
             <div className="my-2 md:my-4 mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-gray-200">
                 <Image
