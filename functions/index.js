@@ -428,6 +428,7 @@ const initialSavvyBundleTransactions = [
     { timestamp: new Date('2022-10-20'), description: 'ATM CASH 377121716833693', amount: '-R400.00', transactionType: 'ATM_WITHDRAWAL_OTHER' },
     { timestamp: new Date('2022-10-20'), description: 'INSTANT PAYMENT FEE', amount: '-R49.00', transactionType: 'BANK_FEE' },
     { timestamp: new Date('2022-10-21'), description: 'WYNKAS', amount: '-R10000.00', transactionType: 'EFT_STANDARD' },
+    { timestamp: new Date('2022-10-21'), description: 'Corrie Bussiness Enterprise', amount: '+R57100.00', transactionType: 'EFT_STANDARD' },
     { timestamp: new Date('2022-10-21'), description: 'INTERACCOUNT TRANSFER FROM JUST INVEST', amount: '+R18949581.42', transactionType: 'EFT_STANDARD' },
 ];
 
@@ -568,5 +569,7 @@ exports.provisionNewUser = onUserCreate(async (event) => {
 
     
 
+
+    
 
     
