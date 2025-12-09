@@ -54,7 +54,11 @@ const LoadingSkeleton = () => (
             <Skeleton className="h-4 w-32 mt-1 bg-white/20" />
           </div>
         </div>
-        <MessageSquare className="h-6 w-6" />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          <line x1="8" y1="9" x2="16" y2="9"></line>
+          <line x1="8" y1="12" x2="13" y2="12"></line>
+        </svg>
       </div>
       <div className="flex justify-between">
         <div className="text-left">
@@ -185,7 +189,11 @@ export default function AccountDetailsPage() {
               <p className="text-sm opacity-80">{account.accountNumber}</p>
             </div>
           </div>
-          <MessageSquare className="h-6 w-6" />
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            <line x1="8" y1="9" x2="16" y2="9"></line>
+            <line x1="8" y1="12" x2="13" y2="12"></line>
+          </svg>
         </div>
         <div className="flex justify-between">
           <div className="text-left">
@@ -263,10 +271,10 @@ export default function AccountDetailsPage() {
                        <Link href={`/account/${accountId}/transaction/${tx.id}`} key={tx.id}>
                           <div className="flex items-center justify-between py-3 border-b border-gray-200 last:border-b-0 cursor-pointer">
                               <div>
-                                  <p className="text-xs text-gray-500">{format(new Date(tx.date), 'dd MMM yyyy')}</p>
-                                  <p className="font-semibold text-sm text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
+                                  <p className="text-sm text-gray-500">{format(new Date(tx.date), 'dd MMM yyyy')}</p>
+                                  <p className="font-semibold text-base text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
                               </div>
-                               <p className="font-semibold text-sm text-gray-900">
+                               <p className="font-semibold text-base text-gray-900">
                                   {tx.type === 'debit' ? `-${formatCurrency(tx.amount, account.currency)}` : formatCurrency(tx.amount, account.currency)}
                               </p>
                           </div>
