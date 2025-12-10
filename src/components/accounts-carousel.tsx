@@ -60,8 +60,8 @@ const AccountsDisplay = () => {
                 index < accounts.length - 1 ? 'border-b border-white/20' : ''
               )}>
                 <div>
-                  <p className={cn("text-sm font-normal normal-case", isDormant && "text-white/60")}>{account.name}</p>
-                  <p className={cn("text-base font-normal", isDormant && "text-white/60")}>{formatCurrency(account.balance, account.currency)}</p>
+                  <p className={cn("text-xs font-normal normal-case", isDormant && "text-white/60")}>{account.name}</p>
+                  <p className={cn("text-sm font-normal", isDormant && "text-white/60")}>{formatCurrency(account.balance, account.currency)}</p>
                 </div>
                 <ChevronRight className={cn("h-6 w-6", isDormant && "text-white/60")} />
               </div>
