@@ -67,7 +67,7 @@ const WidgetItem = ({ icon, label, href, isNew, size }: { icon: React.ElementTyp
                                 src={icon as string}
                                 alt={`${label} icon`}
                                 fill
-                                className="object-contain"
+                                className="object-contain p-1"
                             />
                         )}
                     </div>
