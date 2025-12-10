@@ -11,7 +11,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        libre_franklin: ['var(--font-libre_franklin)'],
+        sans: ['var(--font-roboto)'],
       },
       colors: {
         background: 'hsl(var(--background))',
