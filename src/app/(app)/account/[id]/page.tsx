@@ -8,7 +8,7 @@ import { formatCurrency } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { format, isThisWeek, startOfWeek, subDays } from 'date-fns';
+import { format, isThisWeek, startOfWeek, subDays, parseISO } from 'date-fns';
 import { useMemo, useState, useEffect } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -89,6 +89,7 @@ export default function AccountDetailsPage() {
   const [isAccountLoading, setIsAccountLoading] = useState(true);
 
   const transactionsQuery = useMemoFirebase(() => {
+    // Only create the query if we have the required IDs
     if (!firestore || !user?.uid || !accountId) return null;
     return query(collection(firestore, 'users', user.uid, 'bankAccounts', accountId, 'transactions'));
   }, [firestore, user?.uid, accountId]);
@@ -96,7 +97,7 @@ export default function AccountDetailsPage() {
   const { data: accountTransactions, isLoading: isTransactionsLoading } = useCollection<Transaction>(transactionsQuery);
   
   useEffect(() => {
-    if (!firestore || !user?.uid || !accountId) {
+    if (!firestore || !user?.uid || !accountId || isUserLoading) {
       if (!isUserLoading) {
         setIsAccountLoading(false);
       }
@@ -112,7 +113,7 @@ export default function AccountDetailsPage() {
             if (docSnap.exists()) {
                 setAccount({ id: docSnap.id, ...docSnap.data() } as Account);
             } else {
-                console.log("No such document!");
+                console.log("No such account document!");
                 setAccount(null);
             }
         } catch (error) {
@@ -123,15 +124,14 @@ export default function AccountDetailsPage() {
         }
     };
     fetchAccountData();
-    // Re-fetch account data if transactions change to update balance
   }, [firestore, user?.uid, accountId, isUserLoading]);
 
   const groupedTransactions = useMemo(() => {
     if (!accountTransactions) return {};
     
     const sorted = [...accountTransactions].sort((a, b) => {
-        const dateA = a.date ? new Date(a.date).getTime() : 0;
-        const dateB = b.date ? new Date(b.date).getTime() : 0;
+        const dateA = a.date ? parseISO(a.date).getTime() : 0;
+        const dateB = b.date ? parseISO(b.date).getTime() : 0;
         return dateB - dateA;
     });
 
@@ -141,7 +141,7 @@ export default function AccountDetailsPage() {
 
     return sorted.reduce((acc, tx) => {
       if (!tx.date) return acc;
-      const date = new Date(tx.date);
+      const date = parseISO(tx.date);
       let group;
 
       if (isThisWeek(date, { weekStartsOn: 1 })) {
@@ -271,7 +271,7 @@ export default function AccountDetailsPage() {
                        <Link href={`/account/${accountId}/transaction/${tx.id}`} key={tx.id}>
                           <div className="flex items-center justify-between py-3 border-b border-gray-200 last:border-b-0 cursor-pointer">
                               <div>
-                                  <p className="text-sm text-gray-500">{format(new Date(tx.date), 'dd MMM yyyy')}</p>
+                                  <p className="text-sm text-gray-500">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
                                   <p className="font-semibold text-base text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
                               </div>
                                <p className="font-semibold text-base text-gray-900">
