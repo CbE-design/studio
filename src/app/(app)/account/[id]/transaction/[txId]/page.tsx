@@ -297,7 +297,7 @@ function TransactionDetailsContent() {
               Pay again
             </Button>
             
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
                 <DialogTrigger asChild>
                     <Button onClick={() => setDialogOpen('email')} variant="outline" className="w-full font-bold h-12">
                         <Mail className="mr-2 h-5 w-5" /> Email
@@ -309,12 +309,11 @@ function TransactionDetailsContent() {
                         <MessageSquare className="mr-2 h-5 w-5" /> SMS
                     </Button>
                 </DialogTrigger>
-
-                <Button onClick={handleDownload} variant="outline" className="w-full font-bold h-12" disabled={isGenerating}>
-                    {isGenerating ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-5 w-5" />}
-                    {isGenerating ? '' : 'PDF'}
-                </Button>
             </div>
+             <Button onClick={handleDownload} variant="outline" className="w-full font-bold h-12" disabled={isGenerating}>
+                {isGenerating ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-5 w-5" />}
+                {isGenerating ? 'Downloading...' : 'Download PDF'}
+            </Button>
           </>
         )}
         {(isReturnTransaction || transaction.type === 'credit') && (
