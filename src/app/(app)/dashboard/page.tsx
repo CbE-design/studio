@@ -237,19 +237,19 @@ export default function DashboardPage() {
         </div>
       </div>
       
-      <main className="flex-1 overflow-y-auto bg-gray-50">
-        <div className="mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-black/20">
+      <main className="flex-1 overflow-y-auto bg-gray-50 py-4">
+        <div className="mx-auto w-[calc(100%-2rem)] max-w-md overflow-hidden rounded-lg shadow-sm border border-black/20">
             <Image
             src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
             alt="Advertisement banner"
             data-ai-hint="advertisement banner"
             width={600}
             height={0}
-            className="w-full h-auto"
+            className="w-full h-auto p-1 object-contain"
             />
         </div>
 
-        <div className="p-4 bg-white">
+        <div className="p-4 bg-white mt-4">
             <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
             <div className="grid grid-cols-4 gap-x-2 gap-y-4">
               {widgets.map((widget) => (
