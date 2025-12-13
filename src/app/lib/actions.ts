@@ -8,11 +8,11 @@ import type { Transaction, TransactionType, Account, User, TransactionInput, Tra
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
-import { db as adminDb, functions } from './firebase-admin';
+import { db as adminDb } from './firebase-admin';
 import { format } from 'date-fns';
 import { formatCurrency } from './data';
 import { getPersonalizedFinancialTips } from '@/ai/flows/personalized-financial-tips';
-import { getCallable } from 'firebase-admin/functions';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
@@ -251,6 +251,9 @@ export async function sendProofOfPaymentEmailAction(
     if (!transaction) throw new Error("Transaction data is required.");
     if (!recipientEmail) throw new Error("Recipient email is required.");
     
+    const functions = getFunctions();
+    const sendEmailFn = httpsCallable(functions, 'sendEmail');
+
     // Generate the PDF
     const pdfResult = await generateProofOfPaymentAction(transaction);
     if ('error' in pdfResult) {
@@ -269,7 +272,6 @@ export async function sendProofOfPaymentEmailAction(
     `;
 
     // Call the Cloud Function
-    const sendEmailFn = getCallable(functions, 'sendEmail');
     await sendEmailFn({
       to: recipientEmail,
       subject: subject,
@@ -296,10 +298,12 @@ export async function sendProofOfPaymentSmsAction(
   try {
     if (!transaction) throw new Error("Transaction data is required.");
     if (!recipientNumber) throw new Error("Recipient phone number is required.");
+    
+    const functions = getFunctions();
+    const sendSmsFn = httpsCallable(functions, 'sendSms');
 
     const text = `Nedbank: Proof of payment for ${formatCurrency(transaction.amount, 'ZAR')} to ${transaction.recipientName || 'recipient'} on ${format(new Date(transaction.date), 'dd/MM/yyyy')}. Ref: ${transaction.popReferenceNumber}`;
 
-    const sendSmsFn = getCallable(functions, 'sendSms');
     await sendSmsFn({ to: recipientNumber, text });
 
     return { success: true, message: "SMS sent successfully." };

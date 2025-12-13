@@ -188,14 +188,13 @@ exports.sendSms = onCall(async (request) => {
  * It requires SMTP transport configuration in environment variables.
  */
 exports.sendEmail = onCall(async (request) => {
-    // Authenticate the user (recommended for production)
     if (!request.auth) {
         throw new HttpsError(
             'unauthenticated',
             'The function must be called while authenticated.'
         );
     }
-
+    
     const { to, subject, html, attachments } = request.data;
     
     if (!to || !subject || !html) {
@@ -434,6 +433,7 @@ const initialSavvyBundleTransactions = [
     { timestamp: new Date('2022-10-20'), description: 'ATM CASH 377121716833693', amount: '-R400.00', transactionType: 'ATM_WITHDRAWAL_OTHER' },
     { timestamp: new Date('2022-10-20'), description: 'INSTANT PAYMENT FEE', amount: '-R49.00', transactionType: 'BANK_FEE' },
     { timestamp: new Date('2022-10-21'), description: 'WYNKAS', amount: '-R10000.00', transactionType: 'EFT_STANDARD' },
+    { timestamp: new Date('2022-10-21'), description: 'Corrie Bussiness Enterprise', amount: '+R57100.00', transactionType: 'EFT_STANDARD' },
     { timestamp: new Date('2022-10-21'), description: 'INTERACCOUNT TRANSFER FROM JUST INVEST', amount: '+R18949581.42', transactionType: 'EFT_STANDARD' },
 ];
 
@@ -453,10 +453,11 @@ exports.provisionNewUser = onUserCreate(async (event) => {
     await userDocRef.set({
       id: uid,
       email: email,
-      firstName: 'GSS MARKETING TRUST',
+      firstName: 'Corrie',
       lastName: '',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
+    await admin.auth().updateUser(uid, { displayName: 'Corrie' });
     console.log(`Successfully created user document for: ${uid}`);
 
     const accountsCollectionRef = userDocRef.collection('bankAccounts');
@@ -465,6 +466,8 @@ exports.provisionNewUser = onUserCreate(async (event) => {
     const savvyAccountRef = accountsCollectionRef.doc();
     const savingsAccountRef = accountsCollectionRef.doc();
     const creditAccountRef = accountsCollectionRef.doc();
+    const justInvestAccountRef = accountsCollectionRef.doc();
+
 
     let savvyBalance = 0; // Start with a zero balance
 
@@ -543,6 +546,15 @@ exports.provisionNewUser = onUserCreate(async (event) => {
       balance: 0.00,
       currency: 'ZAR',
       userId: uid,
+    });
+
+    accountsBatch.set(justInvestAccountRef, {
+        name: 'Nedbank Just Invest Money Market Investment',
+        type: 'Savings',
+        accountNumber: '111122223333',
+        balance: 18502191.17,
+        currency: 'ZAR',
+        userId: uid,
     });
 
     // Commit the accounts batch

@@ -2,7 +2,6 @@
 import admin from 'firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
-import { getFunctions } from 'firebase-admin/functions';
 import { serviceAccount } from './service-account';
 
 function initializeAdminApp() {
@@ -23,6 +22,5 @@ function initializeAdminApp() {
 const adminApp = initializeAdminApp();
 const db = getFirestore(adminApp);
 const auth = getAuth(adminApp);
-const functions = getFunctions(adminApp);
 
-export { db, auth, functions, admin, initializeAdminApp };
+export { db, auth, admin, initializeAdminApp };
