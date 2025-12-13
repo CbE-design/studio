@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import { formatCurrency } from './data';
 import { getPersonalizedFinancialTips } from '@/ai/flows/personalized-financial-tips';
 import { getFunctions, httpsCallable } from 'firebase/functions';
+import { app } from './firebase';
 
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
@@ -251,7 +252,7 @@ export async function sendProofOfPaymentEmailAction(
     if (!transaction) throw new Error("Transaction data is required.");
     if (!recipientEmail) throw new Error("Recipient email is required.");
     
-    const functions = getFunctions();
+    const functions = getFunctions(app);
     const sendEmailFn = httpsCallable(functions, 'sendEmail');
 
     // Generate the PDF
@@ -299,7 +300,7 @@ export async function sendProofOfPaymentSmsAction(
     if (!transaction) throw new Error("Transaction data is required.");
     if (!recipientNumber) throw new Error("Recipient phone number is required.");
     
-    const functions = getFunctions();
+    const functions = getFunctions(app);
     const sendSmsFn = httpsCallable(functions, 'sendSms');
 
     const text = `Nedbank: Proof of payment for ${formatCurrency(transaction.amount, 'ZAR')} to ${transaction.recipientName || 'recipient'} on ${format(new Date(transaction.date), 'dd/MM/yyyy')}. Ref: ${transaction.popReferenceNumber}`;
