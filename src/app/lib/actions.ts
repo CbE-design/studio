@@ -13,7 +13,7 @@ import { format } from 'date-fns';
 import { formatCurrency } from './data';
 import { getPersonalizedFinancialTips } from '@/ai/flows/personalized-financial-tips';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { app } from './firebase';
+import { app } from '@/app/lib/firebase';
 
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
@@ -253,7 +253,7 @@ export async function sendProofOfPaymentEmailAction(
     if (!recipientEmail) throw new Error("Recipient email is required.");
     
     const functions = getFunctions(app);
-    const sendEmailFn = httpsCallable(functions, 'sendEmail');
+    const sendEmail = httpsCallable(functions, 'sendEmail');
 
     // Generate the PDF
     const pdfResult = await generateProofOfPaymentAction(transaction);
@@ -273,7 +273,7 @@ export async function sendProofOfPaymentEmailAction(
     `;
 
     // Call the Cloud Function
-    await sendEmailFn({
+    await sendEmail({
       to: recipientEmail,
       subject: subject,
       html: html,
