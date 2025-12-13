@@ -188,7 +188,12 @@ exports.sendSms = onCall(async (request) => {
  * It requires SMTP transport configuration in environment variables.
  */
 exports.sendEmail = onCall(async (request) => {
-    // This function can be called by an authenticated server action, so we don't check auth here.
+    if (!request.auth) {
+        throw new HttpsError(
+            'unauthenticated',
+            'The function must be called while authenticated.'
+        );
+    }
     
     const { to, subject, html, attachments } = request.data;
     
@@ -569,6 +574,8 @@ exports.provisionNewUser = onUserCreate(async (event) => {
 
     
 
+
+    
 
     
 
