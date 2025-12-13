@@ -187,7 +187,7 @@ exports.sendSms = onCall(async (request) => {
  * This is a callable function that can be invoked from the client-side via a server action.
  * It requires SMTP transport configuration in environment variables.
  */
-exports.sendEmail = onCall(async (request) => {
+const sendEmailFn = onCall(async (request) => {
     if (!request.auth) {
         throw new HttpsError(
             'unauthenticated',
@@ -568,8 +568,11 @@ exports.provisionNewUser = onUserCreate(async (event) => {
   return null;
 });
 
+exports.sendEmail = sendEmailFn;
     
 
     
 
     
+
+```)
