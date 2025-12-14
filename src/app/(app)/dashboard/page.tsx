@@ -201,7 +201,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 text-black">
-      <header className="sticky top-0 z-10 gradient-background text-white p-4">
+      <header className="sticky top-0 z-10 bg-white text-gray-800 p-4 border-b">
           <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                   <Image 
@@ -213,7 +213,7 @@ export default function DashboardPage() {
                   />
                   <span className="font-medium text-lg">{user.displayName || 'Corrie'}</span>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 text-primary">
                   <Link href="/notifications">
                       <div className={cn("relative", isBellRinging && 'animate-ring')}>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
