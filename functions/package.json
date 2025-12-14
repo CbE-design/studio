@@ -18,7 +18,7 @@
     "@vonage/server-sdk": "^4.0.1",
     "firebase-admin": "^12.6.0",
     "firebase-functions": "^6.0.1",
-    "nodemailer": "^6.9.14"
+    "resend": "^3.5.0"
   },
   "devDependencies": {
     "eslint": "^8.15.0",
