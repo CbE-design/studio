@@ -83,7 +83,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col h-screen bg-white text-black">
-    <div className="gradient-background text-white sticky top-0 z-20 p-4 space-y-4">
+    <div className="gradient-background text-white sticky top-0 z-20 p-4">
         <header>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -96,12 +96,12 @@ const LoadingSkeleton = () => (
             </div>
           </div>
         </header>
-        <div>
-          <Skeleton className="h-40 w-full bg-white/20 rounded-lg" />
-        </div>
     </div>
 
     <main className="flex-1 overflow-y-auto bg-gray-50">
+      <div className="gradient-background text-white p-4">
+          <Skeleton className="h-40 w-full bg-white/20 rounded-lg" />
+      </div>
       <div className="p-4">
         <Skeleton className="h-24 w-full my-6 rounded-lg bg-gray-200" />
         <Skeleton className="h-8 w-1/3 mb-4 bg-gray-200" />
@@ -201,8 +201,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 text-black">
-      <div className="sticky top-0 z-10 gradient-background text-white p-4">
-        <header>
+      <header className="sticky top-0 z-10 gradient-background text-white p-4">
           <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                   <Image 
@@ -231,14 +230,14 @@ export default function DashboardPage() {
                   </svg>
               </div>
           </div>
-        </header>
-        <div className="pt-4">
+      </header>
+      
+      <main className="flex-1 overflow-y-auto bg-gray-50">
+        <div className="gradient-background text-white p-4">
           <AccountsCarousel />
         </div>
-      </div>
-      
-      <main className="flex-1 overflow-y-auto bg-gray-50 py-4">
-        <div className="mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-black/20">
+        
+        <div className="mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-black/20 mt-4">
             <Image
             src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
             alt="Advertisement banner"
