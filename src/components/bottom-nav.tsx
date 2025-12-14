@@ -64,7 +64,7 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="border-t bg-background">
+      <nav className="border-t bg-white">
         <div className="flex justify-around items-center h-16">
           {navItems.map((item) => (
              item.isTransact ? (

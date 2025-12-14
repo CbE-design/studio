@@ -181,7 +181,7 @@ export default function LoginPage() {
         </div>
       </main>
 
-       <footer className="sticky bottom-0 border-t bg-gray-100 p-2">
+       <footer className="sticky bottom-0 border-t bg-white p-2">
             <div className="flex justify-around items-center">
                 <BottomNavItem icon={Newspaper} label="Latest" />
                 <div className="flex flex-col items-center gap-1 text-primary font-semibold">
