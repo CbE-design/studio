@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useAuth, useFirestore } from '@/firebase-provider';
 import { useToast } from '@/hooks/use-toast';
+import { seedUserData } from '@/app/lib/seed-user-data';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
@@ -36,8 +37,9 @@ export default function SignupPage() {
     setErrorMessage(undefined);
 
     try {
-      // The onUserCreate Cloud Function will handle creating the user document in Firestore.
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      
+      await seedUserData(firestore, userCredential.user.uid);
       
       toast({
         title: 'Account Created',
