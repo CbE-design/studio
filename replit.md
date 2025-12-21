@@ -43,6 +43,10 @@ The app requires Firebase configuration:
 Configured for Replit autoscale deployment with `npm start`.
 
 ## Recent Changes
+- 2024-12-21: Added automatic account seeding for new users
+  - New users now get 3 sample bank accounts with transactions when signing up
+  - Accounts: Savvy Bundle Current Account, Current Account, MyPockets Savings
+  - Sample transactions for each account
 - 2024-12-21: Initial setup for Replit environment
   - Removed duplicate next.config.ts file
   - Updated next.config.mjs for Replit compatibility
