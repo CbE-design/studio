@@ -55,7 +55,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
     return (
         <Link href={href}>
             <div className="flex flex-col items-center justify-start space-y-1 text-center h-full group">
-                 <div className="relative flex items-center justify-center w-12 h-12 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden">
+                 <div className="relative flex items-center justify-center w-14 h-14 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden">
                     {isNew && label !== 'PayShap' && (
                         <div className="absolute -top-1.5 -right-1.5 px-1 py-0.5 text-[8px] font-semibold text-white bg-green-500 rounded-sm z-10">
                             New
@@ -235,7 +235,7 @@ export default function DashboardPage() {
         <AccountsCarousel />
       </div>
 
-      <main className="flex-1 overflow-y-auto bg-gray-50">
+      <main className="flex-1 overflow-y-auto bg-white">
         <div className="mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-black/20 mt-4">
           <Image
             src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
