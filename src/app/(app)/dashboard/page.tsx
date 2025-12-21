@@ -243,7 +243,7 @@ export default function DashboardPage() {
             data-ai-hint="advertisement banner"
             width={600}
             height={0}
-            className="w-full h-auto p-1 object-contain"
+            className="w-full h-auto object-contain"
           />
         </div>
 
