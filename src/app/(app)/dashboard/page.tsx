@@ -123,17 +123,9 @@ function useAllTransactions() {
 
     const accountsQuery = useMemoFirebase(() => {
         if (!firestore || !user?.uid) return null;
-        console.log('DEBUG: Querying accounts for user:', user.uid);
         return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
     }, [firestore, user?.uid]);
     const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
-    
-    useEffect(() => {
-        console.log('DEBUG: Accounts loaded:', accounts?.length ?? 0, 'accounts');
-        if (accounts) {
-            accounts.forEach(acc => console.log('DEBUG: Account:', acc.id, acc.name));
-        }
-    }, [accounts]);
 
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -173,13 +165,6 @@ export default function DashboardPage() {
   const { transactions, isLoading: isTransactionsLoading } = useAllTransactions();
   const [unreadCount, setUnreadCount] = useState(0);
   const [isBellRinging, setIsBellRinging] = useState(false);
-
-  useEffect(() => {
-    if (user?.uid) {
-      console.log('DEBUG: Logged in user UID:', user.uid);
-      console.log('DEBUG: User email:', user.email);
-    }
-  }, [user]);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
