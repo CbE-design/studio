@@ -71,10 +71,13 @@
 
 @layer components {
   .gradient-background {
-    background: linear-gradient(to bottom, #00A651, #008241);
+    background: linear-gradient(to bottom, #006B3C, #004D2C);
   }
   .light-gradient-background {
-    background: linear-gradient(to bottom, #556b2f, #6B8E23);
+    background: linear-gradient(to bottom, #008241, #006633);
+  }
+  .nav-gradient-background {
+    background: linear-gradient(to bottom, #004D2C, #003D22);
   }
 }
 
