@@ -4,7 +4,7 @@
 A Next.js-based mobile banking application with Firebase integration for authentication and data storage.
 
 ## Tech Stack
-- **Frontend**: Next.js 14.2.5, React 18, TypeScript
+- **Frontend**: Next.js 15, React 19, TypeScript
 - **Styling**: Tailwind CSS, Radix UI components
 - **Backend**: Firebase (Firestore, Authentication, Functions)
 - **AI**: Genkit with Google AI for personalized financial tips
