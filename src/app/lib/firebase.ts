@@ -13,8 +13,6 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-console.log('DEBUG Firebase config projectId:', firebaseConfig.projectId);
-
 // Initialize Firebase
 const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const firestore: Firestore = getFirestore(app);
