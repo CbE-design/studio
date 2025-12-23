@@ -47,6 +47,10 @@ Configured for Replit autoscale deployment with `npm start`.
 - **User Data Structure**: Bank accounts are stored at `users/{userId}/bankAccounts/{accountId}` with transactions at `users/{userId}/bankAccounts/{accountId}/transactions/{txId}`
 
 ## Recent Changes
+- 2024-12-23: Implemented Nedbank green gradient styling
+  - Updated header gradient to dark green (#006B3C to #004D2C)
+  - Bottom navigation now has dark green background with white icons
+  - Active tab indicator with green underline
 - 2024-12-23: Fixed accounts not showing on dashboard
   - Root cause: Firebase environment variables had quotes embedded in values
   - Fixed by setting correct env var values without quotes
