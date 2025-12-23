@@ -74,6 +74,7 @@ export function useCollection<T extends DocumentData>(query: Query<T> | null) {
 
     useEffect(() => {
         if (query === null) {
+            console.log('DEBUG useCollection: query is null');
             setData(null);
             setIsLoading(false);
             return;
@@ -81,13 +82,16 @@ export function useCollection<T extends DocumentData>(query: Query<T> | null) {
 
         // Set loading to true whenever the query changes
         setIsLoading(true);
+        console.log('DEBUG useCollection: starting onSnapshot listener');
 
         const unsubscribe = onSnapshot(query, (snapshot: QuerySnapshot<T>) => {
+            console.log('DEBUG useCollection: snapshot received, doc count:', snapshot.docs.length);
+            snapshot.docs.forEach(doc => console.log('DEBUG doc:', doc.id));
             const docs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
             setData(docs);
             setIsLoading(false);
         }, (err) => {
-            console.error(err);
+            console.error('DEBUG useCollection ERROR:', err.code, err.message);
             setError(err);
             setIsLoading(false);
         });
