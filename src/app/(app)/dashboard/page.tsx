@@ -83,7 +83,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col h-screen bg-white text-black">
-    <header className="gradient-background text-white sticky top-0 z-20 p-4">
+    <header className="bg-[#00A651] text-white sticky top-0 z-20 p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Skeleton className="w-6 h-6 rounded-md bg-white/20" />
@@ -201,7 +201,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 text-black">
-        <header className="sticky top-0 z-10 gradient-background text-white p-4">
+        <header className="sticky top-0 z-10 bg-[#00A651] text-white p-4">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Image 
