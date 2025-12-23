@@ -42,7 +42,15 @@ The app requires Firebase configuration:
 ## Deployment
 Configured for Replit autoscale deployment with `npm start`.
 
+## Important Notes
+- **Environment Variables**: Firebase env vars must NOT have quotes in their values. The values should be plain text like `studio-3883937532-b7f00`, not `"studio-3883937532-b7f00"`.
+- **User Data Structure**: Bank accounts are stored at `users/{userId}/bankAccounts/{accountId}` with transactions at `users/{userId}/bankAccounts/{accountId}/transactions/{txId}`
+
 ## Recent Changes
+- 2024-12-23: Fixed accounts not showing on dashboard
+  - Root cause: Firebase environment variables had quotes embedded in values
+  - Fixed by setting correct env var values without quotes
+  - Updated genkit packages to v1.27.0 to resolve peer dependency conflicts
 - 2024-12-21: Added automatic account seeding for new users
   - New users now get 3 sample bank accounts with transactions when signing up
   - Accounts: Savvy Bundle Current Account, Current Account, MyPockets Savings
