@@ -64,14 +64,14 @@ export function BottomNav() {
 
   return (
     <>
-      <nav className="nav-gradient-background border-t border-green-900">
+      <nav className="bg-white border-t border-gray-200">
         <div className="flex justify-around items-center h-16">
           {navItems.map((item) => (
              item.isTransact ? (
               <button
                 key={item.label}
                 onClick={handleTransactClick}
-                className="flex flex-col items-center gap-1 text-white/80 hover:text-white transition-colors"
+                className="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-900 active:text-black transition-colors"
               >
                 <item.icon />
                 <span className="text-xs font-medium">{item.label}</span>
@@ -79,13 +79,13 @@ export function BottomNav() {
             ) : (
               <Link href={item.href} key={item.label}>
                 <div className={cn(
-                  "flex flex-col items-center gap-1 hover:text-white transition-colors relative pb-1",
-                  isActive(item.href) ? 'text-white' : 'text-white/80'
+                  "flex flex-col items-center gap-1 hover:text-gray-900 active:text-black transition-colors relative pb-1",
+                  isActive(item.href) ? 'text-gray-900' : 'text-gray-500'
                 )}>
                   <item.icon />
                   <span className="text-xs font-medium">{item.label}</span>
                   {isActive(item.href) && (
-                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-green-400 rounded-full" />
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-green-500 rounded-full" />
                   )}
                 </div>
               </Link>
