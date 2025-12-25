@@ -279,9 +279,7 @@ export async function sendProofOfPaymentEmailAction(
       html: html,
       attachments: [{
         filename: `proof-of-payment-${transaction.id}.pdf`,
-        content: pdfBase64,
-        encoding: 'base64',
-        contentType: 'application/pdf',
+        content: pdfBase64
       }]
     });
 

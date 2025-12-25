@@ -13,7 +13,7 @@ const { setGlobalOptions } = require('firebase-functions/v2');
 const { onUserCreate } = require('firebase-functions/v2/auth');
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const admin = require('firebase-admin');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const { Vonage } = require('@vonage/server-sdk');
 
 // Initialize Firebase Admin SDK
@@ -21,6 +21,9 @@ admin.initializeApp();
 
 // Set global options for functions (e.g., region, memory)
 setGlobalOptions({ region: 'us-central1' });
+
+// Initialize Resend
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Initialize Vonage
 const vonage = new Vonage({
@@ -183,11 +186,12 @@ exports.sendSms = onCall(async (request) => {
 
 
 /**
- * Sends an email using Nodemailer.
+ * Sends an email using Resend.
  * This is a callable function that can be invoked from the client-side via a server action.
- * It requires SMTP transport configuration in environment variables.
+ * It requires the RESEND_API_KEY environment variable to be set.
  */
 const sendEmailFn = onCall(async (request) => {
+    // Authentication check
     if (!request.auth) {
         throw new HttpsError(
             'unauthenticated',
@@ -204,36 +208,28 @@ const sendEmailFn = onCall(async (request) => {
         );
     }
 
-    // Configure Nodemailer transporter.
-    // For a real app, use a robust email service like SendGrid, Mailgun, or Amazon SES.
-    // Using Gmail is suitable for testing but has strict limits.
-    // Store credentials in Firebase environment variables:
-    // `firebase functions:config:set mail.user="your-email@gmail.com" mail.pass="your-app-password"`
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.MAIL_USER || 'your-email@gmail.com', // Fallback for emulator
-            pass: process.env.MAIL_PASS || 'your-app-password'   // Fallback for emulator
-        }
-    });
-
-    const mailOptions = {
-        from: `Proof of Payment (Nedbank) <${process.env.MAIL_USER || 'your-email@gmail.com'}>`,
-        to: to,
-        subject: subject,
-        html: html,
-        attachments: attachments || [],
-    };
+    // The 'from' email address must be a verified domain in your Resend account.
+    const fromEmail = process.env.MAIL_FROM || 'onboarding@resend.dev';
 
     try {
-        await transporter.sendMail(mailOptions);
+        await resend.emails.send({
+            from: `Proof of Payment (Nedbank) <${fromEmail}>`,
+            to: to,
+            subject: subject,
+            html: html,
+            attachments: attachments.map(att => ({
+                filename: att.filename,
+                content: att.content // Resend expects base64 content directly
+            })),
+        });
         console.log(`Email sent successfully to ${to}`);
         return { success: true, message: 'Email sent successfully.' };
     } catch (error) {
-        console.error('Error sending email:', error);
+        console.error('Error sending email with Resend:', error);
         throw new HttpsError('internal', 'Failed to send email.', error);
     }
 });
+exports.sendEmail = sendEmailFn;
 
 
 // This is the specific list of transactions to be seeded into the Savvy Bundle Current Account.
@@ -568,11 +564,9 @@ exports.provisionNewUser = onUserCreate(async (event) => {
   return null;
 });
 
-exports.sendEmail = sendEmailFn;
     
 
     
 
     
 
-```)
