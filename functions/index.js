@@ -41,6 +41,52 @@ const vonage = new Vonage({
 });
 
 /**
+ * Sends an email using Nodemailer.
+ * This is a callable function that can be invoked from the client-side via a server action.
+ * It requires SMTP environment variables to be set (MAIL_HOST, MAIL_PORT, MAIL_USER, MAIL_PASS).
+ */
+exports.sendEmail = onCall(async (request) => {
+    // Authentication check
+    if (!request.auth) {
+        throw new HttpsError(
+            'unauthenticated',
+            'The function must be called while authenticated.'
+        );
+    }
+    
+    const { to, subject, html, attachments } = request.data;
+    
+    if (!to || !subject || !html) {
+         throw new HttpsError(
+            'invalid-argument',
+            'Missing required fields: to, subject, and html.'
+        );
+    }
+
+    const fromEmail = process.env.MAIL_FROM || 'proofofpayment@nedbank.co.za';
+
+    try {
+        await transporter.sendMail({
+            from: `Proof of Payment (Nedbank) <${fromEmail}>`,
+            to: to,
+            subject: subject,
+            html: html,
+            attachments: attachments.map(att => ({
+                filename: att.filename,
+                content: att.content,
+                encoding: 'base64'
+            })),
+        });
+        console.log(`Email sent successfully to ${to}`);
+        return { success: true, message: 'Email sent successfully.' };
+    } catch (error) {
+        console.error('Error sending email with Nodemailer:', error);
+        throw new HttpsError('internal', 'Failed to send email.', error);
+    }
+});
+
+
+/**
  * Adds a new beneficiary to the user's profile.
  * This is a callable function that requires authentication.
  */
@@ -190,52 +236,6 @@ exports.sendSms = onCall(async (request) => {
             'Failed to send SMS.',
             error
         );
-    }
-});
-
-
-/**
- * Sends an email using Nodemailer.
- * This is a callable function that can be invoked from the client-side via a server action.
- * It requires SMTP environment variables to be set (MAIL_HOST, MAIL_PORT, MAIL_USER, MAIL_PASS).
- */
-exports.sendEmail = onCall(async (request) => {
-    // Authentication check
-    if (!request.auth) {
-        throw new HttpsError(
-            'unauthenticated',
-            'The function must be called while authenticated.'
-        );
-    }
-    
-    const { to, subject, html, attachments } = request.data;
-    
-    if (!to || !subject || !html) {
-         throw new HttpsError(
-            'invalid-argument',
-            'Missing required fields: to, subject, and html.'
-        );
-    }
-
-    const fromEmail = process.env.MAIL_FROM || 'proofofpayment@nedbank.co.za';
-
-    try {
-        await transporter.sendMail({
-            from: `Proof of Payment (Nedbank) <${fromEmail}>`,
-            to: to,
-            subject: subject,
-            html: html,
-            attachments: attachments.map(att => ({
-                filename: att.filename,
-                content: att.content,
-                encoding: 'base64'
-            })),
-        });
-        console.log(`Email sent successfully to ${to}`);
-        return { success: true, message: 'Email sent successfully.' };
-    } catch (error) {
-        console.error('Error sending email with Nodemailer:', error);
-        throw new HttpsError('internal', 'Failed to send email.', error);
     }
 });
 
