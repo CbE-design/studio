@@ -199,7 +199,7 @@ exports.sendSms = onCall(async (request) => {
  * This is a callable function that can be invoked from the client-side via a server action.
  * It requires SMTP environment variables to be set (MAIL_HOST, MAIL_PORT, MAIL_USER, MAIL_PASS).
  */
-const sendEmailFn = onCall(async (request) => {
+exports.sendEmail = onCall(async (request) => {
     // Authentication check
     if (!request.auth) {
         throw new HttpsError(
@@ -238,7 +238,6 @@ const sendEmailFn = onCall(async (request) => {
         throw new HttpsError('internal', 'Failed to send email.', error);
     }
 });
-exports.sendEmail = sendEmailFn;
 
 
 // This is the specific list of transactions to be seeded into the Savvy Bundle Current Account.
@@ -579,3 +578,4 @@ exports.provisionNewUser = onUserCreate(async (event) => {
 
     
 
+    
