@@ -273,7 +273,7 @@ export async function sendProofOfPaymentEmailAction(
     `;
 
     // Call the Cloud Function
-    await sendEmail({
+    const result = await sendEmail({
       to: recipientEmail,
       subject: subject,
       html: html,
@@ -282,6 +282,11 @@ export async function sendProofOfPaymentEmailAction(
         content: pdfBase64
       }]
     });
+
+    const data = result.data as { success: boolean, message: string };
+    if (!data.success) {
+        throw new Error(data.message || 'The sendEmail function returned an error.');
+    }
 
     return { success: true, message: "Email sent successfully." };
   } catch (error: any) {
