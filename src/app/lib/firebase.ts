@@ -2,7 +2,7 @@
 import { initializeApp, getApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getAuth, type Auth } from 'firebase/auth';
-import { getFunctions } from 'firebase/functions';
+import { getFunctions, connectFunctionsEmulator, type Functions } from 'firebase/functions';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -17,6 +17,21 @@ const firebaseConfig = {
 const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const firestore: Firestore = getFirestore(app);
 const auth: Auth = getAuth(app);
-const functions = getFunctions(app);
+
+// Initialize Functions with region
+const functionsRegion = 'us-central1';
+const functions: Functions = getFunctions(app, functionsRegion);
+
+// Connect to emulators in development
+if (process.env.NODE_ENV === 'development') {
+    try {
+        console.log("Connecting to Firebase Functions emulator...");
+        connectFunctionsEmulator(functions, 'localhost', 5001);
+        console.log("Successfully connected to Functions emulator.");
+    } catch (e) {
+        console.error("Error connecting to Functions emulator:", e);
+    }
+}
+
 
 export { app, firestore, auth, functions };
