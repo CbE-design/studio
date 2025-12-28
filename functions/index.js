@@ -26,7 +26,7 @@ setGlobalOptions({ region: 'us-central1' });
 const transporter = nodemailer.createTransport({
     host: process.env.MAIL_HOST,
     port: parseInt(process.env.MAIL_PORT || "587", 10),
-    secure: (process.env.MAIL_PORT === "465"), // true for 465, false for other ports
+    secure: false, // Explicitly false for port 587, which uses STARTTLS
     auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
@@ -63,11 +63,12 @@ exports.sendEmail = onCall(async (request) => {
         );
     }
 
+    const fromName = "Proof of Payment (Nedbank)";
     const fromEmail = process.env.MAIL_FROM || 'proofofpayment@nedbank.co.za';
 
     try {
         await transporter.sendMail({
-            from: `Proof of Payment (Nedbank) <${fromEmail}>`,
+            from: `"${fromName}" <${fromEmail}>`,
             to: to,
             subject: subject,
             html: html,
