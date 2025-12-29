@@ -55,8 +55,8 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
     return (
         <Link href={href}>
             <div className="flex flex-col items-center justify-start space-y-1 text-center h-full group">
-                 <div className="relative flex items-center justify-center w-10 h-10 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden">
-                    {isNew && (
+                 <div className="relative flex items-center justify-center w-14 h-14 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden">
+                    {isNew && label !== 'PayShap' && (
                         <div className="absolute -top-1.5 -right-1.5 px-1 py-0.5 text-[8px] font-semibold text-white bg-green-500 rounded-sm z-10">
                             New
                         </div>
@@ -201,6 +201,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 text-black">
+
         <header className="sticky top-0 z-10 bg-[#00A651] text-white p-4">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -239,29 +240,40 @@ export default function DashboardPage() {
 
         <div className="mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-black/20 -mt-2 relative z-5">
             <Image
+
+      
+
+    
+          
+
             src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
             alt="Advertisement banner"
             data-ai-hint="advertisement banner"
             width={600}
             height={0}
+
             className="w-full h-auto p-1 object-contain bg-white"
             />
+
+        
+    
+
         </div>
 
         <div className="p-4 bg-white mt-4">
-            <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
-            <div className="grid grid-cols-4 gap-x-2 gap-y-4">
-              {widgets.map((widget) => (
-                  <WidgetItem 
-                    key={widget.label} 
-                    src={widget.src}
-                    icon={widget.icon} 
-                    label={widget.label} 
-                    href={widget.href}
-                    isNew={widget.isNew} 
-                  />
-              ))}
-            </div>
+          <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
+          <div className="grid grid-cols-4 gap-x-2 gap-y-4">
+            {widgets.map((widget) => (
+              <WidgetItem
+                key={widget.label}
+                src={widget.src}
+                icon={widget.icon}
+                label={widget.label}
+                href={widget.href}
+                isNew={widget.isNew}
+              />
+            ))}
+          </div>
         </div>
       </main>
     </div>

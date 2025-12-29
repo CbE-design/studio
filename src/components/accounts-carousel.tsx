@@ -16,19 +16,19 @@ import { formatCurrency } from '@/app/lib/data';
 
 const AccountSkeleton = () => (
   <div className="space-y-0">
-    <div className="flex flex-row justify-between items-center p-2 border-b border-white/20">
+    <div className="flex flex-row justify-between items-center p-3 border-b border-white/20">
       <div>
         <Skeleton className="h-5 w-40 bg-white/20" />
         <Skeleton className="h-6 w-32 mt-1 bg-white/20" />
       </div>
-      <ChevronRight className="h-6 w-6" />
+      <ChevronRight className="h-7 w-7" />
     </div>
-    <div className="flex flex-row justify-between items-center p-2">
+    <div className="flex flex-row justify-between items-center p-3">
       <div>
         <Skeleton className="h-5 w-32 bg-white/20" />
         <Skeleton className="h-6 w-28 mt-1 bg-white/20" />
       </div>
-      <ChevronRight className="h-6 w-6" />
+      <ChevronRight className="h-7 w-7" />
     </div>
   </div>
 )
@@ -56,22 +56,22 @@ const AccountsDisplay = () => {
           return (
             <Link href={`/account/${account.id}`} key={account.id}>
               <div className={cn(
-                "flex flex-row justify-between items-center p-2 cursor-pointer text-white",
+                "flex flex-row justify-between items-center p-3 cursor-pointer text-white",
                 index < accounts.length - 1 ? 'border-b border-white/20' : ''
               )}>
                 <div>
-                  <p className={cn("text-xs font-normal normal-case", isDormant && "text-white/60")}>{account.name}</p>
-                  <p className={cn("text-sm font-normal", isDormant && "text-white/60")}>{formatCurrency(account.balance, account.currency)}</p>
+                  <p className={cn("text-sm font-normal normal-case", isDormant && "text-white/60")}>{account.name}</p>
+                  <p className={cn("text-base font-normal", isDormant && "text-white/60")}>{formatCurrency(account.balance, account.currency)}</p>
                 </div>
-                <ChevronRight className={cn("h-6 w-6", isDormant && "text-white/60")} />
+                <ChevronRight className={cn("h-7 w-7", isDormant && "text-white/60")} />
               </div>
             </Link>
           );
         })
       ) : (
          <div className="text-center py-4">
-            <p className="text-sm text-white">No accounts found.</p>
-            <p className="text-xs text-white/80">This can happen if you just signed up. Try refreshing.</p>
+            <p className="text-base text-white">No accounts found.</p>
+            <p className="text-sm text-white/80">This can happen if you just signed up. Try refreshing.</p>
          </div>
       )}
     </div>
@@ -93,12 +93,12 @@ export function AccountsCarousel() {
           title: 'Rewards',
           content: (
              <div key="rewards" className="space-y-2">
-              <div className="flex flex-row justify-between items-center p-3 border-b border-white/20">
+              <div className="flex flex-row justify-between items-center p-4 border-b border-white/20">
                 <div>
-                  <p className="text-sm">Greenbacks Rewards</p>
-                  <div className="text-base font-normal">GB 0</div>
+                  <p className="text-base">Greenbacks Rewards</p>
+                  <div className="text-lg font-normal">GB 0</div>
                 </div>
-                <ChevronRightIcon className="h-6 w-6" />
+                <ChevronRightIcon className="h-7 w-7" />
               </div>
             </div>
           ),
@@ -107,19 +107,19 @@ export function AccountsCarousel() {
           title: 'International banking and travel',
           content: (
             <div key="international" className="space-y-4">
-              <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
+              <div className="flex flex-row justify-between items-center py-3 border-b border-white/20">
                 <div>
-                  <p className="text-xs">Incoming and outgoing payments</p>
-                  <p className="text-base font-normal">International payments</p>
+                  <p className="text-sm">Incoming and outgoing payments</p>
+                  <p className="text-lg font-normal">International payments</p>
                 </div>
-                <Button variant="link" className="text-white font-bold">View</Button>
+                <Button variant="link" className="text-white font-bold text-base">View</Button>
               </div>
-              <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
+              <div className="flex flex-row justify-between items-center py-3 border-b border-white/20 last:border-b-0">
                 <div>
-                  <p className="text-xs">Foreign Currency Accounts</p>
-                  <p className="text-base font-normal">Your currencies</p>
+                  <p className="text-sm">Foreign Currency Accounts</p>
+                  <p className="text-lg font-normal">Your currencies</p>
                 </div>
-                <ChevronRightIcon className="h-6 w-6" />
+                <ChevronRightIcon className="h-7 w-7" />
               </div>
             </div>
           ),
@@ -128,18 +128,18 @@ export function AccountsCarousel() {
           title: 'Savings & Investments',
           content: (
             <div key="savings" className="space-y-2">
-              <div className="flex flex-row justify-between items-center p-3 border-b border-white/20">
+              <div className="flex flex-row justify-between items-center p-4 border-b border-white/20">
                 <div>
-                  <p className="text-sm">Tax certificates</p>
-                  <p className="text-base font-normal">Tax certificates</p>
+                  <p className="text-base">Tax certificates</p>
+                  <p className="text-lg font-normal">Tax certificates</p>
                 </div>
-                <ChevronRightIcon className="h-6 w-6" />
+                <ChevronRightIcon className="h-7 w-7" />
               </div>
-              <div className="flex flex-row justify-between items-center p-3">
+              <div className="flex flex-row justify-between items-center p-4">
                 <div>
-                  <p className="text-base font-normal">Save & Invest</p>
+                  <p className="text-lg font-normal">Save & Invest</p>
                 </div>
-                 <Button variant="link" className="font-bold text-yellow-400">Explore options</Button>
+                 <Button variant="link" className="font-bold text-yellow-400 text-base">Explore options</Button>
               </div>
             </div>
           ),
@@ -148,19 +148,19 @@ export function AccountsCarousel() {
           title: 'Insurance',
           content: (
             <div key="insurance" className="space-y-4">
-              <div className="flex flex-row justify-between items-center py-2 border-b border-white/20">
+              <div className="flex flex-row justify-between items-center py-3 border-b border-white/20">
                 <div>
-                  <p className="text-xs">Insurance</p>
-                  <p className="text-base font-normal">My policies and applications</p>
+                  <p className="text-sm">Insurance</p>
+                  <p className="text-lg font-normal">My policies and applications</p>
                 </div>
-                <ChevronRightIcon className="h-6 w-6" />
+                <ChevronRightIcon className="h-7 w-7" />
               </div>
-              <div className="flex flex-row justify-between items-center py-2 border-b border-white/20 last:border-b-0">
+              <div className="flex flex-row justify-between items-center py-3 border-b border-white/20 last:border-b-0">
                 <div>
-                  <p className="text-xs">Insurance</p>
-                  <p className="text-base font-normal">New policy</p>
+                  <p className="text-sm">Insurance</p>
+                  <p className="text-lg font-normal">New policy</p>
                 </div>
-                 <Button variant="link" className="font-bold text-yellow-400">Get cover</Button>
+                 <Button variant="link" className="font-bold text-yellow-400 text-base">Get cover</Button>
               </div>
             </div>
           ),
@@ -193,8 +193,8 @@ export function AccountsCarousel() {
         const title = slides[current]?.title || 'Accounts';
          return (
             <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold">{title}</h1>
-                <Eye className="h-5 w-5" />
+                <h1 className="text-xl font-bold">{title}</h1>
+                <Eye className="h-6 w-6" />
             </div>
         )
     }
@@ -211,19 +211,21 @@ export function AccountsCarousel() {
                     ))}
                 </CarouselContent>
             </Carousel>
-            <div className="flex items-center justify-center space-x-2 pt-1">
-                <button onClick={scrollPrev} className="p-1 disabled:opacity-50" disabled={current === 0}>
-                    <ChevronLeft className="h-5 w-5" />
+            <div className="flex items-center justify-center pt-4">
+                <button onClick={scrollPrev} className="p-1 disabled:opacity-50 mx-1" disabled={current === 0}>
+                    <ChevronLeft className="h-6 w-6" />
                 </button>
-                {Array.from({ length: count }).map((_, index) => (
-                    <button
-                        key={index}
-                        onClick={() => api?.scrollTo(index)}
-                        className={`h-2 w-2 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
-                    />
-                ))}
-                <button onClick={scrollNext} className="p-1 disabled:opacity-50" disabled={current === count - 1}>
-                    <ChevronRight className="h-5 w-5" />
+                <div className="flex items-center justify-center space-x-1.5 mx-2">
+                    {Array.from({ length: count }).map((_, index) => (
+                        <button
+                            key={index}
+                            onClick={() => api?.scrollTo(index)}
+                            className={`h-2.5 w-2.5 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
+                        />
+                    ))}
+                </div>
+                <button onClick={scrollNext} className="p-1 disabled:opacity-50 mx-1" disabled={current === count - 1}>
+                    <ChevronRight className="h-6 w-6" />
                 </button>
             </div>
         </div>
