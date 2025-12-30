@@ -1,80 +1,62 @@
-'use server';
 
+'use server';
 /**
- * @fileOverview Personalized financial tips flow using AI.
+ * @fileOverview A personalized financial tips AI agent.
  *
- * - getPersonalizedFinancialTips - A function that generates personalized financial tips.
+ * - getPersonalizedFinancialTips - A function that provides financial tips.
  * - PersonalizedFinancialTipsInput - The input type for the getPersonalizedFinancialTips function.
  * - PersonalizedFinancialTipsOutput - The return type for the getPersonalizedFinancialTips function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { ai } from '@/ai/genkit';
+import { z } from 'zod';
+import { getBudgetTool } from '@/ai/tools/get-budget-tool';
 
 const PersonalizedFinancialTipsInputSchema = z.object({
-  income: z.number().describe('Your monthly income.'),
-  spendingHabits: z
-    .string()
-    .describe(
-      'A description of your spending habits, including categories and amounts spent.'
-    ),
-  budget: z.string().describe('Your current budget details.'),
+  income: z.number().describe('The user\'s monthly income.'),
+  spendingHabits: z.string().describe('A description of the user\'s spending habits.'),
+  budget: z.string().describe('A description of the user\'s current budget.'),
 });
-
-export type PersonalizedFinancialTipsInput = z.infer<
-  typeof PersonalizedFinancialTipsInputSchema
->;
+export type PersonalizedFinancialTipsInput = z.infer<typeof PersonalizedFinancialTipsInputSchema>;
 
 const PersonalizedFinancialTipsOutputSchema = z.object({
   tips: z.array(z.string()).describe('A list of personalized financial tips.'),
   shouldUseTool: z
     .boolean()
     .describe(
-      'A boolean value indicating whether the user should use the Nedbank Budget Tool.'
+      'Whether the user should use the budget tool. This should be true if the user has a loose budget.'
     ),
 });
-
-export type PersonalizedFinancialTipsOutput = z.infer<
-  typeof PersonalizedFinancialTipsOutputSchema
->;
+export type PersonalizedFinancialTipsOutput = z.infer<typeof PersonalizedFinancialTipsOutputSchema>;
 
 export async function getPersonalizedFinancialTips(
   input: PersonalizedFinancialTipsInput
 ): Promise<PersonalizedFinancialTipsOutput> {
-  const {output} = await personalizedFinancialTipsFlow(input);
-  if (!output) {
-    throw new Error('The AI model did not return the expected output.');
-  }
-  return output;
+  return getPersonalizedFinancialTipsFlow(input);
 }
 
 const prompt = ai.definePrompt({
-  name: 'personalizedFinancialTipsPrompt',
-  input: {schema: PersonalizedFinancialTipsInputSchema},
-  output: {schema: PersonalizedFinancialTipsOutputSchema},
-  prompt: `You are a financial advisor providing personalized tips to users based on their financial situation.
+  name: 'getFinancialTipsPrompt',
+  input: { schema: PersonalizedFinancialTipsInputSchema },
+  output: { schema: PersonalizedFinancialTipsOutputSchema },
+  tools: [getBudgetTool],
+  prompt: `You are a helpful financial assistant. Your goal is to provide personalized financial tips based on the user's income, spending habits, and budget.
+  
+Income: {{{income}}}
+Spending Habits: {{{spendingHabits}}}
+Budget: {{{budget}}}
 
-  Consider the user's income, spending habits, and budget to generate relevant and actionable tips.
-
-  Income: {{income}}
-  Spending Habits: {{spendingHabits}}
-  Budget: {{budget}}
-
-  Based on this information, provide 3 personalized financial tips to improve their money management skills.
-
-  Also, determine whether the user should use the Nedbank Budget Tool based on their current financial situation. If their budget is not well-defined or they have poor spending habits, recommend using the tool by setting shouldUseTool to true; otherwise, set it to false.
-  Format the tips as a numbered list.
-  `,
+Please provide a list of 3-5 personalized financial tips. In addition, please determine if the user should use the budget tool. The user should use the budget tool if their budget is not well-defined.`,
 });
 
-const personalizedFinancialTipsFlow = ai.defineFlow(
+const getPersonalizedFinancialTipsFlow = ai.defineFlow(
   {
-    name: 'personalizedFinancialTipsFlow',
+    name: 'getPersonalizedFinancialTipsFlow',
     inputSchema: PersonalizedFinancialTipsInputSchema,
     outputSchema: PersonalizedFinancialTipsOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
+  async (input) => {
+    const { output } = await prompt(input);
     return output!;
   }
 );

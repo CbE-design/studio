@@ -1,7 +1,7 @@
 
 
 import { z } from "zod";
-import { getPersonalizedFinancialTips, PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
+import type { PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
 
 export type Account = {
   id: string;
