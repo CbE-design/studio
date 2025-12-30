@@ -6,6 +6,20 @@ import { format } from 'date-fns';
 import type { Transaction, Account } from './definitions';
 import { formatCurrency } from './data';
 
+async function embedImage(pdfDoc: PDFDocument, imageBytes: ArrayBuffer) {
+    try {
+        return await pdfDoc.embedPng(imageBytes);
+    } catch (pngError) {
+        try {
+            return await pdfDoc.embedJpg(imageBytes);
+        } catch (jpgError) {
+            console.error("Failed to embed image as PNG or JPG", { pngError, jpgError });
+            throw new Error("Unsupported image format. Please use PNG or JPEG.");
+        }
+    }
+}
+
+
 export async function generateProofOfPaymentPdf(transaction: Transaction, account: Account): Promise<Uint8Array> {
     const paymentDate = transaction.date ? new Date(transaction.date) : new Date();
     
@@ -50,7 +64,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
             throw new Error(`Failed to fetch logo: ${logoRes.statusText}`);
         }
         const logoImageBytes = await logoRes.arrayBuffer();
-        const logoImage = await pdfDoc.embedPng(logoImageBytes);
+        const logoImage = await embedImage(pdfDoc, logoImageBytes);
         const logoDims = logoImage.scale(0.22);
         
         const lineY = height - margin - logoDims.height;
@@ -205,3 +219,5 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     
     return await pdfDoc.save();
 }
+
+    
