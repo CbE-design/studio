@@ -45,10 +45,11 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/images.png?alt=media&token=9c75c65e-fc09-4827-9a36-91caa0ae3ee5';
     
     try {
-        const logoImageBytes = await fetch(logoUrl).then(res => {
-            if (!res.ok) throw new Error(`Failed to fetch logo: ${res.statusText}`);
-            return res.arrayBuffer();
-        });
+        const logoRes = await fetch(logoUrl);
+        if (!logoRes.ok) {
+            throw new Error(`Failed to fetch logo: ${logoRes.statusText}`);
+        }
+        const logoImageBytes = await logoRes.arrayBuffer();
         const logoImage = await pdfDoc.embedPng(logoImageBytes);
         const logoDims = logoImage.scale(0.22);
         
