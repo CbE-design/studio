@@ -256,25 +256,25 @@ export default function AccountDetailsPage() {
         <div className="bg-white">
           {isTransactionsLoading ? (
             <div className="p-4 space-y-2">
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
             </div>
           ) : Object.keys(groupedTransactions).length > 0 ? (
             ['THIS WEEK', 'LAST WEEK', 'OLDER'].map(group => (
               groupedTransactions[group] && (
                 <div key={group}>
                   <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 text-sm">{group}</h2>
-                  <div className="px-4">
+                  <div className="divide-y divide-gray-200">
                     {groupedTransactions[group].map(tx => (
                        <Link href={`/account/${accountId}/transaction/${tx.id}`} key={tx.id}>
-                          <div className="flex items-center justify-between py-3 border-b border-gray-200 last:border-b-0 cursor-pointer">
-                              <div>
-                                  <p className="text-sm text-gray-500">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
-                                  <p className="font-semibold text-base text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
+                          <div className="flex items-center justify-between p-4 cursor-pointer">
+                              <div className="flex flex-col">
+                                  <p className="text-xs text-gray-500 mb-0.5">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
+                                  <p className="text-base font-medium text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
                               </div>
-                               <p className="font-semibold text-base text-gray-900">
+                               <p className="font-normal text-base text-gray-800">
                                   {tx.type === 'debit' ? `-${formatCurrency(tx.amount, account.currency)}` : formatCurrency(tx.amount, account.currency)}
                               </p>
                           </div>
