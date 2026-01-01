@@ -266,15 +266,15 @@ export default function AccountDetailsPage() {
               groupedTransactions[group] && (
                 <div key={group}>
                   <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 text-sm">{group}</h2>
-                  <div className="divide-y divide-gray-200">
+                  <div>
                     {groupedTransactions[group].map(tx => (
                        <Link href={`/account/${accountId}/transaction/${tx.id}`} key={tx.id}>
-                          <div className="flex items-center justify-between p-4 cursor-pointer">
-                              <div className="flex flex-col">
-                                  <p className="text-xs text-gray-500 mb-0.5">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
-                                  <p className="text-base font-medium text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
+                          <div className="transaction-row flex justify-between items-center py-3 px-4 bg-white border-b border-gray-200">
+                              <div className="details flex flex-col">
+                                  <p className="date text-xs text-gray-500 mb-0.5">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
+                                  <p className="description text-base font-medium text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
                               </div>
-                               <p className="font-normal text-base text-gray-800">
+                               <p className="amount font-normal text-base text-gray-800">
                                   {tx.type === 'debit' ? `-${formatCurrency(tx.amount, account.currency)}` : formatCurrency(tx.amount, account.currency)}
                               </p>
                           </div>
