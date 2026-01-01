@@ -178,7 +178,7 @@ export default function AccountDetailsPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="gradient-background text-white p-4 sticky top-0 z-10 space-y-4">
+      <header className="gradient-background text-white p-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
@@ -207,8 +207,8 @@ export default function AccountDetailsPage() {
         </div>
       </header>
 
-      <div className="bg-white border-b sticky top-[138px] z-10">
-        <ScrollArea className="w-full whitespace-nowrap">
+      <div className="sticky top-0 z-10 bg-white">
+        <ScrollArea className="w-full whitespace-nowrap border-b">
           <div className="flex space-x-4 px-4">
             {tabs.map((tab, index) => (
               <div
@@ -224,9 +224,6 @@ export default function AccountDetailsPage() {
           </div>
           <ScrollBar orientation="horizontal" className="h-0" />
         </ScrollArea>
-      </div>
-      
-      <main className="flex-1 overflow-y-auto">
         <div className="bg-white">
             <Link href={`/account/${accountId}/failed-transactions`}>
               <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 border-b">
@@ -239,8 +236,7 @@ export default function AccountDetailsPage() {
                 <ChevronRight className="h-5 w-5 text-gray-400" />
             </div>
         </div>
-        
-        <div className="p-4 space-y-4 bg-white border-b">
+         <div className="p-4 space-y-4 bg-white border-b">
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -252,7 +248,9 @@ export default function AccountDetailsPage() {
             </div>
           </div>
         </div>
-
+      </div>
+      
+      <main className="flex-1 overflow-y-auto">
         <div className="bg-white">
           {isTransactionsLoading ? (
             <div className="p-4 space-y-2">
@@ -269,7 +267,7 @@ export default function AccountDetailsPage() {
                   <div>
                     {groupedTransactions[group].map(tx => (
                        <Link href={`/account/${accountId}/transaction/${tx.id}`} key={tx.id}>
-                          <div className="transaction-row flex justify-between items-center py-3 px-4 bg-white border-b border-gray-200">
+                          <div className="transaction-row flex justify-between items-center py-4 px-4 bg-white border-b border-gray-200">
                               <div className="details flex flex-col">
                                   <p className="date text-xs text-gray-500 mb-0.5">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
                                   <p className="description text-base font-medium text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
