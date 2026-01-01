@@ -179,30 +179,40 @@ export default function AccountDetailsPage() {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       <header className="gradient-background text-white p-4 space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
               <ArrowLeft />
             </Button>
             <div>
-              <h1 className="text-xl font-normal normal-case">{account.name}</h1>
+              <h1 className="text-xl font-bold uppercase">{account.name}</h1>
               <p className="text-sm opacity-80">{account.accountNumber}</p>
             </div>
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
+          <svg 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="1.8" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+            className="h-6 w-6"
+          >
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             <line x1="8" y1="9" x2="16" y2="9"></line>
-            <line x1="8" y1="12" x2="13" y2="12"></line>
+            <line x1="8" y1="13" x2="14" y2="13"></line>
           </svg>
         </div>
         <div className="flex justify-between">
           <div className="text-left">
             <p className="text-xs opacity-80">Current balance</p>
-            <p className="text-base font-normal">{formatCurrency(account.balance, account.currency)}</p>
+            <p className="text-lg font-bold">{formatCurrency(account.balance, account.currency)}</p>
           </div>
           <div className="text-left">
             <p className="text-xs opacity-80">Available balance</p>
-            <p className="text-base font-normal">{formatCurrency(account.balance, account.currency)}</p>
+            <p className="text-lg font-bold">{formatCurrency(account.balance, account.currency)}</p>
           </div>
         </div>
       </header>
