@@ -223,7 +223,7 @@ export default function AccountDetailsPage() {
                   key={tab}
                   className={cn(
                     "py-3 text-sm font-medium cursor-pointer text-gray-500",
-                    index === 0 && "text-gray-900 font-bold"
+                    index === 0 && "text-gray-900 font-bold border-b-2 border-primary"
                   )}
                 >
                   {tab}
