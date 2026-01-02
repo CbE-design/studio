@@ -223,7 +223,7 @@ export default function AccountDetailsPage() {
                   key={tab}
                   className={cn(
                     "py-3 text-sm font-medium cursor-pointer text-gray-500",
-                    index === 0 && "text-gray-900 font-bold border-b-2 border-primary"
+                    index === 0 && "text-black font-bold border-b-2 border-primary"
                   )}
                 >
                   {tab}
@@ -279,9 +279,9 @@ export default function AccountDetailsPage() {
                           <div className="flex items-center justify-between py-4 px-4 bg-white border-b border-gray-200 cursor-pointer">
                               <div className="flex flex-col">
                                   <p className="text-sm text-gray-400 mb-1">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
-                                  <p className="text-lg font-medium text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
+                                  <p className="text-base font-light text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
                               </div>
-                               <p className="text-lg font-medium text-gray-800">
+                               <p className="text-base font-light text-gray-800">
                                   {tx.type === 'debit' ? `-${formatCurrency(tx.amount, account.currency)}` : formatCurrency(tx.amount, account.currency)}
                               </p>
                           </div>
@@ -301,4 +301,3 @@ export default function AccountDetailsPage() {
     </div>
   );
 }
-
