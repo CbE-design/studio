@@ -244,13 +244,13 @@ export default function AccountDetailsPage() {
                   <ChevronRight className="h-5 w-5 text-gray-400" />
               </div>
           </div>
-           <div className="flex items-center p-4 bg-white border-b">
+           <div className="flex items-center p-2 bg-white border-b">
             <div className="flex items-center border-2 border-gray-400 px-4 py-2 flex-grow">
-              <Search className="h-5 w-5 text-gray-500" />
               <input
                 placeholder="Search"
-                className="text-lg text-gray-500 w-full bg-transparent outline-none border-none ml-2"
+                className="text-lg text-gray-500 w-full bg-transparent outline-none border-none mr-2"
               />
+              <Search className="h-5 w-5 text-gray-500" />
             </div>
             <div className="flex items-center ml-4 text-primary cursor-pointer">
               <span className="font-medium mr-2">Filter</span>
@@ -302,3 +302,4 @@ export default function AccountDetailsPage() {
   );
 }
 
+    
