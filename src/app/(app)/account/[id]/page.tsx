@@ -180,14 +180,12 @@ export default function AccountDetailsPage() {
     <div className="flex flex-col h-screen bg-gray-50">
       <header className="gradient-background text-white p-4 space-y-4">
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
-              <ArrowLeft />
+              <ArrowLeft strokeWidth={2.5} />
             </Button>
-            <div>
-              <h1 className="text-base font-semibold">{account.name}</h1>
-              <p className="text-sm opacity-80">{account.accountNumber}</p>
-            </div>
+          <div className="flex-1 text-center -ml-4">
+            <h1 className="text-base font-medium">{account.name}</h1>
+            <p className="text-sm opacity-80">{account.accountNumber}</p>
           </div>
           <svg 
             width="24" 
@@ -198,7 +196,7 @@ export default function AccountDetailsPage() {
             strokeWidth="1.8" 
             strokeLinecap="round" 
             strokeLinejoin="round"
-            className="h-6 w-6"
+            className="h-5 w-5"
           >
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             <line x1="8" y1="9" x2="16" y2="9"></line>
@@ -208,11 +206,11 @@ export default function AccountDetailsPage() {
         <div className="flex justify-between">
           <div className="text-left">
             <p className="text-xs opacity-80">Current balance</p>
-            <p className="text-base font-semibold">{formatCurrency(account.balance, account.currency)}</p>
+            <p className="text-sm font-medium">{formatCurrency(account.balance, account.currency)}</p>
           </div>
           <div className="text-left">
             <p className="text-xs opacity-80">Available balance</p>
-            <p className="text-base font-semibold">{formatCurrency(account.balance, account.currency)}</p>
+            <p className="text-sm font-medium">{formatCurrency(account.balance, account.currency)}</p>
           </div>
         </div>
       </header>
@@ -302,3 +300,5 @@ export default function AccountDetailsPage() {
     </div>
   );
 }
+
+    
