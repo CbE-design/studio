@@ -185,7 +185,7 @@ export default function AccountDetailsPage() {
               <ArrowLeft />
             </Button>
             <div>
-              <h1 className="text-xl font-bold uppercase">{account.name}</h1>
+              <h1 className="text-lg font-semibold">{account.name}</h1>
               <p className="text-sm opacity-80">{account.accountNumber}</p>
             </div>
           </div>
@@ -208,11 +208,11 @@ export default function AccountDetailsPage() {
         <div className="flex justify-between">
           <div className="text-left">
             <p className="text-xs opacity-80">Current balance</p>
-            <p className="text-lg font-bold">{formatCurrency(account.balance, account.currency)}</p>
+            <p className="text-base font-semibold">{formatCurrency(account.balance, account.currency)}</p>
           </div>
           <div className="text-left">
             <p className="text-xs opacity-80">Available balance</p>
-            <p className="text-lg font-bold">{formatCurrency(account.balance, account.currency)}</p>
+            <p className="text-base font-semibold">{formatCurrency(account.balance, account.currency)}</p>
           </div>
         </div>
       </header>
@@ -302,3 +302,5 @@ export default function AccountDetailsPage() {
     </div>
   );
 }
+
+    
