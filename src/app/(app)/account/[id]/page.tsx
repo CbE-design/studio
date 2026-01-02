@@ -178,80 +178,82 @@ export default function AccountDetailsPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="gradient-background text-white p-4 space-y-4">
-        <div className="flex items-center justify-between">
-            <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
-              <ArrowLeft strokeWidth={2.5} />
-            </Button>
-            <div className="text-left">
-              <h1 className="text-base font-medium">{account.name}</h1>
-              <p className="text-sm opacity-80">{account.accountNumber}</p>
-            </div>
-            <svg 
-              width="24" 
-              height="24" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="1.8" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-              className="h-5 w-5"
-            >
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              <line x1="8" y1="9" x2="16" y2="9"></line>
-              <line x1="8" y1="13" x2="14" y2="13"></line>
-            </svg>
-        </div>
-        <div className="flex justify-between">
-          <div className="text-left">
-            <p className="text-xs opacity-80">Current balance</p>
-            <p className="text-sm font-medium">{formatCurrency(account.balance, account.currency)}</p>
-          </div>
-          <div className="text-left">
-            <p className="text-xs opacity-80">Available balance</p>
-            <p className="text-sm font-medium">{formatCurrency(account.balance, account.currency)}</p>
-          </div>
-        </div>
-      </header>
-      <div className="sticky top-[148px] z-10 bg-white shadow-sm">
-        <ScrollArea className="w-full whitespace-nowrap border-b">
-          <div className="flex space-x-4 px-4">
-            {tabs.map((tab, index) => (
-              <div
-                key={tab}
-                className={cn(
-                  "py-3 text-sm font-medium cursor-pointer text-gray-500",
-                  index === 0 && "text-primary border-b-2 border-primary"
-                )}
-              >
-                {tab}
+      <div className="sticky top-0 z-10 shadow-sm">
+        <header className="gradient-background text-white p-4 space-y-4">
+          <div className="flex items-center justify-between">
+              <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
+                <ArrowLeft strokeWidth={2.5} />
+              </Button>
+              <div className="text-left">
+                <h1 className="text-base font-medium">{account.name}</h1>
+                <p className="text-sm opacity-80">{account.accountNumber}</p>
               </div>
-            ))}
+              <svg 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="1.8" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                className="h-5 w-5"
+              >
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                <line x1="8" y1="9" x2="16" y2="9"></line>
+                <line x1="8" y1="13" x2="14" y2="13"></line>
+              </svg>
           </div>
-          <ScrollBar orientation="horizontal" className="h-0" />
-        </ScrollArea>
+          <div className="flex justify-between">
+            <div className="text-left">
+              <p className="text-xs opacity-80">Current balance</p>
+              <p className="text-sm font-medium">{formatCurrency(account.balance, account.currency)}</p>
+            </div>
+            <div className="text-left">
+              <p className="text-xs opacity-80">Available balance</p>
+              <p className="text-sm font-medium">{formatCurrency(account.balance, account.currency)}</p>
+            </div>
+          </div>
+        </header>
         <div className="bg-white">
-            <Link href={`/account/${accountId}/failed-transactions`}>
+          <ScrollArea className="w-full whitespace-nowrap border-b">
+            <div className="flex space-x-4 px-4">
+              {tabs.map((tab, index) => (
+                <div
+                  key={tab}
+                  className={cn(
+                    "py-3 text-sm font-medium cursor-pointer text-gray-500",
+                    index === 0 && "text-primary border-b-2 border-primary"
+                  )}
+                >
+                  {tab}
+                </div>
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" className="h-0" />
+          </ScrollArea>
+          <div>
+              <Link href={`/account/${accountId}/failed-transactions`}>
+                <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 border-b">
+                    <p>Failed transactions</p>
+                    <ChevronRight className="h-5 w-5 text-gray-400" />
+                </div>
+              </Link>
               <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 border-b">
-                  <p>Failed transactions</p>
+                  <p>Once-off payments</p>
                   <ChevronRight className="h-5 w-5 text-gray-400" />
               </div>
-            </Link>
-            <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 border-b">
-                <p>Once-off payments</p>
-                <ChevronRight className="h-5 w-5 text-gray-400" />
-            </div>
-        </div>
-         <div className="p-4 space-y-4 bg-white border-b">
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <Input placeholder="Search" className="bg-gray-100 pl-10" />
-            </div>
-            <div className="flex items-center gap-1 text-primary font-medium">
-              <span>Filter</span>
-              <FilterIcon />
+          </div>
+           <div className="p-4 space-y-4 border-b">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input placeholder="Search" className="bg-gray-100 pl-10" />
+              </div>
+              <div className="flex items-center gap-1 text-primary font-medium">
+                <span>Filter</span>
+                <FilterIcon />
+              </div>
             </div>
           </div>
         </div>
