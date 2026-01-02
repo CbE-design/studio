@@ -278,10 +278,10 @@ export default function AccountDetailsPage() {
                        <Link href={`/account/${accountId}/transaction/${tx.id}`} key={tx.id}>
                           <div className="flex items-center justify-between py-4 px-4 bg-white border-b border-gray-200 cursor-pointer">
                               <div className="flex flex-col">
-                                  <p className="text-xs text-gray-500 mb-0.5">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
-                                  <p className="text-base font-bold text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
+                                  <p className="text-sm text-gray-400 mb-1">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
+                                  <p className="text-lg font-medium text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
                               </div>
-                               <p className="text-base font-semibold text-gray-800">
+                               <p className="text-lg font-medium text-gray-800">
                                   {tx.type === 'debit' ? `-${formatCurrency(tx.amount, account.currency)}` : formatCurrency(tx.amount, account.currency)}
                               </p>
                           </div>
@@ -302,4 +302,3 @@ export default function AccountDetailsPage() {
   );
 }
 
-    
