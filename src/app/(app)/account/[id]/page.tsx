@@ -184,7 +184,7 @@ export default function AccountDetailsPage() {
             <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
               <ArrowLeft strokeWidth={2.5} />
             </Button>
-            <div className="flex-1 text-center">
+            <div className="flex-1 text-left">
               <h1 className="text-base font-medium">{account.name}</h1>
               <p className="text-sm opacity-80">{account.accountNumber}</p>
             </div>
