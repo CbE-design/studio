@@ -180,11 +180,11 @@ export default function AccountDetailsPage() {
     <div className="flex flex-col h-screen bg-gray-50">
       <div className="sticky top-0 z-10 shadow-sm">
         <header className="gradient-background text-white p-4 space-y-4">
-          <div className="flex items-center">
+          <div className="flex items-center justify-between">
             <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
               <ArrowLeft strokeWidth={2.5} />
             </Button>
-            <div className="flex-1 text-left">
+            <div className="text-left">
               <h1 className="text-base font-medium">{account.name}</h1>
               <p className="text-sm opacity-80">{account.accountNumber}</p>
             </div>
@@ -301,3 +301,5 @@ export default function AccountDetailsPage() {
     </div>
   );
 }
+
+    
