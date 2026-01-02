@@ -180,11 +180,11 @@ export default function AccountDetailsPage() {
     <div className="flex flex-col h-screen bg-gray-50">
       <div className="sticky top-0 z-10 shadow-sm">
         <header className="gradient-background text-white p-4 space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center">
               <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
                 <ArrowLeft strokeWidth={2.5} />
               </Button>
-              <div className="text-left">
+              <div className="flex-1 text-center">
                 <h1 className="text-base font-medium">{account.name}</h1>
                 <p className="text-sm opacity-80">{account.accountNumber}</p>
               </div>
@@ -244,16 +244,17 @@ export default function AccountDetailsPage() {
                   <ChevronRight className="h-5 w-5 text-gray-400" />
               </div>
           </div>
-           <div className="p-4 space-y-4 border-b">
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <Input placeholder="Search" className="bg-gray-100 pl-10" />
-              </div>
-              <div className="flex items-center gap-1 text-primary font-medium">
-                <span>Filter</span>
-                <FilterIcon />
-              </div>
+           <div className="flex items-center p-4 bg-white border-b">
+            <div className="flex items-center border-2 border-gray-400 px-4 py-2 flex-grow">
+              <Search className="h-5 w-5 text-gray-500" />
+              <input
+                placeholder="Search"
+                className="text-lg text-gray-500 w-full bg-transparent outline-none border-none ml-2"
+              />
+            </div>
+            <div className="flex items-center ml-4 text-primary cursor-pointer">
+              <span className="font-medium mr-2">Filter</span>
+              <FilterIcon />
             </div>
           </div>
         </div>
