@@ -179,29 +179,29 @@ export default function AccountDetailsPage() {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       <header className="gradient-background text-white p-4 space-y-4">
-        <div className="flex items-start justify-between">
+        <div className="flex items-center justify-between">
             <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
               <ArrowLeft strokeWidth={2.5} />
             </Button>
-          <div className="flex-1 text-left -ml-4">
-            <h1 className="text-base font-medium">{account.name}</h1>
-            <p className="text-sm opacity-80">{account.accountNumber}</p>
-          </div>
-          <svg 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="1.8" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-            className="h-5 w-5"
-          >
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            <line x1="8" y1="9" x2="16" y2="9"></line>
-            <line x1="8" y1="13" x2="14" y2="13"></line>
-          </svg>
+            <div className="text-center">
+              <h1 className="text-base font-medium">{account.name}</h1>
+              <p className="text-sm opacity-80">{account.accountNumber}</p>
+            </div>
+            <svg 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="1.8" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+              className="h-5 w-5"
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              <line x1="8" y1="9" x2="16" y2="9"></line>
+              <line x1="8" y1="13" x2="14" y2="13"></line>
+            </svg>
         </div>
         <div className="flex justify-between">
           <div className="text-left">
@@ -214,8 +214,7 @@ export default function AccountDetailsPage() {
           </div>
         </div>
       </header>
-
-      <div className="sticky top-0 z-10 bg-white">
+      <div className="sticky top-[148px] z-10 bg-white shadow-sm">
         <ScrollArea className="w-full whitespace-nowrap border-b">
           <div className="flex space-x-4 px-4">
             {tabs.map((tab, index) => (
@@ -262,25 +261,24 @@ export default function AccountDetailsPage() {
         <div className="bg-white">
           {isTransactionsLoading ? (
             <div className="p-4 space-y-2">
-                <Skeleton className="h-16 w-full" />
-                <Skeleton className="h-16 w-full" />
-                <Skeleton className="h-16 w-full" />
-                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
             </div>
           ) : Object.keys(groupedTransactions).length > 0 ? (
             ['THIS WEEK', 'LAST WEEK', 'OLDER'].map(group => (
               groupedTransactions[group] && (
                 <div key={group}>
-                  <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 text-sm">{group}</h2>
+                  <h2 className="bg-gray-100 text-gray-600 font-bold p-2 px-4 text-sm uppercase">{group}</h2>
                   <div>
                     {groupedTransactions[group].map(tx => (
                        <Link href={`/account/${accountId}/transaction/${tx.id}`} key={tx.id}>
                           <div className="flex items-center justify-between py-4 px-4 bg-white border-b border-gray-200 cursor-pointer">
                               <div className="flex flex-col">
                                   <p className="text-xs text-gray-500 mb-0.5">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
-                                  <p className="text-base font-medium text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
+                                  <p className="text-base font-bold text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
                               </div>
-                               <p className="text-base font-normal text-gray-800">
+                               <p className="text-base font-semibold text-gray-800">
                                   {tx.type === 'debit' ? `-${formatCurrency(tx.amount, account.currency)}` : formatCurrency(tx.amount, account.currency)}
                               </p>
                           </div>
@@ -300,3 +298,5 @@ export default function AccountDetailsPage() {
     </div>
   );
 }
+
+    
