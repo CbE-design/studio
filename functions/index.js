@@ -25,8 +25,8 @@ setGlobalOptions({ region: 'us-central1' });
 // Configure Nodemailer transporter
 const transporter = nodemailer.createTransport({
     host: process.env.MAIL_HOST,
-    port: parseInt(process.env.MAIL_PORT || "587", 10),
-    secure: false, // Explicitly false for port 587, which uses STARTTLS
+    port: 465,
+    secure: true, // true for 465, false for other ports
     auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASS,
@@ -578,5 +578,8 @@ exports.provisionNewUser = onUserCreate(async (event) => {
     
 
     
+
+    
+
 
     
