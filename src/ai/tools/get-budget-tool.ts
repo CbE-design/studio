@@ -12,10 +12,10 @@ import { z } from 'zod';
 export const getBudgetTool = ai.defineTool(
   {
     name: 'getBudgetTool',
-    description: 'A tool to get the user\'s budget.',
+    description: "A tool to get the user's budget.",
     inputSchema: z.object({
-      income: z.number().describe('The user\'s monthly income.'),
-      spendingHabits: z.string().describe('The user\'s spending habits.'),
+      income: z.number().describe("The user's monthly income."),
+      spendingHabits: z.string().describe("The user's spending habits."),
     }),
     outputSchema: z.string(),
   },

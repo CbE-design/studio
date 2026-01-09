@@ -1,3 +1,4 @@
+
 {
   "name": "nextn",
   "version": "0.1.0",
@@ -50,9 +51,9 @@
     "next": "15.0.7",
     "nookies": "^2.5.2",
     "pdf-lib": "^1.17.1",
-    "react": "19.0.0-rc-f994737d14-20240522",
+    "react": "19.0.0-rc-66855b96-20241106",
     "react-day-picker": "^8.10.1",
-    "react-dom": "19.0.0-rc-f994737d14-20240522",
+    "react-dom": "19.0.0-rc-66855b96-20241106",
     "react-hook-form": "^7.54.2",
     "recharts": "^2.15.1",
     "tailwind-merge": "^3.0.1",
