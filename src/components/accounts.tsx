@@ -41,7 +41,16 @@ const AccountsDisplay = () => {
     return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
   }, [firestore, user?.uid]);
 
-  const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
+  const { data: accounts, isLoading: isAccountsLoading, error } = useCollection<Account>(accountsQuery);
+
+  console.log('[DEBUG] User ID:', user?.uid || 'No user');
+  console.log('[DEBUG] User Email:', user?.email || 'No email');
+  console.log('[DEBUG] Firestore available:', !!firestore);
+  console.log('[DEBUG] Accounts loaded:', accounts?.length ?? 'null', 'accounts');
+  console.log('[DEBUG] Is loading:', isUserLoading || isAccountsLoading);
+  if (error) {
+    console.error('[DEBUG] Firestore Error:', error.message);
+  }
 
   if (isUserLoading || isAccountsLoading) {
     return <AccountSkeleton />;
