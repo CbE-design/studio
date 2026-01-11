@@ -300,12 +300,31 @@ export async function sendProofOfPaymentSmsAction(
     if (!transaction) throw new Error("Transaction data is required.");
     if (!recipientNumber) throw new Error("Recipient phone number is required.");
     
-    const functions = getFunctions(app);
-    const sendSmsFn = httpsCallable(functions, 'sendSms');
+    const { Vonage } = await import('@vonage/server-sdk');
+    
+    const apiKey = process.env.VONAGE_API_KEY;
+    const apiSecret = process.env.VONAGE_API_SECRET;
+    
+    if (!apiKey || !apiSecret) {
+      throw new Error("SMS service not configured. Please add VONAGE_API_KEY and VONAGE_API_SECRET.");
+    }
+    
+    const vonage = new Vonage({
+      apiKey,
+      apiSecret,
+    });
 
     const text = `Nedbank: Proof of payment for ${formatCurrency(transaction.amount, 'ZAR')} to ${transaction.recipientName || 'recipient'} on ${format(new Date(transaction.date), 'dd/MM/yyyy')}. Ref: ${transaction.popReferenceNumber}`;
 
-    await sendSmsFn({ to: recipientNumber, text });
+    const response = await vonage.sms.send({ 
+      to: recipientNumber, 
+      from: 'Nedbank', 
+      text 
+    });
+    
+    if (response.messages[0].status !== '0') {
+      throw new Error(response.messages[0]['error-text'] || 'Failed to send SMS');
+    }
 
     return { success: true, message: "SMS sent successfully." };
   } catch (error: any) {
