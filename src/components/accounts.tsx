@@ -58,6 +58,12 @@ const AccountsDisplay = () => {
 
   return (
     <div className="space-y-0">
+      <div className="bg-yellow-500 text-black p-2 text-xs mb-2 rounded">
+        <p><strong>DEBUG:</strong> User ID: {user?.uid || 'No user'}</p>
+        <p>Email: {user?.email || 'No email'}</p>
+        <p>Accounts: {accounts?.length ?? 'null'}</p>
+        {error && <p className="text-red-800">Error: {error.message}</p>}
+      </div>
       {accounts && accounts.length > 0 ? (
         accounts.map((account, index) => {
           const isDormant = account.name === 'Savvy Bundle Current Account';
