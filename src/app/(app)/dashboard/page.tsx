@@ -201,6 +201,11 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 text-black">
+        <div className="bg-yellow-400 text-black p-3 text-xs z-50">
+          <p><strong>DEBUG INFO:</strong></p>
+          <p>User ID: {user?.uid || 'No user'}</p>
+          <p>Email: {user?.email || 'No email'}</p>
+        </div>
 
         <header className="sticky top-0 z-10 bg-[#00A651] text-white p-4">
             <div className="flex items-center justify-between">
