@@ -1,6 +1,6 @@
 
 import { initializeApp, getApp, getApps, type FirebaseApp } from 'firebase/app';
-import { initializeFirestore, type Firestore } from 'firebase/firestore';
+import { initializeFirestore, getFirestore, type Firestore } from 'firebase/firestore';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFunctions } from 'firebase/functions';
 
@@ -14,12 +14,19 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+let app: FirebaseApp;
+let firestore: Firestore;
 
-// Use long polling for Firestore to work with proxied production environments
-const firestore: Firestore = initializeFirestore(app, {
-  experimentalForceLongPolling: true,
-});
+if (!getApps().length) {
+  app = initializeApp(firebaseConfig);
+  // Use long polling for Firestore to work with proxied production environments
+  firestore = initializeFirestore(app, {
+    experimentalForceLongPolling: true,
+  });
+} else {
+  app = getApp();
+  firestore = getFirestore(app);
+}
 
 const auth: Auth = getAuth(app);
 const functions = getFunctions(app);
