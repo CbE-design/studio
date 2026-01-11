@@ -59,6 +59,8 @@ const AccountsDisplay = () => {
         <p>Email: {user?.email || 'No email'}</p>
         <p>Accounts: {accounts?.length ?? 'null'} | Loading: {isAccountsLoading ? 'YES' : 'NO'}</p>
         <p>Firestore: {firestore ? 'OK' : 'NOT AVAILABLE'}</p>
+        <p>API Key: {process.env.NEXT_PUBLIC_FIREBASE_API_KEY ? 'SET' : 'MISSING'}</p>
+        <p>Project ID: {process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'MISSING'}</p>
         {error && <p className="text-red-800 font-bold">ERROR: {error.message}</p>}
       </div>
       {(isUserLoading || isAccountsLoading) ? (
