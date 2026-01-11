@@ -318,7 +318,7 @@ export async function sendProofOfPaymentSmsAction(
 
     const response = await vonage.sms.send({ 
       to: recipientNumber, 
-      from: 'Nedbank', 
+      from: '27600000000', 
       text 
     });
     
