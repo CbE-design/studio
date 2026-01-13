@@ -1,7 +1,7 @@
 
 import { initializeApp, getApp, getApps, type FirebaseApp } from 'firebase/app';
-import { getFirestore, type Firestore } from 'firebase/firestore';
-import { getAuth, type Auth } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator, type Firestore } from 'firebase/firestore';
+import { getAuth, connectAuthEmulator, type Auth } from 'firebase/auth';
 import { getFunctions, connectFunctionsEmulator, type Functions } from 'firebase/functions';
 
 const firebaseConfig = {
@@ -25,11 +25,13 @@ const functions: Functions = getFunctions(app, functionsRegion);
 // Connect to emulators in development
 if (process.env.NODE_ENV === 'development') {
     try {
-        console.log("Connecting to Firebase Functions emulator...");
-        connectFunctionsEmulator(functions, 'localhost', 5001);
-        console.log("Successfully connected to Functions emulator.");
+        console.log("Connecting to Firebase emulators...");
+        connectFirestoreEmulator(firestore, '0.0.0.0', 8080);
+        connectAuthEmulator(auth, 'http://0.0.0.0:9099');
+        connectFunctionsEmulator(functions, '0.0.0.0', 5001);
+        console.log("Successfully connected to Firebase emulators.");
     } catch (e) {
-        console.error("Error connecting to Functions emulator:", e);
+        console.error("Error connecting to Firebase emulators:", e);
     }
 }
 
