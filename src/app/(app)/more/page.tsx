@@ -3,7 +3,6 @@
 'use client';
 
 import {
-  Bell,
   FileText,
   Phone,
   Lock,
@@ -24,6 +23,22 @@ import { collection, getDocs, query } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import type { Transaction } from '@/app/lib/definitions';
 import { parseISO } from 'date-fns';
+
+const CustomBellIcon = ({className}: {className?: string}) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 0-3.46 0" />
+    </svg>
+);
 
 const NedbankConnectIcon = () => (
   <svg
@@ -110,7 +125,7 @@ export default function MorePage() {
 
   const menuItems = [
     {
-      icon: Bell,
+      icon: CustomBellIcon,
       label: 'Notifications',
       href: '/notifications',
       badge: unreadCount > 0 ? String(unreadCount) : null,
