@@ -26,9 +26,9 @@ const functions: Functions = getFunctions(app, functionsRegion);
 if (process.env.NODE_ENV === 'development') {
     try {
         console.log("Connecting to Firebase emulators...");
-        connectFirestoreEmulator(firestore, '0.0.0.0', 8080);
-        connectAuthEmulator(auth, 'http://0.0.0.0:9099');
-        connectFunctionsEmulator(functions, '0.0.0.0', 5001);
+        connectFirestoreEmulator(firestore, 'localhost', 8080);
+        connectAuthEmulator(auth, 'http://localhost:9099');
+        connectFunctionsEmulator(functions, 'localhost', 5001);
         console.log("Successfully connected to Firebase emulators.");
     } catch (e) {
         console.error("Error connecting to Firebase emulators:", e);
