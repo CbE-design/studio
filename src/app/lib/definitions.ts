@@ -1,7 +1,6 @@
 
 
 import { z } from "zod";
-import type { PersonalizedFinancialTipsOutput } from '@/ai/flows/personalized-financial-tips';
 
 export type Account = {
   id: string;
@@ -61,17 +60,6 @@ export type User = {
     lastName?: string;
     createdAt: any;
 }
-
-export type State = {
-  errors?: {
-    income?: string[];
-    spendingHabits?: string[];
-    budget?: string[];
-  };
-  message: string | null;
-  data: PersonalizedFinancialTipsOutput | null;
-};
-
 
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),

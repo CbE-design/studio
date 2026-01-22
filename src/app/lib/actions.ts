@@ -1,17 +1,15 @@
-
 'use server';
 
 import 'dotenv/config';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import type { Transaction, TransactionType, Account, User, TransactionInput, TransactionResult, State } from './definitions';
+import type { Transaction, TransactionType, Account, User, TransactionInput, TransactionResult } from './definitions';
 import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
 import { db as adminDb } from './firebase-admin';
 import { format } from 'date-fns';
 import { formatCurrency } from './data';
-import { getPersonalizedFinancialTips } from '@/ai/flows/personalized-financial-tips';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { app } from '@/app/lib/firebase';
 
@@ -314,49 +312,5 @@ export async function sendProofOfPaymentSmsAction(
   } catch (error: any) {
     console.error("Failed to send proof of payment SMS:", error);
     return { success: false, message: error.message || "An unknown error occurred." };
-  }
-}
-
-
-const FormSchema = z.object({
-  income: z.coerce
-    .number()
-    .positive({ message: 'Please enter a positive number for your income.' }),
-  spendingHabits: z.string().min(10, { message: 'Please describe your spending habits in a bit more detail.' }),
-  budget: z.string().min(10, { message: 'Please describe your budget in a bit more detail.' }),
-});
-
-export async function getFinancialTipsAction(
-  prevState: State,
-  formData: FormData
-): Promise<State> {
-  const validatedFields = FormSchema.safeParse({
-    income: formData.get('income'),
-    spendingHabits: formData.get('spendingHabits'),
-    budget: formData.get('budget'),
-  });
-
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to Get Tips.',
-      data: null,
-    };
-  }
-
-  try {
-    const tips = await getPersonalizedFinancialTips(validatedFields.data);
-    return {
-        message: 'Success! Here are your personalized tips.',
-        errors: {},
-        data: tips,
-    };
-  } catch (error) {
-    console.error('Error getting financial tips:', error);
-    return {
-        message: 'An error occurred while getting your financial tips. Please try again.',
-        errors: {},
-        data: null,
-    };
   }
 }
