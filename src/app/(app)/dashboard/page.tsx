@@ -65,7 +65,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
                                 src={src}
                                 alt={`${label} icon`}
                                 fill
-                                className="p-1 object-contain"
+                                className="object-contain"
                             />
                         ) : Icon ? (
                             <Icon className="w-full h-full" />
