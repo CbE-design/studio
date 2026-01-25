@@ -53,7 +53,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
     return (
         <Link href={href}>
             <div className="flex flex-col items-center justify-start space-y-2 text-center h-full group">
-                 <div className="relative flex items-center justify-center w-16 h-16 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden">
+                 <div className="relative flex items-center justify-center w-14 h-14 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden">
                     {isNew && label !== 'PayShap' && (
                         <div className="absolute -top-1.5 -right-1.5 px-1 py-0.5 text-[8px] font-semibold text-white bg-green-500 rounded-sm z-10">
                             New
