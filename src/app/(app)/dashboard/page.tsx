@@ -13,8 +13,8 @@ import type { Account, Transaction } from '@/app/lib/definitions';
 import { collection, query, getDocs } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
 
-const LatestIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-6 w-6">
+const LatestIcon = ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary h-6 w-6", className)}>
         <path d="M20 12v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>
         <path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/>
         <path d="M12 18a4 4 0 0 0 4-4H8a4 4 0 0 0 4 4z"/>
@@ -22,14 +22,14 @@ const LatestIcon = () => (
     </svg>
 );
 
-const HomeLoansIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-6 w-6">
+const HomeLoansIcon = ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary h-6 w-6", className)}>
         <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
         <path d="M9 22V12h6v10"/>
     </svg>
 );
-const StatementsIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary h-6 w-6">
+const StatementsIcon = ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary h-6 w-6", className)}>
         <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
         <path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/>
     </svg>
@@ -48,20 +48,18 @@ const widgets = [
   { icon: StatementsIcon, label: 'Statements and docs', href: '/documents' },
 ];
 
-const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, icon?: React.ElementType, label: string, href: string, isNew?: boolean }) => {
-    
-    const isLargeIcon = src && ['Offers for you', 'Applications', 'Insure', 'Shop', 'PayShap', 'Quick Pay', 'Get cash'].includes(label);
+const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, icon?: React.ElementType<{className?: string}>, label: string, href: string, isNew?: boolean }) => {
 
     return (
         <Link href={href}>
-            <div className="flex flex-col items-center justify-start space-y-1 text-center h-full group">
-                 <div className="relative flex items-center justify-center w-14 h-14 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden">
+            <div className="flex flex-col items-center justify-start space-y-2 text-center h-full group">
+                 <div className="relative flex items-center justify-center w-20 h-20 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden">
                     {isNew && label !== 'PayShap' && (
                         <div className="absolute -top-1.5 -right-1.5 px-1 py-0.5 text-[8px] font-semibold text-white bg-green-500 rounded-sm z-10">
                             New
                         </div>
                     )}
-                    <div className={cn("relative", isLargeIcon ? "w-10 h-10" : "w-6 h-6")}>
+                    <div className="relative w-11 h-11">
                        {src ? (
                             <Image 
                                 src={src}
@@ -70,11 +68,11 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
                                 className="p-1 object-contain"
                             />
                         ) : Icon ? (
-                            <Icon />
+                            <Icon className="w-full h-full" />
                         ) : null}
                     </div>
                 </div>
-                <p className="text-[10px] text-gray-700 font-medium h-6 flex items-center justify-center text-center px-1 leading-tight">{label}</p>
+                <p className="text-xs text-gray-700 font-medium h-8 flex items-center justify-center text-center px-1 leading-tight">{label}</p>
             </div>
         </Link>
     );
