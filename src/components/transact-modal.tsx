@@ -40,31 +40,31 @@ export function TransactModal({ isOpen, onClose }: TransactModalProps) {
         {/* Action Buttons */}
         <div className="absolute bottom-24 left-1/2 -translate-x-1/2 w-full max-w-xs flex justify-center items-end">
           {/* Transfer Button */}
-          <div className="flex flex-col items-center absolute -translate-x-[7rem]">
+          <div className="flex flex-col items-center absolute -translate-x-[6rem]">
             <button 
               onClick={handleTransferClick}
-              className="bg-white rounded-full h-20 w-20 flex items-center justify-center shadow-lg text-gray-700">
-              <ArrowRightLeft className="h-8 w-8" />
+              className="bg-white rounded-full h-16 w-16 flex items-center justify-center shadow-lg text-gray-700">
+              <ArrowRightLeft className="h-7 w-7" />
             </button>
             <span className="mt-2 text-white font-medium">Transfer</span>
           </div>
 
           {/* Pay Button */}
-          <div className="flex flex-col items-center relative -top-12">
+          <div className="flex flex-col items-center relative -top-8">
             <button 
              onClick={handlePayClick}
-             className="bg-white rounded-full h-20 w-20 flex items-center justify-center shadow-lg text-gray-700">
-              <CreditCard className="h-8 w-8" />
+             className="bg-white rounded-full h-16 w-16 flex items-center justify-center shadow-lg text-gray-700">
+              <CreditCard className="h-7 w-7" />
             </button>
             <span className="mt-2 text-white font-medium">Pay</span>
           </div>
           
           {/* Buy Button */}
-          <div className="flex flex-col items-center absolute translate-x-[7rem]">
+          <div className="flex flex-col items-center absolute translate-x-[6rem]">
             <button 
               onClick={handleBuyClick}
-              className="bg-white rounded-full h-20 w-20 flex items-center justify-center shadow-lg text-gray-700">
-              <Receipt className="h-8 w-8" />
+              className="bg-white rounded-full h-16 w-16 flex items-center justify-center shadow-lg text-gray-700">
+              <Receipt className="h-7 w-7" />
             </button>
             <span className="mt-2 text-white font-medium">Buy</span>
           </div>
