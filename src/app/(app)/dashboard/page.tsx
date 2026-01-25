@@ -68,7 +68,9 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
                                 className="object-contain"
                             />
                         ) : Icon ? (
-                            <Icon className="w-full h-full" />
+                            <div className="w-full h-full flex items-center justify-center">
+                                <Icon />
+                            </div>
                         ) : null}
                     </div>
                 </div>
