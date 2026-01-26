@@ -236,7 +236,7 @@ export default function DashboardPage() {
       </div>
 
       <main className="flex-1 overflow-y-auto bg-white">
-        <div className="mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-lg shadow-sm border border-black/20 mt-4">
+        <div className="mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-md shadow-sm border border-black/20 mt-4 bg-white">
           <Image
             src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
             alt="Advertisement banner"
