@@ -117,12 +117,14 @@ const paymentOptions = [
 
 const PaymentItem = ({ tx }: { tx: Transaction & { accountId: string } }) => (
     <Link href={`/account/${tx.accountId}/transaction/${tx.id}`}>
-        <div className="flex items-center justify-between p-3 border-b last:border-b-0 cursor-pointer hover:bg-gray-50">
-            <div>
-                <p className="font-semibold text-gray-800 text-base">{tx.recipientName || tx.description}</p>
-                <p className="text-gray-500 text-sm">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
+        <div className="flex items-center justify-between py-4 px-4 bg-white border-b border-gray-200 cursor-pointer hover:bg-gray-50">
+            <div className="flex flex-col">
+                <p className="text-sm text-gray-400 mb-1">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
+                <p className="text-base font-light text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
             </div>
-            <p className="font-semibold text-gray-900">{formatCurrency(tx.amount)}</p>
+            <p className="text-base font-light text-gray-800">
+                -{formatCurrency(tx.amount)}
+            </p>
         </div>
     </Link>
 );
@@ -233,7 +235,7 @@ export default function PayPage() {
                 <TabsTrigger value="recipient" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none data-[state=active]:text-primary font-semibold">Recipient payments</TabsTrigger>
                 <TabsTrigger value="once-off" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none data-[state=active]:text-primary font-semibold">Once-off payments</TabsTrigger>
               </TabsList>
-              <TabsContent value="recipient" className="pt-4 bg-white rounded-b-lg border border-t-0">
+              <TabsContent value="recipient" className="pt-0 bg-white rounded-b-lg border border-t-0">
                  {isLoading ? (
                     <div className="p-8 text-center"><LoaderCircle className="h-6 w-6 animate-spin mx-auto text-primary" /></div>
                  ) : savedPayments.length > 0 ? (
@@ -242,7 +244,7 @@ export default function PayPage() {
                     <p className="text-gray-500 text-sm text-center py-8">There are no recipient payments to display.</p>
                  )}
               </TabsContent>
-              <TabsContent value="once-off" className="pt-4 bg-white rounded-b-lg border border-t-0">
+              <TabsContent value="once-off" className="pt-0 bg-white rounded-b-lg border border-t-0">
                 {isLoading ? (
                     <div className="p-8 text-center"><LoaderCircle className="h-6 w-6 animate-spin mx-auto text-primary" /></div>
                 ) : onceOffPayments.length > 0 ? (
