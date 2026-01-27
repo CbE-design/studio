@@ -105,10 +105,20 @@ export default function LoginPage() {
           className="w-8 h-8"
         />
         <div className="flex items-center gap-4 text-primary">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            <line x1="8" y1="9" x2="16" y2="9"></line>
-            <line x1="8" y1="12" x2="13" y2="12"></line>
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-5 w-5"
+          >
+            <path d="M21.25 15.25a2 2 0 0 1-2 2H7.25l-4.25 4.25V5.25a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z" />
+            <path d="M8.25 9.25h7.5" />
+            <path d="M8.25 12.25h4.5" />
           </svg>
           <Menu />
         </div>
@@ -116,15 +126,15 @@ export default function LoginPage() {
 
       <main className="flex-1 overflow-y-auto px-6 py-8 text-center space-y-8">
         <div>
-            <h1 className="text-2xl font-semibold text-gray-800">Welcome back,</h1>
-            <h2 className="text-2xl font-bold text-gray-800">VAN SCHALKWYK FAMILY TRUST.</h2>
+            <h1 className="text-2xl font-normal text-gray-700">Welcome back,</h1>
+            <h2 className="text-2xl font-semibold text-gray-700">VAN SCHALKWYK FAMILY TRUST.</h2>
         </div>
         
         {!showPasswordLogin ? (
             <>
-                <div className="flex justify-center">
+                <div className="flex justify-center pt-4">
                   <div onClick={handlePinLogin} className="flex flex-col items-center gap-4 cursor-pointer" >
-                      <Fingerprint className="h-16 w-16 text-gray-400" />
+                      <Fingerprint className="h-14 w-14 text-gray-400" />
                       <Button className="w-64 h-12 text-lg font-bold" disabled={isLoading}>
                          {isLoading ? <LoaderCircle className="h-6 w-6 animate-spin" /> : 'Log in'}
                       </Button>
