@@ -77,11 +77,6 @@ function ReviewPaymentContent() {
             });
 
             if (result.success) {
-                toast({
-                    title: "Payment Successful",
-                    description: "Your payment has been processed and recorded.",
-                });
-
                 const params = new URLSearchParams();
                 Object.entries(paymentDetails).forEach(([key, value]) => {
                     if (value) params.set(key, value);

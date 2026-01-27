@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState } from 'react';
@@ -39,10 +38,6 @@ export default function SignupPage() {
       // The onUserCreate Cloud Function will handle creating the user document in Firestore.
       await createUserWithEmailAndPassword(auth, email, password);
       
-      toast({
-        title: 'Account Created',
-        description: 'You have been successfully signed up and logged in.',
-      });
       router.push('/dashboard');
     } catch (error: any) {
       console.error('Sign-up failed:', error);

@@ -169,10 +169,6 @@ export default function MorePage() {
     if (!auth) return;
     try {
       await signOut(auth);
-      toast({
-        title: 'Signed Out',
-        description: 'You have been successfully signed out.',
-      });
       router.push('/login');
     } catch (error) {
       console.error('Error signing out:', error);
@@ -249,5 +245,3 @@ export default function MorePage() {
     </div>
   );
 }
-
-    

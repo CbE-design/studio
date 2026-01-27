@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
 import type { Account, Beneficiary } from "@/app/lib/definitions";
 import { collection } from "firebase/firestore";
 import { useUser, useCollection, useMemoFirebase, useFirestore } from "@/firebase-provider";
@@ -16,7 +15,6 @@ import { query } from 'firebase/firestore';
 
 
 export default function PaymentsPage() {
-  const { toast } = useToast();
   const { user } = useUser();
   const firestore = useFirestore();
 
@@ -36,13 +34,6 @@ export default function PaymentsPage() {
 
   const handlePayment = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const amount = formData.get('amount');
-    
-    toast({
-      title: "Payment Successful",
-      description: `Your payment of ${formatCurrency(Number(amount))} has been processed.`,
-    });
     e.currentTarget.reset();
   };
   

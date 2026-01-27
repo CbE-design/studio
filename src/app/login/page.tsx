@@ -77,10 +77,6 @@ export default function LoginPage() {
 
     try {
         await signInWithEmailAndPassword(auth, loginEmail, loginPass);
-        toast({
-            title: 'Login Successful',
-            description: 'You have been signed in.',
-        });
         router.push('/dashboard');
     } catch (error: any) {
          console.error('Sign-in failed:', error);

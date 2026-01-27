@@ -149,10 +149,6 @@ function TransactionDetailsContent() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      toast({
-        title: 'Download Started',
-        description: 'Your proof of payment is downloading.',
-      });
 
     } catch (e: any) {
         console.error("Failed to generate and download PDF:", e);
@@ -175,8 +171,6 @@ function TransactionDetailsContent() {
     setIsFailing(true);
     const result = await markTransactionAsFailedAction(user.uid, accountId as string, txId as string);
     if (result.success) {
-      toast({ title: 'Success', description: result.message });
-      // Redirect to the account page to see the new return transaction
       router.push(`/account/${accountId}`);
     } else {
       toast({ variant: 'destructive', title: 'Error', description: result.message });
@@ -198,10 +192,6 @@ function TransactionDetailsContent() {
         }
 
         if (result?.success) {
-            toast({
-                title: 'Sent Successfully',
-                description: `Proof of payment sent to ${recipient}.`,
-            });
             setDialogOpen(null);
             setRecipient('');
         } else {
