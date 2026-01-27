@@ -132,16 +132,16 @@ export default function LoginPage() {
         
         {!showPasswordLogin ? (
             <>
-                <div className="flex justify-center pt-4">
-                  <div onClick={handlePinLogin} className="flex flex-col items-center gap-4 cursor-pointer" >
-                      <Fingerprint className="h-14 w-14 text-gray-400" />
-                      <Button className="w-64 h-12 text-lg font-bold" disabled={isLoading}>
+                <div className="flex justify-center pt-8">
+                  <div onClick={handlePinLogin} className="flex flex-col items-center gap-6 cursor-pointer" >
+                      <Fingerprint className="h-12 w-12 text-gray-400" />
+                      <Button className="w-64 h-12 text-lg font-bold gradient-background" disabled={isLoading}>
                          {isLoading ? <LoaderCircle className="h-6 w-6 animate-spin" /> : 'Log in'}
                       </Button>
                   </div>
                 </div>
 
-                <button onClick={() => setShowPasswordLogin(true)} className="inline-block text-primary font-semibold">
+                <button onClick={() => setShowPasswordLogin(true)} className="inline-block text-[#00A651] font-semibold">
                   Or use your Nedbank ID password &rarr;
                 </button>
             </>
@@ -155,10 +155,10 @@ export default function LoginPage() {
                     <Label htmlFor="password">Password</Label>
                     <Input id="password" type="password" placeholder="••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
                 </div>
-                <Button type="submit" className="w-full h-12 text-lg font-bold" disabled={isLoading}>
+                <Button type="submit" className="w-full h-12 text-lg font-bold gradient-background" disabled={isLoading}>
                     {isLoading ? <LoaderCircle className="h-6 w-6 animate-spin" /> : 'Sign In'}
                 </Button>
-                <Button variant="link" onClick={() => setShowPasswordLogin(false)} className="text-primary font-semibold w-full">
+                <Button variant="link" onClick={() => setShowPasswordLogin(false)} className="text-[#00A651] font-semibold w-full">
                   <ArrowLeft className="mr-2 h-4 w-4" /> Back to PIN login
                 </Button>
             </form>
