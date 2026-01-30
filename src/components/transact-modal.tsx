@@ -30,7 +30,7 @@ export function TransactModal({ isOpen, onClose }: TransactModalProps) {
 
   return (
     <div 
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-end"
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-end"
       onClick={onClose}
     >
       <div 
