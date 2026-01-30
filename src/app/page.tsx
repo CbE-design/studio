@@ -1,3 +1,4 @@
+'use client';
 
 import { Suspense } from 'react';
 import { SplashScreen } from '@/components/splash-screen';
