@@ -1,10 +1,10 @@
 
 import { initializeApp, getApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getFirestore, type Firestore } from 'firebase/firestore';
-import { getAuth, type Auth } from 'firebase/auth';
-import { getFunctions, type Functions } from 'firebase/functions';
+import type { Auth } from 'firebase/auth';
+import type { Functions } from 'firebase/functions';
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
@@ -16,19 +16,15 @@ const firebaseConfig = {
 // Functions region
 const functionsRegion = 'us-central1';
 
-// Lazy initialization functions to prevent SSR issues
+// Lazy initialization - only store instances on client
 let _app: FirebaseApp | null = null;
 let _firestore: Firestore | null = null;
 let _auth: Auth | null = null;
 let _functions: Functions | null = null;
 
-function getFirebaseApp(): FirebaseApp {
+export function getFirebaseApp(): FirebaseApp {
   if (typeof window === 'undefined') {
-    // Return a minimal app during SSR - don't initialize auth
-    if (!getApps().length) {
-      return initializeApp(firebaseConfig);
-    }
-    return getApp();
+    throw new Error('Firebase App should only be initialized on the client side');
   }
   
   if (!_app) {
@@ -37,35 +33,34 @@ function getFirebaseApp(): FirebaseApp {
   return _app;
 }
 
-function getFirebaseFirestore(): Firestore {
+export function getFirebaseFirestore(): Firestore {
+  if (typeof window === 'undefined') {
+    throw new Error('Firestore should only be initialized on the client side');
+  }
   if (!_firestore) {
     _firestore = getFirestore(getFirebaseApp());
   }
   return _firestore;
 }
 
-function getFirebaseAuth(): Auth {
+export async function getFirebaseAuth(): Promise<Auth> {
   if (typeof window === 'undefined') {
     throw new Error('Firebase Auth is only available on the client side');
   }
   if (!_auth) {
+    const { getAuth } = await import('firebase/auth');
     _auth = getAuth(getFirebaseApp());
   }
   return _auth;
 }
 
-function getFirebaseFunctions(): Functions {
+export async function getFirebaseFunctions(): Promise<Functions> {
+  if (typeof window === 'undefined') {
+    throw new Error('Firebase Functions is only available on the client side');
+  }
   if (!_functions) {
+    const { getFunctions } = await import('firebase/functions');
     _functions = getFunctions(getFirebaseApp(), functionsRegion);
   }
   return _functions;
 }
-
-// Export getter functions for lazy initialization
-export const app = typeof window !== 'undefined' ? getFirebaseApp() : null;
-export const firestore = typeof window !== 'undefined' ? getFirebaseFirestore() : null;
-export const auth = typeof window !== 'undefined' ? getFirebaseAuth() : null;
-export const functions = typeof window !== 'undefined' ? getFirebaseFunctions() : null;
-
-// Export getter functions for use in components
-export { getFirebaseApp, getFirebaseFirestore, getFirebaseAuth, getFirebaseFunctions };

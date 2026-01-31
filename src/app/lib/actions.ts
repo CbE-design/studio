@@ -10,8 +10,6 @@ import { generateProofOfPaymentPdf } from './pop-generator';
 import { db as adminDb } from './firebase-admin';
 import { format } from 'date-fns';
 import { formatCurrency } from './data';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { app } from '@/app/lib/firebase';
 
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
@@ -250,8 +248,8 @@ export async function sendProofOfPaymentEmailAction(
     if (!transaction) throw new Error("Transaction data is required.");
     if (!recipientEmail) throw new Error("Recipient email is required.");
     
-    const functions = getFunctions(app);
-    const sendEmail = httpsCallable(functions, 'sendEmail');
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    if (!projectId) throw new Error("Firebase project ID is not configured.");
 
     // Generate the PDF
     const pdfResult = await generateProofOfPaymentAction(transaction);
@@ -270,20 +268,27 @@ export async function sendProofOfPaymentEmailAction(
         <p><b>VAN SCHALKWYK FAMILY TRUST</b></p>
     `;
 
-    // Call the Cloud Function
-    const result = await sendEmail({
-      to: recipientEmail,
-      subject: subject,
-      html: html,
-      attachments: [{
-        filename: `proof-of-payment-${transaction.id}.pdf`,
-        content: pdfBase64
-      }]
+    // Call the Cloud Function via HTTP
+    const functionUrl = `https://us-central1-${projectId}.cloudfunctions.net/sendEmail`;
+    const response = await fetch(functionUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        data: {
+          to: recipientEmail,
+          subject: subject,
+          html: html,
+          attachments: [{
+            filename: `proof-of-payment-${transaction.id}.pdf`,
+            content: pdfBase64
+          }]
+        }
+      })
     });
 
-    const data = result.data as { success: boolean, message: string };
-    if (!data.success) {
-        throw new Error(data.message || 'The sendEmail function returned an error.');
+    const data = await response.json();
+    if (!data.result?.success) {
+        throw new Error(data.result?.message || 'The sendEmail function returned an error.');
     }
 
     return { success: true, message: "Email sent successfully." };
@@ -301,12 +306,25 @@ export async function sendProofOfPaymentSmsAction(
     if (!transaction) throw new Error("Transaction data is required.");
     if (!recipientNumber) throw new Error("Recipient phone number is required.");
     
-    const functions = getFunctions(app);
-    const sendSmsFn = httpsCallable(functions, 'sendSms');
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    if (!projectId) throw new Error("Firebase project ID is not configured.");
 
     const text = `Nedbank: Proof of payment for ${formatCurrency(transaction.amount, 'ZAR')} to ${transaction.recipientName || 'recipient'} on ${format(new Date(transaction.date), 'dd/MM/yyyy')}. Ref: ${transaction.popReferenceNumber}`;
 
-    await sendSmsFn({ to: recipientNumber, text });
+    // Call the Cloud Function via HTTP
+    const functionUrl = `https://us-central1-${projectId}.cloudfunctions.net/sendSms`;
+    const response = await fetch(functionUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        data: { to: recipientNumber, text }
+      })
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'The sendSms function returned an error.');
+    }
 
     return { success: true, message: "SMS sent successfully." };
   } catch (error: any) {

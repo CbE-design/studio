@@ -2,8 +2,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { firestore } from '@/app/lib/firebase';
-import { collection, getDocs, DocumentData } from 'firebase/firestore';
+import { getFirebaseFirestore } from '@/app/lib/firebase';
+import type { DocumentData } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, CheckCircle } from 'lucide-react';
 
@@ -15,6 +15,8 @@ export function Announcements() {
   useEffect(() => {
     async function fetchAnnouncements() {
       try {
+        const { collection, getDocs } = await import('firebase/firestore');
+        const firestore = getFirebaseFirestore();
         const querySnapshot = await getDocs(collection(firestore, 'announcements'));
         if (querySnapshot.empty) {
           setError('No announcements found in the database. Please add some data to your "announcements" collection in the Firebase console.');

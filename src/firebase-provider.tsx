@@ -9,10 +9,8 @@ import React, {
   type PropsWithChildren,
 } from 'react';
 import type { FirebaseApp } from 'firebase/app';
-import type { Auth, User } from 'firebase/auth';
+import type { Auth, User, Unsubscribe } from 'firebase/auth';
 import type { Firestore, Query, DocumentData, QuerySnapshot } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
-import { onSnapshot } from 'firebase/firestore';
 import { getFirebaseApp, getFirebaseAuth, getFirebaseFirestore } from '@/app/lib/firebase';
 
 // Types for our context
@@ -53,20 +51,31 @@ export function FirebaseProvider({ children }: PropsWithChildren<{}>) {
   }>({ app: null, auth: null, firestore: null });
 
   useEffect(() => {
-    // Initialize Firebase only on client side
-    const app = getFirebaseApp();
-    const auth = getFirebaseAuth();
-    const firestore = getFirebaseFirestore();
+    let unsubscribe: Unsubscribe | null = null;
     
-    setFirebaseInstances({ app, auth, firestore });
+    async function initFirebase() {
+      // Initialize Firebase only on client side
+      const app = getFirebaseApp();
+      const firestore = getFirebaseFirestore();
+      const auth = await getFirebaseAuth();
+      
+      setFirebaseInstances({ app, auth, firestore });
 
-    // Listen for auth state changes
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user); // This will be the user object or null
-      setIsUserLoading(false);
-    });
+      // Dynamically import onAuthStateChanged to avoid SSR issues
+      const { onAuthStateChanged } = await import('firebase/auth');
+      
+      // Listen for auth state changes
+      unsubscribe = onAuthStateChanged(auth, (user) => {
+        setUser(user); // This will be the user object or null
+        setIsUserLoading(false);
+      });
+    }
+    
+    initFirebase();
 
-    return () => unsubscribe(); // Cleanup subscription on unmount
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   const value = { 
@@ -99,18 +108,27 @@ export function useCollection<T extends DocumentData>(query: Query<T> | null) {
 
         // Set loading to true whenever the query changes
         setIsLoading(true);
+        
+        let unsubscribe: (() => void) | null = null;
+        
+        async function setupSnapshot() {
+            const { onSnapshot } = await import('firebase/firestore');
+            unsubscribe = onSnapshot(query, (snapshot: QuerySnapshot<T>) => {
+                const docs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+                setData(docs);
+                setIsLoading(false);
+            }, (err) => {
+                console.error(err);
+                setError(err);
+                setIsLoading(false);
+            });
+        }
+        
+        setupSnapshot();
 
-        const unsubscribe = onSnapshot(query, (snapshot: QuerySnapshot<T>) => {
-            const docs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-            setData(docs);
-            setIsLoading(false);
-        }, (err) => {
-            console.error(err);
-            setError(err);
-            setIsLoading(false);
-        });
-
-        return () => unsubscribe();
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [query]);
 
