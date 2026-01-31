@@ -13,7 +13,7 @@ import type { Auth, User } from 'firebase/auth';
 import type { Firestore, Query, DocumentData, QuerySnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { onSnapshot } from 'firebase/firestore';
-import { app, auth, firestore } from '@/app/lib/firebase';
+import { getFirebaseApp, getFirebaseAuth, getFirebaseFirestore } from '@/app/lib/firebase';
 
 // Types for our context
 type FirebaseContextType = {
@@ -46,8 +46,20 @@ export const useUser = () => {
 export function FirebaseProvider({ children }: PropsWithChildren<{}>) {
   const [user, setUser] = useState<User | null>(null);
   const [isUserLoading, setIsUserLoading] = useState(true);
+  const [firebaseInstances, setFirebaseInstances] = useState<{
+    app: FirebaseApp | null;
+    auth: Auth | null;
+    firestore: Firestore | null;
+  }>({ app: null, auth: null, firestore: null });
 
   useEffect(() => {
+    // Initialize Firebase only on client side
+    const app = getFirebaseApp();
+    const auth = getFirebaseAuth();
+    const firestore = getFirebaseFirestore();
+    
+    setFirebaseInstances({ app, auth, firestore });
+
     // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user); // This will be the user object or null
@@ -57,7 +69,13 @@ export function FirebaseProvider({ children }: PropsWithChildren<{}>) {
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
 
-  const value = { app, auth, firestore, user, isUserLoading };
+  const value = { 
+    app: firebaseInstances.app, 
+    auth: firebaseInstances.auth, 
+    firestore: firebaseInstances.firestore, 
+    user, 
+    isUserLoading 
+  };
 
   return (
     <FirebaseContext.Provider value={value}>
