@@ -44,6 +44,18 @@ The app requires Firebase configuration via environment variables:
 - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
 - `NEXT_PUBLIC_FIREBASE_APP_ID`
 
+### SMS & Email Services (for Firebase Cloud Functions)
+- `VONAGE_API_KEY` - Vonage API key for SMS sending
+- `VONAGE_API_SECRET` - Vonage API secret for SMS sending
+- `RESEND_API_KEY` - Resend API key for email sending
+
+**Note**: These are used by Firebase Cloud Functions (`functions/index.js`). To deploy:
+```bash
+cd functions
+firebase functions:config:set vonage.api_key="YOUR_KEY" vonage.api_secret="YOUR_SECRET"
+firebase deploy --only functions
+```
+
 ### Build
 ```bash
 npm run build
@@ -55,6 +67,9 @@ npm run start -- -p 5000 -H 0.0.0.0
 ```
 
 ## Recent Changes
+- Feb 01, 2026: Vonage SMS integration configured
+  - Added Vonage API credentials for SMS proof of payment feature
+  - SMS functionality uses Firebase Cloud Functions with Vonage SDK
 - Feb 01, 2026: Initial Replit setup
   - Configured Next.js to allow all dev origins for Replit proxy
   - Set up development workflow on port 5000
