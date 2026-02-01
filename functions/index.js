@@ -523,7 +523,6 @@ exports.provisionNewUser = onUserCreate(async (event) => {
         batch.set(txRef, {
             id: txRef.id,
             userId: uid,
-            fromAccountId: accRef.id,
             date: new Date().toISOString(),
             description: 'Initial Deposit',
             amount: acc.balance,
@@ -595,7 +594,6 @@ exports.provisionExistingUserPockets = onCall(async (request) => {
                     batch.set(txRef, {
                         id: txRef.id,
                         userId: uid,
-                        fromAccountId: newAccountRef.id,
                         date: tx.date.toISOString(),
                         description: tx.description,
                         amount: tx.amount,
@@ -617,5 +615,3 @@ exports.provisionExistingUserPockets = onCall(async (request) => {
         throw new HttpsError('internal', 'Failed to provision pocket accounts for existing user.');
     }
 });
-
-    
