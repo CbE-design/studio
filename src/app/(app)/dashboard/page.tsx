@@ -220,78 +220,81 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 text-black">
-      <div className="sticky top-0 z-10 gradient-background text-white p-4">
-        <header className="mb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <Image
-                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"
-                alt="Nedbank Logo"
-                width={24}
-                height={24}
-                className="w-6 h-6"
-              />
-              <span className="font-medium text-lg">{user.displayName || 'Corrie'}</span>
-            </div>
-            <div className="flex items-center gap-4 text-white">
-              <Link href="/notifications">
-                <div className={cn('relative', isBellRinging && 'animate-ring')}>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                  </svg>
-                  {unreadCount > 0 && (
-                    <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800" />
-                  )}
-                </div>
-              </Link>
-              <svg 
-                width="24" 
-                height="24" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="white" 
-                strokeWidth="1.8" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                className="h-5 w-5"
-              >
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                  <line x1="8" y1="7" x2="16" y2="7"></line>
-                  <line x1="8" y1="10" x2="16" y2="10"></line>
-                  <line x1="8" y1="13" x2="13" y2="13"></line>
-              </svg>
-            </div>
+      <header className="sticky top-0 z-20 gradient-background text-white p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <Image
+              src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"
+              alt="Nedbank Logo"
+              width={24}
+              height={24}
+              className="w-6 h-6"
+            />
+            <span className="font-medium text-lg">{user.displayName || 'Corrie'}</span>
           </div>
-        </header>
-        <AccountsCarousel />
-      </div>
+          <div className="flex items-center gap-4 text-white">
+            <Link href="/notifications">
+              <div className={cn('relative', isBellRinging && 'animate-ring')}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                {unreadCount > 0 && (
+                  <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800" />
+                )}
+              </div>
+            </Link>
+            <svg 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="white" 
+              strokeWidth="1.8" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="h-5 w-5"
+            >
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                <line x1="8" y1="7" x2="16" y2="7"></line>
+                <line x1="8" y1="10" x2="16" y2="10"></line>
+                <line x1="8" y1="13" x2="13" y2="13"></line>
+            </svg>
+          </div>
+        </div>
+      </header>
 
-      <main className="flex-1 overflow-y-auto bg-white">
-        <div className="mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-md shadow-sm border border-black/20 mt-4 bg-white">
-          <Image
-            src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
-            alt="Advertisement banner"
-            data-ai-hint="advertisement banner"
-            width={600}
-            height={0}
-            className="w-full h-auto object-contain"
-          />
+      <main className="flex-1 overflow-y-auto">
+        <div className="gradient-background text-white p-4 pt-0">
+          <AccountsCarousel />
         </div>
 
-        <div className="p-4 bg-white mt-4">
-          <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
-          <div className="grid grid-cols-4 gap-x-2 gap-y-4">
-            {widgets.map((widget) => (
-              <WidgetItem
-                key={widget.label}
-                src={widget.src}
-                icon={widget.icon}
-                label={widget.label}
-                href={widget.href}
-                isNew={widget.isNew}
-              />
-            ))}
+        <div className="bg-white">
+          <div className="mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-md shadow-sm border border-black/20 mt-4 bg-white">
+            <Image
+              src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
+              alt="Advertisement banner"
+              data-ai-hint="advertisement banner"
+              width={600}
+              height={0}
+              className="w-full h-auto object-contain"
+            />
+          </div>
+
+          <div className="p-4 mt-4">
+            <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
+            <div className="grid grid-cols-4 gap-x-2 gap-y-4">
+              {widgets.map((widget) => (
+                <WidgetItem
+                  key={widget.label}
+                  src={widget.src}
+                  icon={widget.icon}
+                  label={widget.label}
+                  href={widget.href}
+                  isNew={widget.isNew}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </main>
