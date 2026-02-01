@@ -471,7 +471,6 @@ exports.provisionNewUser = onUserCreate(async (event) => {
     // --- Savvy Bundle Account ---
     const savvyAccountRef = accountsCollectionRef.doc();
     let savvyBalance = 0;
-    const savvyTransactionsRef = savvyAccountRef.collection('transactions');
 
     initialSavvyBundleTransactions.forEach(tx => {
       const isCredit = tx.amount.startsWith('+');
@@ -479,7 +478,7 @@ exports.provisionNewUser = onUserCreate(async (event) => {
       
       if (!isNaN(numericAmount)) {
         savvyBalance += isCredit ? numericAmount : -numericAmount;
-        const newTransactionRef = savvyTransactionsRef.doc();
+        const newTransactionRef = savvyAccountRef.collection('transactions').doc();
         batch.set(newTransactionRef, {
           id: newTransactionRef.id,
           userId: uid,
@@ -535,13 +534,12 @@ exports.provisionNewUser = onUserCreate(async (event) => {
     });
 
     // --- Failed Transactions ---
-    const failedTransactionsRef = savvyAccountRef.collection('failedTransactions');
     const failedTransactionsToAdd = [
         { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'Corrie', failureReason: 'Not Authorised' },
         { returnDate: '01 Oct 2025', fromAccount: '1234066912', toAccount: '9876543210', beneficiaryName: 'H.Nel', failureReason: 'Not Authorised' },
     ];
     failedTransactionsToAdd.forEach(tx => {
-        const newDocRef = failedTransactionsRef.doc();
+        const newDocRef = savvyAccountRef.collection('failedTransactions').doc();
         batch.set(newDocRef, { ...tx, id: newDocRef.id });
     });
     console.log(`Prepared to seed ${failedTransactionsToAdd.length} failed transactions.`);
@@ -619,3 +617,5 @@ exports.provisionExistingUserPockets = onCall(async (request) => {
         throw new HttpsError('internal', 'Failed to provision pocket accounts for existing user.');
     }
 });
+
+    
