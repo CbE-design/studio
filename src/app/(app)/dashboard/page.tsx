@@ -220,7 +220,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50 text-black">
-      <header className="sticky top-0 z-20 gradient-background text-white p-4">
+      <header className="sticky top-0 z-20 bg-[#00A651] text-white p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Image
