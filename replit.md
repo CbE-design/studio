@@ -1,0 +1,63 @@
+# Nextn - Next.js Firebase Application
+
+## Overview
+A Next.js 15 application with Firebase integration for authentication, Firestore database, and cloud functions. Built with React 18, TypeScript, Tailwind CSS, and Radix UI components.
+
+## Project Structure
+```
+src/
+├── app/           # Next.js App Router pages and layouts
+│   └── lib/       # Firebase client configuration
+├── components/    # React UI components
+├── firebase/      # Firebase client provider
+├── functions/     # Client-side function utilities
+├── hooks/         # Custom React hooks
+└── lib/           # Utility functions and definitions
+
+functions/         # Firebase Cloud Functions (backend)
+public/            # Static assets
+```
+
+## Tech Stack
+- **Framework**: Next.js 15.0.7 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS with tailwindcss-animate
+- **UI Components**: Radix UI primitives
+- **Backend**: Firebase (Auth, Firestore, Cloud Functions)
+- **Forms**: React Hook Form with Zod validation
+- **Charts**: Recharts
+
+## Development
+
+### Running Locally
+The development server runs on port 5000:
+```bash
+npm run dev -- -p 5000 -H 0.0.0.0
+```
+
+### Required Environment Variables
+The app requires Firebase configuration via environment variables:
+- `NEXT_PUBLIC_FIREBASE_API_KEY`
+- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+- `NEXT_PUBLIC_FIREBASE_APP_ID`
+
+### Build
+```bash
+npm run build
+```
+
+### Production
+```bash
+npm run start -- -p 5000 -H 0.0.0.0
+```
+
+## Recent Changes
+- Feb 01, 2026: Initial Replit setup
+  - Configured Next.js to allow all dev origins for Replit proxy
+  - Set up development workflow on port 5000
+
+## User Preferences
+(None recorded yet)
