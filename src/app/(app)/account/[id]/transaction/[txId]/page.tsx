@@ -10,7 +10,7 @@ import { useFirestore, useUser } from '@/firebase-provider';
 import { doc, getDoc } from 'firebase/firestore';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { format } from 'date-fns';
-import { formatCurrency } from '@/app/lib/data';
+import { formatCurrency, normalizeDate } from '@/app/lib/data';
 import { generateProofOfPaymentAction, markTransactionAsFailedAction, sendProofOfPaymentEmailAction, sendProofOfPaymentSmsAction } from '@/app/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -268,7 +268,7 @@ function TransactionDetailsContent() {
 
       <main className="flex-1 overflow-y-auto px-6 py-2">
         <DetailRow label="Description" value={transaction.description} />
-        <DetailRow label="Transaction date" value={format(new Date(transaction.date), 'dd MMMM yyyy')} />
+        <DetailRow label="Transaction date" value={format(normalizeDate(transaction.date), 'dd MMMM yyyy')} />
         <DetailRow label="Amount" value={formatCurrency(transaction.amount, account?.currency)} />
         <DetailRow label="Transaction Type" value={isReturnTransaction ? 'Reversal/Return' : 'Payment'} />
         {!isReturnTransaction && (

@@ -1,4 +1,5 @@
 
+import { parseISO } from 'date-fns';
 import type { Account, Transaction, Beneficiary, AtmLocation, Bank } from './definitions';
 
 // Note: This data is now primarily for seeding/reference.
@@ -139,4 +140,30 @@ export function formatCurrency(amount: number, currency: string = 'ZAR') {
   }
   
   return `${symbol}${formattedNumber}`;
+}
+
+export function normalizeDate(date: any): Date {
+  if (!date) return new Date(0);
+  // Firestore Timestamp
+  if (typeof date.toDate === 'function') {
+    return date.toDate();
+  }
+  // ISO String
+  if (typeof date === 'string') {
+    const parsed = parseISO(date);
+    if (!isNaN(parsed.getTime())) {
+        return parsed;
+    }
+  }
+  // JS Date object
+  if (date instanceof Date) {
+    return date;
+  }
+  // Fallback for things like milliseconds from epoch, but try to be safe
+  const parsedFromConstructor = new Date(date);
+  if (!isNaN(parsedFromConstructor.getTime())) {
+      return parsedFromConstructor;
+  }
+  // Ultimate fallback
+  return new Date(0);
 }

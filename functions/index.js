@@ -451,11 +451,12 @@ exports.provisionNewUser = onUserCreate(async (event) => {
   const user = event.data;
   const { uid, email } = user;
   const db = admin.firestore();
+  const batch = db.batch();
 
   try {
     // Create the main user document
     const userDocRef = db.collection('users').doc(uid);
-    await userDocRef.set({
+    batch.set(userDocRef, {
       id: uid,
       email: email,
       firstName: 'Corrie',
@@ -467,32 +468,19 @@ exports.provisionNewUser = onUserCreate(async (event) => {
 
     const accountsCollectionRef = userDocRef.collection('bankAccounts');
 
-    // Create sample accounts
+    // --- Savvy Bundle Account ---
     const savvyAccountRef = accountsCollectionRef.doc();
-    const savingsAccountRef = accountsCollectionRef.doc();
-    const creditAccountRef = accountsCollectionRef.doc();
-    const justInvestAccountRef = accountsCollectionRef.doc();
-
-
-    let savvyBalance = 0; // Start with a zero balance
-
-    // Seed transactions for the Savvy Bundle account
-    const savvyTransactionsBatch = db.batch();
-    const transactionsCollectionRef = savvyAccountRef.collection('transactions');
+    let savvyBalance = 0;
+    const savvyTransactionsRef = savvyAccountRef.collection('transactions');
 
     initialSavvyBundleTransactions.forEach(tx => {
       const isCredit = tx.amount.startsWith('+');
       const numericAmount = parseFloat(tx.amount.replace(/[+R,]/g, ''));
       
       if (!isNaN(numericAmount)) {
-        if (isCredit) {
-          savvyBalance += numericAmount;
-        } else {
-          savvyBalance -= numericAmount;
-        }
-
-        const newTransactionRef = transactionsCollectionRef.doc();
-        savvyTransactionsBatch.set(newTransactionRef, {
+        savvyBalance += isCredit ? numericAmount : -numericAmount;
+        const newTransactionRef = savvyTransactionsRef.doc();
+        batch.set(newTransactionRef, {
           id: newTransactionRef.id,
           userId: uid,
           date: tx.timestamp.toISOString(),
@@ -505,28 +493,7 @@ exports.provisionNewUser = onUserCreate(async (event) => {
       }
     });
 
-    // Commit the transactions batch first
-    await savvyTransactionsBatch.commit();
-    console.log(`Successfully seeded ${initialSavvyBundleTransactions.length} transactions for Savvy account.`);
-
-    // Seed failed transactions
-    const failedTransactionsBatch = db.batch();
-    const failedTransactionsRef = savvyAccountRef.collection('failedTransactions');
-    const failedTransactionsToAdd = [
-        { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'Corrie', failureReason: 'Not Authorised' },
-        { returnDate: '01 Oct 2025', fromAccount: '1234066912', toAccount: '9876543210', beneficiaryName: 'H.Nel', failureReason: 'Not Authorised' },
-    ];
-    failedTransactionsToAdd.forEach(tx => {
-        const newDocRef = failedTransactionsRef.doc();
-        failedTransactionsBatch.set(newDocRef, { ...tx, id: newDocRef.id });
-    });
-    await failedTransactionsBatch.commit();
-    console.log(`Successfully seeded ${failedTransactionsToAdd.length} failed transactions.`);
-
-    // Now create the accounts with the calculated balance
-    const accountsBatch = db.batch();
-    
-    accountsBatch.set(savvyAccountRef, {
+    batch.set(savvyAccountRef, {
       name: 'Savvy Bundle Current Account',
       type: 'Cheque',
       accountNumber: '1234567890',
@@ -534,37 +501,54 @@ exports.provisionNewUser = onUserCreate(async (event) => {
       currency: 'ZAR',
       userId: uid,
     });
+    console.log(`Prepared to seed Savvy account with ${initialSavvyBundleTransactions.length} transactions.`);
 
-    accountsBatch.set(savingsAccountRef, {
-      name: 'Savings Account',
-      type: 'Savings',
-      accountNumber: '0987654321',
-      balance: 0.00,
-      currency: 'ZAR',
-      userId: uid,
+    // --- Other Static Accounts ---
+    const otherAccounts = [
+      { name: 'Savings Account', type: 'Savings', accountNumber: '0987654321', balance: 0.00 },
+      { name: 'Gold Credit Card', type: 'Credit', accountNumber: '5555666677778888', balance: 0.00 },
+      { name: 'Nedbank Just Invest Money Market Investment', type: 'Savings', accountNumber: '111122223333', balance: 18502191.17 },
+      { name: 'Holiday Fund', type: 'Savings', accountNumber: '2000000001', balance: 500.00 },
+      { name: 'Emergency Fund', type: 'Savings', accountNumber: '2000000002', balance: 1000.00 },
+      { name: 'New Car', type: 'Savings', accountNumber: '2000000003', balance: 250.00 },
+      { name: 'Gadgets', type: 'Savings', accountNumber: '2000000004', balance: 100.00 },
+    ];
+
+    otherAccounts.forEach(acc => {
+      const accRef = accountsCollectionRef.doc();
+      batch.set(accRef, { ...acc, userId: uid, currency: 'ZAR' });
+      
+      // Seed initial deposit for pocket accounts
+      if (['Holiday Fund', 'Emergency Fund', 'New Car', 'Gadgets'].includes(acc.name)) {
+        const txRef = accRef.collection('transactions').doc();
+        batch.set(txRef, {
+            id: txRef.id,
+            userId: uid,
+            fromAccountId: accRef.id,
+            date: new Date().toISOString(),
+            description: 'Initial Deposit',
+            amount: acc.balance,
+            type: 'credit',
+            transactionType: 'SAVINGS_TRANSFER',
+        });
+      }
     });
 
-    accountsBatch.set(creditAccountRef, {
-      name: 'Gold Credit Card',
-      type: 'Credit',
-      accountNumber: '5555666677778888',
-      balance: 0.00,
-      currency: 'ZAR',
-      userId: uid,
+    // --- Failed Transactions ---
+    const failedTransactionsRef = savvyAccountRef.collection('failedTransactions');
+    const failedTransactionsToAdd = [
+        { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'Corrie', failureReason: 'Not Authorised' },
+        { returnDate: '01 Oct 2025', fromAccount: '1234066912', toAccount: '9876543210', beneficiaryName: 'H.Nel', failureReason: 'Not Authorised' },
+    ];
+    failedTransactionsToAdd.forEach(tx => {
+        const newDocRef = failedTransactionsRef.doc();
+        batch.set(newDocRef, { ...tx, id: newDocRef.id });
     });
+    console.log(`Prepared to seed ${failedTransactionsToAdd.length} failed transactions.`);
 
-    accountsBatch.set(justInvestAccountRef, {
-        name: 'Nedbank Just Invest Money Market Investment',
-        type: 'Savings',
-        accountNumber: '111122223333',
-        balance: 18502191.17,
-        currency: 'ZAR',
-        userId: uid,
-    });
-
-    // Commit the accounts batch
-    await accountsBatch.commit();
-    console.log(`Successfully provisioned sample accounts for user: ${uid}`);
+    // --- Commit Everything ---
+    await batch.commit();
+    console.log(`Successfully provisioned all accounts and transactions for user: ${uid}`);
 
   } catch (error) {
     console.error(`Failed to provision new user ${uid}:`, error);
@@ -573,11 +557,65 @@ exports.provisionNewUser = onUserCreate(async (event) => {
   return null;
 });
 
-    
 
-    
+exports.provisionExistingUserPockets = onCall(async (request) => {
+    if (!request.auth) {
+        throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
+    }
+    const uid = request.auth.uid;
+    const db = admin.firestore();
+    const batch = db.batch();
 
-    
+    try {
+        const accountsCollectionRef = db.collection('users').doc(uid).collection('bankAccounts');
+        const existingAccountsSnap = await accountsCollectionRef.get();
+        const existingAccountNames = new Set(existingAccountsSnap.docs.map(doc => doc.data().name));
 
+        const pocketAccountsWithData = [
+            { name: 'Holiday Fund', balance: 500, transactions: [{ date: new Date(), description: 'Initial Deposit', amount: 500, type: 'credit' }] },
+            { name: 'Emergency Fund', balance: 1000, transactions: [{ date: new Date(), description: 'Initial Deposit', amount: 1000, type: 'credit' }] },
+            { name: 'New Car', balance: 250, transactions: [{ date: new Date(), description: 'Initial Deposit', amount: 250, type: 'credit' }] },
+            { name: 'Gadgets', balance: 100, transactions: [{ date: new Date(), description: 'Initial Deposit', amount: 100, type: 'credit' }] },
+        ];
+        
+        let pocketsAdded = 0;
+        pocketAccountsWithData.forEach((pocket, index) => {
+            if (!existingAccountNames.has(pocket.name)) {
+                pocketsAdded++;
+                const newAccountRef = accountsCollectionRef.doc();
+                batch.set(newAccountRef, {
+                    name: pocket.name,
+                    balance: pocket.balance,
+                    type: 'Savings',
+                    accountNumber: `200000000${index + 1}`,
+                    currency: 'ZAR',
+                    userId: uid,
+                });
 
-    
+                pocket.transactions.forEach(tx => {
+                    const txRef = newAccountRef.collection('transactions').doc();
+                    batch.set(txRef, {
+                        id: txRef.id,
+                        userId: uid,
+                        fromAccountId: newAccountRef.id,
+                        date: tx.date.toISOString(),
+                        description: tx.description,
+                        amount: tx.amount,
+                        type: tx.type,
+                        transactionType: 'SAVINGS_TRANSFER',
+                    });
+                });
+            }
+        });
+
+        if (pocketsAdded > 0) {
+            await batch.commit();
+            return { success: true, message: `Added ${pocketsAdded} new pocket accounts.` };
+        }
+
+        return { success: true, message: 'All pocket accounts already exist.' };
+    } catch (error) {
+        console.error("Error in provisionExistingUserPockets:", error);
+        throw new HttpsError('internal', 'Failed to provision pocket accounts for existing user.');
+    }
+});

@@ -13,6 +13,7 @@ import { collection, doc, getDoc, query } from 'firebase/firestore';
 import { StatementSummaryPage } from '@/components/statement-summary';
 import { StatementTransactionsPage } from '@/components/statement-transactions';
 import { generateStatementPdf, type StatementData } from '@/app/lib/statement-generator';
+import { normalizeDate } from '@/app/lib/data';
 
 const StatementLoadingSkeleton = () => (
   <div className="p-4">
@@ -86,7 +87,7 @@ export default function StatementPage() {
 
     const sortedTransactions = useMemo(() => {
         if (!accountTransactions) return [];
-        return [...accountTransactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        return [...accountTransactions].sort((a, b) => normalizeDate(a.date).getTime() - normalizeDate(b.date).getTime());
     }, [accountTransactions]);
     
     const statementData = useMemo<StatementData | null>(() => {
@@ -112,13 +113,13 @@ export default function StatementPage() {
         return {
             account,
             user: userData,
-            transactions: sortedTransactions.map(tx => ({ ...tx, date: new Date(tx.date).toISOString() })),
+            transactions: sortedTransactions.map(tx => ({ ...tx, date: normalizeDate(tx.date).toISOString() })),
             accountSummary: {
                 accountType: account.type,
                 accountNumber: account.accountNumber,
                 statementDate: new Date().toLocaleDateString('en-GB'),
                 envelope: '1 of 1',
-                statementPeriod: `${sortedTransactions.length > 0 ? new Date(sortedTransactions[0].date).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB')} - ${new Date().toLocaleDateString('en-GB')}`,
+                statementPeriod: `${sortedTransactions.length > 0 ? normalizeDate(sortedTransactions[0].date).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB')} - ${new Date().toLocaleDateString('en-GB')}`,
                 totalPages: '2', // Placeholder
                 statementFrequency: 'Monthly',
                 clientVatNumber: '',

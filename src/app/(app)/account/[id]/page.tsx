@@ -4,11 +4,11 @@
 import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, MessageSquare, ChevronRight, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { formatCurrency } from '@/app/lib/data';
+import { formatCurrency, normalizeDate } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { format, isThisWeek, startOfWeek, subDays, parseISO } from 'date-fns';
+import { format, isThisWeek, startOfWeek, subDays } from 'date-fns';
 import { useMemo, useState, useEffect } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -130,8 +130,8 @@ export default function AccountDetailsPage() {
     if (!accountTransactions) return {};
     
     const sorted = [...accountTransactions].sort((a, b) => {
-        const dateA = a.date ? parseISO(a.date).getTime() : 0;
-        const dateB = b.date ? parseISO(b.date).getTime() : 0;
+        const dateA = a.date ? normalizeDate(a.date).getTime() : 0;
+        const dateB = b.date ? normalizeDate(b.date).getTime() : 0;
         return dateB - dateA;
     });
 
@@ -141,7 +141,7 @@ export default function AccountDetailsPage() {
 
     return sorted.reduce((acc, tx) => {
       if (!tx.date) return acc;
-      const date = parseISO(tx.date);
+      const date = normalizeDate(tx.date);
       let group;
 
       if (isThisWeek(date, { weekStartsOn: 1 })) {
@@ -278,7 +278,7 @@ export default function AccountDetailsPage() {
                        <Link href={`/account/${accountId}/transaction/${tx.id}`} key={tx.id}>
                           <div className="flex items-center justify-between py-4 px-4 bg-white border-b border-gray-200 cursor-pointer">
                               <div className="flex flex-col">
-                                  <p className="text-sm text-gray-400 mb-1">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
+                                  <p className="text-sm text-gray-400 mb-1">{format(normalizeDate(tx.date), 'dd MMM yyyy')}</p>
                                   <p className="text-base font-light text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
                               </div>
                                <p className="text-base font-light text-gray-800">

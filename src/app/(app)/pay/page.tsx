@@ -10,8 +10,8 @@ import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebas
 import type { Transaction, Beneficiary } from '@/app/lib/definitions';
 import { collection, query, getDocs } from 'firebase/firestore';
 import { useEffect, useMemo, useState } from 'react';
-import { format, parseISO } from 'date-fns';
-import { formatCurrency } from '@/app/lib/data';
+import { format } from 'date-fns';
+import { formatCurrency, normalizeDate } from '@/app/lib/data';
 
 const SinglePaymentIcon = () => (
   <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -119,7 +119,7 @@ const PaymentItem = ({ tx }: { tx: Transaction & { accountId: string } }) => (
     <Link href={`/account/${tx.accountId}/transaction/${tx.id}`}>
         <div className="flex items-center justify-between py-4 px-4 bg-white border-b border-gray-200 cursor-pointer hover:bg-gray-50">
             <div className="flex flex-col">
-                <p className="text-sm text-gray-400 mb-1">{format(parseISO(tx.date), 'dd MMM yyyy')}</p>
+                <p className="text-sm text-gray-400 mb-1">{format(normalizeDate(tx.date), 'dd MMM yyyy')}</p>
                 <p className="text-base font-light text-gray-800 uppercase">{tx.recipientName || tx.description}</p>
             </div>
             <p className="text-base font-light text-gray-800">
@@ -177,7 +177,7 @@ export default function PayPage() {
             });
         }
         
-        allTransactions.sort((a, b) => parseISO(b.date).getTime() - parseISO(a.date).getTime());
+        allTransactions.sort((a, b) => normalizeDate(b.date).getTime() - normalizeDate(a.date).getTime());
         setTransactions(allTransactions);
         setIsTransactionsLoading(false);
     };

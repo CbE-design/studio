@@ -10,9 +10,9 @@ import { useUser, useFirestore, useMemoFirebase, useCollection } from '@/firebas
 import { collection, query, getDocs } from 'firebase/firestore';
 import type { Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
-import { format, isToday, isYesterday, parseISO } from 'date-fns';
+import { format, isToday, isYesterday } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { formatCurrency } from '@/app/lib/data';
+import { formatCurrency, normalizeDate } from '@/app/lib/data';
 
 const FilterIcon = () => (
   <svg
@@ -48,7 +48,7 @@ const DetailRow = ({ label, value }: { label: string; value: string | null | und
 };
 
 const NotificationItem = ({ notification, isExpanded, onToggle, isRead }: { notification: Transaction, isExpanded: boolean, onToggle: () => void, isRead: boolean }) => {
-    const date = parseISO(notification.date);
+    const date = normalizeDate(notification.date);
     const description = notification.recipientName ? `Payment: ${notification.recipientName}` : notification.description;
     
     return (
@@ -147,7 +147,7 @@ export default function TransactionNotificationsPage() {
                     });
                 }
                 
-                allTransactions.sort((a, b) => parseISO(b.date).getTime() - parseISO(a.date).getTime());
+                allTransactions.sort((a, b) => normalizeDate(b.date).getTime() - normalizeDate(a.date).getTime());
                 setTransactions(allTransactions);
             } catch (error: any) {
                 console.error("Error fetching transactions:", error);
@@ -177,7 +177,7 @@ export default function TransactionNotificationsPage() {
 
     const groupedTransactions = useMemo(() => {
         return filteredTransactions.reduce((acc, tx) => {
-            const date = parseISO(tx.date);
+            const date = normalizeDate(tx.date);
             let groupName = 'Older';
             if (isToday(date)) {
                 groupName = 'Today';
