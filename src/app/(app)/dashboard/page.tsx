@@ -10,8 +10,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
-import { collection, query, getDocs } from 'firebase/firestore';
+import { collection, query, getDocs, doc, getDoc } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { app } from '@/app/lib/firebase';
 
 const LatestIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary h-6 w-6", className)}>
@@ -162,9 +164,11 @@ function useAllTransactions() {
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const firestore = useFirestore();
   const { transactions, isLoading: isTransactionsLoading } = useAllTransactions();
   const [unreadCount, setUnreadCount] = useState(0);
   const [isBellRinging, setIsBellRinging] = useState(false);
+  const [pocketsSeeded, setPocketsSeeded] = useState(false);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -192,6 +196,23 @@ export default function DashboardPage() {
     }
   }, [transactions, isTransactionsLoading]);
   
+  useEffect(() => {
+    if (user && !isUserLoading && !pocketsSeeded) {
+        const functions = getFunctions(app);
+        const provisionPockets = httpsCallable(functions, 'provisionExistingUserPockets');
+        provisionPockets()
+            .then((result) => {
+                console.log("Pocket provisioning result:", result.data);
+            })
+            .catch((error) => {
+                console.error("Error provisioning pocket accounts:", error);
+            })
+            .finally(() => {
+                setPocketsSeeded(true); // Attempt only once per session
+            });
+    }
+  }, [user, isUserLoading, pocketsSeeded]);
+
 
   if (isUserLoading || !user) {
     return <LoadingSkeleton />;
@@ -224,10 +245,21 @@ export default function DashboardPage() {
                   )}
                 </div>
               </Link>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                <line x1="8" y1="9" x2="16" y2="9"></line>
-                <line x1="8" y1="13" x2="14" y2="13"></line>
+              <svg 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="white" 
+                strokeWidth="1.8" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className="h-5 w-5"
+              >
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  <line x1="8" y1="7" x2="16" y2="7"></line>
+                  <line x1="8" y1="10" x2="16" y2="10"></line>
+                  <line x1="8" y1="13" x2="13" y2="13"></line>
               </svg>
             </div>
           </div>
