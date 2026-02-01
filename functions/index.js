@@ -13,7 +13,7 @@ const { setGlobalOptions } = require('firebase-functions/v2');
 const { onUserCreate } = require('firebase-functions/v2/auth');
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const admin = require('firebase-admin');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const { Vonage } = require('@vonage/server-sdk');
 
 // Initialize Firebase Admin SDK
@@ -22,16 +22,9 @@ admin.initializeApp();
 // Set global options for functions (e.g., region, memory)
 setGlobalOptions({ region: 'us-central1' });
 
-// Configure Nodemailer transporter
-const transporter = nodemailer.createTransport({
-    host: process.env.MAIL_HOST,
-    port: 465,
-    secure: true, // true for 465, false for other ports
-    auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
-    },
-});
+// Initialize Resend
+// Your Resend API key should be set as an environment variable `RESEND_API_KEY`
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 
 // Initialize Vonage
@@ -41,9 +34,9 @@ const vonage = new Vonage({
 });
 
 /**
- * Sends an email using Nodemailer.
+ * Sends an email using Resend.
  * This is a callable function that can be invoked from the client-side via a server action.
- * It requires SMTP environment variables to be set (MAIL_HOST, MAIL_PORT, MAIL_USER, MAIL_PASS).
+ * It requires the RESEND_API_KEY environment variable to be set.
  */
 exports.sendEmail = onCall(async (request) => {
     // Authentication check
@@ -63,25 +56,27 @@ exports.sendEmail = onCall(async (request) => {
         );
     }
 
+    // The 'from' email address must be a verified domain in your Resend account.
+    // For testing, Resend allows 'onboarding@resend.dev', but for production,
+    // you should set and verify your own domain (e.g., 'proofofpayment@yourdomain.com').
     const fromName = "Proof of Payment (Nedbank)";
-    const fromEmail = process.env.MAIL_FROM || 'proofofpayment@nedbank.co.za';
+    const fromEmail = process.env.MAIL_FROM || 'onboarding@resend.dev';
 
     try {
-        await transporter.sendMail({
+        await resend.emails.send({
             from: `"${fromName}" <${fromEmail}>`,
             to: to,
             subject: subject,
             html: html,
             attachments: attachments.map(att => ({
                 filename: att.filename,
-                content: att.content,
-                encoding: 'base64'
+                content: att.content // Resend expects base64 content directly
             })),
         });
         console.log(`Email sent successfully to ${to}`);
         return { success: true, message: 'Email sent successfully.' };
     } catch (error) {
-        console.error('Error sending email with Nodemailer:', error);
+        console.error('Error sending email with Resend:', error);
         throw new HttpsError('internal', 'Failed to send email.', error);
     }
 });
