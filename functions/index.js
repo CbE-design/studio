@@ -254,7 +254,7 @@ const initialSavvyBundleTransactions = [
     { timestamp: new Date('2022-10-01'), description: 'INSTANT PAYMENT FEE', amount: '-R10.00', transactionType: 'BANK_FEE' },
     { timestamp: new Date('2022-10-03'), description: 'Hantie lening', amount: '+R25000.00', transactionType: 'EFT_STANDARD' },
     { timestamp: new Date('2022-10-03'), description: 'Hantie lening', amount: '+R20000.00', transactionType: 'EFT_STANDARD' },
-    { timestamp: new Date('22022-10-03'), description: 'Hantie lening', amount: '+R15000.00', transactionType: 'EFT_STANDARD' },
+    { timestamp: new Date('2022-10-03'), description: 'Hantie lening', amount: '+R15000.00', transactionType: 'EFT_STANDARD' },
     { timestamp: new Date('2022-10-03'), description: 'Hantie lening', amount: '+R1500.00', transactionType: 'EFT_STANDARD' },
     { timestamp: new Date('2022-10-03'), description: 'BLOM', amount: '-R5000.00', transactionType: 'EFT_STANDARD' },
     { timestamp: new Date('2022-10-03'), description: 'H.NEL', amount: '-R4000.00', transactionType: 'EFT_STANDARD' },
