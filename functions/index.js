@@ -11,6 +11,7 @@
 
 const { setGlobalOptions } = require('firebase-functions/v2');
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
+const { defineSecret } = require('firebase-functions/params');
 const { user } = require('firebase-functions/v1/auth');
 const admin = require('firebase-admin');
 const { Resend } = require('resend');
@@ -22,25 +23,19 @@ admin.initializeApp();
 // Set global options for functions (e.g., region, memory)
 setGlobalOptions({ region: 'us-central1' });
 
-// Lazy initialization for Resend and Vonage to avoid errors during code analysis
+// Define secrets for v2 functions
+const vonageApiKey = defineSecret('VONAGE_API_KEY');
+const vonageApiSecret = defineSecret('VONAGE_API_SECRET');
+const resendApiKey = defineSecret('RESEND_API_KEY');
+
+// Lazy initialization for Resend
 let resend = null;
-let vonage = null;
 
 function getResend() {
   if (!resend && process.env.RESEND_API_KEY) {
     resend = new Resend(process.env.RESEND_API_KEY);
   }
   return resend;
-}
-
-function getVonage() {
-  if (!vonage && process.env.VONAGE_API_KEY && process.env.VONAGE_API_SECRET) {
-    vonage = new Vonage({
-      apiKey: process.env.VONAGE_API_KEY,
-      apiSecret: process.env.VONAGE_API_SECRET
-    });
-  }
-  return vonage;
 }
 
 /**
@@ -206,7 +201,7 @@ exports.processScheduledPayment = onCall(async (request) => {
  * @param {string} request.data.text - The text content of the message.
  * @returns {Promise<{success: boolean, message: string, messageId?: string}>} - A promise that resolves with the result of the operation.
  */
-exports.sendSms = onCall(async (request) => {
+exports.sendSms = onCall({ secrets: [vonageApiKey, vonageApiSecret] }, async (request) => {
     // 1. Authenticate the user if required (recommended for production)
     if (!request.auth) {
         throw new HttpsError(
@@ -227,11 +222,12 @@ exports.sendSms = onCall(async (request) => {
     const from = "Nedbank";
 
     try {
-        // 3. Send the SMS using the Vonage SDK
-        const vonageClient = getVonage();
-        if (!vonageClient) {
-            throw new HttpsError('failed-precondition', 'SMS service not configured. VONAGE_API_KEY or VONAGE_API_SECRET is missing.');
-        }
+        // 3. Create Vonage client with secrets and send the SMS
+        const vonageClient = new Vonage({
+            apiKey: vonageApiKey.value(),
+            apiSecret: vonageApiSecret.value()
+        });
+        
         const response = await vonageClient.sms.send({ to, from, text });
         const messageId = response.messages[0].messageId;
         
