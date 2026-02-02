@@ -250,7 +250,7 @@ export async function sendProofOfPaymentEmailAction(
     if (!transaction) throw new Error("Transaction data is required.");
     if (!recipientEmail) throw new Error("Recipient email is required.");
     
-    const functions = getFunctions(app);
+    const functions = getFunctions(app, 'us-central1');
     const sendEmail = httpsCallable(functions, 'sendEmail');
 
     // Generate the PDF
@@ -301,7 +301,7 @@ export async function sendProofOfPaymentSmsAction(
     if (!transaction) throw new Error("Transaction data is required.");
     if (!recipientNumber) throw new Error("Recipient phone number is required.");
     
-    const functions = getFunctions(app);
+    const functions = getFunctions(app, 'us-central1');
     const sendSmsFn = httpsCallable(functions, 'sendSms');
 
     const text = `Nedbank: Proof of payment for ${formatCurrency(transaction.amount, 'ZAR')} to ${transaction.recipientName || 'recipient'} on ${format(new Date(transaction.date), 'dd/MM/yyyy')}. Ref: ${transaction.popReferenceNumber}`;
