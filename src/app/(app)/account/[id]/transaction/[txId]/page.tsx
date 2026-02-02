@@ -11,7 +11,9 @@ import { doc, getDoc } from 'firebase/firestore';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { format } from 'date-fns';
 import { formatCurrency, normalizeDate } from '@/app/lib/data';
-import { generateProofOfPaymentAction, markTransactionAsFailedAction, sendProofOfPaymentEmailAction, sendProofOfPaymentSmsAction } from '@/app/lib/actions';
+import { generateProofOfPaymentAction, markTransactionAsFailedAction, sendProofOfPaymentEmailAction } from '@/app/lib/actions';
+import { functions } from '@/app/lib/firebase';
+import { httpsCallable } from 'firebase/functions';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -184,18 +186,25 @@ function TransactionDetailsContent() {
 
     setIsSending(true);
     try {
-        let result;
         if (dialogOpen === 'email') {
-            result = await sendProofOfPaymentEmailAction(transaction, recipient);
+            const result = await sendProofOfPaymentEmailAction(transaction, recipient);
+            if (result?.success) {
+                setDialogOpen(null);
+                setRecipient('');
+            } else {
+                throw new Error(result?.message || 'Failed to send.');
+            }
         } else if (dialogOpen === 'sms') {
-            result = await sendProofOfPaymentSmsAction(transaction, recipient);
-        }
-
-        if (result?.success) {
+            // Call Firebase function directly from client for SMS
+            const sendSmsFn = httpsCallable(functions, 'sendSms');
+            const text = `Nedbank: Proof of payment for ${formatCurrency(transaction.amount, 'ZAR')} to ${transaction.recipientName || 'recipient'} on ${format(new Date(transaction.date), 'dd/MM/yyyy')}. Ref: ${transaction.popReferenceNumber}`;
+            await sendSmsFn({ to: recipient, text });
             setDialogOpen(null);
             setRecipient('');
-        } else {
-            throw new Error(result?.message || 'Failed to send.');
+            toast({
+                title: 'SMS Sent',
+                description: 'Proof of payment SMS sent successfully.',
+            });
         }
     } catch (e: any) {
         toast({
