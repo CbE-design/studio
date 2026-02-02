@@ -67,6 +67,10 @@ npm run start -- -p 5000 -H 0.0.0.0
 ```
 
 ## Recent Changes
+- Feb 02, 2026: Firebase Cloud Functions deployed
+  - All 6 functions deployed to production (sendSms, sendEmail, addBeneficiary, processScheduledPayment, provisionNewUser, provisionExistingUserPockets)
+  - Vonage SMS integration is now live
+  - Fixed firebase-functions v7 compatibility (auth triggers use v1 syntax)
 - Feb 01, 2026: Vonage SMS integration configured
   - Added Vonage API credentials for SMS proof of payment feature
   - SMS functionality uses Firebase Cloud Functions with Vonage SDK

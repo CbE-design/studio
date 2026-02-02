@@ -10,8 +10,8 @@
  */
 
 const { setGlobalOptions } = require('firebase-functions/v2');
-const { onUserCreate } = require('firebase-functions/v2/auth');
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
+const { user } = require('firebase-functions/v1/auth');
 const admin = require('firebase-admin');
 const { Resend } = require('resend');
 const { Vonage } = require('@vonage/server-sdk');
@@ -22,16 +22,26 @@ admin.initializeApp();
 // Set global options for functions (e.g., region, memory)
 setGlobalOptions({ region: 'us-central1' });
 
-// Initialize Resend
-// Your Resend API key should be set as an environment variable `RESEND_API_KEY`
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization for Resend and Vonage to avoid errors during code analysis
+let resend = null;
+let vonage = null;
 
+function getResend() {
+  if (!resend && process.env.RESEND_API_KEY) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+}
 
-// Initialize Vonage
-const vonage = new Vonage({
-  apiKey: process.env.VONAGE_API_KEY,
-  apiSecret: process.env.VONAGE_API_SECRET
-});
+function getVonage() {
+  if (!vonage && process.env.VONAGE_API_KEY && process.env.VONAGE_API_SECRET) {
+    vonage = new Vonage({
+      apiKey: process.env.VONAGE_API_KEY,
+      apiSecret: process.env.VONAGE_API_SECRET
+    });
+  }
+  return vonage;
+}
 
 /**
  * Sends an email using Resend.
@@ -63,7 +73,11 @@ exports.sendEmail = onCall(async (request) => {
     const fromEmail = process.env.MAIL_FROM || 'onboarding@resend.dev';
 
     try {
-        await resend.emails.send({
+        const resendClient = getResend();
+        if (!resendClient) {
+            throw new HttpsError('failed-precondition', 'Email service not configured. RESEND_API_KEY is missing.');
+        }
+        await resendClient.emails.send({
             from: `"${fromName}" <${fromEmail}>`,
             to: to,
             subject: subject,
@@ -214,7 +228,11 @@ exports.sendSms = onCall(async (request) => {
 
     try {
         // 3. Send the SMS using the Vonage SDK
-        const response = await vonage.sms.send({ to, from, text });
+        const vonageClient = getVonage();
+        if (!vonageClient) {
+            throw new HttpsError('failed-precondition', 'SMS service not configured. VONAGE_API_KEY or VONAGE_API_SECRET is missing.');
+        }
+        const response = await vonageClient.sms.send({ to, from, text });
         const messageId = response.messages[0].messageId;
         
         console.log(`Message sent successfully. Message ID: ${messageId}`);
@@ -442,9 +460,8 @@ const initialSavvyBundleTransactions = [
  * This function creates a corresponding user document in Firestore,
  * along with sample bank accounts and detailed transaction history for one account.
  */
-exports.provisionNewUser = onUserCreate(async (event) => {
-  const user = event.data;
-  const { uid, email } = user;
+exports.provisionNewUser = user().onCreate(async (userRecord) => {
+  const { uid, email } = userRecord;
   const db = admin.firestore();
   const batch = db.batch();
 
