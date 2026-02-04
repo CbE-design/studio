@@ -217,29 +217,49 @@ exports.sendSms = onCall({ secrets: [vonageApiKey, vonageApiSecret] }, async (re
     const from = "Nedbank";
 
     try {
-        // 3. Create Vonage client with secrets and send the SMS
+        // Create Vonage client with secrets and send the SMS
         const vonageClient = new Vonage({
             apiKey: vonageApiKey.value(),
             apiSecret: vonageApiSecret.value()
         });
         
         const response = await vonageClient.sms.send({ to, from, text });
-        const messageId = response.messages[0].messageId;
+        console.log("Vonage response:", JSON.stringify(response));
         
-        console.log(`Message sent successfully. Message ID: ${messageId}`);
+        // Check if any messages were sent
+        if (!response.messages || response.messages.length === 0) {
+            throw new HttpsError('internal', 'No response from SMS service.');
+        }
+        
+        const message = response.messages[0];
+        
+        // Vonage status codes: 0 = success, others are errors
+        // https://developer.vonage.com/en/messaging/sms/guides/troubleshooting-sms
+        if (message.status !== '0') {
+            const errorText = message['error-text'] || 'Unknown error';
+            console.error(`Vonage error - Status: ${message.status}, Error: ${errorText}`);
+            throw new HttpsError(
+                'internal',
+                `SMS failed: ${errorText} (code: ${message.status})`
+            );
+        }
+        
+        console.log(`Message sent successfully. Message ID: ${message.messageId}`);
 
-        // 4. Return a success response to the client
         return { 
             success: true, 
             message: "SMS sent successfully!",
-            messageId: messageId
+            messageId: message.messageId
         };
     } catch (error) {
         console.error("Error sending SMS:", error);
+        // Pass through HttpsError as-is
+        if (error instanceof HttpsError) {
+            throw error;
+        }
         throw new HttpsError(
             'internal',
-            'Failed to send SMS.',
-            error
+            error.message || 'Failed to send SMS.'
         );
     }
 });
