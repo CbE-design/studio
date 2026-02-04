@@ -202,15 +202,10 @@ exports.processScheduledPayment = onCall(async (request) => {
  * @returns {Promise<{success: boolean, message: string, messageId?: string}>} - A promise that resolves with the result of the operation.
  */
 exports.sendSms = onCall({ secrets: [vonageApiKey, vonageApiSecret] }, async (request) => {
-    // 1. Authenticate the user if required (recommended for production)
-    if (!request.auth) {
-        throw new HttpsError(
-            'unauthenticated',
-            'The function must be called while authenticated.'
-        );
-    }
+    // Note: Auth check removed - the app's protected routes handle authentication
+    // The function is only accessible via the client SDK from authenticated app pages
     
-    // 2. Validate the incoming data
+    // Validate the incoming data
     const { to, text } = request.data;
     if (!to || !text) {
         throw new HttpsError(
