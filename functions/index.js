@@ -253,10 +253,24 @@ exports.sendSms = onCall({ secrets: [vonageApiKey, vonageApiSecret] }, async (re
         };
     } catch (error) {
         console.error("Error sending SMS:", error);
+        
         // Pass through HttpsError as-is
         if (error instanceof HttpsError) {
             throw error;
         }
+        
+        // Handle Vonage MessageSendPartialFailure - extract the actual error
+        if (error.response && error.response.messages) {
+            const msg = error.response.messages[0];
+            console.error("Vonage detailed error:", JSON.stringify(msg));
+            const errorText = msg['error-text'] || msg.errorText || 'Unknown Vonage error';
+            const status = msg.status || 'unknown';
+            throw new HttpsError(
+                'internal',
+                `SMS failed: ${errorText} (status: ${status})`
+            );
+        }
+        
         throw new HttpsError(
             'internal',
             error.message || 'Failed to send SMS.'
