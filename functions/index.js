@@ -201,7 +201,7 @@ exports.processScheduledPayment = onCall(async (request) => {
  * @param {string} request.data.text - The text content of the message.
  * @returns {Promise<{success: boolean, message: string, messageId?: string}>} - A promise that resolves with the result of the operation.
  */
-exports.sendSms = onCall({ secrets: [vonageApiKey, vonageApiSecret], memory: '512MiB' }, async (request) => {
+exports.sendSms = onCall({ secrets: [vonageApiKey, vonageApiSecret], memory: '512MiB', timeoutSeconds: 60 }, async (request) => {
     // Note: Auth check removed - the app's protected routes handle authentication
     // The function is only accessible via the client SDK from authenticated app pages
     
