@@ -4,7 +4,7 @@
 
 import { Suspense, useEffect, useState, useRef, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, CalendarIcon, ChevronRight, ChevronUp, ChevronDown, LoaderCircle, PlusCircle, X } from 'lucide-react';
+import { ArrowLeft, CalendarIcon, ChevronRight, ChevronUp, ChevronDown, LoaderCircle, PlusCircle, X, Trash2, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format, isToday, parseISO } from 'date-fns';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
@@ -18,6 +18,16 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { calculateFee } from '@/app/lib/fees';
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const AccountSelector = ({
   accounts,
@@ -135,6 +145,12 @@ function AmountPageContent() {
     const [yourReference, setYourReference] = useState('');
     const [recipientReference, setRecipientReference] = useState('');
     const [dailyLimitRemaining, setDailyLimitRemaining] = useState<number | null>(null);
+    
+    // Notification state
+    const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
+    const [notificationTypeDialog, setNotificationTypeDialog] = useState<'email' | 'sms' | null>(null);
+    const [notificationValue, setNotificationValue] = useState('');
+    const [savedNotification, setSavedNotification] = useState<{ type: 'email' | 'sms'; value: string } | null>(null);
 
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
@@ -228,6 +244,18 @@ function AmountPageContent() {
         }
     };
     
+    const handleAddNotification = () => {
+        if (notificationValue && notificationTypeDialog) {
+            setSavedNotification({ type: notificationTypeDialog, value: notificationValue });
+            setNotificationTypeDialog(null);
+            setNotificationValue('');
+        }
+    };
+
+    const handleRemoveNotification = () => {
+        setSavedNotification(null);
+    };
+
     const handleNext = () => {
         const params = new URLSearchParams();
         Object.entries(paymentDetails).forEach(([key, value]) => {
@@ -243,6 +271,11 @@ function AmountPageContent() {
             if (accountDetails) {
                  params.set('fromAccount', `${accountDetails.name} - ${accountDetails.accountNumber}`);
             }
+        }
+        // Pass notification info if set
+        if (savedNotification) {
+            params.set('notificationType', savedNotification.type);
+            params.set('notificationValue', savedNotification.value);
         }
         router.push(`/pay/single/review?${params.toString()}`);
     }
@@ -323,12 +356,89 @@ function AmountPageContent() {
                 </div>
                 
                  <div className="space-y-2">
-                    <h2 className="font-semibold text-gray-700">Notifications (0/1)</h2>
-                    <Button variant="link" className="text-primary p-0 h-auto font-semibold">
-                       <PlusCircle className="mr-2 h-5 w-5" />
-                       Add a notification
-                    </Button>
+                    <h2 className="font-semibold text-gray-700">Notifications ({savedNotification ? '1' : '0'}/1)</h2>
+                    {savedNotification ? (
+                        <div className="flex items-center justify-between bg-white p-3 rounded-lg border">
+                            <div>
+                                <p className="text-xs text-gray-500 uppercase">{savedNotification.type === 'sms' ? 'Enter cellphone number' : 'Enter email address'}</p>
+                                <p className="text-gray-800">{savedNotification.value}</p>
+                            </div>
+                            <Button variant="ghost" size="icon" onClick={handleRemoveNotification}>
+                                <Trash2 className="h-5 w-5 text-primary" />
+                            </Button>
+                        </div>
+                    ) : (
+                        <Button variant="link" className="text-primary p-0 h-auto font-semibold" onClick={() => setNotificationDialogOpen(true)}>
+                           <PlusCircle className="mr-2 h-5 w-5" />
+                           Add a notification
+                        </Button>
+                    )}
                 </div>
+
+                {/* Notification Type Selection Dialog */}
+                <Dialog open={notificationDialogOpen} onOpenChange={setNotificationDialogOpen}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>Notifications</DialogTitle>
+                        </DialogHeader>
+                        <Alert className="bg-blue-50 border-blue-100">
+                            <Info className="h-4 w-4 text-blue-600" />
+                            <AlertDescription className="text-sm text-gray-600">
+                                A service fee may be charged based on your banking account package. Please refer to our <span className="text-primary underline cursor-pointer">latest pricing guide</span>.
+                            </AlertDescription>
+                        </Alert>
+                        <div className="space-y-0">
+                            <button
+                                className="w-full py-4 text-left font-semibold border-b hover:bg-gray-50"
+                                onClick={() => {
+                                    setNotificationDialogOpen(false);
+                                    setNotificationTypeDialog('email');
+                                }}
+                            >
+                                EMAIL
+                            </button>
+                            <button
+                                className="w-full py-4 text-left font-semibold hover:bg-gray-50"
+                                onClick={() => {
+                                    setNotificationDialogOpen(false);
+                                    setNotificationTypeDialog('sms');
+                                }}
+                            >
+                                SMS
+                            </button>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Email/SMS Input Dialog */}
+                <Dialog open={notificationTypeDialog !== null} onOpenChange={(open) => { if (!open) { setNotificationTypeDialog(null); setNotificationValue(''); }}}>
+                    <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                            <DialogTitle>{notificationTypeDialog === 'sms' ? 'Enter cellphone number' : 'Enter email address'}</DialogTitle>
+                            <DialogDescription>
+                                {notificationTypeDialog === 'sms' 
+                                    ? 'Enter the phone number to receive payment notification SMS.'
+                                    : 'Enter the email address to receive payment notification.'}
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                            <Input
+                                value={notificationValue}
+                                onChange={(e) => setNotificationValue(e.target.value)}
+                                placeholder={notificationTypeDialog === 'sms' ? '+27123456789' : 'email@example.com'}
+                                type={notificationTypeDialog === 'sms' ? 'tel' : 'email'}
+                            />
+                        </div>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="outline">Cancel</Button>
+                            </DialogClose>
+                            <Button onClick={handleAddNotification} disabled={!notificationValue}>
+                                Add
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
 
                 <div className="space-y-4">
                     <h2 className="font-semibold text-gray-700">When will it be paid?</h2>

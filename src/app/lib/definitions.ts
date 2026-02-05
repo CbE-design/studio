@@ -79,5 +79,6 @@ export type TransactionResult = {
   success: boolean;
   message: string;
   transactionId?: string;
+  popReferenceNumber?: string;
   errors?: any;
 };

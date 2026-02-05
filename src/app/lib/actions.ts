@@ -39,6 +39,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
 
     try {
         let mainTxId: string | undefined;
+        let savedPopReferenceNumber: string | undefined;
         const { fromAccountId, userId, amount, recipientName, yourReference, recipientReference, bankName, accountNumber, paymentType } = validatedFields.data;
         const numericAmount = parseFloat(amount);
         
@@ -72,6 +73,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             mainTxId = newTransactionRef.id;
             
             const popReferenceNumber = `${format(new Date(), 'yyyy-MM-dd')}/NEDBANK/${generateRandomSuffix(12)}`;
+            savedPopReferenceNumber = popReferenceNumber;
             const popSecurityCode = generateSecurityCode();
 
             const mainTransactionData: Transaction = {
@@ -118,6 +120,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             success: true, 
             message: 'Transaction created successfully.',
             transactionId: mainTxId,
+            popReferenceNumber: savedPopReferenceNumber,
         };
 
     } catch (error: any) {

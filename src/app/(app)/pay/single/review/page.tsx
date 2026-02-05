@@ -6,10 +6,12 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, X, User, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
-import { formatCurrency } from '@/app/lib/data';
+import { formatCurrency, normalizeDate } from '@/app/lib/data';
 import { createTransactionAction } from '@/app/lib/actions';
 import { useUser } from '@/firebase-provider';
 import { useToast } from '@/hooks/use-toast';
+import { functions } from '@/app/lib/firebase';
+import { httpsCallable } from 'firebase/functions';
 
 const RecipientIcon = () => (
     <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center relative">
@@ -47,6 +49,8 @@ function ReviewPaymentContent() {
         paymentType: searchParams.get('paymentType'),
         amount: searchParams.get('amount'),
         fromAccount: searchParams.get('fromAccount'),
+        notificationType: searchParams.get('notificationType'),
+        notificationValue: searchParams.get('notificationValue'),
     };
     
     const formattedDate = format(new Date(), 'dd MMMM yyyy');
@@ -77,6 +81,31 @@ function ReviewPaymentContent() {
             });
 
             if (result.success) {
+                // Send SMS notification if configured
+                if (paymentDetails.notificationType === 'sms' && paymentDetails.notificationValue) {
+                    try {
+                        const sendSmsFn = httpsCallable(functions, 'sendSms');
+                        const accNumberLast6 = paymentDetails.accountNumber ? `...${paymentDetails.accountNumber.slice(-6)}` : '...';
+                        const formattedAmount = `R${parseFloat(paymentDetails.amount || '0').toFixed(2)}`;
+                        const smsDate = format(new Date(), 'dd/MM/yyyy');
+                        const senderName = 'GGS FAMILY TRUST';
+                        const reference = result.popReferenceNumber || `${format(new Date(), 'yyyy-MM-dd')}/NEDBANK/${result.transactionId}`;
+                        const smsText = `Nedbank Payment: ${senderName} has paid ${formattedAmount} into Acc No: ${accNumberLast6} on ${smsDate} ,Ref: ${reference} .Please check your account.`;
+                        await sendSmsFn({ to: paymentDetails.notificationValue, text: smsText });
+                        toast({
+                            title: 'SMS Sent',
+                            description: 'Payment notification SMS sent successfully.',
+                        });
+                    } catch (smsError: any) {
+                        console.error('Failed to send SMS notification:', smsError);
+                        toast({
+                            variant: 'destructive',
+                            title: 'SMS Failed',
+                            description: 'Payment was successful but SMS notification failed to send.',
+                        });
+                    }
+                }
+
                 const params = new URLSearchParams();
                 Object.entries(paymentDetails).forEach(([key, value]) => {
                     if (value) params.set(key, value);
