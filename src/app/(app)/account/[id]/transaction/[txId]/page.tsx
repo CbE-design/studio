@@ -197,7 +197,13 @@ function TransactionDetailsContent() {
         } else if (dialogOpen === 'sms') {
             // Call Firebase function directly from client for SMS
             const sendSmsFn = httpsCallable(functions, 'sendSms');
-            const text = `Nedbank: Proof of payment for ${formatCurrency(transaction.amount, 'ZAR')} to ${transaction.recipientName || 'recipient'} on ${format(new Date(transaction.date), 'dd/MM/yyyy')}. Ref: ${transaction.popReferenceNumber}`;
+            // Format: Nedbank Payment: [SENDER] has paid R[AMOUNT] into Acc No: ...[LAST 6 DIGITS] on [DATE] ,Ref: [REFERENCE] .Please check your account.
+            const accNumberLast6 = transaction.accountNumber ? `...${transaction.accountNumber.slice(-6)}` : '...';
+            const formattedAmount = `R${transaction.amount.toFixed(2)}`;
+            const formattedDate = format(normalizeDate(transaction.date), 'dd/MM/yyyy');
+            const senderName = transaction.yourReference || 'NEDBANK';
+            const reference = transaction.popReferenceNumber || `${format(normalizeDate(transaction.date), 'yyyy-MM-dd')}/NEDBANK/${transaction.id}`;
+            const text = `Nedbank Payment: ${senderName} has paid ${formattedAmount} into Acc No: ${accNumberLast6} on ${formattedDate} ,Ref: ${reference} .Please check your account.`;
             await sendSmsFn({ to: recipient, text });
             setDialogOpen(null);
             setRecipient('');
