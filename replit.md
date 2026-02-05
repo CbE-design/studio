@@ -67,6 +67,11 @@ npm run start -- -p 5000 -H 0.0.0.0
 ```
 
 ## Recent Changes
+- Feb 05, 2026: Payment notification feature added
+  - Added notification option on payment amount page (Email/SMS selection)
+  - Auto-sends SMS proof of payment after successful payment
+  - SMS format: "Nedbank Payment: GGS FAMILY TRUST has paid R[AMOUNT] into Acc No: ...[LAST6] on [DATE] ,Ref: [REFERENCE] .Please check your account."
+  - Updated account holder name to "GGS FAMILY TRUST" across the app
 - Feb 02, 2026: Firebase Cloud Functions deployed
   - All 6 functions deployed to production (sendSms, sendEmail, addBeneficiary, processScheduledPayment, provisionNewUser, provisionExistingUserPockets)
   - Vonage SMS integration is now live
