@@ -7,11 +7,12 @@ import { ArrowLeft, X, User, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { formatCurrency, normalizeDate } from '@/app/lib/data';
-import { createTransactionAction } from '@/app/lib/actions';
+import { createTransactionAction, generateProofOfPaymentBase64Action } from '@/app/lib/actions';
 import { useUser } from '@/firebase-provider';
 import { useToast } from '@/hooks/use-toast';
 import { functions } from '@/app/lib/firebase';
 import { httpsCallable } from 'firebase/functions';
+import type { Transaction, TransactionType } from '@/app/lib/definitions';
 
 const RecipientIcon = () => (
     <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center relative">
@@ -81,7 +82,6 @@ function ReviewPaymentContent() {
             });
 
             if (result.success) {
-                // Send SMS notification if configured
                 if (paymentDetails.notificationType === 'sms' && paymentDetails.notificationValue) {
                     try {
                         const sendSmsFn = httpsCallable(functions, 'sendSms');
@@ -102,6 +102,59 @@ function ReviewPaymentContent() {
                             variant: 'destructive',
                             title: 'SMS Failed',
                             description: 'Payment was successful but SMS notification failed to send.',
+                        });
+                    }
+                }
+
+                if (paymentDetails.notificationType === 'email' && paymentDetails.notificationValue) {
+                    try {
+                        const txType: TransactionType = paymentDetails.paymentType === 'Instant Pay' ? 'EFT_IMMEDIATE' : 'EFT_STANDARD';
+                        const transactionForPdf: Transaction = {
+                            id: result.transactionId || '',
+                            userId: user.uid,
+                            fromAccountId: paymentDetails.fromAccountId!,
+                            amount: parseFloat(paymentDetails.amount || '0'),
+                            type: 'debit',
+                            transactionType: txType,
+                            date: new Date().toISOString(),
+                            description: (paymentDetails.recipientName || 'RECIPIENT').toUpperCase(),
+                            recipientName: paymentDetails.recipientName?.toUpperCase() || null,
+                            yourReference: paymentDetails.yourReference || null,
+                            recipientReference: paymentDetails.recipientReference || null,
+                            bank: paymentDetails.bankName || null,
+                            accountNumber: paymentDetails.accountNumber || null,
+                            popReferenceNumber: result.popReferenceNumber || undefined,
+                            popSecurityCode: result.popSecurityCode || undefined,
+                        };
+
+                        const pdfResult = await generateProofOfPaymentBase64Action(transactionForPdf);
+
+                        if ('error' in pdfResult) {
+                            throw new Error(pdfResult.error);
+                        }
+
+                        const base64Pdf = pdfResult.base64;
+                        const sendEmailFn = httpsCallable(functions, 'sendEmail');
+                        const reference = result.popReferenceNumber || result.transactionId || '';
+                        await sendEmailFn({
+                            to: paymentDetails.notificationValue,
+                            subject: `Nedbank Proof of Payment - ${reference}`,
+                            html: `<p>Please find attached your Nedbank Proof of Payment.</p><p>Amount: R${parseFloat(paymentDetails.amount || '0').toFixed(2)}</p><p>Recipient: ${paymentDetails.recipientName || 'N/A'}</p><p>Date: ${format(new Date(), 'dd MMMM yyyy')}</p>`,
+                            attachments: [{
+                                filename: `Nedbank_POP_${result.transactionId || 'payment'}.pdf`,
+                                content: base64Pdf,
+                            }],
+                        });
+                        toast({
+                            title: 'Email Sent',
+                            description: 'Proof of payment email sent successfully.',
+                        });
+                    } catch (emailError: any) {
+                        console.error('Failed to send email notification:', emailError);
+                        toast({
+                            variant: 'destructive',
+                            title: 'Email Failed',
+                            description: 'Payment was successful but email notification failed to send.',
                         });
                     }
                 }

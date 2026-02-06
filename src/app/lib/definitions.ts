@@ -80,5 +80,6 @@ export type TransactionResult = {
   message: string;
   transactionId?: string;
   popReferenceNumber?: string;
+  popSecurityCode?: string;
   errors?: any;
 };

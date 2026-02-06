@@ -40,6 +40,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
     try {
         let mainTxId: string | undefined;
         let savedPopReferenceNumber: string | undefined;
+        let savedPopSecurityCode: string | undefined;
         const { fromAccountId, userId, amount, recipientName, yourReference, recipientReference, bankName, accountNumber, paymentType } = validatedFields.data;
         const numericAmount = parseFloat(amount);
         
@@ -75,6 +76,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             const popReferenceNumber = `${format(new Date(), 'yyyy-MM-dd')}/NEDBANK/${generateRandomSuffix(12)}`;
             savedPopReferenceNumber = popReferenceNumber;
             const popSecurityCode = generateSecurityCode();
+            savedPopSecurityCode = popSecurityCode;
 
             const mainTransactionData: Transaction = {
                 id: newTransactionRef.id,
@@ -121,6 +123,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             message: 'Transaction created successfully.',
             transactionId: mainTxId,
             popReferenceNumber: savedPopReferenceNumber,
+            popSecurityCode: savedPopSecurityCode,
         };
 
     } catch (error: any) {
@@ -167,6 +170,30 @@ export async function generateProofOfPaymentAction(
 
         const pdfBytes = await generateProofOfPaymentPdf(transaction, accountData);
         return pdfBytes;
+    } catch (e: any) {
+        console.error("Failed to generate proof of payment:", e);
+        return { error: e.message || "An unknown error occurred during PDF generation." };
+    }
+}
+
+
+export async function generateProofOfPaymentBase64Action(
+    transaction: Transaction
+): Promise<{ base64: string } | { error: string }> {
+    try {
+        if (!transaction) {
+            throw new Error("Transaction data is required.");
+        }
+        
+        const accountDoc = await adminDb.doc(`users/${transaction.userId}/bankAccounts/${transaction.fromAccountId}`).get();
+        if (!accountDoc.exists) {
+             throw new Error("Account for transaction not found.");
+        }
+        const accountData = accountDoc.data() as Account;
+
+        const pdfBytes = await generateProofOfPaymentPdf(transaction, accountData);
+        const base64 = Buffer.from(pdfBytes).toString('base64');
+        return { base64 };
     } catch (e: any) {
         console.error("Failed to generate proof of payment:", e);
         return { error: e.message || "An unknown error occurred during PDF generation." };
