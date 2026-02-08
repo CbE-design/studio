@@ -67,12 +67,6 @@ npm run start -- -p 5000 -H 0.0.0.0
 ```
 
 ## Recent Changes
-- Feb 06, 2026: Email proof of payment feature added
-  - Email notification sends proof of payment PDF as attachment via sendEmail Cloud Function
-  - SMS and Email are two completely separate, independent notification functions
-  - PDF generated server-side using generateProofOfPaymentBase64Action, returned as base64
-  - Email sent via Resend (Firebase Cloud Function) with PDF attachment
-  - popSecurityCode now also returned from createTransactionAction for PDF consistency
 - Feb 05, 2026: Payment notification feature added
   - Added notification option on payment amount page (Email/SMS selection)
   - Auto-sends SMS proof of payment after successful payment

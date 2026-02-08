@@ -44,6 +44,14 @@ function getResend() {
  * It requires the RESEND_API_KEY environment variable to be set.
  */
 exports.sendEmail = onCall(async (request) => {
+    // Authentication check
+    if (!request.auth) {
+        throw new HttpsError(
+            'unauthenticated',
+            'The function must be called while authenticated.'
+        );
+    }
+    
     const { to, subject, html, attachments } = request.data;
     
     if (!to || !subject || !html) {
@@ -69,12 +77,10 @@ exports.sendEmail = onCall(async (request) => {
             to: to,
             subject: subject,
             html: html,
-            ...(attachments && attachments.length > 0 ? {
-                attachments: attachments.map(att => ({
-                    filename: att.filename,
-                    content: att.content
-                })),
-            } : {}),
+            attachments: attachments.map(att => ({
+                filename: att.filename,
+                content: att.content // Resend expects base64 content directly
+            })),
         });
         console.log(`Email sent successfully to ${to}`);
         return { success: true, message: 'Email sent successfully.' };
