@@ -67,6 +67,11 @@ npm run start -- -p 5000 -H 0.0.0.0
 ```
 
 ## Recent Changes
+- Feb 09, 2026: Email proof of payment feature added
+  - Email and SMS are two separate independent notification functions
+  - Email sends the full proof of payment PDF as an attachment via sendEmail Cloud Function (Resend)
+  - PDF generated server-side via generatePopPdfBase64Action, sent from client with auth context
+  - Updated dashboard header icons (bell + message) to match Nedbank app style
 - Feb 05, 2026: Payment notification feature added
   - Added notification option on payment amount page (Email/SMS selection)
   - Auto-sends SMS proof of payment after successful payment
