@@ -9,9 +9,6 @@ import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
 import { db as adminDb } from './firebase-admin';
 import { format } from 'date-fns';
-import { formatCurrency } from './data';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { app } from '@/app/lib/firebase';
 
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
@@ -245,75 +242,29 @@ export async function markTransactionAsFailedAction(
   }
 }
 
-export async function sendProofOfPaymentEmailAction(
-  transaction: Transaction,
-  recipientEmail: string
-): Promise<{ success: boolean; message: string }> {
+export async function generatePopPdfBase64Action(
+  userId: string,
+  accountId: string,
+  transactionId: string
+): Promise<{ success: boolean; pdfBase64?: string; error?: string }> {
   try {
-    if (!transaction) throw new Error("Transaction data is required.");
-    if (!recipientEmail) throw new Error("Recipient email is required.");
-    
-    const functions = getFunctions(app, 'us-central1');
-    const sendEmail = httpsCallable(functions, 'sendEmail');
+    const txDoc = await adminDb.doc(`users/${userId}/bankAccounts/${accountId}/transactions/${transactionId}`).get();
+    if (!txDoc.exists) throw new Error("Transaction not found.");
+    const transaction = txDoc.data() as Transaction;
+    transaction.id = txDoc.id;
+    transaction.userId = userId;
+    transaction.fromAccountId = accountId;
 
-    // Generate the PDF
-    const pdfResult = await generateProofOfPaymentAction(transaction);
-    if ('error' in pdfResult) {
-      throw new Error(pdfResult.error);
-    }
-    const pdfBytes = pdfResult;
+    const accountDoc = await adminDb.doc(`users/${userId}/bankAccounts/${accountId}`).get();
+    if (!accountDoc.exists) throw new Error("Account not found.");
+    const account = accountDoc.data() as Account;
+
+    const pdfBytes = await generateProofOfPaymentPdf(transaction, account);
     const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
-    
-    const subject = `Proof of Payment from GGS FAMILY TRUST - Ref: ${transaction.popReferenceNumber}`;
-    const html = `
-        <p>Dear ${transaction.recipientName || 'Valued Customer'},</p>
-        <p>Please find attached the proof of payment for the amount of ${formatCurrency(transaction.amount, 'ZAR')}.</p>
-        <p><b>Reference:</b> ${transaction.recipientReference || 'N/A'}</p>
-        <p>Thank you,</p>
-        <p><b>GGS FAMILY TRUST</b></p>
-    `;
 
-    // Call the Cloud Function
-    const result = await sendEmail({
-      to: recipientEmail,
-      subject: subject,
-      html: html,
-      attachments: [{
-        filename: `proof-of-payment-${transaction.id}.pdf`,
-        content: pdfBase64
-      }]
-    });
-
-    const data = result.data as { success: boolean, message: string };
-    if (!data.success) {
-        throw new Error(data.message || 'The sendEmail function returned an error.');
-    }
-
-    return { success: true, message: "Email sent successfully." };
+    return { success: true, pdfBase64 };
   } catch (error: any) {
-    console.error("Failed to send proof of payment email:", error);
-    return { success: false, message: error.message || "An unknown error occurred." };
-  }
-}
-
-export async function sendProofOfPaymentSmsAction(
-  transaction: Transaction,
-  recipientNumber: string
-): Promise<{ success: boolean; message: string }> {
-  try {
-    if (!transaction) throw new Error("Transaction data is required.");
-    if (!recipientNumber) throw new Error("Recipient phone number is required.");
-    
-    const functions = getFunctions(app, 'us-central1');
-    const sendSmsFn = httpsCallable(functions, 'sendSms');
-
-    const text = `Nedbank: Proof of payment for ${formatCurrency(transaction.amount, 'ZAR')} to ${transaction.recipientName || 'recipient'} on ${format(new Date(transaction.date), 'dd/MM/yyyy')}. Ref: ${transaction.popReferenceNumber}`;
-
-    await sendSmsFn({ to: recipientNumber, text });
-
-    return { success: true, message: "SMS sent successfully." };
-  } catch (error: any) {
-    console.error("Failed to send proof of payment SMS:", error);
-    return { success: false, message: error.message || "An unknown error occurred." };
+    console.error("Failed to generate PDF:", error);
+    return { success: false, error: error.message || "Failed to generate PDF." };
   }
 }
