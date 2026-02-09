@@ -235,9 +235,9 @@ export default function DashboardPage() {
           <div className="flex items-center gap-4 text-white">
             <Link href="/notifications">
               <div className={cn('relative', isBellRinging && 'animate-ring')}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
-                  <path d="M12 2C12 2 12.5 2 13 2.5C13.5 3 13.5 3.5 13.5 3.5C13.5 3.5 16.5 4.5 17.5 7C18.5 9.5 18.5 13 19 14.5C19.5 16 21 17 21 17H3C3 17 4.5 16 5 14.5C5.5 13 5.5 9.5 6.5 7C7.5 4.5 10.5 3.5 10.5 3.5C10.5 3.5 10.5 3 11 2.5C11.5 2 12 2 12 2Z"></path>
-                  <path d="M10 17C10 17 10 20 12 20C14 20 14 17 14 17"></path>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                 </svg>
                 {unreadCount > 0 && (
                   <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800" />
@@ -245,19 +245,20 @@ export default function DashboardPage() {
               </div>
             </Link>
             <svg 
-              xmlns="http://www.w3.org/2000/svg"
+              width="24" 
+              height="24" 
               viewBox="0 0 24 24" 
               fill="none" 
               stroke="white" 
               strokeWidth="1.8" 
               strokeLinecap="round" 
               strokeLinejoin="round" 
-              className="h-6 w-6"
+              className="h-5 w-5"
             >
-                <path d="M21 11.5C21 16.75 16.97 21 12 21C10.67 21 9.42 20.71 8.28 20.18L3 21L4.41 16.59C3.52 15.09 3 13.35 3 11.5C3 6.25 7.03 2 12 2C16.97 2 21 6.25 21 11.5Z"></path>
-                <line x1="8" y1="8" x2="16" y2="8"></line>
-                <line x1="8" y1="11" x2="16" y2="11"></line>
-                <line x1="8" y1="14" x2="13" y2="14"></line>
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                <line x1="8" y1="7" x2="16" y2="7"></line>
+                <line x1="8" y1="10" x2="16" y2="10"></line>
+                <line x1="8" y1="13" x2="13" y2="13"></line>
             </svg>
           </div>
         </div>
