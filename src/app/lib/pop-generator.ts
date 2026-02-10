@@ -111,7 +111,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     drawDetailRow('Bank', detailsForPdf.bank || 'N/A');
     drawDetailRow('Account Number', detailsForPdf.accountNumber);
     drawDetailRow('Channel', detailsForPdf.channel);
-    y -= 10;
+    y -= 20;
 
     page.drawText('Payer details', { x: margin, y, font: boldFont, size: 10, color: textColor });
     y -= 20;
