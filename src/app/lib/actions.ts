@@ -174,6 +174,34 @@ export async function generateProofOfPaymentAction(
 }
 
 
+export async function generatePopPdfBase64Action(
+    userId: string,
+    accountId: string,
+    transactionId: string,
+): Promise<{ base64: string } | { error: string }> {
+    try {
+        const txDoc = await adminDb.doc(`users/${userId}/bankAccounts/${accountId}/transactions/${transactionId}`).get();
+        if (!txDoc.exists) {
+            throw new Error("Transaction not found.");
+        }
+        const transaction = txDoc.data() as Transaction;
+
+        const accountDoc = await adminDb.doc(`users/${userId}/bankAccounts/${accountId}`).get();
+        if (!accountDoc.exists) {
+            throw new Error("Account not found.");
+        }
+        const accountData = accountDoc.data() as Account;
+
+        const pdfBytes = await generateProofOfPaymentPdf(transaction, accountData);
+        const base64 = Buffer.from(pdfBytes).toString('base64');
+        return { base64 };
+    } catch (e: any) {
+        console.error("Failed to generate POP PDF base64:", e);
+        return { error: e.message || "An unknown error occurred." };
+    }
+}
+
+
 export async function markTransactionAsFailedAction(
   userId: string,
   accountId: string,

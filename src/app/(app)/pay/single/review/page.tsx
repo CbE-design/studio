@@ -7,7 +7,7 @@ import { ArrowLeft, X, User, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { formatCurrency, normalizeDate } from '@/app/lib/data';
-import { createTransactionAction } from '@/app/lib/actions';
+import { createTransactionAction, generatePopPdfBase64Action } from '@/app/lib/actions';
 import { useUser } from '@/firebase-provider';
 import { useToast } from '@/hooks/use-toast';
 import { functions } from '@/app/lib/firebase';
@@ -81,7 +81,6 @@ function ReviewPaymentContent() {
             });
 
             if (result.success) {
-                // Send SMS notification if configured
                 if (paymentDetails.notificationType === 'sms' && paymentDetails.notificationValue) {
                     try {
                         const sendSmsFn = httpsCallable(functions, 'sendSms');
@@ -102,6 +101,62 @@ function ReviewPaymentContent() {
                             variant: 'destructive',
                             title: 'SMS Failed',
                             description: 'Payment was successful but SMS notification failed to send.',
+                        });
+                    }
+                }
+
+                if (paymentDetails.notificationType === 'email' && paymentDetails.notificationValue) {
+                    try {
+                        const pdfResult = await generatePopPdfBase64Action(
+                            user.uid,
+                            paymentDetails.fromAccountId!,
+                            result.transactionId!,
+                        );
+
+                        if ('error' in pdfResult) {
+                            throw new Error(pdfResult.error);
+                        }
+
+                        const sendEmailFn = httpsCallable(functions, 'sendEmail');
+                        const formattedAmount = `R${parseFloat(paymentDetails.amount || '0').toFixed(2)}`;
+                        const reference = result.popReferenceNumber || `${format(new Date(), 'yyyy-MM-dd')}/NEDBANK/${result.transactionId}`;
+
+                        await sendEmailFn({
+                            to: paymentDetails.notificationValue,
+                            subject: `Nedbank Proof of Payment - ${reference}`,
+                            html: `
+                                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                                    <div style="background-color: #00A651; padding: 20px; text-align: center;">
+                                        <h1 style="color: white; margin: 0; font-size: 20px;">Nedbank Proof of Payment</h1>
+                                    </div>
+                                    <div style="padding: 20px; background-color: #f9f9f9;">
+                                        <p>Dear recipient,</p>
+                                        <p><strong>GGS FAMILY TRUST</strong> has made a payment of <strong>${formattedAmount}</strong> to account <strong>${paymentDetails.accountNumber || 'N/A'}</strong>.</p>
+                                        <p><strong>Recipient:</strong> ${paymentDetails.recipientName || 'N/A'}</p>
+                                        <p><strong>Reference:</strong> ${reference}</p>
+                                        <p><strong>Date:</strong> ${format(new Date(), 'dd MMMM yyyy')}</p>
+                                        <p>Please find the Proof of Payment document attached.</p>
+                                        <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
+                                        <p style="font-size: 11px; color: #666;">This is an automated notification from Nedbank Limited. Reg No 1951/000009/06. Please do not reply to this email.</p>
+                                    </div>
+                                </div>
+                            `,
+                            attachments: [{
+                                filename: `Nedbank_POP_${format(new Date(), 'yyyy-MM-dd')}.pdf`,
+                                content: pdfResult.base64,
+                            }],
+                        });
+
+                        toast({
+                            title: 'Email Sent',
+                            description: 'Proof of payment email sent successfully.',
+                        });
+                    } catch (emailError: any) {
+                        console.error('Failed to send email notification:', emailError);
+                        toast({
+                            variant: 'destructive',
+                            title: 'Email Failed',
+                            description: 'Payment was successful but email notification failed to send.',
                         });
                     }
                 }

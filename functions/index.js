@@ -65,23 +65,26 @@ exports.sendEmail = onCall(async (request) => {
     // For testing, Resend allows 'onboarding@resend.dev', but for production,
     // you should set and verify your own domain (e.g., 'proofofpayment@yourdomain.com').
     const fromName = "Proof of Payment (Nedbank)";
-    const fromEmail = process.env.MAIL_FROM || 'onboarding@resend.dev';
+    const fromEmail = process.env.MAIL_FROM || 'notifications@notificationsnedbank.com';
 
     try {
         const resendClient = getResend();
         if (!resendClient) {
             throw new HttpsError('failed-precondition', 'Email service not configured. RESEND_API_KEY is missing.');
         }
-        await resendClient.emails.send({
+        const emailPayload = {
             from: `"${fromName}" <${fromEmail}>`,
             to: to,
             subject: subject,
             html: html,
-            attachments: attachments.map(att => ({
+        };
+        if (attachments && Array.isArray(attachments) && attachments.length > 0) {
+            emailPayload.attachments = attachments.map(att => ({
                 filename: att.filename,
-                content: att.content // Resend expects base64 content directly
-            })),
-        });
+                content: att.content,
+            }));
+        }
+        await resendClient.emails.send(emailPayload);
         console.log(`Email sent successfully to ${to}`);
         return { success: true, message: 'Email sent successfully.' };
     } catch (error) {
