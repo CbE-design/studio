@@ -56,7 +56,7 @@ exports.sendEmail = onCall({ secrets: [resendApiKey] }, async (request) => {
     // The 'from' email address must be a verified domain in your Resend account.
     // For testing, Resend allows 'onboarding@resend.dev', but for production,
     // you should set and verify your own domain (e.g., 'proofofpayment@yourdomain.com').
-    const fromName = "Proof of Payment (Nedbank)";
+    const fromName = "Nedbank";
     const fromEmail = process.env.MAIL_FROM || 'notifications@notificationsnedbank.com';
 
     try {

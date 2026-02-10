@@ -123,7 +123,7 @@ function ReviewPaymentContent() {
 
                         await sendEmailFn({
                             to: paymentDetails.notificationValue,
-                            subject: `Nedbank Proof of Payment - ${reference}`,
+                            subject: 'Payment Notification',
                             html: `
                                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                                     <div style="background-color: #00A651; padding: 20px; text-align: center;">
