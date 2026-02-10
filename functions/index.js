@@ -44,14 +44,6 @@ function getResend() {
  * It requires the RESEND_API_KEY environment variable to be set.
  */
 exports.sendEmail = onCall(async (request) => {
-    // Authentication check
-    if (!request.auth) {
-        throw new HttpsError(
-            'unauthenticated',
-            'The function must be called while authenticated.'
-        );
-    }
-    
     const { to, subject, html, attachments } = request.data;
     
     if (!to || !subject || !html) {
