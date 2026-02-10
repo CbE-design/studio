@@ -126,18 +126,11 @@ function ReviewPaymentContent() {
                             subject: 'Payment Notification',
                             html: `
                                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                                    <div style="background-color: #00A651; padding: 20px; text-align: center;">
-                                        <h1 style="color: white; margin: 0; font-size: 20px;">Nedbank Proof of Payment</h1>
-                                    </div>
-                                    <div style="padding: 20px; background-color: #f9f9f9;">
-                                        <p>Dear recipient,</p>
-                                        <p><strong>GGS FAMILY TRUST</strong> has made a payment of <strong>${formattedAmount}</strong> to account <strong>${paymentDetails.accountNumber || 'N/A'}</strong>.</p>
-                                        <p><strong>Recipient:</strong> ${paymentDetails.recipientName || 'N/A'}</p>
-                                        <p><strong>Reference:</strong> ${reference}</p>
-                                        <p><strong>Date:</strong> ${format(new Date(), 'dd MMMM yyyy')}</p>
-                                        <p>Please find the Proof of Payment document attached.</p>
-                                        <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
-                                        <p style="font-size: 11px; color: #666;">This is an automated notification from Nedbank Limited. Reg No 1951/000009/06. Please do not reply to this email.</p>
+                                    <div style="padding: 20px;">
+                                        <p>A payment has been made to your account.</p>
+                                        <p>To view the details of the payment, please open the attached PDF file.</p>
+                                        <p>You may require Adobe Acrobat Reader on your computer to open the PDF file.</p>
+                                        <p style="margin-top: 20px;">Please do not reply as this email was sent from an unattended mailbox.</p>
                                     </div>
                                 </div>
                             `,
