@@ -100,7 +100,6 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     
     drawDetailRow('Date of Payment', detailsForPdf.dateOfPayment);
     drawDetailRow('Reference Number', detailsForPdf.referenceNumber);
-    y -= 15;
 
     page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 10, color: textColor });
     y -= 20;
@@ -111,7 +110,6 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     drawDetailRow('Bank', detailsForPdf.bank || 'N/A');
     drawDetailRow('Account Number', detailsForPdf.accountNumber);
     drawDetailRow('Channel', detailsForPdf.channel);
-    y -= 15;
 
     page.drawText('Payer details', { x: margin, y, font: boldFont, size: 10, color: textColor });
     y -= 20;
