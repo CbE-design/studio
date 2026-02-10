@@ -100,7 +100,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     
     drawDetailRow('Date of Payment', detailsForPdf.dateOfPayment);
     drawDetailRow('Reference Number', detailsForPdf.referenceNumber);
-    y -= 10;
+    y -= 5;
 
     page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 10, color: textColor });
     y -= 20;
