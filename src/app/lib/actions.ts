@@ -309,7 +309,7 @@ export async function sendProofOfPaymentEmailAction(
       subject: subject,
       html: html,
       attachments: [{
-        filename: `proof-of-payment-${transaction.id}.pdf`,
+        filename: 'Proof_Of_Payment.pdf',
         content: pdfBase64
       }]
     });

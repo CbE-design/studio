@@ -134,7 +134,7 @@ function ReviewPaymentContent() {
                                 </div>
                             `,
                             attachments: [{
-                                filename: `Nedbank_POP_${format(new Date(), 'yyyy-MM-dd')}.pdf`,
+                                filename: 'Proof_Of_Payment.pdf',
                                 content: pdfResult.base64,
                             }],
                         });
