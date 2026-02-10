@@ -127,10 +127,9 @@ function ReviewPaymentContent() {
                             html: `
                                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                                     <div style="padding: 20px;">
-                                        <p>A payment has been made to your account.</p>
-                                        <p>To view the details of the payment, please open the attached PDF file.</p>
+                                        <p>A payment has been made to your account. To view the details of the payment, please open the attached PDF file.</p>
                                         <p>You may require Adobe Acrobat Reader on your computer to open the PDF file.</p>
-                                        <p style="margin-top: 20px;">Please do not reply as this email was sent from an unattended mailbox.</p>
+                                        <p>Please do not reply as this email was sent from an unattended mailbox.</p>
                                     </div>
                                 </div>
                             `,
