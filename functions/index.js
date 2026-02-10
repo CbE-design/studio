@@ -43,7 +43,7 @@ function getResend() {
  * This is a callable function that can be invoked from the client-side via a server action.
  * It requires the RESEND_API_KEY environment variable to be set.
  */
-exports.sendEmail = onCall(async (request) => {
+exports.sendEmail = onCall({ secrets: [resendApiKey] }, async (request) => {
     const { to, subject, html, attachments } = request.data;
     
     if (!to || !subject || !html) {
