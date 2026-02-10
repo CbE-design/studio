@@ -292,13 +292,16 @@ export async function sendProofOfPaymentEmailAction(
     const pdfBytes = pdfResult;
     const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
     
-    const subject = `Proof of Payment from GGS FAMILY TRUST - Ref: ${transaction.popReferenceNumber}`;
+    const subject = 'Payment Notification';
     const html = `
-        <p>Dear ${transaction.recipientName || 'Valued Customer'},</p>
-        <p>Please find attached the proof of payment for the amount of ${formatCurrency(transaction.amount, 'ZAR')}.</p>
-        <p><b>Reference:</b> ${transaction.recipientReference || 'N/A'}</p>
-        <p>Thank you,</p>
-        <p><b>GGS FAMILY TRUST</b></p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="padding: 20px;">
+                <p>A payment has been made to your account.</p>
+                <p>To view the details of the payment, please open the attached PDF file.</p>
+                <p>You may require Adobe Acrobat Reader on your computer to open the PDF file.</p>
+                <p style="margin-top: 20px;">Please do not reply as this email was sent from an unattended mailbox.</p>
+            </div>
+        </div>
     `;
 
     // Call the Cloud Function
