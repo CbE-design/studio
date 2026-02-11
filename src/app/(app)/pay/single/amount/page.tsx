@@ -2,9 +2,9 @@
 
 'use client';
 
-import { Suspense, useEffect, useState, useRef, useMemo } from 'react';
+import { Suspense, useEffect, useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, CalendarIcon, ChevronRight, ChevronUp, ChevronDown, LoaderCircle, PlusCircle, X, Trash2, Info } from 'lucide-react';
+import { ArrowLeft, CalendarIcon, ChevronRight, LoaderCircle, PlusCircle, X, Trash2, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format, isToday, parseISO } from 'date-fns';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
@@ -15,9 +15,7 @@ import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
 import { calculateFee } from '@/app/lib/fees';
-import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 import {
   Dialog,
   DialogContent,
@@ -29,93 +27,42 @@ import {
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-const AccountSelector = ({
-  accounts,
-  selectedAccount,
-  onSelectAccount,
+const AccountCard = ({
+  account,
+  isSelected,
+  onClick,
 }: {
-  accounts: Account[];
-  selectedAccount: string | null;
-  onSelectAccount: (accountId: string) => void;
-}) => {
-    const [api, setApi] = useState<CarouselApi>()
- 
-    useEffect(() => {
-        if (!api) {
-            return
-        }
-        
-        const selectedIndex = accounts.findIndex(acc => acc.id === selectedAccount);
-        if (selectedIndex !== -1) {
-            api.scrollTo(selectedIndex, true);
-        }
-
-        api.on("select", () => {
-            const newSelectedIndex = api.selectedScrollSnap();
-            if (accounts[newSelectedIndex]) {
-                onSelectAccount(accounts[newSelectedIndex].id);
-            }
-        })
-    }, [api, accounts, selectedAccount, onSelectAccount])
-
-
-  return (
-    <Carousel setApi={setApi}
-      opts={{
-        align: "center",
-        loop: false,
-      }}
-      className="w-full max-w-sm mx-auto"
-    >
-      <CarouselContent className="-ml-2">
-        {accounts.map((account, index) => (
-          <CarouselItem key={index} className="pl-2 basis-2/3 md:basis-1/2">
-             <Card
-                key={account.id}
-                className={cn(
-                'min-w-[200px] w-[200px] border-2 rounded-lg transition-all cursor-pointer shadow-sm',
-                selectedAccount === account.id
-                    ? 'border-primary bg-white'
-                    : 'border-gray-200 bg-white'
-                )}
-                onClick={() => onSelectAccount(account.id)}
-            >
-                <CardContent className="p-0 relative flex flex-col justify-between h-full">
-                <div className="p-3">
-                    <p
-                    className={cn(
-                        'font-semibold text-sm uppercase',
-                        selectedAccount === account.id
-                        ? 'text-primary'
-                        : 'text-gray-600'
-                    )}
-                    >
-                    {account.name}
-                    </p>
-                    <p className="text-xs text-gray-400">{account.accountNumber}</p>
-                </div>
-                <div
-                    className={cn(
-                    'p-3 text-white font-bold rounded-b-md',
-                    selectedAccount === account.id
-                        ? 'bg-primary'
-                        : 'bg-gray-300'
-                    )}
-                >
-                    {formatCurrency(account.balance, account.currency)}
-                </div>
-                {selectedAccount === account.id && (
-                    <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-primary" />
-                )}
-                </CardContent>
-            </Card>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-    </Carousel>
-  );
-};
-
+  account: Account;
+  isSelected: boolean;
+  onClick: () => void;
+}) => (
+  <div className="flex flex-col items-center cursor-pointer" onClick={onClick}>
+    <div className={cn(
+      'rounded-lg border-2 overflow-hidden w-44 transition-all',
+      isSelected ? 'border-primary' : 'border-gray-200'
+    )}>
+      <div className="bg-white p-3 text-center">
+        <p className={cn(
+          'font-bold text-sm uppercase',
+          isSelected ? 'text-primary' : 'text-gray-600'
+        )}>
+          {account.name}
+        </p>
+        <p className="text-xs text-gray-400">{account.accountNumber}</p>
+      </div>
+      <div className={cn(
+        'p-3 text-center text-white font-bold text-sm',
+        isSelected ? 'bg-primary' : 'bg-gray-300'
+      )}>
+        <p className="text-lg font-bold">{formatCurrency(account.balance, account.currency)}</p>
+        <p className="text-xs font-normal opacity-90">Available balance</p>
+      </div>
+    </div>
+    {isSelected && (
+      <div className="w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-primary" />
+    )}
+  </div>
+);
 
 const LoadingSkeleton = () => (
     <div className="flex flex-col h-screen">
@@ -125,9 +72,9 @@ const LoadingSkeleton = () => (
                 <Skeleton className="h-8 w-32 bg-white/20" />
                 <Skeleton className="h-6 w-6 bg-white/20" />
             </div>
-             <Skeleton className="h-16 w-full bg-white/20" />
         </div>
         <div className="p-4 space-y-8">
+            <Skeleton className="h-16 w-full" />
             <Skeleton className="h-8 w-1/2" />
             <Skeleton className="h-32 w-full" />
             <Skeleton className="h-8 w-1/2" />
@@ -146,7 +93,6 @@ function AmountPageContent() {
     const [recipientReference, setRecipientReference] = useState('');
     const [dailyLimitRemaining, setDailyLimitRemaining] = useState<number | null>(null);
     
-    // Notification state
     const [notificationDialogOpen, setNotificationDialogOpen] = useState(false);
     const [notificationTypeDialog, setNotificationTypeDialog] = useState<'email' | 'sms' | null>(null);
     const [notificationValue, setNotificationValue] = useState('');
@@ -272,7 +218,6 @@ function AmountPageContent() {
                  params.set('fromAccount', `${accountDetails.name} - ${accountDetails.accountNumber}`);
             }
         }
-        // Pass notification info if set
         if (savedNotification) {
             params.set('notificationType', savedNotification.type);
             params.set('notificationValue', savedNotification.value);
@@ -287,76 +232,82 @@ function AmountPageContent() {
     }
 
     const chequeAccounts = allAccounts.filter(a => a.type === 'Cheque');
+    const limitPercentUsed = dailyLimitRemaining !== null ? Math.max(0, Math.min(100, (dailyLimitRemaining / 5000000) * 100)) : 100;
 
     return (
         <div className="flex flex-col h-screen bg-gray-50">
-            <header className="gradient-background text-primary-foreground p-4 flex flex-col justify-between sticky top-0 z-10 min-h-[240px]">
+            <header className="gradient-background text-primary-foreground px-4 pt-3 pb-4 sticky top-0 z-10">
                 <div className="w-full flex items-center justify-between">
                     <Button variant="ghost" size="icon" className="-ml-2" onClick={() => router.back()}>
-                        <ArrowLeft />
+                        <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <div className="text-center">
                         <h1 className="text-lg font-semibold">Pay {paymentDetails.recipientName}</h1>
-                        <p className="text-sm opacity-80">{paymentDetails.bankName}</p>
-                        <p className="text-sm opacity-80">{paymentDetails.accountNumber}</p>
+                        <p className="text-xs opacity-80">{paymentDetails.bankName}</p>
+                        <p className="text-xs opacity-80">{paymentDetails.accountNumber}</p>
                     </div>
                     <Button variant="ghost" size="icon" className="-mr-2" onClick={() => router.push('/dashboard')}>
-                        <X />
+                        <X className="h-5 w-5" />
                     </Button>
                 </div>
-                <div className="w-full flex-grow flex flex-col justify-center items-center text-center">
-                     <Label htmlFor="amount" className="text-sm opacity-80 self-start w-full px-4">Amount</Label>
-                    <div className="flex items-center w-full px-4">
-                        <span className="text-3xl font-light text-white opacity-80">R</span>
-                        <input
-                            id="amount"
-                            type="text"
-                            inputMode="decimal"
-                            value={amount}
-                            onChange={handleAmountChange}
-                            onBlur={handleAmountBlur}
-                            className="w-full bg-transparent text-white text-4xl font-light focus:outline-none border-b-2 border-yellow-400 placeholder-white/80"
-                            placeholder="0.00"
-                        />
-                    </div>
-                </div>
-                 <div className="text-xs text-center text-primary-foreground/80 py-1">
-                    {dailyLimitRemaining !== null ? (
-                        <span>
-                            {formatCurrency(dailyLimitRemaining)} daily payment limit remaining
-                        </span>
-                    ) : (
-                        <span>
-                            Calculating payment limit...
-                        </span>
-                    )}
-                 </div>
             </header>
-            
-            <main className="flex-1 overflow-y-auto bg-gray-50 p-4 space-y-6">
-                <div className="space-y-2 text-center">
-                    <h2 className="font-semibold text-gray-700 mb-2">From which account?</h2>
-                     <AccountSelector
-                        accounts={chequeAccounts}
-                        selectedAccount={fromAccount}
-                        onSelectAccount={setFromAccount}
+
+            <div className="bg-white border-b border-gray-200 px-4 py-4">
+                <Label className="text-xs text-gray-500 font-semibold">Amount</Label>
+                <div className="flex items-baseline mt-1">
+                    <span className="text-3xl font-light text-primary">R</span>
+                    <input
+                        type="text"
+                        inputMode="decimal"
+                        value={amount}
+                        onChange={handleAmountChange}
+                        onBlur={handleAmountBlur}
+                        className="w-full bg-transparent text-primary text-3xl font-light focus:outline-none placeholder-gray-300 ml-0.5"
+                        placeholder="0.00"
                     />
                 </div>
+                <div className="mt-3 w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                        className="h-full bg-primary rounded-full transition-all"
+                        style={{ width: `${limitPercentUsed}%` }}
+                    />
+                </div>
+                <p className="text-xs text-gray-500 text-center mt-2">
+                    {formatCurrency(dailyLimitRemaining ?? 0)} daily payment limit remaining
+                </p>
+            </div>
+            
+            <main className="flex-1 overflow-y-auto bg-gray-50">
+                <div className="p-4 pb-2">
+                    <h2 className="font-semibold text-sm text-gray-800 mb-4">From which account?</h2>
+                    <div className="flex justify-center">
+                        <div className="flex gap-3 overflow-x-auto pb-2">
+                            {chequeAccounts.map(account => (
+                                <AccountCard
+                                    key={account.id}
+                                    account={account}
+                                    isSelected={fromAccount === account.id}
+                                    onClick={() => setFromAccount(account.id)}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </div>
 
-                <div className="space-y-4">
-                    <h2 className="font-semibold text-gray-700">What is the payment for?</h2>
-                    <div className="space-y-2">
+                <div className="p-4 space-y-3">
+                    <h2 className="font-semibold text-sm text-gray-800">What is the payment for?</h2>
+                    <div className="space-y-1">
                         <Label htmlFor="your-reference" className="text-xs text-gray-500">Your reference</Label>
                         <Input id="your-reference" value={yourReference} onChange={e => setYourReference(e.target.value)} className="bg-white" />
                     </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="recipient-reference" className="text-xs text-gray-500">Recipient's reference</Label>
+                    <div className="space-y-1">
+                        <Label htmlFor="recipient-reference" className="text-xs text-gray-500">Recipient&apos;s reference</Label>
                         <Input id="recipient-reference" value={recipientReference} onChange={e => setRecipientReference(e.target.value)} className="bg-white" />
                     </div>
                 </div>
                 
-                 <div className="space-y-2">
-                    <h2 className="font-semibold text-gray-700">Notifications ({savedNotification ? '1' : '0'}/1)</h2>
+                <div className="px-4 pb-4 space-y-2">
+                    <h2 className="font-semibold text-sm text-gray-800">Notifications ({savedNotification ? '1' : '0'}/1)</h2>
                     {savedNotification ? (
                         <div className="flex items-center justify-between bg-white p-3 rounded-lg border">
                             <div>
@@ -368,14 +319,13 @@ function AmountPageContent() {
                             </Button>
                         </div>
                     ) : (
-                        <Button variant="link" className="text-primary p-0 h-auto font-semibold" onClick={() => setNotificationDialogOpen(true)}>
+                        <button className="flex items-center text-primary font-semibold text-sm" onClick={() => setNotificationDialogOpen(true)}>
                            <PlusCircle className="mr-2 h-5 w-5" />
                            Add a notification
-                        </Button>
+                        </button>
                     )}
                 </div>
 
-                {/* Notification Type Selection Dialog */}
                 <Dialog open={notificationDialogOpen} onOpenChange={setNotificationDialogOpen}>
                     <DialogContent className="sm:max-w-md">
                         <DialogHeader>
@@ -410,7 +360,6 @@ function AmountPageContent() {
                     </DialogContent>
                 </Dialog>
 
-                {/* Email/SMS Input Dialog */}
                 <Dialog open={notificationTypeDialog !== null} onOpenChange={(open) => { if (!open) { setNotificationTypeDialog(null); setNotificationValue(''); }}}>
                     <DialogContent className="sm:max-w-md">
                         <DialogHeader>
@@ -440,25 +389,25 @@ function AmountPageContent() {
                     </DialogContent>
                 </Dialog>
 
-                <div className="space-y-4">
-                    <h2 className="font-semibold text-gray-700">When will it be paid?</h2>
-                    <div className="space-y-2">
+                <div className="px-4 pb-6 space-y-3">
+                    <h2 className="font-semibold text-sm text-gray-800">When will it be paid?</h2>
+                    <div className="space-y-1">
                         <Label htmlFor="transfer-date" className="text-xs text-gray-500">Payment date</Label>
                         <div className="relative">
-                            <Input id="transfer-date" value={format(new Date(), 'EEEE, dd MMMM yyyy')} readOnly className="bg-white pr-10" />
-                            <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
+                            <Input id="transfer-date" value={format(new Date(), 'EEEE, dd MMMM yyyy')} readOnly className="bg-white pr-10 border-primary" />
+                            <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
                         </div>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1">
                        <Label htmlFor="transfer-repeat" className="text-xs text-gray-500">Payment repeat</Label>
                        <div className="relative">
-                         <Input id="transfer-repeat" value="Never" readOnly className="bg-white pr-10" />
-                         <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                         <Input id="transfer-repeat" value="Never" readOnly className="bg-white pr-10 border-primary" />
+                         <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
                        </div>
                     </div>
                 </div>
             </main>
-             <footer className="p-4 bg-white border-t sticky bottom-0">
+            <footer className="p-4 bg-white border-t sticky bottom-0 z-20">
                 <Button onClick={handleNext} className="w-full font-bold" disabled={!fromAccount || !amount || parseFloat(amount) <= 0}>
                   Next
                 </Button>
