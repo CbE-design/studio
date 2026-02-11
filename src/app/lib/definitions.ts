@@ -24,7 +24,7 @@ export type Transaction = {
   type: 'debit' | 'credit';
   transactionType?: TransactionType;
   reference?: string;
-  recipientName?: string | null;
+  recipientName?: string;
   yourReference?: string;
   recipientReference?: string;
   bank?: string;

@@ -85,11 +85,11 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
                 transactionType: transactionType,
                 date: new Date().toISOString(),
                 description: (recipientName || 'RECIPIENT').toUpperCase(),
-                recipientName: recipientName ? recipientName.toUpperCase() : null,
-                yourReference: yourReference || null,
-                recipientReference: recipientReference || null,
-                bank: bankName || null,
-                accountNumber: accountNumber || null,
+                recipientName: recipientName ? recipientName.toUpperCase() : undefined,
+                yourReference: yourReference || undefined,
+                recipientReference: recipientReference || undefined,
+                bank: bankName || undefined,
+                accountNumber: accountNumber || undefined,
                 popReferenceNumber,
                 popSecurityCode
             };
