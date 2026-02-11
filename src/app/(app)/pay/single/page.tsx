@@ -25,7 +25,6 @@ function SinglePaymentForm() {
   const [paymentType, setPaymentType] = useState('Standard EFT');
   
   useEffect(() => {
-    // Restore state from query parameters
     const queryBank = searchParams.get('bank');
     if (queryBank) setBankName(decodeURIComponent(queryBank));
     
@@ -49,7 +48,6 @@ function SinglePaymentForm() {
 
   const preserveStateAndNavigate = (pathname: string) => {
       const params = new URLSearchParams(searchParams.toString());
-      // Persist all state fields into query params
       params.set('bank', bankName);
       params.set('accountNumber', accountNumber);
       params.set('recipientName', recipientName);
@@ -62,7 +60,6 @@ function SinglePaymentForm() {
 
   const handleNext = () => {
     const params = new URLSearchParams();
-    // Persist all state fields into query params for the next page
     params.set('bankName', bankName);
     params.set('accountNumber', accountNumber);
     params.set('recipientName', recipientName);
@@ -79,105 +76,101 @@ function SinglePaymentForm() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="gradient-background text-primary-foreground p-4 flex items-start h-28 sticky top-0 z-10">
-        <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
-          <ArrowLeft />
+      <header className="gradient-background text-primary-foreground px-4 pt-3 pb-6 sticky top-0 z-10">
+        <Button variant="ghost" size="icon" className="-ml-2 mb-1" onClick={() => router.back()}>
+          <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-2xl font-semibold">Whom would you like to pay?</h1>
+        <h1 className="text-2xl font-semibold leading-tight">Whom would you like<br />to pay?</h1>
       </header>
       
-      <main className="flex-1 overflow-y-auto bg-gray-50 p-4 space-y-6">
-        <div className="space-y-2">
-            <Label htmlFor="recipient-name" className="text-xs text-gray-500 font-semibold">A new recipient</Label>
-            <Input id="recipient-name" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Enter name and surname" className="bg-white" />
+      <main className="flex-1 overflow-y-auto bg-gray-50">
+        <div className="p-4 space-y-2">
+          <Label htmlFor="recipient-name" className="text-xs text-gray-500 font-semibold">A new recipient</Label>
+          <Input id="recipient-name" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Enter name and surname" className="bg-white" />
         </div>
 
-        <div className="bg-white p-4 rounded-lg space-y-4 mt-8">
-            <Link href="/recipients">
-                <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
-                    <Users className="h-5 w-5 mr-3 text-primary" />
-                    <span className="flex-1 text-gray-700">Select from saved recipients</span>
-                </div>
-            </Link>
-            <Link href="#">
-                <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
-                    <Landmark className="h-5 w-5 mr-3 text-primary" />
-                    <span className="flex-1 text-gray-700">Select from bank-approved recipients</span>
-                </div>
-            </Link>
-            <Link href="#">
-                <div className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 bg-white">
-                    <Smartphone className="h-5 w-5 mr-3 text-primary" />
-                    <span className="flex-1 text-gray-700">Select from phone contacts</span>
-                </div>
-            </Link>
+        <div className="border-t border-b border-gray-200 bg-white">
+          <Link href="/recipients">
+            <div className="flex items-center px-4 py-3.5 border-b border-gray-100">
+              <Users className="h-5 w-5 mr-3 text-gray-500" />
+              <span className="flex-1 text-sm text-gray-700">Select from saved recipients</span>
+            </div>
+          </Link>
+          <Link href="#">
+            <div className="flex items-center px-4 py-3.5 border-b border-gray-100">
+              <Landmark className="h-5 w-5 mr-3 text-gray-500" />
+              <span className="flex-1 text-sm text-gray-700">Select from bank-approved recipients</span>
+            </div>
+          </Link>
+          <Link href="#">
+            <div className="flex items-center px-4 py-3.5">
+              <Smartphone className="h-5 w-5 mr-3 text-gray-500" />
+              <span className="flex-1 text-sm text-gray-700">Select from phone contacts</span>
+            </div>
+          </Link>
         </div>
         
-        <div className="space-y-4 py-4">
-            <h2 className="font-semibold text-lg text-gray-800">How would you like to pay?</h2>
-            <div className="flex justify-center">
-                <div className="bg-white p-4 rounded-lg flex flex-col items-center justify-center w-48 h-36 cursor-pointer shadow-md border-2 border-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 22h16"/>
-                      <path d="M2 18V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v9"/>
-                      <path d="M4 18v-5"/><path d="M8 18v-5"/><path d="M12 18v-5"/><path d="M16 18v-5"/><path d="M20 18v-5"/>
-                      <path d="m2 9 10-4 10 4"/>
-                    </svg>
-                    <span className="text-lg text-center mt-2 font-medium text-primary">Pay to a bank account</span>
-                </div>
+        <div className="p-4 pt-6 border-b border-gray-200">
+          <h2 className="font-semibold text-sm text-gray-800 mb-4">How would you like to pay?</h2>
+          <div className="flex justify-center pb-2">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-6 py-5 flex flex-col items-center justify-center cursor-pointer">
+              <div className="bg-primary rounded-lg p-4 mb-3 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 22h16"/>
+                  <path d="M2 18V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v9"/>
+                  <path d="M4 18v-5"/><path d="M8 18v-5"/><path d="M12 18v-5"/><path d="M16 18v-5"/><path d="M20 18v-5"/>
+                  <path d="m2 9 10-4 10 4"/>
+                </svg>
+              </div>
+              <span className="text-sm text-center font-medium text-gray-800">Pay to a<br />bank account</span>
             </div>
+          </div>
         </div>
 
-        <div className="space-y-4">
-            <h2 className="font-semibold text-gray-800">To which account?</h2>
-            <div className="space-y-2">
-                <Label htmlFor="bank-name" className="text-xs text-gray-500 font-semibold">Bank name</Label>
-                <div className="relative" onClick={() => preserveStateAndNavigate('/pay/single/select-bank')}>
-                    <Input 
-                      id="bank-name" 
-                      value={bankName} 
-                      readOnly 
-                      placeholder="Select bank" 
-                      className="pr-10 cursor-pointer bg-white"
-                    />
-                    <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                </div>
+        <div className="p-4 space-y-4">
+          <h2 className="font-semibold text-sm text-gray-800">To which account?</h2>
+          <div className="space-y-1">
+            <Label htmlFor="bank-name" className="text-xs text-gray-500 font-semibold">Bank name</Label>
+            <div className="relative" onClick={() => preserveStateAndNavigate('/pay/single/select-bank')}>
+              <Input 
+                id="bank-name" 
+                value={bankName} 
+                readOnly 
+                placeholder="Select bank" 
+                className="pr-10 cursor-pointer bg-white"
+              />
+              <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             </div>
-            <div className="space-y-2">
-                <Label htmlFor="account-number" className="text-xs text-gray-500 font-semibold">Account number</Label>
-                <Input id="account-number" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder="" className="bg-white" />
-            </div>
-
-            <div className="space-y-2">
-                <Label htmlFor="your-reference" className="text-xs text-gray-500 font-semibold">Your reference (optional)</Label>
-                <Input id="your-reference" value={yourReference} onChange={e => setYourReference(e.target.value)} className="bg-white" />
-            </div>
-
-            <div className="space-y-2">
-                <Label htmlFor="recipient-reference" className="text-xs text-gray-500 font-semibold">Recipient's reference (optional)</Label>
-                <Input id="recipient-reference" value={recipientReference} onChange={e => setRecipientReference(e.target.value)} className="bg-white" />
-            </div>
-
-            <h2 className="font-semibold text-gray-800 pt-2">Payment type?</h2>
-            <div className="space-y-2">
-                <Label htmlFor="payment-method" className="text-xs text-gray-500 font-semibold">Payment method</Label>
-                <div className="relative" onClick={() => preserveStateAndNavigate('/pay/single/select-payment-type')}>
-                    <Input id="payment-method" value={paymentType} readOnly className="pr-10 border-primary cursor-pointer bg-white" />
-                    <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                </div>
-            </div>
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="account-number" className="text-xs text-gray-500 font-semibold">Account number</Label>
+            <Input id="account-number" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} className="bg-white" />
+          </div>
         </div>
 
-        <Alert className="bg-primary/10 border-primary/20 text-primary/90">
-            <Info className="h-5 w-5 text-primary" />
-            <AlertDescription className="text-xs">
-                Before you click Next, please make sure that your recipient's account information is correct. Nedbank doesn't validate account numbers or refund payments to a wrong recipient.
+        <div className="px-4 pb-4 space-y-4">
+          <h2 className="font-semibold text-sm text-gray-800">Payment type?</h2>
+          <div className="space-y-1">
+            <Label htmlFor="payment-method" className="text-xs text-gray-500 font-semibold">Payment method</Label>
+            <div className="relative" onClick={() => preserveStateAndNavigate('/pay/single/select-payment-type')}>
+              <Input id="payment-method" value={paymentType} readOnly className="pr-10 border-primary cursor-pointer bg-white" />
+              <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
+            </div>
+          </div>
+        </div>
+
+        <div className="px-4 pb-4">
+          <Alert className="bg-blue-50 border-blue-100">
+            <Info className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-xs text-gray-600">
+              Before you click Next, please make sure that your recipient&apos;s account information is correct. Nedbank doesn&apos;t validate account numbers or refund payments to a wrong recipient.
             </AlertDescription>
-        </Alert>
+          </Alert>
+        </div>
         
-        <div className="bg-white p-4 rounded-lg border flex items-center justify-between">
-            <Label htmlFor="save-recipient" className="font-semibold text-gray-800">Save recipient</Label>
-            <Switch id="save-recipient" checked={saveRecipient} onCheckedChange={setSaveRecipient} />
+        <div className="px-4 pb-6 flex items-center justify-between">
+          <Label htmlFor="save-recipient" className="text-sm text-gray-800">Save recipient</Label>
+          <Switch id="save-recipient" checked={saveRecipient} onCheckedChange={setSaveRecipient} />
         </div>
       </main>
 
