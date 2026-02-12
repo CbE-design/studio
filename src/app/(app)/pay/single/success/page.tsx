@@ -95,7 +95,7 @@ function PaymentSuccessContent() {
                     </button>
                     <div className="flex flex-col items-center">
                         <Check className="h-12 w-12 text-white mb-3" strokeWidth={2} />
-                        <h1 className="text-xl font-light text-center leading-snug px-4">
+                        <h1 className="text-base font-light text-center leading-snug px-4">
                             {`${formatCurrency(Number(paymentDetails.amount))} paid to ${paymentDetails.recipientName}'s bank account`}
                         </h1>
                     </div>
