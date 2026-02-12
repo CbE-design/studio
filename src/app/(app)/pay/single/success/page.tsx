@@ -94,10 +94,8 @@ function PaymentSuccessContent() {
                         <Share2 className="h-7 w-7 text-white" />
                     </button>
                     <div className="flex flex-col items-center">
-                        <div className="w-14 h-14 rounded-full border-2 border-white flex items-center justify-center mb-3">
-                            <Check className="h-8 w-8 text-white" strokeWidth={2.5} />
-                        </div>
-                        <h1 className="text-xl font-semibold text-center leading-snug px-4">
+                        <Check className="h-12 w-12 text-white mb-3" strokeWidth={2} />
+                        <h1 className="text-lg font-normal text-center leading-snug px-4">
                             {`${formatCurrency(Number(paymentDetails.amount))} paid to ${paymentDetails.recipientName}'s bank account`}
                         </h1>
                     </div>
