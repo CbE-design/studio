@@ -69,7 +69,7 @@ npm run start -- -p 5000 -H 0.0.0.0
 ## Recent Changes
 - Feb 10, 2026: Email Proof of Payment feature added
   - Email notification sends POP PDF as attachment via Resend
-  - Sender address: notifications@notificationsnedbank.com (verified domain)
+  - Sender address: noreply@notificationsnedbank.com (verified domain, no-reply)
   - Email and SMS are two separate independent notification choices
   - Added generatePopPdfBase64Action server action for PDF generation
   - Hardened sendEmail Cloud Function to safely handle missing attachments

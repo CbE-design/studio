@@ -57,7 +57,7 @@ exports.sendEmail = onCall({ secrets: [resendApiKey] }, async (request) => {
     // For testing, Resend allows 'onboarding@resend.dev', but for production,
     // you should set and verify your own domain (e.g., 'proofofpayment@yourdomain.com').
     const fromName = "Nedbank";
-    const fromEmail = process.env.MAIL_FROM || 'notifications@notificationsnedbank.com';
+    const fromEmail = process.env.MAIL_FROM || 'noreply@notificationsnedbank.com';
 
     try {
         const resendClient = getResend();
