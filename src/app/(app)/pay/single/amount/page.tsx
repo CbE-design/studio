@@ -252,27 +252,27 @@ function AmountPageContent() {
                 </div>
             </header>
 
-            <div className="bg-white border-b border-gray-200 px-4 py-4">
-                <Label className="text-xs text-gray-500 font-semibold">Amount</Label>
-                <div className="flex items-baseline mt-1">
-                    <span className="text-3xl font-light text-primary">R</span>
+            <div className="gradient-background px-4 py-4 border-b border-white/20">
+                <Label className="text-xs text-white/80 font-semibold">Amount</Label>
+                <div className="flex items-baseline mt-2">
+                    <span className="text-3xl font-light text-white">R</span>
                     <input
                         type="text"
                         inputMode="decimal"
                         value={amount}
                         onChange={handleAmountChange}
                         onBlur={handleAmountBlur}
-                        className="w-full bg-transparent text-primary text-3xl font-light focus:outline-none placeholder-gray-300 ml-0.5"
+                        className="w-full bg-transparent text-white text-3xl font-light focus:outline-none placeholder-white/50 ml-0.5"
                         placeholder="0.00"
                     />
                 </div>
-                <div className="mt-3 w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div className="mt-3 w-full h-1 bg-white/30 rounded-full overflow-hidden">
                     <div
-                        className="h-full bg-primary rounded-full transition-all"
+                        className="h-full bg-yellow-400 rounded-full transition-all"
                         style={{ width: `${limitPercentUsed}%` }}
                     />
                 </div>
-                <p className="text-xs text-gray-500 text-center mt-2">
+                <p className="text-xs text-white/80 text-center mt-2">
                     {formatCurrency(dailyLimitRemaining ?? 0)} daily payment limit remaining
                 </p>
             </div>
