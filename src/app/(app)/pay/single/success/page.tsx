@@ -91,7 +91,7 @@ function PaymentSuccessContent() {
                         className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors"
                         aria-label="Share payment confirmation"
                     >
-                        <Share2 className="h-7 w-7 text-white" />
+                        <Share2 className="h-5 w-5 text-white/80" strokeWidth={1.5} />
                     </button>
                     <div className="flex flex-col items-center">
                         <Check className="h-12 w-12 text-white mb-3" strokeWidth={2} />
