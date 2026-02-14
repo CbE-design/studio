@@ -86,6 +86,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
 
     let y = lineY - 20;
 
+
     page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 12, color: textColor });
     y -= 30;
 
@@ -161,8 +162,6 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     const commonTextOptions = { font, size: 8, color: textColor, lineHeight: 12, maxWidth: width - margin * 2 };
 
     y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y });
-    y -= 1;
-    page.drawLine({ start: { x: margin, y: y }, end: { x: width - margin, y: y }, thickness: 1, color: rgb(0, 0, 0) });
     y -= 15;
 
     const disclaimerParagraphs = [
