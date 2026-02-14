@@ -89,7 +89,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y -= 25;
 
     page.drawText('Nedbank Limited confirms that the following payment has been made:', { x: margin, y, font, size: 9, color: textColor });
-    y -= 20;
+    y -= 23;
 
     const drawDetailRow = (label: string, value: string) => {
         page.drawText(label, { x: margin, y, font, size: 9, color: textColor });
