@@ -1,3 +1,4 @@
+
 // Updated: 2026-02-13 - noreply sender address
 /**
  * Import function triggers from their respective submodules:
@@ -275,6 +276,7 @@ exports.sendSms = onCall({ secrets: [vonageApiKey, vonageApiSecret], memory: '51
 
 // This is the specific list of transactions to be seeded into the Savvy Bundle Current Account.
 const initialSavvyBundleTransactions = [
+    { timestamp: new Date(), description: 'NEDBANK SEND-IMALI', amount: '-R3000.00', transactionType: 'EFT_IMMEDIATE' },
     { timestamp: new Date('2022-09-29'), description: 'BANKING FEE', amount: '-R23987.87', transactionType: 'BANK_FEE' },
     { timestamp: new Date('2022-10-01'), description: 'Hantie lening', amount: '+R25000.00', transactionType: 'EFT_STANDARD' },
     { timestamp: new Date('2022-10-01'), description: 'Hantie lening', amount: '+R20000.00', transactionType: 'EFT_STANDARD' },
