@@ -162,7 +162,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y });
     y -= 1;
     page.drawLine({ start: { x: margin, y: y }, end: { x: width - margin, y: y }, thickness: 1, color: rgb(0, 0, 0) });
-    y -= 12.5;
+    y -= 1;
 
     const disclaimerParagraphs = [
       'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111.',
