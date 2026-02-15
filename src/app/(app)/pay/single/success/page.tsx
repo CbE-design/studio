@@ -56,31 +56,46 @@ function PaymentSuccessContent() {
                 if (!blob) return;
 
                 const file = new File([blob], 'payment_confirmation.png', { type: 'image/png' });
+                const canShareFiles = navigator.share && navigator.canShare?.({ files: [file] });
 
-                if (navigator.share && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        title: 'Payment Confirmation',
-                        text: `Payment of ${formatCurrency(Number(paymentDetails.amount))} to ${paymentDetails.recipientName}`,
-                        files: [file],
-                    });
-                } else if (navigator.share) {
-                    await navigator.share({
-                        title: 'Payment Confirmation',
-                        text: `Payment of ${formatCurrency(Number(paymentDetails.amount))} paid to ${paymentDetails.recipientName}'s bank account.\nBank: ${paymentDetails.bankName}\nAccount: ${paymentDetails.accountNumber}\nDate: ${formattedDate}\nYour Ref: ${paymentDetails.yourReference || '-'}\nRecipient Ref: ${paymentDetails.recipientReference || '-'}`,
-                    });
-                } else {
+                const fallbackDownload = () => {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = 'payment_confirmation.png';
+                    document.body.appendChild(a);
                     a.click();
+                    document.body.removeChild(a);
                     URL.revokeObjectURL(url);
+                };
+
+                try {
+                    if (canShareFiles) {
+                        await navigator.share({
+                            title: 'Payment Confirmation',
+                            text: `Payment of ${formatCurrency(Number(paymentDetails.amount))} to ${paymentDetails.recipientName}`,
+                            files: [file],
+                        });
+                    } else if (navigator.share) {
+                        await navigator.share({
+                            title: 'Payment Confirmation',
+                            text: `Payment of ${formatCurrency(Number(paymentDetails.amount))} paid to ${paymentDetails.recipientName}'s bank account.\nBank: ${paymentDetails.bankName}\nAccount: ${paymentDetails.accountNumber}\nDate: ${formattedDate}\nYour Ref: ${paymentDetails.yourReference || '-'}\nRecipient Ref: ${paymentDetails.recipientReference || '-'}`,
+                        });
+                    } else {
+                        // This else block is for browsers that don't support navigator.share at all.
+                        fallbackDownload();
+                    }
+                } catch (shareError) {
+                    console.error('Web Share API failed, falling back to download.', shareError);
+                    // This catch block handles cases where navigator.share exists but fails (e.g., permission denied).
+                    fallbackDownload();
                 }
             }, 'image/png');
-        } catch (err) {
-            console.error('Share failed:', err);
+        } catch (canvasError) {
+            console.error('Failed to create canvas for sharing:', canvasError);
         }
     }, [paymentDetails, formattedDate]);
+
 
     return (
         <div className="flex flex-col h-screen bg-white">
