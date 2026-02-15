@@ -105,9 +105,9 @@ function SinglePaymentForm() {
           </Link>
         </div>
         
-        <div className="p-4 pt-6 border-b border-gray-200">
-            <div className="bg-primary/10 border-2 border-primary text-primary font-semibold p-4 rounded-lg flex flex-col items-center justify-center">
-                <Landmark className="h-6 w-6 mb-2" />
+        <div className="p-4 pt-6 border-b border-gray-200 flex justify-center">
+            <div className="w-40 h-40 bg-primary/10 border-2 border-primary text-primary font-semibold p-4 rounded-lg flex flex-col items-center justify-center text-center">
+                <Landmark className="h-8 w-8 mb-2" />
                 <p>Pay to a bank account</p>
             </div>
         </div>
