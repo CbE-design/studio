@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, CalendarIcon, ChevronRight } from 'lucide-react';
+import { ArrowLeft, CalendarIcon, ChevronRight, LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,9 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import type { Account } from '@/app/lib/definitions';
 import { formatCurrency } from '@/app/lib/data';
+import { useUser } from '@/firebase-provider';
+import { useToast } from '@/hooks/use-toast';
+import { createInternalTransferAction } from '@/app/lib/actions';
 
 const AccountSelector = ({
   accounts,
@@ -71,10 +74,14 @@ const AccountSelector = ({
 
 export function TransferForm({ allAccounts }: { allAccounts: Account[] }) {
   const router = useRouter();
+  const { user } = useUser();
+  const { toast } = useToast();
   const [amount, setAmount] = useState('0.00');
+  const [reference, setReference] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
   
   // Safely set initial state for from and to accounts
-  const initialFromAccount = allAccounts.length > 1 ? allAccounts[1].id : (allAccounts.length > 0 ? allAccounts[0].id : null);
+  const initialFromAccount = allAccounts.length > 1 ? allAccounts.find(a => a.type !== 'Credit')?.id || allAccounts[0].id : (allAccounts.length > 0 ? allAccounts[0].id : null);
   const initialToAccount = allAccounts.length > 0 ? allAccounts[0].id : null;
 
   const [fromAccount, setFromAccount] = useState<string | null>(initialFromAccount);
@@ -95,6 +102,52 @@ export function TransferForm({ allAccounts }: { allAccounts: Account[] }) {
     }
   }
 
+  const handleTransfer = async () => {
+    if (!fromAccount || !toAccount || !user || parseFloat(amount) <= 0) {
+        toast({
+            variant: 'destructive',
+            title: 'Invalid Transfer',
+            description: 'Please select accounts and enter a valid amount.'
+        });
+        return;
+    }
+
+    if (fromAccount === toAccount) {
+      toast({
+          variant: 'destructive',
+          title: 'Invalid Transfer',
+          description: 'Cannot transfer money to the same account.'
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+
+    const result = await createInternalTransferAction({
+        fromAccountId: fromAccount,
+        toAccountId: toAccount,
+        amount: amount,
+        userId: user.uid,
+        reference: reference
+    });
+
+    setIsProcessing(false);
+
+    if (result.success) {
+        toast({
+            title: 'Transfer Successful',
+            description: `${formatCurrency(parseFloat(amount))} has been transferred.`,
+        });
+        router.push('/dashboard');
+    } else {
+        toast({
+            variant: 'destructive',
+            title: 'Transfer Failed',
+            description: result.message
+        });
+    }
+}
+
   return (
     <div className="flex flex-col h-screen">
       <header className="gradient-background text-primary-foreground p-4 flex items-center">
@@ -110,6 +163,7 @@ export function TransferForm({ allAccounts }: { allAccounts: Account[] }) {
             <span className="text-2xl font-light mr-1">R</span>
             <input
               type="text"
+              inputMode="decimal"
               value={amount}
               onChange={handleAmountChange}
               onBlur={handleAmountBlur}
@@ -142,7 +196,7 @@ export function TransferForm({ allAccounts }: { allAccounts: Account[] }) {
         <div className="space-y-2">
           <h2 className="font-semibold text-gray-700">What is the transfer for?</h2>
           <Label htmlFor="reference" className="text-xs text-gray-500">Your reference (optional)</Label>
-          <Input id="reference" placeholder="" className="bg-white" />
+          <Input id="reference" placeholder="" className="bg-white" value={reference} onChange={(e) => setReference(e.target.value)} />
         </div>
 
         <div className="space-y-2">
@@ -165,8 +219,8 @@ export function TransferForm({ allAccounts }: { allAccounts: Account[] }) {
       </main>
 
       <footer className="p-4 bg-white border-t">
-        <Button className="w-full bg-primary hover:bg-primary/90 font-bold">
-          Next
+        <Button className="w-full bg-primary hover:bg-primary/90 font-bold" onClick={handleTransfer} disabled={isProcessing}>
+          {isProcessing ? <LoaderCircle className="animate-spin" /> : 'Transfer'}
         </Button>
       </footer>
     </div>

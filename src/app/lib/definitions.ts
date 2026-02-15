@@ -12,7 +12,7 @@ export type Account = {
   userId?: string;
 };
 
-export type TransactionType = 'EFT_IMMEDIATE' | 'EFT_STANDARD' | 'POS_PURCHASE' | 'ATM_WITHDRAWAL_OWN' | 'ATM_WITHDRAWAL_OTHER' | 'DEBIT_ORDER' | 'BANK_FEE';
+export type TransactionType = 'EFT_IMMEDIATE' | 'EFT_STANDARD' | 'POS_PURCHASE' | 'ATM_WITHDRAWAL_OWN' | 'ATM_WITHDRAWAL_OTHER' | 'DEBIT_ORDER' | 'BANK_FEE' | 'SAVINGS_TRANSFER';
 
 export type Transaction = {
   id: string;

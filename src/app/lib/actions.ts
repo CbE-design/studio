@@ -1,3 +1,4 @@
+
 'use server';
 
 import 'dotenv/config';
@@ -346,5 +347,102 @@ export async function sendProofOfPaymentSmsAction(
   } catch (error: any) {
     console.error("Failed to send proof of payment SMS:", error);
     return { success: false, message: error.message || "An unknown error occurred." };
+  }
+}
+
+const InternalTransferSchema = z.object({
+  fromAccountId: z.string().min(1),
+  toAccountId: z.string().min(1),
+  amount: z.string().refine(val => !isNaN(parseFloat(val)) && parseFloat(val) > 0, { message: 'Amount must be a positive number.' }),
+  userId: z.string().min(1),
+  reference: z.string().optional(),
+});
+
+export async function createInternalTransferAction(data: z.infer<typeof InternalTransferSchema>): Promise<{ success: boolean; message: string }> {
+  const validatedFields = InternalTransferSchema.safeParse(data);
+
+  if (!validatedFields.success) {
+    return {
+      success: false,
+      message: 'Invalid fields provided.',
+    };
+  }
+
+  const { fromAccountId, toAccountId, amount, userId, reference } = validatedFields.data;
+  const numericAmount = parseFloat(amount);
+
+  if (fromAccountId === toAccountId) {
+    return { success: false, message: "Cannot transfer to the same account." };
+  }
+
+  const fromAccountRef = adminDb.doc(`users/${userId}/bankAccounts/${fromAccountId}`);
+  const toAccountRef = adminDb.doc(`users/${userId}/bankAccounts/${toAccountId}`);
+
+  try {
+    await adminDb.runTransaction(async (transaction) => {
+      const fromDoc = await transaction.get(fromAccountRef);
+      const toDoc = await transaction.get(toAccountRef);
+
+      if (!fromDoc.exists || !toDoc.exists) {
+        throw new Error("One or both accounts not found.");
+      }
+
+      const fromData = fromDoc.data() as Account;
+      const toData = toDoc.data() as Account;
+
+      if (fromData.balance < numericAmount) {
+        throw new Error("Insufficient funds.");
+      }
+
+      // Decrement fromAccount
+      transaction.update(fromAccountRef, { balance: fromData.balance - numericAmount });
+
+      // Increment toAccount
+      transaction.update(toAccountRef, { balance: toData.balance + numericAmount });
+
+      const now = new Date().toISOString();
+      const transferDescription = `TRANSFER TO ${toData.name.toUpperCase()}`;
+      const receiveDescription = `TRANSFER FROM ${fromData.name.toUpperCase()}`;
+
+      // Create debit transaction for fromAccount
+      const fromTxRef = fromAccountRef.collection('transactions').doc();
+      transaction.set(fromTxRef, {
+        id: fromTxRef.id,
+        userId: userId,
+        fromAccountId: fromAccountId,
+        date: now,
+        description: transferDescription,
+        amount: numericAmount,
+        type: 'debit',
+        transactionType: 'SAVINGS_TRANSFER',
+        yourReference: reference,
+        recipientName: toData.name
+      });
+
+      // Create credit transaction for toAccount
+      const toTxRef = toAccountRef.collection('transactions').doc();
+      transaction.set(toTxRef, {
+        id: toTxRef.id,
+        userId: userId,
+        fromAccountId: toAccountId,
+        date: now,
+        description: receiveDescription,
+        amount: numericAmount,
+        type: 'credit',
+        transactionType: 'SAVINGS_TRANSFER',
+        yourReference: reference,
+        recipientName: fromData.name,
+      });
+    });
+
+    revalidatePath('/dashboard');
+    revalidatePath(`/account/${fromAccountId}`);
+    revalidatePath(`/account/${toAccountId}`);
+
+    return { success: true, message: 'Transfer successful!' };
+
+  } catch (error: any) {
+    console.error('Internal transfer failed:', error);
+    return { success: false, message: error.message || 'An unexpected error occurred.' };
   }
 }
