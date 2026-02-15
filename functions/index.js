@@ -1,109 +1,69 @@
 
-// Updated: 2026-02-13 - noreply sender address
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/onCall");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
 
-const { setGlobalOptions } = require('firebase-functions/v2');
-const { onCall, HttpsError } = require('firebase-functions/v2/https');
-const { defineSecret } = require('firebase-functions/params');
-const { user } = require('firebase-functions/v1/auth');
+'use strict';
+
+const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const { Resend } = require('resend');
 const { Vonage } = require('@vonage/server-sdk');
 
-// Initialize Firebase Admin SDK
 admin.initializeApp();
+const db = admin.firestore();
 
-// Set global options for functions (e.g., region, memory)
-setGlobalOptions({ region: 'us-central1' });
+// ---- Callable Functions (v1 Syntax) ----
 
-// Define secrets for v2 functions
-const vonageApiKey = defineSecret('VONAGE_API_KEY');
-const vonageApiSecret = defineSecret('VONAGE_API_SECRET');
-const resendApiKey = defineSecret('RESEND_API_KEY');
-
-// Lazy initialization for Resend
-let resend = null;
-
-function getResend() {
-  if (!resend && process.env.RESEND_API_KEY) {
-    resend = new Resend(process.env.RESEND_API_KEY);
-  }
-  return resend;
-}
-
-/**
- * Sends an email using Resend.
- * This is a callable function that can be invoked from the client-side via a server action.
- * It requires the RESEND_API_KEY environment variable to be set.
- */
-exports.sendEmail = onCall({ secrets: [resendApiKey] }, async (request) => {
-    const { to, subject, html, attachments } = request.data;
+exports.sendEmail = functions.region('us-central1').https.onCall(async (data, context) => {
+    const { to, subject, html, attachments } = data;
     
     if (!to || !subject || !html) {
-         throw new HttpsError(
+        throw new functions.https.HttpsError(
             'invalid-argument',
             'Missing required fields: to, subject, and html.'
         );
     }
-
-    // The 'from' email address must be a verified domain in your Resend account.
-    // For testing, Resend allows 'onboarding@resend.dev', but for production,
-    // you should set and verify your own domain (e.g., 'proofofpayment@yourdomain.com').
+    
     const fromName = "Nedbank";
     const fromEmail = process.env.MAIL_FROM || 'noreply@notificationsnedbank.com';
+    const resendApiKey = process.env.RESEND_API_KEY;
+
+    if (!resendApiKey) {
+        console.error('Email service not configured. RESEND_API_KEY is missing.');
+        throw new functions.https.HttpsError('failed-precondition', 'Email service not configured.');
+    }
+    const resend = new Resend(resendApiKey);
 
     try {
-        const resendClient = getResend();
-        if (!resendClient) {
-            throw new HttpsError('failed-precondition', 'Email service not configured. RESEND_API_KEY is missing.');
-        }
         const emailPayload = {
             from: `"${fromName}" <${fromEmail}>`,
             to: to,
             subject: subject,
             html: html,
+            attachments: attachments || [],
         };
-        if (attachments && Array.isArray(attachments) && attachments.length > 0) {
-            emailPayload.attachments = attachments.map(att => ({
-                filename: att.filename,
-                content: att.content,
-            }));
-        }
-        await resendClient.emails.send(emailPayload);
+        await resend.emails.send(emailPayload);
         console.log(`Email sent successfully to ${to}`);
         return { success: true, message: 'Email sent successfully.' };
     } catch (error) {
         console.error('Error sending email with Resend:', error);
-        throw new HttpsError('internal', 'Failed to send email.', error);
+        throw new functions.https.HttpsError('internal', 'Failed to send email.', error.message);
     }
 });
 
 
-/**
- * Adds a new beneficiary to the user's profile.
- * This is a callable function that requires authentication.
- */
-exports.addBeneficiary = onCall(async (request) => {
-    if (!request.auth) {
-        throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
+exports.addBeneficiary = functions.region('us-central1').https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
     }
 
-    const uid = request.auth.uid;
-    const { name, bank, accountNumber } = request.data;
+    const uid = context.auth.uid;
+    const { name, bank, accountNumber } = data;
 
     if (!name || !bank || !accountNumber) {
-        throw new HttpsError('invalid-argument', 'Missing required beneficiary details: name, bank, and accountNumber.');
+        throw new functions.https.HttpsError('invalid-argument', 'Missing required beneficiary details: name, bank, and accountNumber.');
     }
 
     try {
-        const beneficiaryRef = admin.firestore().collection('users').doc(uid).collection('beneficiaries').doc();
+        const beneficiaryRef = db.collection('users').doc(uid).collection('beneficiaries').doc();
         await beneficiaryRef.set({
             id: beneficiaryRef.id,
             name: name,
@@ -115,27 +75,22 @@ exports.addBeneficiary = onCall(async (request) => {
         return { success: true, message: 'Beneficiary added successfully.', beneficiaryId: beneficiaryRef.id };
     } catch (error) {
         console.error('Error adding beneficiary:', error);
-        throw new HttpsError('internal', 'Failed to add beneficiary.', error);
+        throw new functions.https.HttpsError('internal', 'Failed to add beneficiary.', error.message);
     }
 });
 
 
-/**
- * Simulates the processing of a scheduled payment.
- * In a real app, this would be triggered by a scheduler (e.g., Cloud Scheduler).
- */
-exports.processScheduledPayment = onCall(async (request) => {
-    if (!request.auth) {
-        throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
+exports.processScheduledPayment = functions.region('us-central1').https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
     }
 
-    const { paymentId, userId } = request.data;
+    const { paymentId, userId } = data;
 
     if (!paymentId || !userId) {
-        throw new HttpsError('invalid-argument', 'Missing paymentId or userId.');
+        throw new functions.https.HttpsError('invalid-argument', 'Missing paymentId or userId.');
     }
     
-    const db = admin.firestore();
     const paymentRef = db.doc(`users/${userId}/scheduledPayments/${paymentId}`);
 
     try {
@@ -182,58 +137,48 @@ exports.processScheduledPayment = onCall(async (request) => {
 
     } catch (error) {
         console.error('Error processing scheduled payment:', error);
-        throw new HttpsError('internal', 'Failed to process scheduled payment.', error);
+        throw new functions.https.HttpsError('internal', 'Failed to process scheduled payment.', error.message);
     }
 });
 
 
-/**
- * Sends an SMS message using the Vonage API.
- * This is a callable function, meaning it can be invoked directly from the client-side application.
- *
- * @param {object} request - The request object from the client.
- * @param {string} request.data.to - The recipient's phone number in E.164 format (e.g., +14155552671).
- * @param {string} request.data.text - The text content of the message.
- * @returns {Promise<{success: boolean, message: string, messageId?: string}>} - A promise that resolves with the result of the operation.
- */
-exports.sendSms = onCall({ secrets: [vonageApiKey, vonageApiSecret], memory: '512MiB', timeoutSeconds: 60 }, async (request) => {
-    // Note: Auth check removed - the app's protected routes handle authentication
-    // The function is only accessible via the client SDK from authenticated app pages
-    
-    // Validate the incoming data
-    const { to, text } = request.data;
+exports.sendSms = functions.region('us-central1').runWith({ memory: '512MiB', timeoutSeconds: 60 }).https.onCall(async (data, context) => {
+    const { to, text } = data;
     if (!to || !text) {
-        throw new HttpsError(
+        throw new functions.https.HttpsError(
             'invalid-argument',
             'The function must be called with "to" and "text" arguments.'
         );
     }
 
     const from = "Nedbank";
+    const vonageApiKey = process.env.VONAGE_API_KEY;
+    const vonageApiSecret = process.env.VONAGE_API_SECRET;
+    
+    if (!vonageApiKey || !vonageApiSecret) {
+        console.error('Vonage API credentials are not configured.');
+        throw new functions.https.HttpsError('failed-precondition', 'SMS service not configured.');
+    }
 
     try {
-        // Create Vonage client with secrets and send the SMS
         const vonageClient = new Vonage({
-            apiKey: vonageApiKey.value(),
-            apiSecret: vonageApiSecret.value()
+            apiKey: vonageApiKey,
+            apiSecret: vonageApiSecret
         });
         
         const response = await vonageClient.sms.send({ to, from, text });
         console.log("Vonage response:", JSON.stringify(response));
         
-        // Check if any messages were sent
         if (!response.messages || response.messages.length === 0) {
-            throw new HttpsError('internal', 'No response from SMS service.');
+            throw new functions.https.HttpsError('internal', 'No response from SMS service.');
         }
         
         const message = response.messages[0];
         
-        // Vonage status codes: 0 = success, others are errors
-        // https://developer.vonage.com/en/messaging/sms/guides/troubleshooting-sms
         if (message.status !== '0') {
             const errorText = message['error-text'] || 'Unknown error';
             console.error(`Vonage error - Status: ${message.status}, Error: ${errorText}`);
-            throw new HttpsError(
+            throw new functions.https.HttpsError(
                 'internal',
                 `SMS failed: ${errorText} (code: ${message.status})`
             );
@@ -248,31 +193,12 @@ exports.sendSms = onCall({ secrets: [vonageApiKey, vonageApiSecret], memory: '51
         };
     } catch (error) {
         console.error("Error sending SMS:", error);
-        
-        // Pass through HttpsError as-is
-        if (error instanceof HttpsError) {
+        if (error instanceof functions.https.HttpsError) {
             throw error;
         }
-        
-        // Handle Vonage MessageSendPartialFailure - extract the actual error
-        if (error.response && error.response.messages) {
-            const msg = error.response.messages[0];
-            console.error("Vonage detailed error:", JSON.stringify(msg));
-            const errorText = msg['error-text'] || msg.errorText || 'Unknown Vonage error';
-            const status = msg.status || 'unknown';
-            throw new HttpsError(
-                'internal',
-                `SMS failed: ${errorText} (status: ${status})`
-            );
-        }
-        
-        throw new HttpsError(
-            'internal',
-            error.message || 'Failed to send SMS.'
-        );
+        throw new functions.https.HttpsError('internal', error.message || 'Failed to send SMS.');
     }
 });
-
 
 // This is the specific list of transactions to be seeded into the Savvy Bundle Current Account.
 const initialSavvyBundleTransactions = [
@@ -481,13 +407,11 @@ const initialSavvyBundleTransactions = [
  * This function creates a corresponding user document in Firestore,
  * along with sample bank accounts and detailed transaction history for one account.
  */
-exports.provisionNewUser = user().onCreate(async (userRecord) => {
+exports.provisionNewUser = functions.auth.user().onCreate(async (userRecord) => {
   const { uid, email } = userRecord;
-  const db = admin.firestore();
   const batch = db.batch();
 
   try {
-    // Create the main user document
     const userDocRef = db.collection('users').doc(uid);
     batch.set(userDocRef, {
       id: uid,
@@ -500,8 +424,6 @@ exports.provisionNewUser = user().onCreate(async (userRecord) => {
     console.log(`Successfully created user document for: ${uid}`);
 
     const accountsCollectionRef = userDocRef.collection('bankAccounts');
-
-    // --- Savvy Bundle Account ---
     const savvyAccountRef = accountsCollectionRef.doc();
     let savvyBalance = 0;
 
@@ -535,7 +457,6 @@ exports.provisionNewUser = user().onCreate(async (userRecord) => {
     });
     console.log(`Prepared to seed Savvy account with ${initialSavvyBundleTransactions.length} transactions.`);
 
-    // --- Other Static Accounts ---
     const otherAccounts = [
       { name: 'Savings Account', type: 'Savings', accountNumber: '0987654321', balance: 0.00 },
       { name: 'Gold Credit Card', type: 'Credit', accountNumber: '5555666677778888', balance: 0.00 },
@@ -550,7 +471,6 @@ exports.provisionNewUser = user().onCreate(async (userRecord) => {
       const accRef = accountsCollectionRef.doc();
       batch.set(accRef, { ...acc, userId: uid, currency: 'ZAR' });
       
-      // Seed initial deposit for pocket accounts
       if (['Holiday Fund', 'Emergency Fund', 'New Car', 'Gadgets'].includes(acc.name)) {
         const txRef = accRef.collection('transactions').doc();
         batch.set(txRef, {
@@ -565,7 +485,6 @@ exports.provisionNewUser = user().onCreate(async (userRecord) => {
       }
     });
 
-    // --- Failed Transactions ---
     const failedTransactionsToAdd = [
         { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'Corrie', failureReason: 'Not Authorised' },
         { returnDate: '01 Oct 2025', fromAccount: '1234066912', toAccount: '9876543210', beneficiaryName: 'H.Nel', failureReason: 'Not Authorised' },
@@ -576,7 +495,6 @@ exports.provisionNewUser = user().onCreate(async (userRecord) => {
     });
     console.log(`Prepared to seed ${failedTransactionsToAdd.length} failed transactions.`);
 
-    // --- Commit Everything ---
     await batch.commit();
     console.log(`Successfully provisioned all accounts and transactions for user: ${uid}`);
 
@@ -587,13 +505,11 @@ exports.provisionNewUser = user().onCreate(async (userRecord) => {
   return null;
 });
 
-
-exports.provisionExistingUserPockets = onCall(async (request) => {
-    if (!request.auth) {
-        throw new HttpsError('unauthenticated', 'The function must be called while authenticated.');
+exports.provisionExistingUserPockets = functions.region('us-central1').https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
     }
-    const uid = request.auth.uid;
-    const db = admin.firestore();
+    const uid = context.auth.uid;
     const batch = db.batch();
 
     try {
@@ -645,6 +561,6 @@ exports.provisionExistingUserPockets = onCall(async (request) => {
         return { success: true, message: 'All pocket accounts already exist.' };
     } catch (error) {
         console.error("Error in provisionExistingUserPockets:", error);
-        throw new HttpsError('internal', 'Failed to provision pocket accounts for existing user.');
+        throw new functions.https.HttpsError('internal', 'Failed to provision pocket accounts for existing user.');
     }
 });
