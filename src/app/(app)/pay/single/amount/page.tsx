@@ -115,6 +115,7 @@ function AmountPageContent() {
         accountNumber: searchParams.get('accountNumber'),
         recipientName: searchParams.get('recipientName'),
         paymentType: searchParams.get('paymentType'),
+        saveRecipient: searchParams.get('saveRecipient'),
     };
     
     useEffect(() => {

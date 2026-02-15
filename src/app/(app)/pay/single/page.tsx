@@ -66,6 +66,7 @@ function SinglePaymentForm() {
     params.set('yourReference', yourReference);
     params.set('recipientReference', recipientReference);
     params.set('paymentType', paymentType);
+    params.set('saveRecipient', saveRecipient.toString());
     router.push(`/pay/single/amount?${params.toString()}`);
   }
 

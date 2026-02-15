@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Suspense, useState } from 'react';
@@ -51,6 +52,7 @@ function ReviewPaymentContent() {
         fromAccount: searchParams.get('fromAccount'),
         notificationType: searchParams.get('notificationType'),
         notificationValue: searchParams.get('notificationValue'),
+        saveRecipient: searchParams.get('saveRecipient') === 'true',
     };
     
     const formattedDate = format(new Date(), 'dd MMMM yyyy');
@@ -68,6 +70,36 @@ function ReviewPaymentContent() {
         setIsProcessing(true);
 
         try {
+            if (paymentDetails.saveRecipient) {
+                if (!paymentDetails.recipientName || !paymentDetails.bankName || !paymentDetails.accountNumber) {
+                     toast({
+                        variant: 'destructive',
+                        title: 'Could Not Save Recipient',
+                        description: 'Recipient details are incomplete. Payment will still be processed.',
+                    });
+                } else {
+                    try {
+                        const addBeneficiaryFn = httpsCallable(functions, 'addBeneficiary');
+                        await addBeneficiaryFn({
+                            name: paymentDetails.recipientName,
+                            bank: paymentDetails.bankName,
+                            accountNumber: paymentDetails.accountNumber,
+                        });
+                        toast({
+                            title: 'Recipient Saved',
+                            description: `${paymentDetails.recipientName} has been added to your beneficiaries.`,
+                        });
+                    } catch (beneficiaryError: any) {
+                        console.error('Failed to save beneficiary:', beneficiaryError);
+                        toast({
+                            variant: 'destructive',
+                            title: 'Could Not Save Recipient',
+                            description: beneficiaryError.message || 'Your payment will still be processed.',
+                        });
+                    }
+                }
+            }
+
             const result = await createTransactionAction({
                 fromAccountId: paymentDetails.fromAccountId,
                 userId: user.uid,
