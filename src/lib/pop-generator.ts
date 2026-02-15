@@ -38,7 +38,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         amount: Number(transaction.amount || '0'),
         currency: account.currency,
         recipientReference: transaction.recipientReference,
-        payer: "GGS FAMILY TRUST",
+        payer: "C.VAN SCHALKWYK",
         bank: transaction.bank,
         accountNumber: `...${transaction.accountNumber?.slice(-6)}`,
         channel: 'Internet payment',
@@ -166,14 +166,14 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y -= 20;
 
     const disclaimerParagraphs = [
-        'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification.',
-        'Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information.',
-        'Payments may take up to three business days. Please check your account to verify the existence of the funds.'
+      'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification.',
+      'Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information.',
+      'Payments may take up to three business days. Please check your account to verify the existence of the funds.'
     ];
-
+    
     disclaimerParagraphs.forEach(paragraph => {
         y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 10 });
-        y -= commonTextOptions.lineHeight;
+        y -= 15;
     });
     
     y -= 5;
