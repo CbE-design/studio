@@ -1,8 +1,10 @@
+
 'use client';
 
 import { ArrowLeft, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AiChatPage() {
   const router = useRouter();
@@ -13,12 +15,22 @@ export default function AiChatPage() {
         <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>
-        <h1 className="text-xl font-semibold">AI Assistant</h1>
+        <div className="flex items-center gap-3">
+           <Bot className="h-6 w-6"/>
+           <div>
+            <h1 className="text-lg font-semibold">AI Assistant</h1>
+           </div>
+        </div>
       </header>
-      <main className="flex-1 flex flex-col items-center justify-center text-center p-4">
-        <Bot className="h-16 w-16 text-gray-300 mb-4" />
-        <h2 className="text-2xl font-semibold text-gray-700">Coming Soon!</h2>
-        <p className="text-gray-500 mt-2 max-w-sm">Our AI Assistant, Eva, is currently being upgraded. Please check back later for a new and improved conversational experience.</p>
+      <main className="flex-1 p-4 flex items-center justify-center">
+        <Card className="w-full max-w-md text-center">
+            <CardHeader>
+                <CardTitle>Feature Coming Soon</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-muted-foreground">The AI chat feature is temporarily unavailable while we work on some improvements. Please check back later!</p>
+            </CardContent>
+        </Card>
       </main>
     </div>
   );
