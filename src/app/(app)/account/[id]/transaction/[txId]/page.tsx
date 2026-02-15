@@ -1,9 +1,9 @@
 
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Download, LoaderCircle, AlertTriangle, Mail, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Download, LoaderCircle, AlertTriangle, Mail, MessageSquare, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFirestore, useUser } from '@/firebase-provider';
@@ -36,8 +36,15 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import html2canvas from 'html2canvas';
 
 const DetailRow = ({ label, value }: { label: string; value: string | undefined }) => (
   <div className="py-4 border-b last:border-b-0">
@@ -84,6 +91,7 @@ function TransactionDetailsContent() {
   const [isFailing, setIsFailing] = useState(false);
 
   const [dialogOpen, setDialogOpen] = useState<'email' | 'sms' | null>(null);
+  const [shareSheetOpen, setShareSheetOpen] = useState(false);
   const [recipient, setRecipient] = useState('');
   const [isSending, setIsSending] = useState(false);
 
@@ -195,9 +203,7 @@ function TransactionDetailsContent() {
                 throw new Error(result?.message || 'Failed to send.');
             }
         } else if (dialogOpen === 'sms') {
-            // Call Firebase function directly from client for SMS
             const sendSmsFn = httpsCallable(functions, 'sendSms');
-            // Format: Nedbank Payment: [SENDER] has paid R[AMOUNT] into Acc No: ...[LAST 6 DIGITS] on [DATE] ,Ref: [REFERENCE] .Please check your account.
             const accNumberLast6 = transaction.accountNumber ? `...${transaction.accountNumber.slice(-6)}` : '...';
             const formattedAmount = `R${transaction.amount.toFixed(2)}`;
             const formattedDate = format(normalizeDate(transaction.date), 'dd/MM/yyyy');
@@ -245,121 +251,125 @@ function TransactionDetailsContent() {
 
 
   return (
-    <Dialog onOpenChange={(isOpen) => { if (!isOpen) { setDialogOpen(null); setRecipient(''); }}}>
-    <div className="flex flex-col h-screen bg-white">
-      <header className="gradient-background text-white p-4 flex items-center justify-between sticky top-0 z-10">
-        <div className="flex items-center">
-            <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
-                <ArrowLeft />
+    <>
+      <div className="flex flex-col h-screen bg-white">
+        <header className="gradient-background text-white p-4 flex items-center justify-between sticky top-0 z-10">
+          <div className="flex items-center">
+              <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
+                  <ArrowLeft />
+              </Button>
+              <h1 className="text-xl font-semibold">Transaction details</h1>
+          </div>
+
+          {showMarkAsFailed && (
+              <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="icon" disabled={isFailing}>
+                          <AlertTriangle className="h-5 w-5" />
+                      </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                      <AlertDialogHeader>
+                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                              This will create a new credit transaction to reverse the funds for this payment and log it in the failed transactions list. This action cannot be undone.
+                          </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleMarkAsFailed} disabled={isFailing}>
+                              {isFailing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                              Continue
+                          </AlertDialogAction>
+                      </AlertDialogFooter>
+                  </AlertDialogContent>
+              </AlertDialog>
+          )}
+        </header>
+
+        <main className="flex-1 overflow-y-auto px-6 py-2 bg-white">
+          <DetailRow label="Recipient" value={transaction.recipientName || transaction.description} />
+          <DetailRow label="Their reference" value={transaction.recipientReference} />
+          <DetailRow label="Transaction date" value={format(normalizeDate(transaction.date), 'dd MMMM yyyy')} />
+          <DetailRow label="Amount" value={formatCurrency(transaction.amount, account?.currency)} />
+          <DetailRow label="Transaction Type" value={isReturnTransaction ? 'Reversal/Return' : 'Payment'} />
+          <DetailRow label="Bank name" value={transaction.bank} />
+          <DetailRow label="Account number" value={transaction.accountNumber} />
+        </main>
+
+        <footer className="p-4 bg-white border-t sticky bottom-0 z-10 space-y-2">
+          {!isReturnTransaction && transaction.type === 'debit' && (
+            <>
+              <Button onClick={handlePayAgain} className="w-full font-bold h-12 bg-primary hover:bg-primary/90">
+                Pay again
+              </Button>
+              <Button onClick={() => setShareSheetOpen(true)} variant="outline" className="w-full font-bold h-12 border-primary text-primary hover:bg-primary/5 hover:text-primary">
+                Share proof of payment
+              </Button>
+            </>
+          )}
+          {(isReturnTransaction || transaction.type === 'credit') && (
+            <Button onClick={() => router.back()} className="w-full font-bold h-12">
+                Done
             </Button>
-            <h1 className="text-xl font-semibold">Transaction details</h1>
-        </div>
+          )}
+        </footer>
+      </div>
 
-        {showMarkAsFailed && (
-            <AlertDialog>
-                <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="icon" disabled={isFailing}>
-                        <AlertTriangle className="h-5 w-5" />
-                    </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            This will create a new credit transaction to reverse the funds for this payment and log it in the failed transactions list. This action cannot be undone.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleMarkAsFailed} disabled={isFailing}>
-                            {isFailing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                            Continue
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-        )}
-      </header>
-
-      <main className="flex-1 overflow-y-auto px-6 py-2">
-        <DetailRow label="Description" value={transaction.description} />
-        <DetailRow label="Transaction date" value={format(normalizeDate(transaction.date), 'dd MMMM yyyy')} />
-        <DetailRow label="Amount" value={formatCurrency(transaction.amount, account?.currency)} />
-        <DetailRow label="Transaction Type" value={isReturnTransaction ? 'Reversal/Return' : 'Payment'} />
-        {!isReturnTransaction && (
-          <>
-            <DetailRow label="Bank name" value={transaction.bank} />
-            <DetailRow label="Account number" value={transaction.accountNumber} />
-            <DetailRow label="Their reference" value={transaction.recipientReference} />
-          </>
-        )}
-      </main>
-
-      <footer className="p-4 bg-white border-t sticky bottom-0 z-10 space-y-2">
-        {!isReturnTransaction && transaction.type === 'debit' && (
-          <>
-            <Button onClick={handlePayAgain} className="w-full font-bold h-12">
-              Pay again
+      <Sheet open={shareSheetOpen} onOpenChange={setShareSheetOpen}>
+        <SheetContent side="bottom" className="rounded-t-lg">
+          <SheetHeader>
+            <SheetTitle>Share Proof of Payment</SheetTitle>
+          </SheetHeader>
+          <div className="grid gap-2 py-4">
+            <Button onClick={() => { setShareSheetOpen(false); setDialogOpen('email'); }} variant="outline" className="h-12 justify-start px-4 text-base">
+              <Mail className="mr-3 h-5 w-5" /> Email
             </Button>
-            
-            <div className="grid grid-cols-2 gap-2">
-              <DialogTrigger asChild>
-                <Button onClick={() => setDialogOpen('email')} variant="outline" className="w-full font-bold h-12">
-                  <Mail className="mr-2 h-5 w-5" /> Email
-                </Button>
-              </DialogTrigger>
-              <DialogTrigger asChild>
-                <Button onClick={() => setDialogOpen('sms')} variant="outline" className="w-full font-bold h-12">
-                  <MessageSquare className="mr-2 h-5 w-5" /> SMS
-                </Button>
-              </DialogTrigger>
-            </div>
-             <Button onClick={handleDownload} variant="outline" className="w-full font-bold h-12" disabled={isGenerating}>
-                {isGenerating ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-5 w-5" />}
-                {isGenerating ? 'Downloading...' : 'Download PDF'}
+            <Button onClick={() => { setShareSheetOpen(false); setDialogOpen('sms'); }} variant="outline" className="h-12 justify-start px-4 text-base">
+              <MessageSquare className="mr-3 h-5 w-5" /> SMS
             </Button>
-          </>
-        )}
-        {(isReturnTransaction || transaction.type === 'credit') && (
-           <Button onClick={() => router.back()} className="w-full font-bold h-12">
-              Done
-           </Button>
-        )}
-      </footer>
+            <Button onClick={() => { setShareSheetOpen(false); handleDownload(); }} variant="outline" className="h-12 justify-start px-4 text-base" disabled={isGenerating}>
+              {isGenerating ? <LoaderCircle className="mr-3 h-5 w-5 animate-spin" /> : <Download className="mr-3 h-5 w-5" />}
+              {isGenerating ? 'Downloading...' : 'Download PDF'}
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
 
-      <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Send Proof of Payment via {dialogOpen}</DialogTitle>
-                <DialogDescription>
-                    Enter the recipient's {dialogOpen === 'email' ? 'email address' : 'phone number'}.
-                </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="recipient" className="text-right">
-                        {dialogOpen === 'email' ? 'Email' : 'Phone'}
-                    </Label>
-                    <Input
-                        id="recipient"
-                        value={recipient}
-                        onChange={(e) => setRecipient(e.target.value)}
-                        className="col-span-3"
-                        placeholder={dialogOpen === 'email' ? 'name@example.com' : '+1234567890'}
-                    />
-                </div>
-            </div>
-            <DialogFooter>
-                <DialogClose asChild>
-                    <Button type="button" variant="secondary">Cancel</Button>
-                </DialogClose>
-                <Button onClick={handleSend} disabled={isSending || !recipient}>
-                    {isSending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                    Send
-                </Button>
-            </DialogFooter>
-        </DialogContent>
-    </div>
-    </Dialog>
+      <Dialog open={dialogOpen !== null} onOpenChange={(isOpen) => { if (!isOpen) setDialogOpen(null); }}>
+          <DialogContent>
+              <DialogHeader>
+                  <DialogTitle>Send Proof of Payment via {dialogOpen}</DialogTitle>
+                  <DialogDescription>
+                      Enter the recipient's {dialogOpen === 'email' ? 'email address' : 'phone number'}.
+                  </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="recipient" className="text-right">
+                          {dialogOpen === 'email' ? 'Email' : 'Phone'}
+                      </Label>
+                      <Input
+                          id="recipient"
+                          value={recipient}
+                          onChange={(e) => setRecipient(e.target.value)}
+                          className="col-span-3"
+                          placeholder={dialogOpen === 'email' ? 'name@example.com' : '+1234567890'}
+                      />
+                  </div>
+              </div>
+              <DialogFooter>
+                  <DialogClose asChild>
+                      <Button type="button" variant="secondary">Cancel</Button>
+                  </DialogClose>
+                  <Button onClick={handleSend} disabled={isSending || !recipient}>
+                      {isSending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                      Send
+                  </Button>
+              </DialogFooter>
+          </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -371,3 +381,5 @@ export default function TransactionDetailsPage() {
         </Suspense>
     )
 }
+
+    
