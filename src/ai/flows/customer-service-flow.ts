@@ -1,1 +1,4 @@
-// This file is intentionally left blank to disable the AI feature.
+'use server';
+/**
+ * @fileOverview This file is temporarily empty to resolve dependency issues.
+ */

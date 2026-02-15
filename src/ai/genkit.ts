@@ -1,1 +1,3 @@
-// This file is intentionally left blank to disable the AI feature.
+'use server';
+
+// This file is temporarily empty to resolve dependency issues.
