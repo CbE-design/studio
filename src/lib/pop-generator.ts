@@ -77,11 +77,9 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
             height: logoDims.height,
         });
 
-        page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 1.5, color: rgb(0, 0, 0) });
     } catch(e) {
         console.error("Could not load or draw logo image. Skipping.", e);
         lineY = height - margin - 20;
-        page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 1.5, color: rgb(0, 0, 0) });
     }
 
     let y = lineY - 20;
@@ -163,7 +161,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
 
     y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y });
     y -= 25;
-
+    
     const disclaimerParagraphs = [
       'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111.',
       'Please contact the payer for enquiries regarding the contents of this notification. Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information.',
@@ -217,5 +215,3 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     
     return await pdfDoc.save();
 }
-
-    
