@@ -106,7 +106,7 @@ function SinglePaymentForm() {
         </div>
         
         <div className="p-4 pt-6 border-b border-gray-200 flex justify-center">
-            <div className="w-40 h-40 bg-primary/10 border-2 border-primary text-primary font-semibold p-4 rounded-lg flex flex-col items-center justify-center text-center">
+            <div className="w-40 h-40 bg-primary text-white font-semibold p-4 rounded-lg flex flex-col items-center justify-center text-center">
                 <Landmark className="h-8 w-8 mb-2" />
                 <p>Pay to a bank account</p>
             </div>
@@ -185,3 +185,4 @@ export default function SinglePaymentPage() {
         </Suspense>
     );
 }
+
