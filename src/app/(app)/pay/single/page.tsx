@@ -98,12 +98,6 @@ function SinglePaymentForm() {
             </div>
           </Link>
           <Link href="#">
-            <div className="flex items-center px-4 py-3.5 border-b border-gray-100">
-              <Landmark className="h-5 w-5 mr-3 text-gray-500" />
-              <span className="flex-1 text-sm text-gray-700">Select from bank-approved recipients</span>
-            </div>
-          </Link>
-          <Link href="#">
             <div className="flex items-center px-4 py-3.5">
               <Smartphone className="h-5 w-5 mr-3 text-gray-500" />
               <span className="flex-1 text-sm text-gray-700">Select from phone contacts</span>
@@ -112,20 +106,9 @@ function SinglePaymentForm() {
         </div>
         
         <div className="p-4 pt-6 border-b border-gray-200">
-          <h2 className="font-semibold text-sm text-gray-800 mb-4">How would you like to pay?</h2>
-          <div className="flex justify-center pb-2">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-6 py-5 flex flex-col items-center justify-center cursor-pointer">
-              <div className="bg-primary rounded-lg p-4 mb-3 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 22h16"/>
-                  <path d="M2 18V9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v9"/>
-                  <path d="M4 18v-5"/><path d="M8 18v-5"/><path d="M12 18v-5"/><path d="M16 18v-5"/><path d="M20 18v-5"/>
-                  <path d="m2 9 10-4 10 4"/>
-                </svg>
-              </div>
-              <span className="text-sm text-center font-medium text-gray-800">Pay to a<br />bank account</span>
+            <div className="bg-primary/10 border-2 border-primary text-primary font-semibold p-4 rounded-lg text-center">
+                <p>Pay to a bank account</p>
             </div>
-          </div>
         </div>
 
         <div className="p-4 space-y-4">
