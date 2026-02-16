@@ -38,7 +38,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         amount: Number(transaction.amount || '0'),
         currency: account.currency,
         recipientReference: transaction.recipientReference,
-        payer: "C.VAN SCHALKWYK",
+        payer: "DICKSON FAMILY TRUST",
         bank: transaction.bank,
         accountNumber: `...${transaction.accountNumber?.slice(-6)}`,
         channel: 'Internet payment',
@@ -171,13 +171,13 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     ];
     
     disclaimerParagraphs.forEach(paragraph => {
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 12 });
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 10 });
         y -= 18;
     });
     
     y -= 5;
     
-    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y });
+    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y, lineHeight: 10 });
     y -= 20;
 
     page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 10, color: textColor });
@@ -190,8 +190,8 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     ];
 
     emailDisclaimerParagraphs.forEach(paragraph => {
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y });
-        y -= commonTextOptions.lineHeight;
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 10 });
+        y -= 10;
     });
     
     y -= 15;
