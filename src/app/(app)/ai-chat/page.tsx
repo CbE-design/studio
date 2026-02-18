@@ -1,30 +1,24 @@
 'use client';
-
-import { ArrowLeft, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ArrowLeft, Bot } from 'lucide-react';
 
 export default function AiChatPage() {
   const router = useRouter();
-
   return (
     <div className="flex flex-col h-screen bg-gray-100">
       <header className="gradient-background text-primary-foreground p-4 flex items-center shadow-sm sticky top-0 z-10 border-b">
         <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>
-        <h1 className="text-lg font-semibold">AI Assistant - Neo</h1>
+        <h1 className="text-lg font-semibold">AI Assistant</h1>
       </header>
-      
-      <main className="flex-1 overflow-y-auto p-4 flex items-center justify-center">
-        <Alert variant="default" className="max-w-md bg-white">
-          <Bot className="h-4 w-4" />
-          <AlertTitle>Feature Unavailable</AlertTitle>
-          <AlertDescription>
-            The AI Assistant is temporarily unavailable due to a configuration issue. We are working to resolve it. Please check back later.
-          </AlertDescription>
-        </Alert>
+      <main className="flex-1 flex flex-col items-center justify-center text-center p-4">
+        <Bot className="h-16 w-16 text-gray-400 mb-4" />
+        <h2 className="text-xl font-semibold text-gray-700">Feature Temporarily Disabled</h2>
+        <p className="text-gray-500 mt-2">
+          The AI chat feature is currently unavailable due to a technical issue. We are working to resolve it.
+        </p>
       </main>
     </div>
   );
