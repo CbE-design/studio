@@ -1,3 +1,3 @@
 'use server';
 
-// This file is temporarily empty to resolve dependency issues.
+// This file is temporarily disabled to resolve package installation issues.
