@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -15,7 +14,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { app } from '@/app/lib/firebase';
 
 const LatestIcon = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
         <path d="M20 12v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>
         <path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/>
         <path d="M12 18a4 4 0 0 0 4-4H8a4 4 0 0 0 4 4z"/>
@@ -60,7 +59,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
                             New
                         </div>
                     )}
-                    <div className="relative w-8 h-8">
+                    <div className="relative w-7 h-7">
                        {src ? (
                             <Image 
                                 src={src}
@@ -70,7 +69,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
                             />
                         ) : Icon ? (
                             <div className="w-full h-full flex items-center justify-center">
-                                <Icon className="h-8 w-8" />
+                                <Icon className="h-7 w-7" />
                             </div>
                         ) : null}
                     </div>
