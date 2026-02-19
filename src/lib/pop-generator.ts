@@ -1,3 +1,4 @@
+
 'use server';
 
 import { PDFDocument, StandardFonts, rgb, PDFFont } from 'pdf-lib';
@@ -173,13 +174,13 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     ];
     
     disclaimerParagraphs.forEach(paragraph => {
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 11 });
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 12 });
         y -= 18;
     });
     
     y -= 5;
     
-    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y, lineHeight: 11 });
+    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y, lineHeight: 12 });
     y -= 20;
 
     page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 10, color: textColor });
@@ -190,7 +191,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     ];
 
     emailDisclaimerParagraphs.forEach(paragraph => {
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 11 });
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 12 });
         y -= 10;
     });
     
@@ -217,3 +218,5 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     
     return await pdfDoc.save();
 }
+
+    
