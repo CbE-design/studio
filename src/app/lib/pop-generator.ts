@@ -1,4 +1,3 @@
-
 'use server';
 
 import { PDFDocument, StandardFonts, rgb, PDFFont } from 'pdf-lib';
@@ -57,6 +56,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     const margin = 50;
     
     const logoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/images.png?alt=media&token=9c75c65e-fc09-4827-9a36-91caa0ae3ee5';
+    let lineY;
     
     try {
         const logoRes = await fetch(logoUrl);
@@ -67,7 +67,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         const logoImage = await embedImage(pdfDoc, logoImageBytes);
         const logoDims = logoImage.scale(0.22);
         
-        const lineY = height - margin - logoDims.height;
+        lineY = height - margin - logoDims.height;
         
         page.drawImage(logoImage, {
             x: margin,
@@ -76,13 +76,13 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
             height: logoDims.height,
         });
 
-        page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 1.5, color: rgb(0, 0, 0) });
     } catch(e) {
         console.error("Could not load or draw logo image. Skipping.", e);
-        page.drawLine({ start: { x: margin, y: height - margin - 20 }, end: { x: width - margin, y: height - margin - 20 }, thickness: 1.5, color: rgb(0, 0, 0) });
+        lineY = height - margin - 20;
     }
 
-    let y = height - margin - 80;
+    page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 1.5, color: rgb(0, 0, 0) });
+    let y = lineY - 20;
 
 
     page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 12, color: textColor });
@@ -165,9 +165,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y -= 20;
 
     const disclaimerParagraphs = [
-      'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111.',
-      'Please contact the payer for enquiries regarding the contents of this notification. Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information.',
-      'Payments may take up to three business days. Please check your account to verify the existence of the funds.'
+      'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification. Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information. Payments may take up to three business days. Please check your account to verify the existence of the funds.'
     ];
     
     disclaimerParagraphs.forEach(paragraph => {
