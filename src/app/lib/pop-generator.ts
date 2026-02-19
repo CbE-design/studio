@@ -120,7 +120,8 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y -= 14;
     
     const wrapText = (text: string, maxWidth: number, font: PDFFont, fontSize: number) => {
-        const words = text.split(' ');
+        // Normalize spaces to ensure clean splitting
+        const words = text.replace(/\s+/g, ' ').split(' ');
         let lines: string[] = [];
         let currentLine = words[0] || '';
         for (let i = 1; i < words.length; i++) {
