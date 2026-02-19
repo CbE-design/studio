@@ -37,7 +37,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         amount: Number(transaction.amount || '0'),
         currency: account.currency,
         recipientReference: transaction.recipientReference,
-        payer: "GGS FAMILY TRUST",
+        payer: "DICKSON FAMILY TRUST",
         bank: transaction.bank,
         accountNumber: `...${transaction.accountNumber?.slice(-6)}`,
         channel: 'Internet payment',
@@ -160,7 +160,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     const commonTextOptions = { font, size: 8, color: textColor, lineHeight: 12, maxWidth: width - margin * 2 };
 
     y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y });
-    y -= 10;
+    y -= 20;
     page.drawLine({ start: { x: margin, y: y }, end: { x: width - margin, y: y }, thickness: 1, color: rgb(0, 0, 0) });
     y -= 20;
 
@@ -169,27 +169,25 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     ];
     
     disclaimerParagraphs.forEach(paragraph => {
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y });
-        y -= commonTextOptions.lineHeight;
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 10 });
+        y -= 18;
     });
     
     y -= 5;
     
-    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y });
+    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y, lineHeight: 10 });
     y -= 20;
 
     page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 10, color: textColor });
     y -= 15;
     
     const emailDisclaimerParagraphs = [
-        'This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited.',
-        'Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient.',
-        'If verification of this email or any attachment is required, please request a hard copy version.'
+        'This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.'
     ];
 
     emailDisclaimerParagraphs.forEach(paragraph => {
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y });
-        y -= commonTextOptions.lineHeight;
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 10 });
+        y -= 10;
     });
     
     y -= 15;
