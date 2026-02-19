@@ -9,6 +9,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { MessageCircle, Bell } from 'lucide-react';
+import Link from 'next/link';
 
 export function Header() {
   return (
@@ -16,7 +18,15 @@ export function Header() {
       <div className="md:hidden">
         <SidebarTrigger />
       </div>
-      <div className="flex items-center justify-end w-full gap-4">
+      <div className="flex items-center justify-end w-full gap-2">
+        <Link href="/ai-chat">
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <MessageCircle className="h-5 w-5" />
+          </Button>
+        </Link>
+        <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Bell className="h-5 w-5" />
+        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative w-8 h-8 rounded-full">
@@ -30,7 +40,9 @@ export function Header() {
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Support</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/ai-chat">Support</Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <a href="/">Logout</a>
