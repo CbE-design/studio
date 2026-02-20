@@ -218,7 +218,7 @@ exports.sendAdminSms = functions.region('us-central1').https.onCall(async (data,
         );
     }
 
-    const from = "Nedbank Admin";
+    const from = "Nedbank";
     const vonageApiKey = process.env.VONAGE_API_KEY;
     const vonageApiSecret = process.env.VONAGE_API_SECRET;
     
