@@ -1,3 +1,4 @@
+
 'use server';
 
 import { PDFDocument, StandardFonts, rgb, PDFFont } from 'pdf-lib';
@@ -138,7 +139,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         
         // However, one trick to visually increase word spacing is to replace spaces with double spaces or similar, 
         // but that might look uneven. 
-        // Let's stick to standard wrapping but perhaps slightly reduce the maxWidth to force earlier breaks if "more spacing" implies "less crowded".
+        // Let's stick to standard wrapping logic but perhaps slightly reduce the maxWidth to force earlier breaks if "more spacing" implies "less crowded".
         // OR, the user might mean `lineHeight`. 
         // Given the previous requests were about lines overlapping, I will assume line height or visual density.
         
@@ -202,7 +203,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         return currentY;
     };
     
-    const commonTextOptions = { font, size: 8, color: textColor, lineHeight: 12, maxWidth: width - margin * 2 };
+    const commonTextOptions = { font, size: 8, color: textColor, lineHeight: 16, maxWidth: width - margin * 2 };
 
     y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y });
     y -= 20;
@@ -228,12 +229,12 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y -= 15;
     
     const emailDisclaimerParagraphs = [
-        'This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, corruption, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.'
+        'This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.'
     ];
 
     emailDisclaimerParagraphs.forEach(paragraph => {
         // Increased line height to 12
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 12 });
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y });
         y -= 10;
     });
     
