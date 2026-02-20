@@ -31,8 +31,8 @@ export default function AdminNotificationsPage() {
 
     setIsSending(true);
     try {
-      const sendAdminSmsFn = httpsCallable(functions, 'sendAdminSms');
-      const result = await sendAdminSmsFn({ to: phoneNumber, text: message });
+      const sendSmsFn = httpsCallable(functions, 'sendSms');
+      const result = await sendSmsFn({ to: phoneNumber, text: message });
       const data = result.data as { success: boolean, message: string };
 
       if (data.success) {

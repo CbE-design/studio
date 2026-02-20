@@ -142,6 +142,10 @@ exports.processScheduledPayment = functions.region('us-central1').https.onCall(a
 
 
 exports.sendSms = functions.region('us-central1').runWith({ memory: '512MiB', timeoutSeconds: 60 }).https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
+    }
+    
     const { to, text } = data;
     if (!to || !text) {
         throw new functions.https.HttpsError(
@@ -196,56 +200,6 @@ exports.sendSms = functions.region('us-central1').runWith({ memory: '512MiB', ti
             throw error;
         }
         throw new functions.https.HttpsError('internal', error.message || 'Failed to send SMS.');
-    }
-});
-
-exports.sendAdminSms = functions.region('us-central1').https.onCall(async (data, context) => {
-    if (!context.auth) {
-        throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
-    }
-
-    const { to, text } = data;
-    if (!to || !text) {
-        throw new functions.https.HttpsError(
-            'invalid-argument',
-            'The function must be called with "to" and "text" arguments.'
-        );
-    }
-
-    const from = "Nedbank";
-    const vonageApiKey = process.env.VONAGE_API_KEY;
-    const vonageApiSecret = process.env.VONAGE_API_SECRET;
-    
-    if (!vonageApiKey || !vonageApiSecret) {
-        console.error('Vonage API credentials are not configured.');
-        throw new functions.https.HttpsError('failed-precondition', 'SMS service not configured.');
-    }
-
-    try {
-        const vonageClient = new Vonage({ apiKey: vonageApiKey, apiSecret: vonageApiSecret });
-        const response = await vonageClient.sms.send({ to, from, text });
-        console.log("Vonage response for admin SMS:", JSON.stringify(response));
-
-        if (!response.messages || response.messages.length === 0) {
-            throw new functions.https.HttpsError('internal', 'No response from SMS service for admin SMS.');
-        }
-
-        const message = response.messages[0];
-        
-        if (message.status === '0') {
-            console.log(`Admin message sent successfully to ${to}`);
-            return { success: true, message: "Admin SMS sent successfully!" };
-        } else {
-            const errorText = message['error-text'] || 'Unknown error';
-            console.error(`Vonage error in admin SMS - Status: ${message.status}, Error: ${errorText}`);
-            throw new functions.https.HttpsError('internal', `Admin SMS failed: ${errorText} (code: ${message.status})`);
-        }
-    } catch (error) {
-        console.error("Error sending admin SMS:", error);
-        if (error instanceof functions.https.HttpsError) {
-            throw error;
-        }
-        throw new functions.https.HttpsError('internal', error.message || 'Failed to send admin SMS.');
     }
 });
 
