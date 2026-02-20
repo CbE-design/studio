@@ -161,7 +161,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     const commonTextOptions = { font, size: 8, color: textColor, lineHeight: 15, maxWidth: width - margin * 2 };
 
     y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y });
-    y -= 6;
+    y -= 2;
     page.drawLine({ start: { x: margin, y: y }, end: { x: width - margin, y: y }, thickness: 1, color: rgb(0, 0, 0) });
     y -= 15;
 
