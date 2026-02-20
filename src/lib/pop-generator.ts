@@ -158,12 +158,12 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         return currentY;
     };
     
-    const commonTextOptions = { font, size: 8, color: textColor, lineHeight: 14, maxWidth: width - margin * 2 };
+    const commonTextOptions = { font, size: 8, color: textColor, lineHeight: 15, maxWidth: width - margin * 2 };
 
     y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y });
-    y -= 20;
+    y -= 10;
     page.drawLine({ start: { x: margin, y: y }, end: { x: width - margin, y: y }, thickness: 1, color: rgb(0, 0, 0) });
-    y -= 20;
+    y -= 15;
 
     const disclaimerParagraphs = [
       'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification. Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information. Payments may take up to three business days. Please check your account to verify the existence of the funds.'
@@ -187,7 +187,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     ];
 
     emailDisclaimerParagraphs.forEach(paragraph => {
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y });
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 15 });
         y -= 10;
     });
     
