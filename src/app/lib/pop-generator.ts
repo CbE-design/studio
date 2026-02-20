@@ -120,43 +120,17 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     drawDetailRow('Paid from Account Holder', detailsForPdf.payer.toUpperCase());
     y -= 14;
     
-    // Updated helper to wrap text. Added wordSpacing logic.
-    const wrapText = (text: string, maxWidth: number, font: PDFFont, fontSize: number, wordSpacing: number = 2) => {
-        // Normalize spaces to ensure clean splitting
+    const wrapText = (text: string, maxWidth: number, font: PDFFont, fontSize: number) => {
         const words = text.replace(/\s+/g, ' ').split(' ');
         let lines: string[] = [];
         let currentLine = words[0] || '';
-        
-        // This is a simplified calculation, `pdf-lib` doesn't support setting wordSpacing directly in `drawText`.
-        // However, we can simulate checking width by assuming a standard space width + extra spacing.
-        // But `widthOfTextAtSize` calculates width with standard spacing.
-        // We will just use standard wrapping logic but be aware that we can't easily increase rendered word spacing 
-        // without drawing word by word or character by character which is complex.
-        // Instead, the request "spacing a little more between the words" often implies justified text or tracking (character spacing).
-        // Since pdf-lib has limited text layout features, increasing line height (already done) or font size helps readability.
-        // But if the user strictly means "word spacing", we can try to manually add wider spaces in the string itself if the font supports it,
-        // or just rely on the fact that `drawText` uses the font's default spacing.
-        
-        // However, one trick to visually increase word spacing is to replace spaces with double spaces or similar, 
-        // but that might look uneven. 
-        // Let's stick to standard wrapping logic but perhaps slightly reduce the maxWidth to force earlier breaks if "more spacing" implies "less crowded".
-        // OR, the user might mean `lineHeight`. 
-        // Given the previous requests were about lines overlapping, I will assume line height or visual density.
-        
-        // If the user literally means space character width:
-        // We can't easily change the width of the space character in `pdf-lib`'s high level `drawText`.
-        // I will proceed with standard wrapping logic.
-        
         for (let i = 1; i < words.length; i++) {
             const word = words[i];
             if (!word) continue;
-            // Check if adding the next word exceeds the max width
             const width = font.widthOfTextAtSize(currentLine + " " + word, fontSize);
             if (width < maxWidth) {
-                // If it's the start of a line, don't add a leading space
                 currentLine += (currentLine === '' ? '' : ' ') + word;
             } else {
-                // Push the current line and start a new one with the current word
                 lines.push(currentLine);
                 currentLine = word;
             }
@@ -178,53 +152,35 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
                 const textWidth = restOptions.font.widthOfTextAtSize(line, restOptions.size);
                 x = width - margin - textWidth;
             }
-            
-            // To "make spacing a little more between words", we can use a slightly larger font size for the space character
-            // or simply draw the text. `pdf-lib` doesn't support `wordSpacing`.
-            // However, inserting double spaces is a crude way to do it.
-            // CAUTION: This might affect line wrapping calculation above.
-            // Ideally, we re-calculate wrapping with double spaces, but that's overkill.
-            // I'll just draw the line as is. If the user wants "more spacing", likely they mean "not cramped".
-            // I will increase the lineHeight slightly more to 12 for the dense paragraphs to help with "spacing".
-            
-             // Re-evaluating: "spacing between words".
-            // If I replace ' ' with '  ' (two spaces) in the output, it will widen the gap.
-            // But I must ensure `wrapText` accounts for it.
-            // Let's try just modifying the `text` passed to `drawText` to have wider spaces if that's what's meant.
-            // But `wrapText` uses single spaces.
-            
-            // Actually, usually "spacing" in PDFs when things overlap refers to LINE spacing (leading).
-            // I already increased it to 11. I will increase it to 12.
-            
             page.drawText(line, { ...restOptions, x, y: currentY });
             currentY -= restOptions.lineHeight;
         });
         return currentY;
     };
     
-    const commonTextOptions = { font, size: 8, color: textColor, lineHeight: 16, maxWidth: width - margin * 2 };
+    const commonTextOptions = { font, size: 9, color: textColor, lineHeight: 15, maxWidth: width - margin * 2 };
 
     y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y });
-    y -= 20;
+    
+    y -= 0;
     page.drawLine({ start: { x: margin, y: y }, end: { x: width - margin, y: y }, thickness: 1, color: rgb(0, 0, 0) });
-    y -= 20;
+    y -= 15;
 
     const disclaimerParagraphs = [
       'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification. Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information. Payments may take up to three business days. Please check your account to verify the existence of the funds.'
     ];
     
     disclaimerParagraphs.forEach(paragraph => {
-        // Increased line height to 12
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 12 });
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y });
         y -= 18;
     });
     
     y -= 5;
     
-    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y, lineHeight: 12 });
+    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y });
     y -= 20;
 
-    page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 10, color: textColor });
+    page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 11, color: textColor });
     y -= 15;
     
     const emailDisclaimerParagraphs = [
@@ -232,8 +188,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     ];
 
     emailDisclaimerParagraphs.forEach(paragraph => {
-        // Increased line height to 12
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y });
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 18 });
         y -= 10;
     });
     
