@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -30,7 +31,6 @@ export default function AdminUsersPage() {
           throw new Error(data.message || 'Failed to fetch users.');
         }
       } catch (error: any) {
-        console.error('Error fetching users:', error);
         toast({
           variant: 'destructive',
           title: 'Failed to Fetch Users',

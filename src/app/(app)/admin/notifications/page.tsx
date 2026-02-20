@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -45,7 +46,6 @@ export default function AdminNotificationsPage() {
         throw new Error(data.message);
       }
     } catch (error: any) {
-      console.error('Error sending admin SMS:', error);
       toast({
         variant: 'destructive',
         title: 'Failed to Send SMS',
