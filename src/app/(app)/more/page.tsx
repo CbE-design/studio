@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import {
@@ -10,6 +8,7 @@ import {
   ChevronRight,
   Plus,
   LogOut,
+  Shield,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -162,6 +161,11 @@ export default function MorePage() {
       icon: Settings,
       label: 'Settings',
       href: '#',
+    },
+     {
+      icon: Shield,
+      label: 'Admin Panel',
+      href: '/admin',
     },
   ];
 

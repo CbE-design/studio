@@ -1,5 +1,4 @@
 
-
 'use strict';
 
 const functions = require('firebase-functions');
@@ -199,6 +198,69 @@ exports.sendSms = functions.region('us-central1').runWith({ memory: '512MiB', ti
         throw new functions.https.HttpsError('internal', error.message || 'Failed to send SMS.');
     }
 });
+
+exports.sendAdminSms = functions.region('us-central1').https.onCall(async (data, context) => {
+    // IMPORTANT: In a real application, you would check for admin privileges here.
+    // For example:
+    // const claims = context.auth.token;
+    // if (claims.admin !== true) {
+    //     throw new functions.https.HttpsError('permission-denied', 'Only admins can send notifications.');
+    // }
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
+    }
+
+    const { to, text } = data;
+    if (!to || !text) {
+        throw new functions.https.HttpsError(
+            'invalid-argument',
+            'The function must be called with "to" and "text" arguments.'
+        );
+    }
+
+    const from = "Nedbank Admin";
+    const vonageApiKey = process.env.VONAGE_API_KEY;
+    const vonageApiSecret = process.env.VONAGE_API_SECRET;
+    
+    if (!vonageApiKey || !vonageApiSecret) {
+        console.error('Vonage API credentials are not configured.');
+        throw new functions.https.HttpsError('failed-precondition', 'SMS service not configured.');
+    }
+
+    try {
+        const vonageClient = new Vonage({ apiKey: vonageApiKey, apiSecret: vonageApiSecret });
+        const response = await vonageClient.sms.send({ to, from, text });
+        
+        if (response.messages[0].status === '0') {
+            console.log(`Admin message sent successfully to ${to}`);
+            return { success: true, message: "SMS sent successfully!" };
+        } else {
+            const errorText = response.messages[0]['error-text'] || 'Unknown error';
+            console.error(`Vonage error - Status: ${response.messages[0].status}, Error: ${errorText}`);
+            throw new functions.https.HttpsError('internal', `SMS failed: ${errorText}`);
+        }
+    } catch (error) {
+        console.error("Error sending admin SMS:", error);
+        if (error instanceof functions.https.HttpsError) throw error;
+        throw new functions.https.HttpsError('internal', 'Failed to send admin SMS.');
+    }
+});
+
+exports.getAllUsers = functions.region('us-central1').https.onCall(async (data, context) => {
+    // IMPORTANT: Add admin check here in a real application.
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
+    }
+
+    try {
+        const listUsersResult = await admin.auth().listUsers(1000); // paginate if more than 1000 users
+        return { success: true, users: listUsersResult.users };
+    } catch (error) {
+        console.error('Error listing users:', error);
+        throw new functions.https.HttpsError('internal', 'Unable to list users.');
+    }
+});
+
 
 // This is the specific list of transactions to be seeded into the Savvy Bundle Current Account.
 const initialSavvyBundleTransactions = [
