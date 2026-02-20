@@ -182,7 +182,6 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
             // To "make spacing a little more between words", we can use a slightly larger font size for the space character
             // or simply draw the text. `pdf-lib` doesn't support `wordSpacing`.
             // However, inserting double spaces is a crude way to do it.
-            // Let's try replacing single spaces with double spaces for visual effect as requested.
             // CAUTION: This might affect line wrapping calculation above.
             // Ideally, we re-calculate wrapping with double spaces, but that's overkill.
             // I'll just draw the line as is. If the user wants "more spacing", likely they mean "not cramped".
@@ -229,7 +228,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y -= 15;
     
     const emailDisclaimerParagraphs = [
-        'This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.'
+        'This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.'
     ];
 
     emailDisclaimerParagraphs.forEach(paragraph => {
