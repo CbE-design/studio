@@ -121,20 +121,16 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y -= 14;
     
     const wrapText = (text: string, maxWidth: number, font: PDFFont, fontSize: number) => {
-        // Normalize spaces to ensure clean splitting
         const words = text.replace(/\s+/g, ' ').split(' ');
         let lines: string[] = [];
         let currentLine = words[0] || '';
         for (let i = 1; i < words.length; i++) {
             const word = words[i];
             if (!word) continue;
-            // Check if adding the next word exceeds the max width
             const width = font.widthOfTextAtSize(currentLine + " " + word, fontSize);
             if (width < maxWidth) {
-                // If it's the start of a line, don't add a leading space
                 currentLine += (currentLine === '' ? '' : ' ') + word;
             } else {
-                // Push the current line and start a new one with the current word
                 lines.push(currentLine);
                 currentLine = word;
             }
@@ -162,7 +158,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         return currentY;
     };
     
-    const commonTextOptions = { font, size: 8, color: textColor, lineHeight: 12, maxWidth: width - margin * 2 };
+    const commonTextOptions = { font, size: 8, color: textColor, lineHeight: 14, maxWidth: width - margin * 2 };
 
     y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y });
     y -= 20;
@@ -174,13 +170,13 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     ];
     
     disclaimerParagraphs.forEach(paragraph => {
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 12 });
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y });
         y -= 18;
     });
     
     y -= 5;
     
-    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y, lineHeight: 12 });
+    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y });
     y -= 20;
 
     page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 10, color: textColor });
@@ -191,7 +187,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     ];
 
     emailDisclaimerParagraphs.forEach(paragraph => {
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 12 });
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y });
         y -= 10;
     });
     
@@ -218,5 +214,3 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     
     return await pdfDoc.save();
 }
-
-    
