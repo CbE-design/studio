@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ChevronRight, Shield, Bell, Users } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Shield, Bell, Users, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -11,6 +11,12 @@ const adminOptions = [
     title: 'Send Notifications',
     description: 'Send SMS notifications to clients.',
     href: '/admin/notifications',
+  },
+  {
+    icon: <Mail className="h-8 w-8 text-primary" />,
+    title: 'Send Email',
+    description: 'Send general email communications to clients.',
+    href: '/admin/email',
   },
   {
     icon: <Users className="h-8 w-8 text-primary" />,
