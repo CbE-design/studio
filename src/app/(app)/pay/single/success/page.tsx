@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { Suspense, useState, useEffect, useRef, useCallback } from 'react';
@@ -116,14 +114,14 @@ function PaymentSuccessContent() {
                     </div>
                 </header>
 
-                <main className="bg-white px-5">
+                <main className="bg-white px-5 py-4 space-y-4">
                     {isInstantPayment && (
-                        <div className="flex items-start gap-3 py-4 border-b border-gray-100">
-                            <Info className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                            <p className="text-sm text-gray-600 leading-relaxed">
+                       <Alert className="bg-yellow-50 border-yellow-200 text-yellow-800">
+                            <Info className="h-5 w-5 text-yellow-600" />
+                            <AlertDescription>
                                 Instant payments take up to 30 minutes to process. Once successful, you can share your proof of payment from payment history.
-                            </p>
-                        </div>
+                            </AlertDescription>
+                        </Alert>
                     )}
 
                     <DetailRow label="Payment date" value={formattedDate} />
