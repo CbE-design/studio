@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Suspense, useState, useEffect, useRef, useCallback } from 'react';
@@ -10,7 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import html2canvas from 'html2canvas';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null }) => (
-    <div className="py-3">
+    <div className="py-2">
         <p className="text-sm text-gray-400">{label}</p>
         <p className="text-base font-light text-gray-800">{value || '-'}</p>
     </div>
@@ -123,7 +124,7 @@ function PaymentSuccessContent() {
                     </Alert>
                 )}
 
-                <main className="bg-white px-5 py-4 space-y-4">
+                <main className="bg-white px-5 py-4">
                     <DetailRow label="Payment date" value={formattedDate} />
                     <DetailRow label="Bank name" value={paymentDetails.bankName} />
                     <DetailRow label="Account number" value={paymentDetails.accountNumber} />
