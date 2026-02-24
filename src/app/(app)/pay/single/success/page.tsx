@@ -108,16 +108,16 @@ function PaymentSuccessContent() {
                     </button>
                     <div className="flex flex-col items-center">
                         <Check className="h-12 w-12 text-white mb-3" strokeWidth={2} />
-                        <h1 className="text-xl font-light text-center leading-snug px-4">
+                        <h1 className="text-xl font-light text-center leading-snug px-4 tracking-tight">
                             {`${formatCurrency(Number(paymentDetails.amount))} paid to ${paymentDetails.recipientName}'s bank account`}
                         </h1>
                     </div>
                 </header>
 
                 {isInstantPayment && (
-                   <Alert className="bg-yellow-50 border-none rounded-none text-gray-800">
+                   <Alert className="bg-yellow-50 border-none rounded-none text-gray-800 -mx-0 w-full font-['Roboto']">
                         <Info className="h-5 w-5 text-gray-600" />
-                        <AlertDescription className="font-sans">
+                        <AlertDescription>
                             Instant payments take up to 30 minutes to process. Once successful, you can share your proof of payment from payment history.
                         </AlertDescription>
                     </Alert>
