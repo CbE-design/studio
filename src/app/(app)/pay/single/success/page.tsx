@@ -118,7 +118,7 @@ function PaymentSuccessContent() {
                     {isInstantPayment && (
                        <Alert className="bg-yellow-50 border-yellow-200 text-yellow-800">
                             <Info className="h-5 w-5 text-yellow-600" />
-                            <AlertDescription>
+                            <AlertDescription className="font-sans">
                                 Instant payments take up to 30 minutes to process. Once successful, you can share your proof of payment from payment history.
                             </AlertDescription>
                         </Alert>
