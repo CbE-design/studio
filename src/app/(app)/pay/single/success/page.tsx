@@ -114,16 +114,16 @@ function PaymentSuccessContent() {
                     </div>
                 </header>
 
-                <main className="bg-white px-5 py-4 space-y-4">
-                    {isInstantPayment && (
-                       <Alert className="bg-yellow-50 border-yellow-200 text-yellow-800">
-                            <Info className="h-5 w-5 text-yellow-600" />
-                            <AlertDescription className="font-sans">
-                                Instant payments take up to 30 minutes to process. Once successful, you can share your proof of payment from payment history.
-                            </AlertDescription>
-                        </Alert>
-                    )}
+                {isInstantPayment && (
+                   <Alert className="bg-yellow-50 border-none rounded-none text-gray-800">
+                        <Info className="h-5 w-5 text-gray-600" />
+                        <AlertDescription className="font-sans">
+                            Instant payments take up to 30 minutes to process. Once successful, you can share your proof of payment from payment history.
+                        </AlertDescription>
+                    </Alert>
+                )}
 
+                <main className="bg-white px-5 py-4 space-y-4">
                     <DetailRow label="Payment date" value={formattedDate} />
                     <DetailRow label="Bank name" value={paymentDetails.bankName} />
                     <DetailRow label="Account number" value={paymentDetails.accountNumber} />
