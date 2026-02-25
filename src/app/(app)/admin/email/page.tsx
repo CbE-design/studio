@@ -17,7 +17,24 @@ export default function AdminEmailPage() {
   const [recipientEmail, setRecipientEmail] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [attachment, setAttachment] = useState<File | null>(null);
   const [isSending, setIsSending] = useState(false);
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64String = (reader.result as string).split(',')[1];
+        if (base64String) {
+          resolve(base64String);
+        } else {
+          reject(new Error("Could not read file as Base64."));
+        }
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
 
   const handleSendEmail = async () => {
     if (!recipientEmail || !subject || !message) {
@@ -32,11 +49,23 @@ export default function AdminEmailPage() {
     setIsSending(true);
     try {
       const sendEmailFn = httpsCallable(functions, 'sendEmail');
+
+      let attachmentsPayload = [];
+      if (attachment) {
+        const base64Content = await fileToBase64(attachment);
+        attachmentsPayload.push({
+          filename: attachment.name,
+          content: base64Content,
+        });
+      }
+      
       const result = await sendEmailFn({
         to: recipientEmail,
         subject: subject,
         html: message,
+        attachments: attachmentsPayload,
       });
+
       const data = result.data as { success: boolean, message: string };
 
       if (data.success) {
@@ -47,6 +76,10 @@ export default function AdminEmailPage() {
         setRecipientEmail('');
         setSubject('');
         setMessage('');
+        setAttachment(null);
+        // Reset file input
+        const fileInput = document.getElementById('attachment') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
       } else {
         throw new Error(data.message);
       }
@@ -103,6 +136,15 @@ export default function AdminEmailPage() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={10}
+            />
+          </div>
+          <div>
+            <Label htmlFor="attachment">Attachment</Label>
+            <Input 
+              id="attachment"
+              type="file"
+              onChange={(e) => setAttachment(e.target.files ? e.target.files[0] : null)}
+              className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
             />
           </div>
            <Button onClick={handleSendEmail} className="w-full" disabled={isSending}>

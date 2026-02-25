@@ -31,12 +31,28 @@ exports.sendEmail = functions.region('us-central1').https.onCall(async (data, co
     }
     const resend = new Resend(resendApiKey);
 
+    const signatureHtml = `
+      <br><br>
+      <div style="font-family: Arial, sans-serif; font-size: 12px; color: #555555; border-top: 1px solid #dddddd; padding-top: 15px; margin-top: 20px;">
+        <img src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/images.png?alt=media&token=9c75c65e-fc09-4827-9a36-91caa0ae3ee5" alt="Nedbank Logo" width="100" style="margin-bottom: 10px;" />
+        <p style="margin: 0;"><strong>Nedbank Digital Team</strong></p>
+        <p style="font-size: 10px; color: #777777; margin: 5px 0 0 0;">
+          Nedbank Ltd Reg No 1951/000009/06. Licensed financial services provider (FSP9363) and registered credit provider (NCRCP16).
+        </p>
+        <p style="font-size: 10px; color: #777777; margin-top: 5px;">
+            This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited.
+        </p>
+      </div>
+    `;
+
+    const fullHtml = `${html}${signatureHtml}`;
+
     try {
         const emailPayload = {
             from: `"${fromName}" <${fromEmail}>`,
             to: to,
             subject: subject,
-            html: html,
+            html: fullHtml,
             attachments: attachments || [],
         };
         await resend.emails.send(emailPayload);
