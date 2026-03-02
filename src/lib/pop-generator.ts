@@ -177,10 +177,10 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y -= 5;
     
     y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y });
-    y -= 20;
+    y -= 15;
 
     page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 10, color: textColor });
-    y -= 15;
+    y -= 10;
     
     const emailDisclaimerParagraphs = [
         'This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.'
@@ -214,5 +214,3 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     
     return await pdfDoc.save();
 }
-
-    
