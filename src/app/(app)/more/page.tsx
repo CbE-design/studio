@@ -10,6 +10,7 @@ import {
   Plus,
   LogOut,
   Shield,
+  Building2,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -142,6 +143,13 @@ export default function MorePage() {
       href: '#',
       badge: 'New',
       badgeColor: 'bg-green-500',
+    },
+    {
+      icon: Building2,
+      label: 'SAP ERP Integration',
+      href: '/saperp',
+      badge: 'Active',
+      badgeColor: 'bg-blue-500',
     },
     {
       icon: FileText,
