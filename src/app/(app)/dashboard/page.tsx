@@ -203,17 +203,19 @@ export default function DashboardPage() {
     <div className="flex flex-col h-screen bg-gray-50 text-black">
       <header className="sticky top-0 z-20 bg-[#00A651] text-white p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-6 overflow-hidden">
             <Image
               src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"
               alt="Nedbank Logo"
               width={24}
               height={24}
-              className="w-6 h-6"
+              className="w-6 h-6 flex-shrink-0"
             />
-            <span className="font-medium text-lg">{user.displayName || 'Van Wyk Bussiness Enterprise'}</span>
+            <span className="font-medium text-2xl uppercase truncate">
+              {user.displayName || 'VAN WYK BUSSINESS ENTERPRISE'}
+            </span>
           </div>
-          <div className="flex items-center gap-4 text-white">
+          <div className="flex items-center gap-4 text-white flex-shrink-0">
             <Link href="/notifications">
               <div className={cn('relative', isBellRinging && 'animate-ring')}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
