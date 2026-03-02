@@ -186,12 +186,12 @@ export default function RecipientDetailsPage() {
                     
                     <div>
                         <Label htmlFor="your-reference" className="text-gray-500 text-xs">Your reference</Label>
-                        <Input id="your-reference" defaultValue="Van Wyk Bussiness Enterprise" className="bg-white" />
+                        <Input id="your-reference" defaultValue="Van Wyk Business Enterprise" className="bg-white" />
                     </div>
 
                     <div>
                         <Label htmlFor="recipient-reference" className="text-gray-500 text-xs">Recipient's reference</Label>
-                        <Input id="recipient-reference" defaultValue="Van Wyk Bussiness Enterprise" className="bg-white" />
+                        <Input id="recipient-reference" defaultValue="Van Wyk Business Enterprise" className="bg-white" />
                     </div>
                 </div>
             </div>

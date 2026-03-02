@@ -199,7 +199,7 @@ export default function MorePage() {
                 </AvatarFallback>
               </Avatar>
               <p className="font-bold text-gray-800">
-                Van Wyk Bussiness Enterprise
+                Van Wyk Business Enterprise
               </p>
               <p className="text-sm text-gray-500">3120634863</p>
             </div>

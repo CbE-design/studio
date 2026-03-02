@@ -207,7 +207,7 @@ function TransactionDetailsContent() {
             const accNumberLast6 = transaction.accountNumber ? `...${transaction.accountNumber.slice(-6)}` : '...';
             const formattedAmount = `R${transaction.amount.toFixed(2)}`;
             const formattedDate = format(normalizeDate(transaction.date), 'dd/MM/yyyy');
-            const senderName = 'VAN WYK BUSSINESS ENTERPRISE';
+            const senderName = 'VAN WYK BUSINESS ENTERPRISE';
             const reference = transaction.popReferenceNumber || `${format(normalizeDate(transaction.date), 'yyyy-MM-dd')}/NEDBANK/${transaction.id}`;
             const text = `Nedbank Payment: ${senderName} has paid ${formattedAmount} into Acc No: ${accNumberLast6} on ${formattedDate} ,Ref: ${reference} .Please check your account.`;
             await sendSmsFn({ to: recipient, text });

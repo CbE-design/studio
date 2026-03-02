@@ -212,7 +212,7 @@ export default function DashboardPage() {
               className="w-6 h-6 flex-shrink-0"
             />
             <span className="font-normal text-xl uppercase truncate">
-              {user.displayName || 'VAN WYK BUSSINESS ENTERPRISE'}
+              {user.displayName || 'VAN WYK BUSINESS ENTERPRISE'}
             </span>
           </div>
           <div className="flex items-center gap-4 text-white flex-shrink-0">

@@ -49,7 +49,7 @@ export default function StatementPage() {
                 const plainUser: User = {
                     id: data.id,
                     email: data.email,
-                    firstName: data.firstName || 'Van Wyk Bussiness Enterprise',
+                    firstName: data.firstName || 'Van Wyk Business Enterprise',
                     lastName: data.lastName || '',
                     createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
                 };
