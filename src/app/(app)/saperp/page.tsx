@@ -3,12 +3,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Building2, RefreshCw, CheckCircle2, AlertCircle, Clock, LayoutGrid, FileSpreadsheet, Users } from 'lucide-react';
+import { ArrowLeft, Building2, RefreshCw, CheckCircle2, AlertCircle, Clock, LayoutGrid, FileSpreadsheet, Users, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
 const IntegrationItem = ({ icon: Icon, title, description, status }: { icon: any, title: string, description: string, status: 'active' | 'pending' | 'error' }) => (
     <div className="flex items-start gap-4 p-4 border rounded-lg bg-white shadow-sm">
@@ -58,6 +60,13 @@ export default function SapErpPage() {
                     <h2 className="text-2xl font-bold text-gray-800">Enterprise Dashboard</h2>
                     <p className="text-gray-500">Manage your CORRIE BUSINESS ENTERPRISE financial data synchronization with SAP ERP.</p>
                 </div>
+
+                <Alert className="bg-blue-50 border-blue-100">
+                    <Info className="h-4 w-4 text-blue-600" />
+                    <AlertDescription className="text-sm text-gray-600">
+                        <strong>What is SAP ERP?</strong> SAP ERP is a business management software that integrates all core business processes. This integration syncs your banking transactions directly with your system for automated accounting, payroll, and reconciliation.
+                    </AlertDescription>
+                </Alert>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Card>
