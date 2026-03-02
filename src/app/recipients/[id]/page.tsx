@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -187,12 +186,12 @@ export default function RecipientDetailsPage() {
                     
                     <div>
                         <Label htmlFor="your-reference" className="text-gray-500 text-xs">Your reference</Label>
-                        <Input id="your-reference" defaultValue="GGS FAMILY TRUST" className="bg-white" />
+                        <Input id="your-reference" defaultValue="Van Wyk Bussiness Enterprise" className="bg-white" />
                     </div>
 
                     <div>
                         <Label htmlFor="recipient-reference" className="text-gray-500 text-xs">Recipient's reference</Label>
-                        <Input id="recipient-reference" defaultValue="GGS FAMILY TRUST" className="bg-white" />
+                        <Input id="recipient-reference" defaultValue="Van Wyk Bussiness Enterprise" className="bg-white" />
                     </div>
                 </div>
             </div>
@@ -209,5 +208,3 @@ export default function RecipientDetailsPage() {
     </div>
   );
 }
-
-    

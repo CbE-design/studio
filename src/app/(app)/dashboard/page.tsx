@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -210,7 +211,7 @@ export default function DashboardPage() {
               height={24}
               className="w-6 h-6"
             />
-            <span className="font-medium text-lg">{user.displayName || 'Corrie'}</span>
+            <span className="font-medium text-lg">{user.displayName || 'Van Wyk Bussiness Enterprise'}</span>
           </div>
           <div className="flex items-center gap-4 text-white">
             <Link href="/notifications">

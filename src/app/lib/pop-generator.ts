@@ -1,3 +1,4 @@
+
 'use server';
 
 import { PDFDocument, StandardFonts, rgb, PDFFont } from 'pdf-lib';
@@ -37,7 +38,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         amount: Number(transaction.amount || '0'),
         currency: account.currency,
         recipientReference: transaction.recipientReference,
-        payer: "DICKSON FAMILY TRUST",
+        payer: "Van Wyk Bussiness Enterprise",
         bank: transaction.bank,
         accountNumber: `...${transaction.accountNumber?.slice(-6)}`,
         channel: 'Internet payment',
@@ -82,11 +83,11 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     }
 
     page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 1.5, color: rgb(0, 0, 0) });
-    let y = lineY - 20;
+    let y = lineY - 0;
 
 
-    page.drawText('Notification of Payment', { x: margin, y, font: boldFont, size: 12, color: textColor });
-    y -= 30;
+    page.drawText('Notification of Payment', { x: margin, y: y - 20, font: boldFont, size: 12, color: textColor });
+    y -= 50;
 
     page.drawText('Nedbank Limited confirms that the following payment has been made:', { x: margin, y, font, size: 9, color: textColor });
     y -= 19;
@@ -157,7 +158,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         return currentY;
     };
     
-    const commonTextOptions = { font, size: 8, color: textColor, lineHeight: 15, maxWidth: width - margin * 2 };
+    const commonTextOptions = { font, size: 9, color: textColor, lineHeight: 15, maxWidth: width - margin * 2 };
 
     y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y });
     
@@ -178,7 +179,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y });
     y -= 15;
 
-    page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 10, color: textColor });
+    page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 11, color: textColor });
     y -= 18;
     
     const emailDisclaimerParagraphs = [
@@ -195,7 +196,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     drawDetailRow('Security Code', detailsForPdf.securityCode);
     y -= 30;
 
-    // --- NEW FOOTER ---
+    // --- FOOTER ---
     const footerY = 30;
     page.drawLine({ start: { x: margin, y: footerY + 25 }, end: { x: width - margin, y: footerY + 25 }, thickness: 0.5, color: grayColor });
     const footerText = "Nedbank Limited Reg No 1951/000009/06 VAT Reg No 4320116074 135 Rivonia Road Sandown Sandton 2196 South Africa We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCR Reg No: NCRCP16).";

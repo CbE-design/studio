@@ -207,7 +207,7 @@ function TransactionDetailsContent() {
             const accNumberLast6 = transaction.accountNumber ? `...${transaction.accountNumber.slice(-6)}` : '...';
             const formattedAmount = `R${transaction.amount.toFixed(2)}`;
             const formattedDate = format(normalizeDate(transaction.date), 'dd/MM/yyyy');
-            const senderName = 'DICKSON FAMILY TRUST';
+            const senderName = 'Van Wyk Bussiness Enterprise';
             const reference = transaction.popReferenceNumber || `${format(normalizeDate(transaction.date), 'yyyy-MM-dd')}/NEDBANK/${transaction.id}`;
             const text = `Nedbank Payment: ${senderName} has paid ${formattedAmount} into Acc No: ${accNumberLast6} on ${formattedDate} ,Ref: ${reference} .Please check your account.`;
             await sendSmsFn({ to: recipient, text });
@@ -271,9 +271,12 @@ function TransactionDetailsContent() {
                   <AlertDialogContent>
                       <AlertDialogHeader>
                           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                              This will create a new credit transaction to reverse the funds for this payment and log it in the failed transactions list. This action cannot be undone.
-                          </AlertDialogDescription>
+                          <AlertDialogHeader>
+                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                  This will create a new credit transaction to reverse the funds for this payment and log it in the failed transactions list. This action cannot be undone.
+                              </AlertDialogDescription>
+                          </AlertDialogHeader>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
