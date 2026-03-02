@@ -211,7 +211,7 @@ export default function DashboardPage() {
               height={24}
               className="w-6 h-6 flex-shrink-0"
             />
-            <span className="font-medium text-2xl uppercase truncate">
+            <span className="font-normal text-xl uppercase truncate">
               {user.displayName || 'VAN WYK BUSSINESS ENTERPRISE'}
             </span>
           </div>
