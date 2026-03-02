@@ -433,7 +433,7 @@ const initialSavvyBundleTransactions = [
     { timestamp: new Date('2022-10-20'), description: 'ATM CASH 377121716833693', amount: '-R400.00', transactionType: 'ATM_WITHDRAWAL_OTHER' },
     { timestamp: new Date('2022-10-20'), description: 'INSTANT PAYMENT FEE', amount: '-R49.00', transactionType: 'BANK_FEE' },
     { timestamp: new Date('2022-10-21'), description: 'WYNKAS', amount: '-R10000.00', transactionType: 'EFT_STANDARD' },
-    { timestamp: new Date('2022-10-21'), description: 'Van Wyk Business Enterprise', amount: '+R57100.00', transactionType: 'EFT_STANDARD' },
+    { timestamp: new Date('2022-10-21'), description: 'CORRIE BUSINESS ENTERPRISE', amount: '+R57100.00', transactionType: 'EFT_STANDARD' },
     { timestamp: new Date('2022-10-21'), description: 'INTERACCOUNT TRANSFER FROM JUST INVEST', amount: '+R18949581.42', transactionType: 'EFT_STANDARD' },
 ];
 
@@ -451,11 +451,11 @@ exports.provisionNewUser = functions.auth.user().onCreate(async (userRecord) => 
     batch.set(userDocRef, {
       id: uid,
       email: email,
-      firstName: 'Van Wyk Business Enterprise',
+      firstName: 'CORRIE BUSINESS ENTERPRISE',
       lastName: '',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
-    await admin.auth().updateUser(uid, { displayName: 'Van Wyk Business Enterprise' });
+    await admin.auth().updateUser(uid, { displayName: 'CORRIE BUSINESS ENTERPRISE' });
     console.log(`Successfully created user document for: ${uid}`);
 
     const accountsCollectionRef = userDocRef.collection('bankAccounts');
@@ -521,7 +521,7 @@ exports.provisionNewUser = functions.auth.user().onCreate(async (userRecord) => 
     });
 
     const failedTransactionsToAdd = [
-        { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'Van Wyk Business Enterprise', failureReason: 'Not Authorised' },
+        { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'CORRIE BUSINESS ENTERPRISE', failureReason: 'Not Authorised' },
         { returnDate: '01 Oct 2025', fromAccount: '1234066912', toAccount: '9876543210', beneficiaryName: 'H.Nel', failureReason: 'Not Authorised' },
     ];
     failedTransactionsToAdd.forEach(tx => {

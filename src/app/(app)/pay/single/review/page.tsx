@@ -118,7 +118,7 @@ function ReviewPaymentContent() {
                         const accNumberLast6 = paymentDetails.accountNumber ? `...${paymentDetails.accountNumber.slice(-6)}` : '...';
                         const formattedAmount = `R${parseFloat(paymentDetails.amount || '0').toFixed(2)}`;
                         const smsDate = format(new Date(), 'dd/MM/yyyy');
-                        const senderName = 'VAN WYK BUSINESS ENTERPRISE';
+                        const senderName = 'CORRIE BUSINESS ENTERPRISE';
                         const reference = result.popReferenceNumber || `${format(new Date(), 'yyyy-MM-dd')}/NEDBANK/${result.transactionId}`;
                         const smsText = `Nedbank Payment: ${senderName} has paid ${formattedAmount} into Acc No: ${accNumberLast6} on ${smsDate} ,Ref: ${reference} .Please check your account.`;
                         await sendSmsFn({ to: paymentDetails.notificationValue, text: smsText });

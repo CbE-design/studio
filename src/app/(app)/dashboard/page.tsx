@@ -19,7 +19,7 @@ const LatestIcon = ({ className }: { className?: string }) => (
         <path d="M20 12v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>
         <path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/>
         <path d="M12 18a4 4 0 0 0 4-4H8a4 4 0 0 0 4 4z"/>
-        <path d="M10 6a2 2 0 1 1 4 0"/>
+        <path d="M10 6a2 2 1 1 4 0"/>
     </svg>
 );
 
@@ -212,7 +212,7 @@ export default function DashboardPage() {
               className="w-6 h-6 flex-shrink-0"
             />
             <span className="font-normal text-xl uppercase truncate">
-              {user.displayName || 'VAN WYK BUSINESS ENTERPRISE'}
+              {user.displayName || 'CORRIE BUSINESS ENTERPRISE'}
             </span>
           </div>
           <div className="flex items-center gap-4 text-white flex-shrink-0">
