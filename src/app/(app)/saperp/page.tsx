@@ -58,7 +58,7 @@ export default function SapErpPage() {
             <main className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div className="flex flex-col gap-2">
                     <h2 className="text-2xl font-bold text-gray-800">Enterprise Dashboard</h2>
-                    <p className="text-gray-500">Manage your CORRIE BUSINESS ENTERPRISE financial data synchronization with SAP ERP.</p>
+                    <p className="text-gray-500">Manage your DICKSON FAMILY TRUST financial data synchronization with SAP ERP.</p>
                 </div>
 
                 <Alert className="bg-blue-50 border-blue-100">

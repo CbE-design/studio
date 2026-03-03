@@ -214,7 +214,7 @@ export default function DashboardPage() {
               className="w-6 h-6 flex-shrink-0"
             />
             <span className="font-normal text-xl uppercase truncate">
-              {user.displayName || 'CORRIE BUSINESS ENTERPRISE'}
+              {user.displayName || 'DICKSON FAMILY TRUST'}
             </span>
           </div>
           <div className="flex items-center gap-4 text-white flex-shrink-0">
