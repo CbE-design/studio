@@ -14,7 +14,7 @@ import { getFunctions, httpsCallable } from 'firebase/functions';
 import { app } from '@/app/lib/firebase';
 
 const LatestIcon = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
         <path d="M20 12v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>
         <path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/>
         <path d="M12 18a4 4 0 0 0 4-4H8a4 4 0 0 0 4 4z"/>
@@ -23,13 +23,13 @@ const LatestIcon = ({ className }: { className?: string }) => (
 );
 
 const HomeLoansIcon = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
         <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
         <path d="M9 22V12h6v10"/>
     </svg>
 );
 const StatementsIcon = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
         <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
         <path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/>
     </svg>
@@ -59,18 +59,18 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
                             New
                         </div>
                     )}
-                    <div className="relative w-12 h-12">
+                    <div className="relative w-12 h-12 flex items-center justify-center">
                        {src ? (
-                            <Image 
-                                src={src}
-                                alt={`${label} icon`}
-                                fill
-                                className="object-contain"
-                            />
-                        ) : Icon ? (
-                            <div className="w-full h-full flex items-center justify-center">
-                                <Icon className="h-8 w-8 text-primary" />
+                            <div className="relative w-12 h-12">
+                                <Image 
+                                    src={src}
+                                    alt={`${label} icon`}
+                                    fill
+                                    className="object-contain"
+                                />
                             </div>
+                        ) : Icon ? (
+                            <Icon className="h-8 w-8 text-primary" />
                         ) : null}
                     </div>
                 </div>
@@ -247,12 +247,12 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="flex-1">
+      <main className="flex-1 flex flex-col">
         <div className="gradient-background text-white p-4 pt-0">
           <AccountsCarousel />
         </div>
 
-        <div className="bg-white pb-8">
+        <div className="bg-white flex-1 pb-4">
           <div className="mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-md shadow-sm border border-black/20 mt-4 bg-white">
             <Image
               src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
