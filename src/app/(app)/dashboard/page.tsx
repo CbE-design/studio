@@ -7,12 +7,10 @@ import { AccountsCarousel } from '@/components/accounts-carousel';
 import { useUser, useCollection, useFirestore, useMemoFirebase } from '@/firebase-provider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
-import { collection, query, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, query, getDocs } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { app } from '@/app/lib/firebase';
 
 const LatestIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
@@ -50,7 +48,6 @@ const widgets = [
 ];
 
 const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, icon?: React.ElementType<{className?: string}>, label: string, href: string, isNew?: boolean }) => {
-
     return (
         <Link href={href}>
             <div className="flex flex-col items-center justify-start space-y-1.5 text-center h-full group">
@@ -81,7 +78,6 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
     );
 };
 
-
 const LoadingSkeleton = () => (
   <div className="flex flex-col h-screen bg-white text-black">
     <div className="gradient-background text-white sticky top-0 z-20 p-4">
@@ -103,7 +99,7 @@ const LoadingSkeleton = () => (
     </div>
 
     <main className="flex-1 overflow-y-auto bg-gray-50 p-4">
-        <Skeleton className="h-[50px] w-[320px] mx-auto my-6 rounded-lg bg-gray-200" />
+        <Skeleton className="h-24 w-full mb-6 rounded-lg bg-gray-200" />
         <Skeleton className="h-8 w-1/3 mb-4 bg-gray-200" />
         <div className="grid grid-cols-4 gap-y-6">
           {Array.from({ length: 12 }).map((_, i) => (
@@ -116,7 +112,6 @@ const LoadingSkeleton = () => (
     </main>
   </div>
 );
-
 
 function useAllTransactions() {
     const { user, isUserLoading } = useUser();
@@ -163,7 +158,6 @@ function useAllTransactions() {
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
-  const firestore = useFirestore();
   const { transactions, isLoading: isTransactionsLoading } = useAllTransactions();
   const [unreadCount, setUnreadCount] = useState(0);
   const [isBellRinging, setIsBellRinging] = useState(false);
@@ -185,7 +179,7 @@ export default function DashboardPage() {
 
         if (newUnreadCount > 0) {
             setIsBellRinging(true);
-            const timer = setTimeout(() => setIsBellRinging(false), 30000); // Ring for 30 seconds
+            const timer = setTimeout(() => setIsBellRinging(false), 30000);
             return () => clearTimeout(timer);
         }
     } catch (e) {
@@ -194,13 +188,12 @@ export default function DashboardPage() {
     }
   }, [transactions, isTransactionsLoading]);
 
-
   if (isUserLoading || !user) {
     return <LoadingSkeleton />;
   }
 
   return (
-    <div className="flex flex-col bg-white text-black min-h-full">
+    <div className="flex flex-col bg-white text-black min-h-screen">
       <header className="sticky top-0 z-20 bg-[#00A651] text-white p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6 overflow-hidden">
@@ -248,39 +241,35 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col bg-white">
         <div className="gradient-background text-white p-4 pt-0">
           <AccountsCarousel />
         </div>
 
-        <div className="bg-white flex-1 pb-4">
-          <div className="flex justify-center mt-4">
-            <div className="overflow-hidden rounded-md shadow-sm border border-black/10 bg-white" style={{ width: '320px', height: '50px' }}>
-              <Image
-                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
-                alt="Advertisement banner"
-                data-ai-hint="advertisement banner"
-                width={320}
-                height={50}
-                className="object-cover"
-              />
-            </div>
+        <div className="p-4 mt-2">
+          <div className="relative w-full aspect-[320/50] rounded-lg overflow-hidden shadow-sm border border-black/10 bg-white">
+            <Image
+              src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
+              alt="Advertisement banner"
+              fill
+              className="object-cover"
+            />
           </div>
+        </div>
 
-          <div className="p-4 mt-2">
-            <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
-            <div className="grid grid-cols-4 gap-x-2 gap-y-4">
-              {widgets.map((widget) => (
-                <WidgetItem
-                  key={widget.label}
-                  src={widget.src}
-                  icon={widget.icon}
-                  label={widget.label}
-                  href={widget.href}
-                  isNew={widget.isNew}
-                />
-              ))}
-            </div>
+        <div className="p-4 mt-2">
+          <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
+          <div className="grid grid-cols-4 gap-x-2 gap-y-4">
+            {widgets.map((widget) => (
+              <WidgetItem
+                key={widget.label}
+                src={widget.src}
+                icon={widget.icon}
+                label={widget.label}
+                href={widget.href}
+                isNew={widget.isNew}
+              />
+            ))}
           </div>
         </div>
       </main>
