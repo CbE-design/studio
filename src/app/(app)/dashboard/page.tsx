@@ -247,13 +247,15 @@ export default function DashboardPage() {
         </div>
 
         <div className="px-6 py-2 mt-2">
-          <div className="relative w-full aspect-[16/5] rounded-lg overflow-hidden shadow-sm border border-black/10 bg-white">
-            <Image
-              src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
-              alt="Advertisement banner"
-              fill
-              className="object-contain"
-            />
+          <div className="relative w-full aspect-[16/5] rounded-lg bg-white border border-black/10 shadow-sm p-1.5">
+            <div className="relative w-full h-full rounded-md overflow-hidden border border-black/5">
+              <Image
+                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
+                alt="Advertisement banner"
+                fill
+                className="object-contain"
+              />
+            </div>
           </div>
         </div>
 
