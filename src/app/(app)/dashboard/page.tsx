@@ -7,9 +7,10 @@ import { useUser, useCollection, useFirestore, useMemoFirebase } from '@/firebas
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import type { Account, Transaction } from '@/app/lib/definitions';
+import type { Account, Transaction, CbsStatus } from '@/app/lib/definitions';
 import { collection, query, getDocs } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
+import { getCbsSystemStatus } from '@/app/lib/cbs-service';
 
 const LatestIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
@@ -160,12 +161,21 @@ export default function DashboardPage() {
   const { transactions, isLoading: isTransactionsLoading } = useAllTransactions();
   const [unreadCount, setUnreadCount] = useState(0);
   const [isBellRinging, setIsBellRinging] = useState(false);
+  const [cbsStatus, setCbsStatus] = useState<CbsStatus | null>(null);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
       router.push('/login');
     }
   }, [user, isUserLoading, router]);
+
+  useEffect(() => {
+    async function checkCbs() {
+      const status = await getCbsSystemStatus();
+      setCbsStatus(status);
+    }
+    checkCbs();
+  }, []);
 
   useEffect(() => {
     if (isTransactionsLoading || transactions.length === 0) return;
@@ -240,8 +250,13 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex items-center gap-1.5 mt-1 opacity-80">
-            <div className="h-1.5 w-1.5 rounded-full bg-lime-400 animate-pulse" />
-            <span className="text-[10px] font-medium tracking-wide uppercase">CBS: Connected (Mock)</span>
+            <div className={cn(
+              "h-1.5 w-1.5 rounded-full transition-colors",
+              cbsStatus?.connected ? "bg-lime-400 animate-pulse" : "bg-red-500"
+            )} />
+            <span className="text-[10px] font-medium tracking-wide uppercase">
+              CBS: {cbsStatus?.connected ? 'Connected' : 'Offline'} ({cbsStatus?.environment || 'Checking...'})
+            </span>
           </div>
         </div>
       </header>
@@ -252,7 +267,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="px-6 py-4 mt-2 flex justify-center">
-          <div className="relative w-full aspect-[16/5] border border-gray-100 p-1">
+          <div className="relative w-full aspect-[16/5] p-1">
             <Image
               src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
               alt="Advertisement banner"
