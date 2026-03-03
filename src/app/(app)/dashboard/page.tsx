@@ -52,14 +52,14 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
 
     return (
         <Link href={href}>
-            <div className="flex flex-col items-center justify-start space-y-2 text-center h-full group">
+            <div className="flex flex-col items-center justify-start space-y-1.5 text-center h-full group">
                  <div className="relative flex items-center justify-center w-14 h-14 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden">
                     {isNew && (
-                        <div className="absolute -top-1.5 -right-1.5 px-1 py-0.5 text-[8px] font-semibold text-white bg-green-500 rounded-sm z-10">
+                        <div className="absolute top-0 right-0 px-1 py-0.5 text-[7px] font-bold text-white bg-green-600 rounded-bl-sm z-10 uppercase leading-none">
                             New
                         </div>
                     )}
-                    <div className="relative w-10 h-10">
+                    <div className="relative w-12 h-12">
                        {src ? (
                             <Image 
                                 src={src}
@@ -69,12 +69,12 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
                             />
                         ) : Icon ? (
                             <div className="w-full h-full flex items-center justify-center">
-                                <Icon className="h-9 w-9 text-primary" />
+                                <Icon className="h-11 w-11 text-primary" />
                             </div>
                         ) : null}
                     </div>
                 </div>
-                <p className="text-xs text-gray-700 font-medium h-8 flex items-center justify-center text-center px-1 leading-tight">{label}</p>
+                <p className="text-[10px] text-gray-700 font-medium h-8 flex items-center justify-center text-center px-0.5 leading-tight">{label}</p>
             </div>
         </Link>
     );
@@ -199,7 +199,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-white text-black">
+    <div className="flex flex-col bg-white text-black min-h-full">
       <header className="sticky top-0 z-20 bg-[#00A651] text-white p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6 overflow-hidden">
@@ -247,12 +247,12 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1">
         <div className="gradient-background text-white p-4 pt-0">
           <AccountsCarousel />
         </div>
 
-        <div className="bg-white">
+        <div className="bg-white pb-4">
           <div className="mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-md shadow-sm border border-black/20 mt-4 bg-white">
             <Image
               src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
@@ -264,7 +264,7 @@ export default function DashboardPage() {
             />
           </div>
 
-          <div className="p-4 mt-2 pb-6">
+          <div className="p-4 mt-2">
             <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
             <div className="grid grid-cols-4 gap-x-2 gap-y-4">
               {widgets.map((widget) => (
