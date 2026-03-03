@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Building2, RefreshCw, CheckCircle2, AlertCircle, Clock, LayoutGrid, FileSpreadsheet, Users, Info } from 'lucide-react';
+import { ArrowLeft, Building2, RefreshCw, CheckCircle2, AlertCircle, Clock, LayoutGrid, FileSpreadsheet, Users, Info, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -119,6 +119,12 @@ export default function SapErpPage() {
                             icon={Users}
                             title="Payroll Integration"
                             description="Automatically sync employee payroll data and authorize bulk batch payments."
+                            status="active"
+                        />
+                        <IntegrationItem 
+                            icon={FileText}
+                            title="Corporate POP Generation"
+                            description="Generate official bank-stamped Proof of Payments directly within SAP for all bulk and single transfers."
                             status="active"
                         />
                         <IntegrationItem 
