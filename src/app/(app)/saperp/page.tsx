@@ -105,11 +105,9 @@ export default function SapErpPage() {
     const [isSyncing, setIsSyncing] = useState(false);
     const [lastSync, setLastSync] = useState('Today at 08:42 AM');
 
-    // Dialog States
     const [activeDialog, setActiveDialog] = useState<'payroll' | 'pop' | 'payable' | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // Fetch actual accounts (Real-time via useCollection)
     const accountsQuery = useMemoFirebase(() => {
         if (!firestore || !user?.uid) return null;
         return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
@@ -117,11 +115,9 @@ export default function SapErpPage() {
 
     const { data: accounts, isLoading: accountsLoading } = useCollection<Account>(accountsQuery);
 
-    // Real-time Transactions for POP Export (using Collection Group for cross-account visibility)
     const [recentDebits, setRecentDebits] = useState<Transaction[]>([]);
     const [loadingDebits, setLoadingDebits] = useState(true);
 
-    // Real-time Beneficiaries for Accounts Payable
     const beneficiariesQuery = useMemoFirebase(() => {
         if (!firestore || !user?.uid) return null;
         return query(collection(firestore, 'users', user.uid, 'beneficiaries'), limit(5));
@@ -131,12 +127,10 @@ export default function SapErpPage() {
     useEffect(() => {
         if (!firestore || !user?.uid) return;
 
-        // Use a collection group query to find debits across all accounts for this user
-        // This is more efficient and provides true "Enterprise" visibility
         const debitsQuery = query(
             collectionGroup(firestore, 'transactions'),
-            where('userId', '==', user.uid),
             where('type', '==', 'debit'),
+            where('userId', '==', user.uid),
             orderBy('date', 'desc'),
             limit(10)
         );

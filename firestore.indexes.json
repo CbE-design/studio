@@ -34,11 +34,11 @@
       "queryScope": "COLLECTION_GROUP",
       "fields": [
         {
-          "fieldPath": "userId",
+          "fieldPath": "type",
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "type",
+          "fieldPath": "userId",
           "order": "ASCENDING"
         },
         {
