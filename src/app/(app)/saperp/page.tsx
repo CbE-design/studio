@@ -100,7 +100,7 @@ const ProcessStep = ({ number, title, description }: { number: string, title: st
 export default function SapErpPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const { user } = useUser();
+    const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const [isSyncing, setIsSyncing] = useState(false);
     const [lastSync, setLastSync] = useState('Today at 08:42 AM');
@@ -125,7 +125,9 @@ export default function SapErpPage() {
     const { data: beneficiaries, isLoading: beneficiariesLoading } = useCollection<Beneficiary>(beneficiariesQuery);
 
     useEffect(() => {
-        if (!firestore || !user?.uid) return;
+        if (!firestore || !user?.uid || isUserLoading) {
+            return;
+        }
 
         const debitsQuery = query(
             collectionGroup(firestore, 'transactions'),
@@ -147,7 +149,7 @@ export default function SapErpPage() {
         });
 
         return () => unsubscribe();
-    }, [firestore, user?.uid]);
+    }, [firestore, user?.uid, isUserLoading]);
 
     const handleSync = () => {
         setIsSyncing(true);
