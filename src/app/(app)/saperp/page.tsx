@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
     ArrowLeft, 
@@ -34,8 +34,8 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
-import { collection, query } from 'firebase/firestore';
-import type { Account, Transaction } from '@/app/lib/definitions';
+import { collection, query, getDocs, orderBy, limit, where } from 'firebase/firestore';
+import type { Account, Transaction, Beneficiary } from '@/app/lib/definitions';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -46,7 +46,9 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { formatCurrency } from '@/app/lib/data';
+import { formatCurrency, normalizeDate } from '@/app/lib/data';
+import { createTransactionAction } from '@/app/lib/actions';
+import { format } from 'date-fns';
 
 const IntegrationItem = ({ 
     icon: Icon, 
@@ -120,6 +122,41 @@ export default function SapErpPage() {
 
     const { data: accounts, isLoading: accountsLoading } = useCollection<Account>(accountsQuery);
 
+    // Fetch real transactions for POP Export (last 10 debits)
+    const [recentDebits, setRecentDebits] = useState<Transaction[]>([]);
+    const [loadingDebits, setLoadingDebits] = useState(false);
+
+    // Fetch beneficiaries for Accounts Payable
+    const beneficiariesQuery = useMemoFirebase(() => {
+        if (!firestore || !user?.uid) return null;
+        return query(collection(firestore, 'users', user.uid, 'beneficiaries'), limit(5));
+    }, [firestore, user?.uid]);
+    const { data: beneficiaries, isLoading: beneficiariesLoading } = useCollection<Beneficiary>(beneficiariesQuery);
+
+    useEffect(() => {
+        if (!firestore || !user?.uid || !accounts || accounts.length === 0) return;
+
+        const fetchAllRecentDebits = async () => {
+            setLoadingDebits(true);
+            let allTx: Transaction[] = [];
+            for (const acc of accounts) {
+                const txRef = collection(firestore, 'users', user.uid, 'bankAccounts', acc.id, 'transactions');
+                const q = query(txRef, where('type', '==', 'debit'), orderBy('date', 'desc'), limit(5));
+                const snap = await getDocs(q);
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.transactionType !== 'BANK_FEE') {
+                        allTx.push({ id: doc.id, ...data, fromAccountId: acc.id } as Transaction);
+                    }
+                });
+            }
+            setRecentDebits(allTx.sort((a, b) => normalizeDate(b.date).getTime() - normalizeDate(a.date).getTime()).slice(0, 5));
+            setLoadingDebits(false);
+        };
+
+        fetchAllRecentDebits();
+    }, [firestore, user?.uid, accounts]);
+
     const handleSync = () => {
         setIsSyncing(true);
         setTimeout(() => {
@@ -133,8 +170,35 @@ export default function SapErpPage() {
         }, 2000);
     };
 
-    const processAction = (title: string, successMsg: string) => {
+    const processAction = async (title: string, successMsg: string, isPayment: boolean = false) => {
         setIsProcessing(true);
+        
+        if (isPayment) {
+            // Real logic: Deduct from primary cheque account
+            const primaryAccount = accounts?.find(a => a.type === 'Cheque');
+            if (primaryAccount && user) {
+                try {
+                    // Simulate a batch total payment
+                    const amount = activeDialog === 'payroll' ? '162000.00' : '84500.25';
+                    const result = await createTransactionAction({
+                        fromAccountId: primaryAccount.id,
+                        userId: user.uid,
+                        amount: amount,
+                        recipientName: activeDialog === 'payroll' ? 'SAP PAYROLL BATCH' : 'SAP ACCOUNTS PAYABLE',
+                        paymentType: 'Standard EFT',
+                        yourReference: `SAP-${activeDialog?.toUpperCase()}`,
+                        recipientReference: `SAP-BATCH-${Date.now()}`
+                    });
+
+                    if (!result.success) throw new Error(result.message);
+                } catch (e: any) {
+                    toast({ variant: 'destructive', title: 'Batch Processing Failed', description: e.message });
+                    setIsProcessing(false);
+                    return;
+                }
+            }
+        }
+
         setTimeout(() => {
             setIsProcessing(false);
             setActiveDialog(null);
@@ -142,7 +206,7 @@ export default function SapErpPage() {
                 title: title,
                 description: successMsg,
             });
-        }, 2500);
+        }, 1500);
     };
 
     return (
@@ -377,7 +441,7 @@ export default function SapErpPage() {
                         <DialogClose asChild><Button variant="outline" className="flex-1">Cancel</Button></DialogClose>
                         <Button 
                             className="flex-1" 
-                            onClick={() => processAction('Payroll Authorized', 'Salary batch for 4 employees has been released for payment.')}
+                            onClick={() => processAction('Payroll Authorized', 'Salary batch for 4 employees has been released for payment.', true)}
                             disabled={isProcessing}
                         >
                             {isProcessing ? <LoaderCircle className="animate-spin" /> : 'Authorize Batch'}
@@ -398,30 +462,32 @@ export default function SapErpPage() {
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-3">
-                        {[
-                            { ref: 'INV-2025-991', supplier: 'ESKOM BULK', date: 'Yesterday' },
-                            { ref: 'TAX-PAY-Q1', supplier: 'SARS E-FILING', date: '2 days ago' },
-                            { ref: 'RENT-HO', supplier: 'PROPCO LTD', date: '3 days ago' }
-                        ].map((pop, i) => (
-                            <div key={i} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                                <div className="h-4 w-4 rounded border border-primary flex items-center justify-center bg-primary text-white">
-                                    <Check className="h-3 w-3" />
+                        {loadingDebits ? (
+                            <div className="p-8 text-center"><LoaderCircle className="h-6 w-6 animate-spin mx-auto text-primary" /></div>
+                        ) : recentDebits.length > 0 ? (
+                            recentDebits.map((tx, i) => (
+                                <div key={i} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <div className="h-4 w-4 rounded border border-primary flex items-center justify-center bg-primary text-white">
+                                        <Check className="h-3 w-3" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-bold uppercase">{tx.recipientName || tx.description}</p>
+                                        <p className="text-[10px] text-gray-500 uppercase">{formatCurrency(tx.amount)} • {format(normalizeDate(tx.date), 'dd MMM yyyy')}</p>
+                                    </div>
+                                    <Download className="h-4 w-4 text-gray-400" />
                                 </div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-bold">{pop.supplier}</p>
-                                    <p className="text-[10px] text-gray-500 uppercase">{pop.ref} • {pop.date}</p>
-                                </div>
-                                <Download className="h-4 w-4 text-gray-400" />
-                            </div>
-                        ))}
+                            ))
+                        ) : (
+                            <p className="text-center text-gray-500 py-4 text-sm">No recent transactions found to export.</p>
+                        )}
                     </div>
                     <DialogFooter>
                         <Button 
                             className="w-full" 
                             onClick={() => processAction('Export Successful', 'Batch Proof of Payments have been synced to your SAP Document Management System.')}
-                            disabled={isProcessing}
+                            disabled={isProcessing || recentDebits.length === 0}
                         >
-                            {isProcessing ? <LoaderCircle className="animate-spin" /> : 'Export 3 POPs to SAP'}
+                            {isProcessing ? <LoaderCircle className="animate-spin" /> : `Export ${recentDebits.length} POPs to SAP`}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -443,26 +509,30 @@ export default function SapErpPage() {
                             <div>
                                 <p className="text-xs font-bold text-yellow-800 uppercase">Awaiting Action</p>
                                 <p className="text-xl font-bold text-yellow-900">{formatCurrency(84500.25)}</p>
-                                <p className="text-[10px] text-yellow-700">2 Supplier Invoices</p>
+                                <p className="text-[10px] text-yellow-700">{beneficiaries?.length || 0} Supplier Invoices</p>
                             </div>
                             <FileSpreadsheet className="h-8 w-8 text-yellow-400" />
                         </div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center text-sm p-2 bg-white border rounded">
-                                <span>Global Logistics Ltd</span>
-                                <span className="font-bold">{formatCurrency(12500)}</span>
-                            </div>
-                            <div className="flex justify-between items-center text-sm p-2 bg-white border rounded">
-                                <span>Tech Solutions SA</span>
-                                <span className="font-bold">{formatCurrency(72000.25)}</span>
-                            </div>
+                        <div className="space-y-2 max-h-[200px] overflow-auto">
+                            {beneficiariesLoading ? (
+                                <LoaderCircle className="animate-spin mx-auto text-primary" />
+                            ) : beneficiaries && beneficiaries.length > 0 ? (
+                                beneficiaries.map((ben, i) => (
+                                    <div key={i} className="flex justify-between items-center text-sm p-2 bg-white border rounded">
+                                        <span className="font-medium">{ben.name}</span>
+                                        <span className="font-bold">{formatCurrency((i + 1) * 15000 + 4500.25)}</span>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-center text-gray-500 py-2">No suppliers synced from SAP.</p>
+                            )}
                         </div>
                     </div>
                     <DialogFooter>
                         <Button 
                             className="w-full" 
-                            onClick={() => processAction('Payment Successful', 'Supplier payments have been processed and reconciled in SAP.')}
-                            disabled={isProcessing}
+                            onClick={() => processAction('Payment Successful', 'Supplier payments have been processed and reconciled in SAP.', true)}
+                            disabled={isProcessing || !beneficiaries?.length}
                         >
                             {isProcessing ? <LoaderCircle className="animate-spin" /> : 'Pay Selected Invoices'}
                         </Button>
@@ -472,3 +542,5 @@ export default function SapErpPage() {
         </div>
     );
 }
+
+    
