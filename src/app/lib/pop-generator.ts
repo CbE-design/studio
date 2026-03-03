@@ -43,6 +43,16 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     };
 
     const pdfDoc = await PDFDocument.create();
+    
+    // Set SAP ERP Metadata
+    pdfDoc.setTitle(`Proof of Payment - ${referenceNumber}`);
+    pdfDoc.setAuthor('Nedbank Limited');
+    pdfDoc.setSubject('Official Notification of Payment');
+    pdfDoc.setCreator('SAPERP');
+    pdfDoc.setProducer('SAP NetWeaver');
+    pdfDoc.setCreationDate(new Date());
+    pdfDoc.setModificationDate(new Date());
+
     const page = pdfDoc.addPage([595.28, 841.89]); // A4 size
     const { width, height } = page.getSize();
     
