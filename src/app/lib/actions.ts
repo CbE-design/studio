@@ -1,3 +1,4 @@
+
 'use server';
 
 import 'dotenv/config';
@@ -116,7 +117,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             transaction.update(accountRef, { balance: newBalance });
         });
 
-        // ERP Synchronization Step
+        // ERP Synchronization Step: Reconciliation with SAP General Ledger
         if (mainTxId) {
             await syncTransactionToSap(mainTxId);
         }
