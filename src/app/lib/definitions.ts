@@ -59,6 +59,14 @@ export type User = {
     createdAt: any;
 }
 
+export type CbsStatus = {
+  connected: boolean;
+  systemName: string;
+  latency: string;
+  lastSync: string;
+  environment: 'Production' | 'Sandbox' | 'Mock';
+};
+
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
     userId: z.string().min(1, { message: 'User ID is required.'}),

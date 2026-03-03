@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -195,48 +194,54 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col bg-white text-black min-h-screen">
       <header className="sticky top-0 z-20 bg-[#00A651] text-white p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6 overflow-hidden">
-            <Image
-              src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"
-              alt="Nedbank Logo"
-              width={24}
-              height={24}
-              className="w-6 h-6 flex-shrink-0"
-            />
-            <span className="font-normal text-xl uppercase truncate">
-              {user.displayName || 'DICKSON FAMILY TRUST'}
-            </span>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6 overflow-hidden">
+              <Image
+                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"
+                alt="Nedbank Logo"
+                width={24}
+                height={24}
+                className="w-6 h-6 flex-shrink-0"
+              />
+              <span className="font-normal text-xl uppercase truncate">
+                {user.displayName || 'DICKSON FAMILY TRUST'}
+              </span>
+            </div>
+            <div className="flex items-center gap-4 text-white flex-shrink-0">
+              <Link href="/notifications">
+                <div className={cn('relative', isBellRinging && 'animate-ring')}>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                  </svg>
+                  {unreadCount > 0 && (
+                    <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800" />
+                  )}
+                </div>
+              </Link>
+              <Link href="/ai-chat">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-5 w-5"
+                  >
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    <line x1="8" y1="9" x2="16" y2="9"></line>
+                    <line x1="8" y1="13" x2="14" y2="13"></line>
+                  </svg>
+              </Link>
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-white flex-shrink-0">
-            <Link href="/notifications">
-              <div className={cn('relative', isBellRinging && 'animate-ring')}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
-                {unreadCount > 0 && (
-                  <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800" />
-                )}
-              </div>
-            </Link>
-            <Link href="/ai-chat">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5"
-                >
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                  <line x1="8" y1="9" x2="16" y2="9"></line>
-                  <line x1="8" y1="13" x2="14" y2="13"></line>
-                </svg>
-            </Link>
+          <div className="flex items-center gap-1.5 mt-1 opacity-80">
+            <div className="h-1.5 w-1.5 rounded-full bg-lime-400 animate-pulse" />
+            <span className="text-[10px] font-medium tracking-wide uppercase">CBS: Connected (Mock)</span>
           </div>
         </div>
       </header>
@@ -246,8 +251,8 @@ export default function DashboardPage() {
           <AccountsCarousel />
         </div>
 
-        <div className="px-6 py-2 mt-2">
-          <div className="relative w-full aspect-[16/5] overflow-hidden">
+        <div className="px-6 py-4 mt-2 flex justify-center">
+          <div className="relative w-full aspect-[16/5] border border-gray-100 p-1">
             <Image
               src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
               alt="Advertisement banner"

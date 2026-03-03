@@ -9,6 +9,7 @@ import {
   Plus,
   LogOut,
   Shield,
+  Cpu,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -146,6 +147,13 @@ export default function MorePage() {
       icon: FileText,
       label: 'Statements and Documents',
       href: '/documents',
+    },
+    {
+      icon: Cpu,
+      label: 'CBS Core Bridge',
+      href: '/cbs',
+      badge: 'Online',
+      badgeColor: 'bg-lime-500',
     },
     {
       icon: Phone,
