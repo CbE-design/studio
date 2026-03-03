@@ -67,6 +67,16 @@ export type CbsStatus = {
   environment: 'Production' | 'Sandbox' | 'Mock';
 };
 
+export type IntegrationAuditLog = {
+  id: string;
+  timestamp: string;
+  system: 'CBS' | 'SAP' | 'FIREBASE';
+  action: string;
+  status: 'SUCCESS' | 'FAILURE';
+  details: string;
+  userId: string;
+};
+
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
     userId: z.string().min(1, { message: 'User ID is required.'}),

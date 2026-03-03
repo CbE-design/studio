@@ -1,19 +1,16 @@
-
 'use server';
 
 import 'dotenv/config';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import type { Transaction, TransactionType, Account, User, TransactionInput, TransactionResult } from './definitions';
-import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
 import { db as adminDb } from './firebase-admin';
+import { TransactionRepository } from './repositories';
 import { format } from 'date-fns';
-import { formatCurrency } from './data';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { app } from '@/app/lib/firebase';
-import { syncTransactionToSap } from './sap-service';
 
 
 const TransactionSchema = z.object({
@@ -41,86 +38,21 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
     }
 
     try {
-        let mainTxId: string | undefined;
-        let savedPopReferenceNumber: string | undefined;
-        
         const { fromAccountId, userId, amount, recipientName, yourReference, recipientReference, bankName, accountNumber, paymentType } = validatedFields.data;
-        const numericAmount = parseFloat(amount);
         
-        const transactionType: TransactionType = paymentType === 'Instant Pay' ? 'EFT_IMMEDIATE' : 'EFT_STANDARD';
+        const txType: TransactionType = paymentType === 'Instant Pay' ? 'EFT_IMMEDIATE' : 'EFT_STANDARD';
 
-        const generateRandomSuffix = (length: number) => Math.random().toString().substring(2, 2 + length);
-        const generateSecurityCode = () => Array.from({ length: 40 }, () => '0123456789ABCDEF'[Math.floor(Math.random() * 16)]).join('');
-        
-        const accountRef = adminDb.doc(`users/${userId}/bankAccounts/${fromAccountId}`);
-        
-        await adminDb.runTransaction(async (transaction) => {
-            const accountDoc = await transaction.get(accountRef);
-
-            if (!accountDoc.exists) {
-                throw new Error("Account not found.");
-            }
-
-            const accountData = accountDoc.data() as Account;
-            const currentBalance = accountData.balance || 0;
-            
-            const { amount: feeAmount, description: feeDescription } = calculateFee(numericAmount, transactionType, accountData.type);
-
-            const totalDebit = numericAmount + feeAmount;
-            if (currentBalance < totalDebit) {
-                throw new Error("Insufficient funds to complete the transaction and cover fees.");
-            }
-            
-            const newBalance = currentBalance - totalDebit;
-            
-            const newTransactionRef = adminDb.collection(`users/${userId}/bankAccounts/${fromAccountId}/transactions`).doc();
-            mainTxId = newTransactionRef.id;
-            
-            const popReferenceNumber = `${format(new Date(), 'yyyy-MM-dd')}/NEDBANK/${generateRandomSuffix(12)}`;
-            savedPopReferenceNumber = popReferenceNumber;
-            const popSecurityCode = generateSecurityCode();
-
-            const mainTransactionData: Transaction = {
-                id: newTransactionRef.id,
-                userId: userId,
-                fromAccountId: fromAccountId,
-                amount: numericAmount,
-                type: 'debit' as const,
-                transactionType: transactionType,
-                date: new Date().toISOString(),
-                description: (recipientName || 'RECIPIENT').toUpperCase(),
-                recipientName: recipientName ? recipientName.toUpperCase() : undefined,
-                yourReference: yourReference || undefined,
-                recipientReference: recipientReference || undefined,
-                bank: bankName || undefined,
-                accountNumber: accountNumber || undefined,
-                popReferenceNumber,
-                popSecurityCode
-            };
-            transaction.set(newTransactionRef, mainTransactionData);
-
-            if (feeAmount > 0) {
-                const feeTransactionRef = adminDb.collection(`users/${userId}/bankAccounts/${fromAccountId}/transactions`).doc();
-                const feeTransactionData = {
-                    id: feeTransactionRef.id,
-                    userId: userId,
-                    fromAccountId: fromAccountId,
-                    amount: feeAmount,
-                    type: 'debit' as const,
-                    transactionType: 'BANK_FEE' as TransactionType,
-                    date: new Date().toISOString(),
-                    description: feeDescription,
-                };
-                transaction.set(feeTransactionRef, feeTransactionData);
-            }
-
-            transaction.update(accountRef, { balance: newBalance });
+        const result = await TransactionRepository.createPayment({
+            userId,
+            fromAccountId,
+            amount: parseFloat(amount),
+            recipientName: recipientName || 'RECIPIENT',
+            bankName: bankName || undefined,
+            accountNumber: accountNumber || undefined,
+            yourReference: yourReference || undefined,
+            recipientReference: recipientReference || undefined,
+            transactionType: txType
         });
-
-        // ERP Synchronization Step: Reconciliation with SAP General Ledger
-        if (mainTxId) {
-            await syncTransactionToSap(mainTxId);
-        }
 
         revalidatePath(`/account/${fromAccountId}`);
         revalidatePath('/dashboard');
@@ -128,12 +60,12 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
         return { 
             success: true, 
             message: 'Transaction created successfully.',
-            transactionId: mainTxId,
-            popReferenceNumber: savedPopReferenceNumber
+            transactionId: result.transactionId,
+            popReferenceNumber: result.popReferenceNumber
         };
 
     } catch (error: any) {
-        console.error('Firestore transaction failed:', error);
+        console.error('Transaction Action failed:', error);
         return { 
             success: false, 
             message: error.message || 'An error occurred while creating the transaction.'
