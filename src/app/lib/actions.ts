@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { formatCurrency } from './data';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { app } from '@/app/lib/firebase';
+import { syncTransactionToSap } from './sap-service';
 
 
 const TransactionSchema = z.object({
@@ -114,6 +115,11 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
 
             transaction.update(accountRef, { balance: newBalance });
         });
+
+        // ERP Synchronization Step
+        if (mainTxId) {
+            await syncTransactionToSap(mainTxId);
+        }
 
         revalidatePath(`/account/${fromAccountId}`);
         revalidatePath('/dashboard');

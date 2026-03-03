@@ -10,6 +10,7 @@ import {
   LogOut,
   Shield,
   Cpu,
+  Database,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -154,6 +155,13 @@ export default function MorePage() {
       href: '/cbs',
       badge: 'Online',
       badgeColor: 'bg-lime-500',
+    },
+    {
+      icon: Database,
+      label: 'SAP ERP Bridge',
+      href: '/saperp',
+      badge: 'Ready',
+      badgeColor: 'bg-blue-500',
     },
     {
       icon: Phone,
