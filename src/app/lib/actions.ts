@@ -1,4 +1,3 @@
-
 'use server';
 
 import 'dotenv/config';
@@ -42,7 +41,6 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
     try {
         let mainTxId: string | undefined;
         let savedPopReferenceNumber: string | undefined;
-        let sapDocNum: string | undefined;
         
         const { fromAccountId, userId, amount, recipientName, yourReference, recipientReference, bankName, accountNumber, paymentType } = validatedFields.data;
         const numericAmount = parseFloat(amount);
@@ -79,7 +77,6 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
             const popReferenceNumber = `${format(new Date(), 'yyyy-MM-dd')}/NEDBANK/${generateRandomSuffix(12)}`;
             savedPopReferenceNumber = popReferenceNumber;
             const popSecurityCode = generateSecurityCode();
-            sapDocNum = `SAP-${generateRandomSuffix(10)}`;
 
             const mainTransactionData: Transaction = {
                 id: newTransactionRef.id,
@@ -96,8 +93,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
                 bank: bankName || undefined,
                 accountNumber: accountNumber || undefined,
                 popReferenceNumber,
-                popSecurityCode,
-                sapDocumentNumber: sapDocNum
+                popSecurityCode
             };
             transaction.set(newTransactionRef, mainTransactionData);
 
@@ -121,14 +117,12 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
 
         revalidatePath(`/account/${fromAccountId}`);
         revalidatePath('/dashboard');
-        revalidatePath('/saperp');
         
         return { 
             success: true, 
             message: 'Transaction created successfully.',
             transactionId: mainTxId,
-            popReferenceNumber: savedPopReferenceNumber,
-            sapDocumentNumber: sapDocNum
+            popReferenceNumber: savedPopReferenceNumber
         };
 
     } catch (error: any) {

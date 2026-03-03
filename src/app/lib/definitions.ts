@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 
 export type Account = {
@@ -11,7 +10,7 @@ export type Account = {
   userId?: string;
 };
 
-export type TransactionType = 'EFT_IMMEDIATE' | 'EFT_STANDARD' | 'POS_PURCHASE' | 'ATM_WITHDRAWAL_OWN' | 'ATM_WITHDRAWAL_OTHER' | 'DEBIT_ORDER' | 'BANK_FEE' | 'SAVINGS_TRANSFER' | 'SAP_BATCH_PAYMENT';
+export type TransactionType = 'EFT_IMMEDIATE' | 'EFT_STANDARD' | 'POS_PURCHASE' | 'ATM_WITHDRAWAL_OWN' | 'ATM_WITHDRAWAL_OTHER' | 'DEBIT_ORDER' | 'BANK_FEE' | 'SAVINGS_TRANSFER';
 
 export type Transaction = {
   id: string;
@@ -30,7 +29,6 @@ export type Transaction = {
   accountNumber?: string;
   popReferenceNumber?: string;
   popSecurityCode?: string;
-  sapDocumentNumber?: string; // New field for ERP integration
 };
 
 export type Beneficiary = {
@@ -80,6 +78,5 @@ export type TransactionResult = {
   message: string;
   transactionId?: string;
   popReferenceNumber?: string;
-  sapDocumentNumber?: string;
   errors?: any;
 };
