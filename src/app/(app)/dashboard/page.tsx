@@ -199,7 +199,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 text-black">
+    <div className="flex flex-col h-screen bg-white text-black">
       <header className="sticky top-0 z-20 bg-[#00A651] text-white p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6 overflow-hidden">
@@ -264,7 +264,7 @@ export default function DashboardPage() {
             />
           </div>
 
-          <div className="p-4 mt-4">
+          <div className="p-4 mt-2 pb-6">
             <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
             <div className="grid grid-cols-4 gap-x-2 gap-y-4">
               {widgets.map((widget) => (
