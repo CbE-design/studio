@@ -69,7 +69,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
                             />
                         ) : Icon ? (
                             <div className="w-full h-full flex items-center justify-center">
-                                <Icon className="h-12 w-12 text-primary" />
+                                <Icon className="h-8 w-8 text-primary" />
                             </div>
                         ) : null}
                     </div>
