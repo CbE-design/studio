@@ -23,13 +23,12 @@ async function embedImage(pdfDoc: PDFDocument, imageBytes: ArrayBuffer) {
 export async function generateProofOfPaymentPdf(transaction: Transaction, account: Account): Promise<Uint8Array> {
     const paymentDate = transaction.date ? new Date(transaction.date) : new Date();
     
-    // --- Helper functions for generating values if they don't exist on the transaction ---
     const generateRandomSuffix = (length: number) => Math.random().toString().substring(2, 2 + length);
     const generateSecurityCode = () => Array.from({ length: 40 }, () => '0123456789ABCDEF'[Math.floor(Math.random() * 16)]).join('');
 
-    // --- Use stored values if available, otherwise generate them for backward compatibility ---
     const referenceNumber = transaction.popReferenceNumber || `${format(paymentDate, 'yyyy-MM-dd')}/NEDBANK/${generateRandomSuffix(12)}`;
     const securityCode = transaction.popSecurityCode || generateSecurityCode();
+    const sapDocNum = transaction.sapDocumentNumber || `SAP-${generateRandomSuffix(10)}`;
 
     const detailsForPdf = {
         dateOfPayment: format(paymentDate, 'dd/MM/yyyy'),
@@ -43,10 +42,11 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         accountNumber: `...${transaction.accountNumber?.slice(-6)}`,
         channel: 'Internet payment',
         securityCode: securityCode,
+        sapDocNum: sapDocNum
     };
 
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([595.28, 841.89]); // A4 size
+    const page = pdfDoc.addPage([595.28, 841.89]); 
     const { width, height } = page.getSize();
     
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -83,13 +83,13 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     }
 
     page.drawLine({ start: { x: margin, y: lineY }, end: { x: width - margin, y: lineY }, thickness: 1.5, color: rgb(0, 0, 0) });
-    let y = lineY - 0;
+    let y = lineY - 20;
 
 
-    page.drawText('Notification of Payment', { x: margin, y: y - 20, font: boldFont, size: 12, color: textColor });
-    y -= 50;
+    page.drawText('Notification of Payment (Corporate Gateway)', { x: margin, y, font: boldFont, size: 12, color: textColor });
+    y -= 30;
 
-    page.drawText('Nedbank Limited confirms that the following payment has been made:', { x: margin, y, font, size: 9, color: textColor });
+    page.drawText('Nedbank Limited confirms that the following enterprise payment has been made via SAP ERP:', { x: margin, y, font, size: 9, color: textColor });
     y -= 19;
 
     const drawDetailRow = (label: string, value: string) => {
@@ -101,6 +101,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     
     drawDetailRow('Date of Payment', detailsForPdf.dateOfPayment);
     drawDetailRow('Reference Number', detailsForPdf.referenceNumber);
+    drawDetailRow('SAP Document ID', detailsForPdf.sapDocNum);
     y -= 5;
 
     page.drawText('Beneficiary details', { x: margin, y, font: boldFont, size: 10, color: textColor });
@@ -158,15 +159,15 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         return currentY;
     };
     
-    const commonTextOptions = { font, size: 9, color: textColor, lineHeight: 15, maxWidth: width - margin * 2 };
+    const commonTextOptions = { font, size: 8, color: textColor, lineHeight: 15, maxWidth: width - margin * 2 };
 
-    y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y });
+    y = drawWrappedText('This document was generated automatically by the SAP ERP Integrated Banking Gateway. Verify this payment at www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y });
     
     page.drawLine({ start: { x: margin, y: y }, end: { x: width - margin, y: y }, thickness: 1, color: rgb(0, 0, 0) });
     y -= 15;
 
     const disclaimerParagraphs = [
-      'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification. Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information. Payments may take up to three business days. Please check your account to verify the existence of the funds.'
+      'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06 via the SAP ERP system of the Dickson Family Trust. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information.'
     ];
     
     disclaimerParagraphs.forEach(paragraph => {
@@ -179,11 +180,11 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y });
     y -= 15;
 
-    page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 11, color: textColor });
+    page.drawText('SAP ERP Audit Verification', { x: margin, y, font: boldFont, size: 10, color: textColor });
     y -= 18;
     
     const emailDisclaimerParagraphs = [
-        'This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.'
+        'This enterprise-stamped document contains confidential information belonging to the Dickson Family Trust. If you are not the intended recipient, please delete this document immediately. The SAP Document ID provided is valid for internal reconciliation only. If verification of this document is required, please request a formal hard copy via the Trust Secretary.'
     ];
 
     emailDisclaimerParagraphs.forEach(paragraph => {
@@ -196,7 +197,6 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     drawDetailRow('Security Code', detailsForPdf.securityCode);
     y -= 30;
 
-    // --- FOOTER ---
     const footerY = 30;
     page.drawLine({ start: { x: margin, y: footerY + 25 }, end: { x: width - margin, y: footerY + 25 }, thickness: 0.5, color: grayColor });
     const footerText = "Nedbank Limited Reg No 1951/000009/06 VAT Reg No 4320116074 135 Rivonia Road Sandown Sandton 2196 South Africa We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCR Reg No: NCRCP16).";

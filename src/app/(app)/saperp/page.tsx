@@ -45,7 +45,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { formatCurrency, normalizeDate } from '@/app/lib/data';
-import { createTransactionAction } from '@/app/lib/actions';
+import { createTransactionAction, generateProofOfPaymentAction } from '@/app/lib/actions';
 import { format } from 'date-fns';
 
 const IntegrationItem = ({ 
@@ -110,6 +110,7 @@ export default function SapErpPage() {
 
     const [activeDialog, setActiveDialog] = useState<'payroll' | 'pop' | 'payable' | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [generatingPopId, setGeneratingPopId] = useState<string | null>(null);
 
     const accountsQuery = useMemoFirebase(() => {
         if (!firestore || !user?.uid) return null;
@@ -137,7 +138,7 @@ export default function SapErpPage() {
             where('type', '==', 'debit'),
             where('userId', '==', user.uid),
             orderBy('date', 'desc'),
-            limit(10)
+            limit(15)
         );
 
         const unsubscribe = onSnapshot(debitsQuery, (snapshot) => {
@@ -166,6 +167,28 @@ export default function SapErpPage() {
             });
         }, 2000);
     };
+
+    const handleDownloadPop = async (tx: Transaction) => {
+        setGeneratingPopId(tx.id);
+        try {
+            const result = await generateProofOfPaymentAction(tx);
+            if ('error' in result) throw new Error(result.error);
+
+            const blob = new Blob([result], { type: 'application/pdf' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Corporate_POP_${tx.sapDocumentNumber || tx.id}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            toast({ title: "Document Generated", description: "The corporate proof of payment has been downloaded." });
+        } catch (e: any) {
+            toast({ variant: "destructive", title: "Generation Failed", description: e.message });
+        } finally {
+            setGeneratingPopId(null);
+        }
+    }
 
     const processAction = async (title: string, successMsg: string, isPayment: boolean = false) => {
         setIsProcessing(true);
@@ -468,7 +491,7 @@ export default function SapErpPage() {
                             <FileText className="text-primary" /> Corporate POP Export
                         </DialogTitle>
                         <DialogDescription>
-                            Select recent enterprise transfers to export bank-stamped POPs directly into your SAP Document Center.
+                            Download bank-stamped Proof of Payments with integrated SAP Document references.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-3 max-h-[350px] overflow-auto">
@@ -476,15 +499,22 @@ export default function SapErpPage() {
                             <div className="p-8 text-center"><LoaderCircle className="h-6 w-6 animate-spin mx-auto text-primary" /></div>
                         ) : recentDebits.length > 0 ? (
                             recentDebits.map((tx, i) => (
-                                <div key={tx.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                                    <div className="h-4 w-4 rounded border border-primary flex items-center justify-center bg-primary text-white">
-                                        <Check className="h-3 w-3" />
-                                    </div>
+                                <div key={tx.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors">
                                     <div className="flex-1">
                                         <p className="text-sm font-bold uppercase truncate">{tx.recipientName || tx.description}</p>
-                                        <p className="text-[10px] text-gray-500 uppercase">{formatCurrency(tx.amount)} • {format(normalizeDate(tx.date), 'dd MMM yyyy')}</p>
+                                        <p className="text-[10px] text-gray-500 uppercase">
+                                            {formatCurrency(tx.amount)} • {tx.sapDocumentNumber || 'DOC-PENDING'}
+                                        </p>
                                     </div>
-                                    <Download className="h-4 w-4 text-gray-400" />
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-8 w-8 text-primary"
+                                        onClick={() => handleDownloadPop(tx)}
+                                        disabled={generatingPopId === tx.id}
+                                    >
+                                        {generatingPopId === tx.id ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                                    </Button>
                                 </div>
                             ))
                         ) : (
@@ -494,10 +524,10 @@ export default function SapErpPage() {
                     <DialogFooter>
                         <Button 
                             className="w-full" 
-                            onClick={() => processAction('Export Successful', 'Batch Proof of Payments have been synced to your SAP Document Management System.')}
-                            disabled={isProcessing || recentDebits.length === 0}
+                            variant="outline"
+                            onClick={() => setActiveDialog(null)}
                         >
-                            {isProcessing ? <LoaderCircle className="animate-spin h-4 w-4" /> : `Export ${recentDebits.length} POPs to SAP`}
+                            Done
                         </Button>
                     </DialogFooter>
                 </DialogContent>

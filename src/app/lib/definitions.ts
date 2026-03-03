@@ -1,5 +1,4 @@
 
-
 import { z } from "zod";
 
 export type Account = {
@@ -12,12 +11,12 @@ export type Account = {
   userId?: string;
 };
 
-export type TransactionType = 'EFT_IMMEDIATE' | 'EFT_STANDARD' | 'POS_PURCHASE' | 'ATM_WITHDRAWAL_OWN' | 'ATM_WITHDRAWAL_OTHER' | 'DEBIT_ORDER' | 'BANK_FEE' | 'SAVINGS_TRANSFER';
+export type TransactionType = 'EFT_IMMEDIATE' | 'EFT_STANDARD' | 'POS_PURCHASE' | 'ATM_WITHDRAWAL_OWN' | 'ATM_WITHDRAWAL_OTHER' | 'DEBIT_ORDER' | 'BANK_FEE' | 'SAVINGS_TRANSFER' | 'SAP_BATCH_PAYMENT';
 
 export type Transaction = {
   id: string;
   fromAccountId?: string;
-  userId?: string; // Add userId to link transaction to the user
+  userId?: string; 
   date: string;
   description: string;
   amount: number;
@@ -31,6 +30,7 @@ export type Transaction = {
   accountNumber?: string;
   popReferenceNumber?: string;
   popSecurityCode?: string;
+  sapDocumentNumber?: string; // New field for ERP integration
 };
 
 export type Beneficiary = {
@@ -70,7 +70,7 @@ const TransactionSchema = z.object({
     recipientReference: z.string().optional(),
     bankName: z.string().optional(),
     accountNumber: z.string().optional(),
-    paymentType: z.string(), // e.g. 'Instant Pay', 'Standard EFT'
+    paymentType: z.string(), 
 });
 
 export type TransactionInput = z.infer<typeof TransactionSchema>;
@@ -80,5 +80,6 @@ export type TransactionResult = {
   message: string;
   transactionId?: string;
   popReferenceNumber?: string;
+  sapDocumentNumber?: string;
   errors?: any;
 };
