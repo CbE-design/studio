@@ -23,10 +23,16 @@ import {
     DatabaseZap,
     Zap,
     ShieldAlert,
-    BarChart3
+    BarChart3,
+    Link2,
+    Settings2,
+    Lock,
+    Key,
+    Server,
+    Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
@@ -44,6 +50,8 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { formatCurrency, normalizeDate } from '@/app/lib/data';
 import { createTransactionAction, generateProofOfPaymentAction } from '@/app/lib/actions';
 import { format } from 'date-fns';
@@ -107,8 +115,9 @@ export default function SapErpPage() {
     const firestore = useFirestore();
     const [isSyncing, setIsSyncing] = useState(false);
     const [lastSync, setLastSync] = useState('Today at 08:42 AM');
+    const [isConnected, setIsConnected] = useState(true);
 
-    const [activeDialog, setActiveDialog] = useState<'payroll' | 'pop' | 'payable' | null>(null);
+    const [activeDialog, setActiveDialog] = useState<'payroll' | 'pop' | 'payable' | 'connect' | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [generatingPopId, setGeneratingPopId] = useState<string | null>(null);
 
@@ -227,6 +236,19 @@ export default function SapErpPage() {
         }, 1500);
     };
 
+    const handleConnectNedbank = () => {
+        setIsProcessing(true);
+        setTimeout(() => {
+            setIsConnected(true);
+            setIsProcessing(false);
+            setActiveDialog(null);
+            toast({
+                title: "Nedbank Profile Linked",
+                description: "The Dickson Family Trust SAP instance is now securely connected to Nedbank API services.",
+            });
+        }, 2500);
+    };
+
     return (
         <div className="flex flex-col h-screen bg-gray-50">
             <header className="gradient-background text-primary-foreground p-4 flex items-center justify-between sticky top-0 z-10 border-b">
@@ -243,7 +265,7 @@ export default function SapErpPage() {
                     variant="ghost" 
                     size="icon" 
                     onClick={handleSync} 
-                    disabled={isSyncing}
+                    disabled={isSyncing || !isConnected}
                     className="hover:bg-white/10"
                 >
                     {isSyncing ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <RefreshCw className="h-5 w-5" />}
@@ -253,55 +275,70 @@ export default function SapErpPage() {
             <main className="flex-1 overflow-y-auto p-6 space-y-6">
                 <div className="flex flex-col gap-2">
                     <h2 className="text-2xl font-bold text-gray-800">Enterprise Dashboard</h2>
-                    <p className="text-sm text-gray-500">Manage data synchronization for <strong>DICKSON FAMILY TRUST</strong>.</p>
+                    <p className="text-sm text-gray-500">Bridge management for <strong>DICKSON FAMILY TRUST</strong>.</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card className="border-l-4 border-l-green-500">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-xs font-bold text-gray-500 uppercase tracking-wider">Sync Status</CardTitle>
+                {!isConnected ? (
+                    <Card className="border-2 border-dashed border-primary bg-primary/5">
+                        <CardHeader>
+                            <CardTitle className="text-lg font-bold flex items-center gap-2">
+                                <Link2 className="text-primary" />
+                                Bridge Offline
+                            </CardTitle>
+                            <CardDescription>Your SAP ERP instance is not currently connected to your Nedbank profile.</CardDescription>
                         </CardHeader>
-                        <CardContent>
-                            <div className="flex items-center gap-2">
-                                <ShieldCheck className="h-5 w-5 text-green-500" />
-                                <span className="text-2xl font-bold">Encrypted</span>
-                            </div>
-                            <p className="text-[10px] text-gray-400 mt-1 uppercase">Last sync: {lastSync}</p>
-                        </CardContent>
+                        <CardFooter>
+                            <Button className="w-full font-bold uppercase tracking-widest" onClick={() => setActiveDialog('connect')}>
+                                Connect to Nedbank
+                            </Button>
+                        </CardFooter>
                     </Card>
-                    <Card className="border-l-4 border-l-yellow-500">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-xs font-bold text-gray-500 uppercase tracking-wider">Pending Batch</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex items-center gap-2">
-                                <Clock className="h-5 w-5 text-yellow-500" />
-                                <span className="text-2xl font-bold">3 Batches</span>
-                            </div>
-                            <p className="text-[10px] text-gray-400 mt-1 uppercase">Awaiting Authorization</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="border-l-4 border-l-primary">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-xs font-bold text-gray-500 uppercase tracking-wider">Data Sync Limit</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-[10px] font-bold uppercase">
-                                    <span>Volume</span>
-                                    <span>94%</span>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <Card className="border-l-4 border-l-green-500">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-xs font-bold text-gray-500 uppercase tracking-wider">Bridge Status</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-center gap-2">
+                                    <ShieldCheck className="h-5 w-5 text-green-500" />
+                                    <span className="text-2xl font-bold">Linked</span>
                                 </div>
-                                <Progress value={94} className="h-1.5" />
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                                <p className="text-[10px] text-gray-400 mt-1 uppercase">mTLS Encrypted Connection</p>
+                            </CardContent>
+                        </Card>
+                        <Card className="border-l-4 border-l-yellow-500">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-xs font-bold text-gray-500 uppercase tracking-wider">Pending Batch</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-center gap-2">
+                                    <Clock className="h-5 w-5 text-yellow-500" />
+                                    <span className="text-2xl font-bold">3 Batches</span>
+                                </div>
+                                <p className="text-[10px] text-gray-400 mt-1 uppercase">Awaiting Authorization</p>
+                            </CardContent>
+                        </Card>
+                        <Card className="border-l-4 border-l-primary">
+                            <CardHeader className="pb-2">
+                                <CardTitle className="text-xs font-bold text-gray-500 uppercase tracking-wider">Last Sync</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-center gap-2">
+                                    <RefreshCw className="h-5 w-5 text-primary" />
+                                    <span className="text-lg font-bold truncate">{lastSync}</span>
+                                </div>
+                                <p className="text-[10px] text-gray-400 mt-1 uppercase">Auto-reconciliation Active</p>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
 
                 <Tabs defaultValue="modules" className="w-full">
                     <TabsList className="grid w-full grid-cols-3 bg-gray-200">
                         <TabsTrigger value="modules">Modules</TabsTrigger>
                         <TabsTrigger value="strategic">Strategic Value</TabsTrigger>
-                        <TabsTrigger value="connections">Accounts</TabsTrigger>
+                        <TabsTrigger value="connections">How to Connect</TabsTrigger>
                     </TabsList>
                     
                     <TabsContent value="modules" className="space-y-4 pt-4">
@@ -309,22 +346,22 @@ export default function SapErpPage() {
                             icon={Users}
                             title="Payroll Integration"
                             description="Automatically sync employee payroll data from SAP HR. Review and authorize bulk batch payments directly here."
-                            status="active"
-                            onClick={() => setActiveDialog('payroll')}
+                            status={isConnected ? "active" : "pending"}
+                            onClick={isConnected ? () => setActiveDialog('payroll') : undefined}
                         />
                         <IntegrationItem 
                             icon={FileText}
                             title="Corporate POP Generation"
                             description="Automatically generate and upload bank-stamped Proof of Payments back into SAP's document system."
-                            status="active"
-                            onClick={() => setActiveDialog('pop')}
+                            status={isConnected ? "active" : "pending"}
+                            onClick={isConnected ? () => setActiveDialog('pop') : undefined}
                         />
                         <IntegrationItem 
                             icon={FileSpreadsheet}
                             title="Accounts Payable Bridge"
                             description="Import pending supplier invoices from SAP Accounts Payable. Pay multiple suppliers in a single transaction cycle."
-                            status="active"
-                            onClick={() => setActiveDialog('payable')}
+                            status={isConnected ? "active" : "pending"}
+                            onClick={isConnected ? () => setActiveDialog('payable') : undefined}
                         />
                         <IntegrationItem 
                             icon={LayoutGrid}
@@ -373,56 +410,59 @@ export default function SapErpPage() {
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <div className="p-4 bg-white rounded-lg border border-primary/10 shadow-sm mt-4">
-                                    <h4 className="font-bold text-sm mb-2 flex items-center gap-2">
-                                        <HelpCircle className="h-4 w-4 text-primary" />
-                                        The Process
-                                    </h4>
-                                    <div className="space-y-3">
-                                        <ProcessStep number="1" title="Data Extraction" description="SAP identifies payroll or invoices needing processing." />
-                                        <ProcessStep number="2" title="Bank Validation" description="The bridge validates data against your account limits." />
-                                        <ProcessStep number="3" title="Authorization" description="You review and sign off the batch in this app." />
-                                        <ProcessStep number="4" title="Sync Back" description="Once paid, POPs are synced back into SAP automatically." />
-                                    </div>
-                                </div>
                             </CardContent>
                         </Card>
                     </TabsContent>
 
-                    <TabsContent value="connections" className="pt-4">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-sm font-bold uppercase">Connected Accounts</CardTitle>
-                                <CardDescription className="text-xs">These accounts are currently broadcasting data to your SAP instance.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="p-0">
-                                <div className="divide-y">
-                                    {accountsLoading ? (
-                                        <div className="p-8 text-center"><LoaderCircle className="h-6 w-6 animate-spin mx-auto text-primary" /></div>
-                                    ) : accounts && accounts.length > 0 ? (
-                                        accounts.map(account => (
-                                            <div key={account.id} className="flex items-center justify-between p-4 hover:bg-gray-50">
-                                                <div>
-                                                    <p className="font-semibold text-gray-800 text-sm">{account.name}</p>
-                                                    <p className="text-[10px] text-gray-500 uppercase tracking-tighter">{account.accountNumber}</p>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <Badge variant="outline" className="text-[10px] bg-green-50 text-green-700 border-green-200">Reconciled</Badge>
-                                                    <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
-                                                </div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="p-8 text-center text-gray-500 text-sm">No accounts found to connect.</div>
-                                    )}
+                    <TabsContent value="connections" className="pt-4 space-y-6">
+                        <div className="bg-white p-6 rounded-lg border shadow-sm space-y-6">
+                            <h3 className="font-bold text-lg flex items-center gap-2">
+                                <Server className="text-primary h-5 w-5" />
+                                Connection Guide: SAP to Nedbank
+                            </h3>
+                            
+                            <div className="space-y-6">
+                                <section className="space-y-3">
+                                    <h4 className="font-bold text-sm text-gray-800 flex items-center gap-2">
+                                        <Globe className="h-4 w-4 text-primary" />
+                                        Step 1: Nedbank API Portal Registration
+                                    </h4>
+                                    <p className="text-xs text-gray-500 leading-relaxed">
+                                        The Dickson Family Trust must first register as a Corporate Entity on the <strong>Nedbank API Developer Portal</strong>. You will be issued a <code>Client ID</code> and <code>Client Secret</code> specifically for your trust's accounts.
+                                    </p>
+                                </section>
+
+                                <section className="space-y-3">
+                                    <h4 className="font-bold text-sm text-gray-800 flex items-center gap-2">
+                                        <Lock className="h-4 w-4 text-primary" />
+                                        Step 2: Certificate Exchange (mTLS)
+                                    </h4>
+                                    <p className="text-xs text-gray-500 leading-relaxed">
+                                        To ensure bank-grade security, you must upload a public SSL certificate to Nedbank and configure your SAP Cloud Connector to use the corresponding private key for every API request.
+                                    </p>
+                                </section>
+
+                                <section className="space-y-3">
+                                    <h4 className="font-bold text-sm text-gray-800 flex items-center gap-2">
+                                        <Settings2 className="h-4 w-4 text-primary" />
+                                        Step 3: Map SAP Payment Methods
+                                    </h4>
+                                    <p className="text-xs text-gray-500 leading-relaxed">
+                                        In your SAP SPRO configuration, map the <code>F110</code> (Automatic Payment Run) to export in <strong>ISO 20022 XML format</strong>. This app's bridge will automatically translate these files into instant bank instructions.
+                                    </p>
+                                </section>
+                            </div>
+
+                            <div className="p-4 bg-gray-50 rounded-lg border border-dashed text-center">
+                                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest mb-2">Technical Status</p>
+                                <div className="flex justify-center gap-4">
+                                    <Badge variant="outline" className="bg-white flex gap-1 items-center"><Key className="h-3 w-3" /> OAuth 2.0 Ready</Badge>
+                                    <Badge variant="outline" className="bg-white flex gap-1 items-center"><ShieldCheck className="h-3 w-3" /> mTLS Validated</Badge>
                                 </div>
-                            </CardContent>
-                        </Card>
-                        
-                        <div className="mt-4">
-                            <Button variant="outline" className="w-full text-xs font-bold uppercase tracking-wider h-12">
-                                <ExternalLink className="mr-2 h-4 w-4" /> Open SAP Cloud Connector
+                            </div>
+
+                            <Button variant="outline" className="w-full border-primary text-primary" onClick={() => setActiveDialog('connect')}>
+                                <Settings2 className="mr-2 h-4 w-4" /> Open Connection Wizard
                             </Button>
                         </div>
                     </TabsContent>
@@ -441,6 +481,44 @@ export default function SapErpPage() {
             </main>
 
             {/* --- ACTIVATED WORKFLOW DIALOGS --- */}
+
+            {/* Connection Dialog */}
+            <Dialog open={activeDialog === 'connect'} onOpenChange={() => setActiveDialog(null)}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <Key className="text-primary" /> Nedbank API Connection
+                        </DialogTitle>
+                        <DialogDescription>
+                            Enter your credentials from the Nedbank API Portal to link your Dickson Family Trust profile.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-2">
+                        <div className="space-y-1">
+                            <Label htmlFor="client-id" className="text-xs text-gray-500">Corporate Client ID</Label>
+                            <Input id="client-id" placeholder="e.g. DFT-9928-NBK" defaultValue={isConnected ? "DFT-9928-NBK" : ""} />
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="client-secret" className="text-xs text-gray-500">Client Secret</Label>
+                            <Input id="client-secret" type="password" placeholder="••••••••••••" defaultValue={isConnected ? "password123" : ""} />
+                        </div>
+                        <div className="p-3 bg-blue-50 border border-blue-100 rounded text-[10px] text-blue-700 flex gap-3">
+                            <Lock className="h-4 w-4 shrink-0" />
+                            <span>This connection uses Mutual TLS (mTLS) 1.3 encryption. Your Client Secret is never stored in plain text.</span>
+                        </div>
+                    </div>
+                    <DialogFooter className="gap-2">
+                        <Button variant="outline" className="flex-1" onClick={() => { setIsConnected(false); setActiveDialog(null); }}>Disconnect</Button>
+                        <Button 
+                            className="flex-1" 
+                            onClick={handleConnectNedbank}
+                            disabled={isProcessing}
+                        >
+                            {isProcessing ? <LoaderCircle className="animate-spin h-4 w-4" /> : isConnected ? 'Update Keys' : 'Link Profile'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             {/* Payroll Dialog */}
             <Dialog open={activeDialog === 'payroll'} onOpenChange={() => setActiveDialog(null)}>
