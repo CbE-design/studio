@@ -1,19 +1,16 @@
 
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
     ArrowLeft, 
     Building2, 
     RefreshCw, 
-    CheckCircle2, 
-    AlertCircle, 
     Clock, 
     LayoutGrid, 
     FileSpreadsheet, 
     Users, 
-    Info, 
     FileText,
     ExternalLink,
     ShieldCheck,
@@ -23,7 +20,6 @@ import {
     Download,
     CreditCard,
     HelpCircle,
-    ArrowRightLeft,
     DatabaseZap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,10 +27,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
-import { collection, query, getDocs, orderBy, limit, where } from 'firebase/firestore';
+import { collection, query, orderBy, limit, where, collectionGroup, onSnapshot } from 'firebase/firestore';
 import type { Account, Transaction, Beneficiary } from '@/app/lib/definitions';
 import { cn } from '@/lib/utils';
 import {
@@ -114,7 +109,7 @@ export default function SapErpPage() {
     const [activeDialog, setActiveDialog] = useState<'payroll' | 'pop' | 'payable' | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // Fetch actual accounts
+    // Fetch actual accounts (Real-time via useCollection)
     const accountsQuery = useMemoFirebase(() => {
         if (!firestore || !user?.uid) return null;
         return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
@@ -122,11 +117,11 @@ export default function SapErpPage() {
 
     const { data: accounts, isLoading: accountsLoading } = useCollection<Account>(accountsQuery);
 
-    // Fetch real transactions for POP Export (last 10 debits)
+    // Real-time Transactions for POP Export (using Collection Group for cross-account visibility)
     const [recentDebits, setRecentDebits] = useState<Transaction[]>([]);
-    const [loadingDebits, setLoadingDebits] = useState(false);
+    const [loadingDebits, setLoadingDebits] = useState(true);
 
-    // Fetch beneficiaries for Accounts Payable
+    // Real-time Beneficiaries for Accounts Payable
     const beneficiariesQuery = useMemoFirebase(() => {
         if (!firestore || !user?.uid) return null;
         return query(collection(firestore, 'users', user.uid, 'beneficiaries'), limit(5));
@@ -134,28 +129,31 @@ export default function SapErpPage() {
     const { data: beneficiaries, isLoading: beneficiariesLoading } = useCollection<Beneficiary>(beneficiariesQuery);
 
     useEffect(() => {
-        if (!firestore || !user?.uid || !accounts || accounts.length === 0) return;
+        if (!firestore || !user?.uid) return;
 
-        const fetchAllRecentDebits = async () => {
-            setLoadingDebits(true);
-            let allTx: Transaction[] = [];
-            for (const acc of accounts) {
-                const txRef = collection(firestore, 'users', user.uid, 'bankAccounts', acc.id, 'transactions');
-                const q = query(txRef, where('type', '==', 'debit'), orderBy('date', 'desc'), limit(5));
-                const snap = await getDocs(q);
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    if (data.transactionType !== 'BANK_FEE') {
-                        allTx.push({ id: doc.id, ...data, fromAccountId: acc.id } as Transaction);
-                    }
-                });
-            }
-            setRecentDebits(allTx.sort((a, b) => normalizeDate(b.date).getTime() - normalizeDate(a.date).getTime()).slice(0, 5));
+        // Use a collection group query to find debits across all accounts for this user
+        // This is more efficient and provides true "Enterprise" visibility
+        const debitsQuery = query(
+            collectionGroup(firestore, 'transactions'),
+            where('userId', '==', user.uid),
+            where('type', '==', 'debit'),
+            orderBy('date', 'desc'),
+            limit(10)
+        );
+
+        const unsubscribe = onSnapshot(debitsQuery, (snapshot) => {
+            const txs = snapshot.docs
+                .map(doc => ({ id: doc.id, ...doc.data() } as Transaction))
+                .filter(tx => tx.transactionType !== 'BANK_FEE');
+            setRecentDebits(txs);
             setLoadingDebits(false);
-        };
+        }, (error) => {
+            console.error("Error listening to enterprise transactions:", error);
+            setLoadingDebits(false);
+        });
 
-        fetchAllRecentDebits();
-    }, [firestore, user?.uid, accounts]);
+        return () => unsubscribe();
+    }, [firestore, user?.uid]);
 
     const handleSync = () => {
         setIsSyncing(true);
@@ -174,11 +172,9 @@ export default function SapErpPage() {
         setIsProcessing(true);
         
         if (isPayment) {
-            // Real logic: Deduct from primary cheque account
             const primaryAccount = accounts?.find(a => a.type === 'Cheque');
             if (primaryAccount && user) {
                 try {
-                    // Simulate a batch total payment
                     const amount = activeDialog === 'payroll' ? '162000.00' : '84500.25';
                     const result = await createTransactionAction({
                         fromAccountId: primaryAccount.id,
@@ -444,7 +440,7 @@ export default function SapErpPage() {
                             onClick={() => processAction('Payroll Authorized', 'Salary batch for 4 employees has been released for payment.', true)}
                             disabled={isProcessing}
                         >
-                            {isProcessing ? <LoaderCircle className="animate-spin" /> : 'Authorize Batch'}
+                            {isProcessing ? <LoaderCircle className="animate-spin h-4 w-4" /> : 'Authorize Batch'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -461,17 +457,17 @@ export default function SapErpPage() {
                             Select recent enterprise transfers to export bank-stamped POPs directly into your SAP Document Center.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="space-y-3">
+                    <div className="space-y-3 max-h-[350px] overflow-auto">
                         {loadingDebits ? (
                             <div className="p-8 text-center"><LoaderCircle className="h-6 w-6 animate-spin mx-auto text-primary" /></div>
                         ) : recentDebits.length > 0 ? (
                             recentDebits.map((tx, i) => (
-                                <div key={i} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <div key={tx.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
                                     <div className="h-4 w-4 rounded border border-primary flex items-center justify-center bg-primary text-white">
                                         <Check className="h-3 w-3" />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="text-sm font-bold uppercase">{tx.recipientName || tx.description}</p>
+                                        <p className="text-sm font-bold uppercase truncate">{tx.recipientName || tx.description}</p>
                                         <p className="text-[10px] text-gray-500 uppercase">{formatCurrency(tx.amount)} • {format(normalizeDate(tx.date), 'dd MMM yyyy')}</p>
                                     </div>
                                     <Download className="h-4 w-4 text-gray-400" />
@@ -487,7 +483,7 @@ export default function SapErpPage() {
                             onClick={() => processAction('Export Successful', 'Batch Proof of Payments have been synced to your SAP Document Management System.')}
                             disabled={isProcessing || recentDebits.length === 0}
                         >
-                            {isProcessing ? <LoaderCircle className="animate-spin" /> : `Export ${recentDebits.length} POPs to SAP`}
+                            {isProcessing ? <LoaderCircle className="animate-spin h-4 w-4" /> : `Export ${recentDebits.length} POPs to SAP`}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -534,7 +530,7 @@ export default function SapErpPage() {
                             onClick={() => processAction('Payment Successful', 'Supplier payments have been processed and reconciled in SAP.', true)}
                             disabled={isProcessing || !beneficiaries?.length}
                         >
-                            {isProcessing ? <LoaderCircle className="animate-spin" /> : 'Pay Selected Invoices'}
+                            {isProcessing ? <LoaderCircle className="animate-spin h-4 w-4" /> : 'Pay Selected Invoices'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -542,5 +538,3 @@ export default function SapErpPage() {
         </div>
     );
 }
-
-    
