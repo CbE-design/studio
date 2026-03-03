@@ -23,9 +23,11 @@ async function embedImage(pdfDoc: PDFDocument, imageBytes: ArrayBuffer) {
 export async function generateProofOfPaymentPdf(transaction: Transaction, account: Account): Promise<Uint8Array> {
     const paymentDate = transaction.date ? new Date(transaction.date) : new Date();
     
+    // --- Helper functions for generating values if they don't exist on the transaction ---
     const generateRandomSuffix = (length: number) => Math.random().toString().substring(2, 2 + length);
     const generateSecurityCode = () => Array.from({ length: 40 }, () => '0123456789ABCDEF'[Math.floor(Math.random() * 16)]).join('');
 
+    // --- Use stored values if available, otherwise generate them for backward compatibility ---
     const referenceNumber = transaction.popReferenceNumber || `${format(paymentDate, 'yyyy-MM-dd')}/NEDBANK/${generateRandomSuffix(12)}`;
     const securityCode = transaction.popSecurityCode || generateSecurityCode();
     const sapDocNum = transaction.sapDocumentNumber || `SAP-${generateRandomSuffix(10)}`;
@@ -39,14 +41,14 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         recipientReference: transaction.recipientReference,
         payer: "DICKSON FAMILY TRUST",
         bank: transaction.bank,
-        accountNumber: `...${transaction.accountNumber?.slice(-6)}`,
+        accountNumber: transaction.accountNumber ? `...${transaction.accountNumber.slice(-6)}` : '...',
         channel: 'Internet payment',
         securityCode: securityCode,
         sapDocNum: sapDocNum
     };
 
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([595.28, 841.89]); 
+    const page = pdfDoc.addPage([595.28, 841.89]); // A4 size
     const { width, height } = page.getSize();
     
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
