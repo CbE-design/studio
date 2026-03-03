@@ -21,7 +21,10 @@ import {
     LoaderCircle,
     Check,
     Download,
-    CreditCard
+    CreditCard,
+    HelpCircle,
+    ArrowRightLeft,
+    DatabaseZap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -81,6 +84,18 @@ const IntegrationItem = ({
                     Manage Module <ChevronRight className="ml-1 h-3 w-3" />
                 </div>
             )}
+        </div>
+    </div>
+);
+
+const ProcessStep = ({ number, title, description }: { number: string, title: string, description: string }) => (
+    <div className="flex gap-4">
+        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">
+            {number}
+        </div>
+        <div>
+            <h4 className="font-bold text-sm text-gray-800">{title}</h4>
+            <p className="text-xs text-gray-500 mt-0.5">{description}</p>
         </div>
     </div>
 );
@@ -159,13 +174,6 @@ export default function SapErpPage() {
                     <p className="text-sm text-gray-500">Manage data synchronization for <strong>DICKSON FAMILY TRUST</strong>.</p>
                 </div>
 
-                <Alert className="bg-blue-50 border-blue-100">
-                    <Info className="h-4 w-4 text-blue-600" />
-                    <AlertDescription className="text-xs text-gray-600">
-                        <strong>Bridge Connected:</strong> Your SAP S/4HANA instance is communicating with Nedbank Direct. Automated reconciliation and batch processing are active.
-                    </AlertDescription>
-                </Alert>
-
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Card className="border-l-4 border-l-green-500">
                         <CardHeader className="pb-2">
@@ -208,45 +216,81 @@ export default function SapErpPage() {
                 </div>
 
                 <Tabs defaultValue="modules" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 bg-gray-200">
-                        <TabsTrigger value="modules">Integration Modules</TabsTrigger>
-                        <TabsTrigger value="connections">Active Connections</TabsTrigger>
+                    <TabsList className="grid w-full grid-cols-3 bg-gray-200">
+                        <TabsTrigger value="modules">Modules</TabsTrigger>
+                        <TabsTrigger value="how-it-works">How it works</TabsTrigger>
+                        <TabsTrigger value="connections">Accounts</TabsTrigger>
                     </TabsList>
                     
                     <TabsContent value="modules" className="space-y-4 pt-4">
                         <IntegrationItem 
                             icon={Users}
                             title="Payroll Integration"
-                            description="Automatically sync employee payroll data and authorize bulk batch payments from SAP HR."
+                            description="Automatically sync employee payroll data from SAP HR. Review and authorize bulk batch payments directly here."
                             status="active"
                             onClick={() => setActiveDialog('payroll')}
                         />
                         <IntegrationItem 
                             icon={FileText}
                             title="Corporate POP Generation"
-                            description="Generate official bank-stamped Proof of Payments directly within SAP for all bulk transfers."
+                            description="Automatically generate and upload bank-stamped Proof of Payments back into SAP's document system."
                             status="active"
                             onClick={() => setActiveDialog('pop')}
                         />
                         <IntegrationItem 
                             icon={FileSpreadsheet}
-                            title="Accounts Payable"
-                            description="Import supplier invoices directly from SAP for streamlined enterprise payment cycles."
+                            title="Accounts Payable Bridge"
+                            description="Import pending supplier invoices from SAP Accounts Payable. Pay multiple suppliers in a single transaction cycle."
                             status="active"
                             onClick={() => setActiveDialog('payable')}
                         />
                         <IntegrationItem 
                             icon={LayoutGrid}
                             title="Bank Reconciliation"
-                            description="Real-time matching of bank statements with SAP General Ledger entries."
+                            description="Real-time matching of bank statements with SAP General Ledger entries. Currently mapping data points."
                             status="pending"
                         />
-                        <IntegrationItem 
-                            icon={AlertCircle}
-                            title="Tax Compliance"
-                            description="Direct synchronization with revenue services for automated corporate tax submissions."
-                            status="error"
-                        />
+                    </TabsContent>
+
+                    <TabsContent value="how-it-works" className="pt-4 space-y-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-base font-bold flex items-center gap-2">
+                                    <HelpCircle className="h-5 w-5 text-primary" />
+                                    The Enterprise Bridge Process
+                                </CardTitle>
+                                <CardDescription>How SAP and Nedbank work together for your trust.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <ProcessStep 
+                                    number="1"
+                                    title="Data Extraction"
+                                    description="Your SAP instance identifies payroll files or supplier invoices that need processing and sends them to the bank's secure landing zone."
+                                />
+                                <ProcessStep 
+                                    number="2"
+                                    title="Bank Validation"
+                                    description="The bank validates the payment file against your account limits and security protocols. This happens in the background every few hours."
+                                />
+                                <ProcessStep 
+                                    number="3"
+                                    title="Manual Authorization"
+                                    description="You (the authorized signatory) review the batch details in this app and click 'Authorize'. No manual data entry is required."
+                                />
+                                <ProcessStep 
+                                    number="4"
+                                    title="Auto-Reconciliation"
+                                    description="Once paid, the bank sends a confirmation back to SAP. SAP automatically marks the invoice as 'Paid' and clears your ledger."
+                                />
+                                
+                                <div className="p-4 bg-primary/5 rounded-lg border border-primary/20 flex gap-3">
+                                    <DatabaseZap className="h-5 w-5 text-primary shrink-0" />
+                                    <p className="text-xs text-gray-600 leading-relaxed">
+                                        <strong>Why use this?</strong> It eliminates the risk of typing in the wrong account number or amount, as the data is pulled directly from your verified business records in SAP.
+                                    </p>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </TabsContent>
 
                     <TabsContent value="connections" className="pt-4">
@@ -309,7 +353,7 @@ export default function SapErpPage() {
                             <Users className="text-primary" /> Payroll Authorization
                         </DialogTitle>
                         <DialogDescription>
-                            Review and authorize the monthly payroll batch imported from SAP HR.
+                            Review the monthly payroll batch imported from SAP HR for authorization.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="bg-gray-50 rounded-lg p-4 space-y-3 max-h-[300px] overflow-auto">
@@ -350,7 +394,7 @@ export default function SapErpPage() {
                             <FileText className="text-primary" /> Corporate POP Export
                         </DialogTitle>
                         <DialogDescription>
-                            Select recent enterprise transfers to export bank-stamped POPs to SAP Document Center.
+                            Select recent enterprise transfers to export bank-stamped POPs directly into your SAP Document Center.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-3">
@@ -391,7 +435,7 @@ export default function SapErpPage() {
                             <CreditCard className="text-primary" /> Accounts Payable Bridge
                         </DialogTitle>
                         <DialogDescription>
-                            Pending supplier invoices imported from SAP Accounts Payable.
+                            Review pending supplier invoices imported from your SAP Accounts Payable ledger.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
