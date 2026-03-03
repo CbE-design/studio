@@ -252,12 +252,12 @@ export default function DashboardPage() {
               src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
               alt="Advertisement banner"
               fill
-              className="object-cover"
+              className="object-contain"
             />
           </div>
         </div>
 
-        <div className="p-4 mt-2 flex-1">
+        <div className="p-4 mt-2">
           <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
           <div className="grid grid-cols-4 gap-x-2 gap-y-4">
             {widgets.map((widget) => (
