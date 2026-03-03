@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -17,7 +18,10 @@ import {
     ExternalLink,
     ShieldCheck,
     ChevronRight,
-    LoaderCircle
+    LoaderCircle,
+    Check,
+    Download,
+    CreditCard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -28,8 +32,18 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
 import { collection, query } from 'firebase/firestore';
-import type { Account } from '@/app/lib/definitions';
+import type { Account, Transaction } from '@/app/lib/definitions';
 import { cn } from '@/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { formatCurrency } from '@/app/lib/data';
 
 const IntegrationItem = ({ 
     icon: Icon, 
@@ -74,12 +88,16 @@ const IntegrationItem = ({
 export default function SapErpPage() {
     const router = useRouter();
     const { toast } = useToast();
-    const { user, isUserLoading } = useUser();
+    const { user } = useUser();
     const firestore = useFirestore();
     const [isSyncing, setIsSyncing] = useState(false);
     const [lastSync, setLastSync] = useState('Today at 08:42 AM');
 
-    // Fetch actual accounts to show connectivity
+    // Dialog States
+    const [activeDialog, setActiveDialog] = useState<'payroll' | 'pop' | 'payable' | null>(null);
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    // Fetch actual accounts
     const accountsQuery = useMemoFirebase(() => {
         if (!firestore || !user?.uid) return null;
         return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
@@ -97,14 +115,19 @@ export default function SapErpPage() {
                 title: "SAP Data Synchronized",
                 description: "All financial records have been updated in your SAP General Ledger.",
             });
-        }, 2500);
+        }, 2000);
     };
 
-    const handleModuleAction = (moduleName: string) => {
-        toast({
-            title: `${moduleName} Action`,
-            description: `Processing enterprise-level ${moduleName.toLowerCase()} synchronization.`,
-        });
+    const processAction = (title: string, successMsg: string) => {
+        setIsProcessing(true);
+        setTimeout(() => {
+            setIsProcessing(false);
+            setActiveDialog(null);
+            toast({
+                title: title,
+                description: successMsg,
+            });
+        }, 2500);
     };
 
     return (
@@ -139,7 +162,7 @@ export default function SapErpPage() {
                 <Alert className="bg-blue-50 border-blue-100">
                     <Info className="h-4 w-4 text-blue-600" />
                     <AlertDescription className="text-xs text-gray-600">
-                        <strong>What is SAP ERP?</strong> SAP is an enterprise resource planning software that centralizes your core business data. This integration allows automated bank reconciliation, bulk payroll processing, and supplier payment authorization directly from your accounting system.
+                        <strong>Bridge Connected:</strong> Your SAP S/4HANA instance is communicating with Nedbank Direct. Automated reconciliation and batch processing are active.
                     </AlertDescription>
                 </Alert>
 
@@ -163,9 +186,9 @@ export default function SapErpPage() {
                         <CardContent>
                             <div className="flex items-center gap-2">
                                 <Clock className="h-5 w-5 text-yellow-500" />
-                                <span className="text-2xl font-bold">12 Items</span>
+                                <span className="text-2xl font-bold">3 Batches</span>
                             </div>
-                            <p className="text-[10px] text-gray-400 mt-1 uppercase">Awaiting SAP Confirmation</p>
+                            <p className="text-[10px] text-gray-400 mt-1 uppercase">Awaiting Authorization</p>
                         </CardContent>
                     </Card>
                     <Card className="border-l-4 border-l-primary">
@@ -175,10 +198,10 @@ export default function SapErpPage() {
                         <CardContent>
                             <div className="space-y-2">
                                 <div className="flex justify-between text-[10px] font-bold uppercase">
-                                    <span>Records</span>
-                                    <span>82%</span>
+                                    <span>Volume</span>
+                                    <span>94%</span>
                                 </div>
-                                <Progress value={82} className="h-1.5" />
+                                <Progress value={94} className="h-1.5" />
                             </div>
                         </CardContent>
                     </Card>
@@ -196,21 +219,21 @@ export default function SapErpPage() {
                             title="Payroll Integration"
                             description="Automatically sync employee payroll data and authorize bulk batch payments from SAP HR."
                             status="active"
-                            onClick={() => handleModuleAction('Payroll')}
+                            onClick={() => setActiveDialog('payroll')}
                         />
                         <IntegrationItem 
                             icon={FileText}
                             title="Corporate POP Generation"
                             description="Generate official bank-stamped Proof of Payments directly within SAP for all bulk transfers."
                             status="active"
-                            onClick={() => handleModuleAction('POP Generation')}
+                            onClick={() => setActiveDialog('pop')}
                         />
                         <IntegrationItem 
                             icon={FileSpreadsheet}
                             title="Accounts Payable"
                             description="Import supplier invoices directly from SAP for streamlined enterprise payment cycles."
                             status="active"
-                            onClick={() => handleModuleAction('Accounts Payable')}
+                            onClick={() => setActiveDialog('payable')}
                         />
                         <IntegrationItem 
                             icon={LayoutGrid}
@@ -275,6 +298,133 @@ export default function SapErpPage() {
                     <Button variant="outline" className="border-primary text-primary font-bold uppercase text-[10px] tracking-widest px-8">Contact Support</Button>
                 </div>
             </main>
+
+            {/* --- ACTIVATED WORKFLOW DIALOGS --- */}
+
+            {/* Payroll Dialog */}
+            <Dialog open={activeDialog === 'payroll'} onOpenChange={() => setActiveDialog(null)}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <Users className="text-primary" /> Payroll Authorization
+                        </DialogTitle>
+                        <DialogDescription>
+                            Review and authorize the monthly payroll batch imported from SAP HR.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="bg-gray-50 rounded-lg p-4 space-y-3 max-h-[300px] overflow-auto">
+                        {[
+                            { name: 'M. Sibiya', amount: 42500 },
+                            { name: 'J. van der Merwe', amount: 38900 },
+                            { name: 'S. Pillay', amount: 51200 },
+                            { name: 'K. Nkosi', amount: 29400 }
+                        ].map((emp, i) => (
+                            <div key={i} className="flex justify-between items-center text-sm border-b pb-2 last:border-0">
+                                <span className="font-medium">{emp.name}</span>
+                                <span className="text-gray-600">{formatCurrency(emp.amount)}</span>
+                            </div>
+                        ))}
+                        <div className="pt-2 flex justify-between font-bold text-primary">
+                            <span>TOTAL BATCH (4)</span>
+                            <span>{formatCurrency(162000)}</span>
+                        </div>
+                    </div>
+                    <DialogFooter className="gap-2">
+                        <DialogClose asChild><Button variant="outline" className="flex-1">Cancel</Button></DialogClose>
+                        <Button 
+                            className="flex-1" 
+                            onClick={() => processAction('Payroll Authorized', 'Salary batch for 4 employees has been released for payment.')}
+                            disabled={isProcessing}
+                        >
+                            {isProcessing ? <LoaderCircle className="animate-spin" /> : 'Authorize Batch'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Corporate POP Dialog */}
+            <Dialog open={activeDialog === 'pop'} onOpenChange={() => setActiveDialog(null)}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <FileText className="text-primary" /> Corporate POP Export
+                        </DialogTitle>
+                        <DialogDescription>
+                            Select recent enterprise transfers to export bank-stamped POPs to SAP Document Center.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-3">
+                        {[
+                            { ref: 'INV-2025-991', supplier: 'ESKOM BULK', date: 'Yesterday' },
+                            { ref: 'TAX-PAY-Q1', supplier: 'SARS E-FILING', date: '2 days ago' },
+                            { ref: 'RENT-HO', supplier: 'PROPCO LTD', date: '3 days ago' }
+                        ].map((pop, i) => (
+                            <div key={i} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <div className="h-4 w-4 rounded border border-primary flex items-center justify-center bg-primary text-white">
+                                    <Check className="h-3 w-3" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-sm font-bold">{pop.supplier}</p>
+                                    <p className="text-[10px] text-gray-500 uppercase">{pop.ref} • {pop.date}</p>
+                                </div>
+                                <Download className="h-4 w-4 text-gray-400" />
+                            </div>
+                        ))}
+                    </div>
+                    <DialogFooter>
+                        <Button 
+                            className="w-full" 
+                            onClick={() => processAction('Export Successful', 'Batch Proof of Payments have been synced to your SAP Document Management System.')}
+                            disabled={isProcessing}
+                        >
+                            {isProcessing ? <LoaderCircle className="animate-spin" /> : 'Export 3 POPs to SAP'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Accounts Payable Dialog */}
+            <Dialog open={activeDialog === 'payable'} onOpenChange={() => setActiveDialog(null)}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <CreditCard className="text-primary" /> Accounts Payable Bridge
+                        </DialogTitle>
+                        <DialogDescription>
+                            Pending supplier invoices imported from SAP Accounts Payable.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                        <div className="p-4 border rounded-lg bg-yellow-50 border-yellow-100 flex items-center justify-between">
+                            <div>
+                                <p className="text-xs font-bold text-yellow-800 uppercase">Awaiting Action</p>
+                                <p className="text-xl font-bold text-yellow-900">{formatCurrency(84500.25)}</p>
+                                <p className="text-[10px] text-yellow-700">2 Supplier Invoices</p>
+                            </div>
+                            <FileSpreadsheet className="h-8 w-8 text-yellow-400" />
+                        </div>
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center text-sm p-2 bg-white border rounded">
+                                <span>Global Logistics Ltd</span>
+                                <span className="font-bold">{formatCurrency(12500)}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-sm p-2 bg-white border rounded">
+                                <span>Tech Solutions SA</span>
+                                <span className="font-bold">{formatCurrency(72000.25)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button 
+                            className="w-full" 
+                            onClick={() => processAction('Payment Successful', 'Supplier payments have been processed and reconciled in SAP.')}
+                            disabled={isProcessing}
+                        >
+                            {isProcessing ? <LoaderCircle className="animate-spin" /> : 'Pay Selected Invoices'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
