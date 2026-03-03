@@ -69,7 +69,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
                             />
                         ) : Icon ? (
                             <div className="w-full h-full flex items-center justify-center">
-                                <Icon className="h-11 w-11 text-primary" />
+                                <Icon className="h-12 w-12 text-primary" />
                             </div>
                         ) : null}
                     </div>
@@ -252,7 +252,7 @@ export default function DashboardPage() {
           <AccountsCarousel />
         </div>
 
-        <div className="bg-white pb-4">
+        <div className="bg-white pb-8">
           <div className="mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-md shadow-sm border border-black/20 mt-4 bg-white">
             <Image
               src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/CutPaste_2025-09-25_19-22-52-484.png?alt=media&token=611adbd9-a489-4019-99a0-d0aa83f6a21a"
