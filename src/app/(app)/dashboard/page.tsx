@@ -83,7 +83,7 @@ const LoadingSkeleton = () => (
     <div className="gradient-background text-white sticky top-0 z-20 p-4">
         <header>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 overflow-hidden">
               <Skeleton className="w-6 h-6 rounded-md bg-white/20" />
               <Skeleton className="h-6 w-48 bg-white/20" />
             </div>
@@ -246,8 +246,8 @@ export default function DashboardPage() {
           <AccountsCarousel />
         </div>
 
-        <div className="p-4 mt-2">
-          <div className="relative w-full aspect-[320/50] rounded-lg overflow-hidden shadow-sm border border-black/10 bg-white">
+        <div className="px-6 py-2 mt-2">
+          <div className="relative w-full aspect-[320/40] rounded-lg overflow-hidden shadow-sm border border-black/10 bg-white max-w-[320px] mx-auto">
             <Image
               src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
               alt="Advertisement banner"
