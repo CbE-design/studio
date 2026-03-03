@@ -59,7 +59,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
                             New
                         </div>
                     )}
-                    <div className="relative w-7 h-7">
+                    <div className="relative w-10 h-10">
                        {src ? (
                             <Image 
                                 src={src}
@@ -69,7 +69,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
                             />
                         ) : Icon ? (
                             <div className="w-full h-full flex items-center justify-center">
-                                <Icon className="h-7 w-7 text-primary" />
+                                <Icon className="h-9 w-9 text-primary" />
                             </div>
                         ) : null}
                     </div>
