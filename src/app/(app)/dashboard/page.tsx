@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -86,7 +87,7 @@ const LoadingSkeleton = () => (
     <div className="gradient-background text-white sticky top-0 z-20 p-4">
         <header>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-6">
               <Skeleton className="w-6 h-6 rounded-md bg-white/20" />
               <Skeleton className="h-6 w-48 bg-white/20" />
             </div>
@@ -102,7 +103,7 @@ const LoadingSkeleton = () => (
     </div>
 
     <main className="flex-1 overflow-y-auto bg-gray-50 p-4">
-        <Skeleton className="h-24 w-full my-6 rounded-lg bg-gray-200" />
+        <Skeleton className="h-[50px] w-[320px] mx-auto my-6 rounded-lg bg-gray-200" />
         <Skeleton className="h-8 w-1/3 mb-4 bg-gray-200" />
         <div className="grid grid-cols-4 gap-y-6">
           {Array.from({ length: 12 }).map((_, i) => (
@@ -253,15 +254,17 @@ export default function DashboardPage() {
         </div>
 
         <div className="bg-white flex-1 pb-4">
-          <div className="mx-auto w-[calc(100%-2rem)] max-w-lg overflow-hidden rounded-md shadow-sm border border-black/20 mt-4 bg-white">
-            <Image
-              src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
-              alt="Advertisement banner"
-              data-ai-hint="advertisement banner"
-              width={600}
-              height={0}
-              className="w-full h-auto object-contain"
-            />
+          <div className="flex justify-center mt-4">
+            <div className="overflow-hidden rounded-md shadow-sm border border-black/10 bg-white" style={{ width: '320px', height: '50px' }}>
+              <Image
+                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
+                alt="Advertisement banner"
+                data-ai-hint="advertisement banner"
+                width={320}
+                height={50}
+                className="object-cover"
+              />
+            </div>
           </div>
 
           <div className="p-4 mt-2">
