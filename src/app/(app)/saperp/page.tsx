@@ -20,7 +20,10 @@ import {
     Download,
     CreditCard,
     HelpCircle,
-    DatabaseZap
+    DatabaseZap,
+    Zap,
+    ShieldAlert,
+    BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -274,7 +277,7 @@ export default function SapErpPage() {
                 <Tabs defaultValue="modules" className="w-full">
                     <TabsList className="grid w-full grid-cols-3 bg-gray-200">
                         <TabsTrigger value="modules">Modules</TabsTrigger>
-                        <TabsTrigger value="how-it-works">How it works</TabsTrigger>
+                        <TabsTrigger value="strategic">Strategic Value</TabsTrigger>
                         <TabsTrigger value="connections">Accounts</TabsTrigger>
                     </TabsList>
                     
@@ -308,42 +311,57 @@ export default function SapErpPage() {
                         />
                     </TabsContent>
 
-                    <TabsContent value="how-it-works" className="pt-4 space-y-6">
-                        <Card>
+                    <TabsContent value="strategic" className="pt-4 space-y-6">
+                        <Card className="bg-primary/5 border-primary/20">
                             <CardHeader>
-                                <CardTitle className="text-base font-bold flex items-center gap-2">
-                                    <HelpCircle className="h-5 w-5 text-primary" />
-                                    The Enterprise Bridge Process
+                                <CardTitle className="text-lg font-bold flex items-center gap-2">
+                                    <Zap className="h-5 w-5 text-primary" />
+                                    Why use the SAP ERP Bridge?
                                 </CardTitle>
-                                <CardDescription>How SAP and Nedbank work together for your trust.</CardDescription>
+                                <CardDescription>Strategic advantages for the Dickson Family Trust.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                <ProcessStep 
-                                    number="1"
-                                    title="Data Extraction"
-                                    description="Your SAP instance identifies payroll files or supplier invoices that need processing and sends them to the bank's secure landing zone."
-                                />
-                                <ProcessStep 
-                                    number="2"
-                                    title="Bank Validation"
-                                    description="The bank validates the payment file against your account limits and security protocols. This happens in the background every few hours."
-                                />
-                                <ProcessStep 
-                                    number="3"
-                                    title="Manual Authorization"
-                                    description="You (the authorized signatory) review the batch details in this app and click 'Authorize'. No manual data entry is required."
-                                />
-                                <ProcessStep 
-                                    number="4"
-                                    title="Auto-Reconciliation"
-                                    description="Once paid, the bank sends a confirmation back to SAP. SAP automatically marks the invoice as 'Paid' and clears your ledger."
-                                />
+                                <div className="grid gap-4">
+                                    <div className="flex gap-4 items-start">
+                                        <div className="p-2 bg-white rounded-lg shadow-sm">
+                                            <ShieldAlert className="h-5 w-5 text-primary" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-sm">Risk Mitigation</h4>
+                                            <p className="text-xs text-gray-600 leading-relaxed">Eliminate manual data entry errors. Data flows directly from your verified SAP business records to the bank's clearing system.</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-4 items-start">
+                                        <div className="p-2 bg-white rounded-lg shadow-sm">
+                                            <BarChart3 className="h-5 w-5 text-primary" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-sm">Real-time Reconciliation</h4>
+                                            <p className="text-xs text-gray-600 leading-relaxed">Your General Ledger is updated instantly upon bank confirmation, providing a 100% accurate view of your trust's liquidity.</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-4 items-start">
+                                        <div className="p-2 bg-white rounded-lg shadow-sm">
+                                            <DatabaseZap className="h-5 w-5 text-primary" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-sm">Audit Compliance</h4>
+                                            <p className="text-xs text-gray-600 leading-relaxed">Every transaction includes an immutable SAP document reference, satisfying the highest standards of corporate governance.</p>
+                                        </div>
+                                    </div>
+                                </div>
                                 
-                                <div className="p-4 bg-primary/5 rounded-lg border border-primary/20 flex gap-3">
-                                    <DatabaseZap className="h-5 w-5 text-primary shrink-0" />
-                                    <p className="text-xs text-gray-600 leading-relaxed">
-                                        <strong>Why use this?</strong> It eliminates the risk of typing in the wrong account number or amount, as the data is pulled directly from your verified business records in SAP.
-                                    </p>
+                                <div className="p-4 bg-white rounded-lg border border-primary/10 shadow-sm mt-4">
+                                    <h4 className="font-bold text-sm mb-2 flex items-center gap-2">
+                                        <HelpCircle className="h-4 w-4 text-primary" />
+                                        The Process
+                                    </h4>
+                                    <div className="space-y-3">
+                                        <ProcessStep number="1" title="Data Extraction" description="SAP identifies payroll or invoices needing processing." />
+                                        <ProcessStep number="2" title="Bank Validation" description="The bridge validates data against your account limits." />
+                                        <ProcessStep number="3" title="Authorization" description="You review and sign off the batch in this app." />
+                                        <ProcessStep number="4" title="Sync Back" description="Once paid, POPs are synced back into SAP automatically." />
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>
@@ -393,7 +411,7 @@ export default function SapErpPage() {
                     </div>
                     <div>
                         <h3 className="font-bold text-lg">Need custom configuration?</h3>
-                        <p className="text-xs text-gray-500 max-w-sm mx-auto">Our enterprise specialists can help you tailor the SAP integration to your specific business requirements.</p>
+                        <p className="text-xs text-gray-500 max-w-sm mx-auto">Our enterprise specialists can help you tailor the SAP integration to your specific trust requirements.</p>
                     </div>
                     <Button variant="outline" className="border-primary text-primary font-bold uppercase text-[10px] tracking-widest px-8">Contact Support</Button>
                 </div>
@@ -485,7 +503,7 @@ export default function SapErpPage() {
                 </DialogContent>
             </Dialog>
 
-            {/* Accounts Payable Dialog */}
+            {/* Accounts Payable Bridge Dialog */}
             <Dialog open={activeDialog === 'payable'} onOpenChange={() => setActiveDialog(null)}>
                 <DialogContent className="max-w-md">
                     <DialogHeader>
