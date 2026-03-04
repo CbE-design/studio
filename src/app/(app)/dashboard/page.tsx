@@ -8,11 +8,9 @@ import { useUser, useCollection, useFirestore, useMemoFirebase } from '@/firebas
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import type { Account, Transaction, CbsStatus } from '@/app/lib/definitions';
+import type { Account, Transaction } from '@/app/lib/definitions';
 import { collection, query, getDocs } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
-import { getCbsSystemStatus } from '@/app/lib/cbs-service';
-import { getSapSystemStatus, type SapStatus } from '@/app/lib/sap-service';
 
 const LatestIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
@@ -163,26 +161,12 @@ export default function DashboardPage() {
   const { transactions, isLoading: isTransactionsLoading } = useAllTransactions();
   const [unreadCount, setUnreadCount] = useState(0);
   const [isBellRinging, setIsBellRinging] = useState(false);
-  const [cbsStatus, setCbsStatus] = useState<CbsStatus | null>(null);
-  const [sapStatus, setSapStatus] = useState<SapStatus | null>(null);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
       router.push('/login');
     }
   }, [user, isUserLoading, router]);
-
-  useEffect(() => {
-    async function checkSystems() {
-      const [cStatus, sStatus] = await Promise.all([
-        getCbsSystemStatus(),
-        getSapSystemStatus()
-      ]);
-      setCbsStatus(cStatus);
-      setSapStatus(sStatus);
-    }
-    checkSystems();
-  }, []);
 
   useEffect(() => {
     if (isTransactionsLoading || transactions.length === 0) return;
@@ -254,26 +238,6 @@ export default function DashboardPage() {
                     <line x1="8" y1="13" x2="14" y2="13"></line>
                   </svg>
               </Link>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 mt-1 opacity-80">
-            <div className="flex items-center gap-1">
-                <div className={cn(
-                "h-1.5 w-1.5 rounded-full transition-colors",
-                cbsStatus?.connected ? "bg-lime-400 animate-pulse" : "bg-red-500"
-                )} />
-                <span className="text-[10px] font-medium tracking-wide uppercase">
-                CBS: {cbsStatus?.connected ? 'Live' : 'Offline'}
-                </span>
-            </div>
-            <div className="flex items-center gap-1">
-                <div className={cn(
-                "h-1.5 w-1.5 rounded-full transition-colors",
-                sapStatus?.connected ? "bg-blue-400 animate-pulse" : "bg-gray-400"
-                )} />
-                <span className="text-[10px] font-medium tracking-wide uppercase">
-                SAP: {sapStatus?.connected ? 'Ready' : 'Pending'}
-                </span>
             </div>
           </div>
         </div>
