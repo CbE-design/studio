@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Database, Activity, RefreshCw, CheckCircle2, ShieldCheck, Server, Layers } from 'lucide-react';
+import { ArrowLeft, Database, Activity, RefreshCw, CheckCircle2, ShieldCheck, Server, Layers, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getSapSystemStatus } from '@/app/lib/sap-service';
@@ -58,6 +58,20 @@ export default function SapErpPage() {
       </header>
 
       <main className="flex-1 overflow-y-auto p-6 space-y-6">
+        <Card className="border-l-4 border-l-blue-600 bg-blue-50/30">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <Info className="h-5 w-5 text-blue-600" />
+              <CardTitle className="text-sm font-bold uppercase text-blue-900">What is SAP ERP?</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xs text-blue-800 leading-relaxed">
+              SAP acts as the <strong>Ultimate System of Record</strong>. While the app processes payments, SAP manages the bank&apos;s <strong>General Ledger</strong>, ensuring every transaction is accounted for in the official financial books for auditing and tax compliance.
+            </p>
+          </CardContent>
+        </Card>
+
         <Card className="border-t-4 border-t-blue-600">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">

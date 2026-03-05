@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Cpu, Activity, RefreshCw, CheckCircle2, ShieldCheck, Database } from 'lucide-react';
+import { useRouter } from 'navigation';
+import { ArrowLeft, Cpu, Activity, RefreshCw, CheckCircle2, ShieldCheck, Database, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getCbsSystemStatus, triggerCbsHandshake } from '@/app/lib/cbs-service';
@@ -60,6 +60,20 @@ export default function CbsBridgePage() {
       </header>
 
       <main className="flex-1 overflow-y-auto p-6 space-y-6">
+        <Card className="border-l-4 border-l-primary bg-primary/5">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <Info className="h-5 w-5 text-primary" />
+              <CardTitle className="text-sm font-bold uppercase text-primary">What is CBS?</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xs text-gray-700 leading-relaxed">
+              The <strong>Core Banking System</strong> is the &quot;engine room&quot; of the bank. It handles real-time transaction processing, account balance management, and interest calculations. This bridge allows the app to communicate directly with the bank&apos;s central mainframe.
+            </p>
+          </CardContent>
+        </Card>
+
         <Card className="border-t-4 border-t-primary">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
