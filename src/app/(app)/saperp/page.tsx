@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Database, Activity, RefreshCw, CheckCircle2, ShieldCheck, Server, Layers, Info, ListChecks } from 'lucide-react';
+import { ArrowLeft, Database, Activity, RefreshCw, CheckCircle2, ShieldCheck, Server, Layers, Info, ListChecks, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getSapSystemStatus } from '@/app/lib/sap-service';
@@ -61,13 +61,16 @@ export default function SapErpPage() {
         <Card className="border-l-4 border-l-blue-600 bg-blue-50/30">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
-              <Info className="h-5 w-5 text-blue-600" />
-              <CardTitle className="text-sm font-bold uppercase text-blue-900">What is SAP ERP?</CardTitle>
+              <Shield className="h-5 w-5 text-blue-600" />
+              <CardTitle className="text-sm font-bold uppercase text-blue-900">Security & Compliance</CardTitle>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-2">
             <p className="text-xs text-blue-800 leading-relaxed">
-              SAP acts as the <strong>Ultimate System of Record</strong>. While the app processes payments, SAP manages the bank&apos;s <strong>General Ledger</strong>, ensuring every transaction is accounted for in the official financial books for auditing and tax compliance.
+              <strong>Network Whitelisting:</strong> Access to SAP NetWeaver is restricted to specific IP addresses. The bank&apos;s firewall maintains a whitelist of authorized server IPs.
+            </p>
+            <p className="text-xs text-blue-800 leading-relaxed">
+              <strong>System of Record:</strong> SAP manages the <strong>General Ledger</strong>, ensuring every app transaction is legally accounted for in the official financial books.
             </p>
           </CardContent>
         </Card>
@@ -133,8 +136,8 @@ export default function SapErpPage() {
           <div className="bg-white rounded-xl border p-4 space-y-3">
             {[
               { label: 'Ledger Reconciliation', desc: 'Auto-sync with General Ledger.', status: 'Active' },
-              { label: 'Digital Signatures', desc: 'PKI signing for each entry.', status: 'Required' },
-              { label: 'OData V4 Mapping', desc: 'Mapping fields to SAP Metadata.', status: 'Done' },
+              { label: 'IP Whitelisting', desc: 'Source IP added to SAP allow-list.', status: 'Required' },
+              { label: 'Digital Signatures', desc: 'PKI signing for each entry.', status: 'Done' },
             ].map((step) => (
               <div key={step.label} className="flex items-start gap-3">
                 <div className="mt-1 h-2 w-2 rounded-full bg-blue-600" />
@@ -152,7 +155,7 @@ export default function SapErpPage() {
 
         <div className="p-4 bg-gray-100 border border-gray-200 rounded-xl">
           <p className="text-[10px] text-gray-500 leading-relaxed text-center">
-            <strong>SAP NOTICE:</strong> All transaction records exported to SAP NetWeaver are digitally signed and immutable. The General Ledger (GL) serves as the legal system of record for this entity.
+            <strong>SAP NOTICE:</strong> All transaction records exported to SAP NetWeaver are digitally signed and immutable. Whitelisting ensures requests are only processed from trusted environments.
           </p>
         </div>
       </main>

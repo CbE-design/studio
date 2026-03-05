@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Cpu, Activity, RefreshCw, CheckCircle2, ShieldCheck, Database, Info, ListChecks } from 'lucide-react';
+import { ArrowLeft, Cpu, Activity, RefreshCw, CheckCircle2, ShieldCheck, Database, Info, ListChecks, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getCbsSystemStatus, triggerCbsHandshake } from '@/app/lib/cbs-service';
@@ -63,13 +63,13 @@ export default function CbsBridgePage() {
         <Card className="border-l-4 border-l-primary bg-primary/5">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
-              <Info className="h-5 w-5 text-primary" />
-              <CardTitle className="text-sm font-bold uppercase text-primary">What is CBS?</CardTitle>
+              <Lock className="h-5 w-5 text-primary" />
+              <CardTitle className="text-sm font-bold uppercase text-primary">Security: Network Whitelisting</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-gray-700 leading-relaxed">
-              The <strong>Core Banking System</strong> is the &quot;engine room&quot; of the bank. It handles real-time transaction processing, account balance management, and interest calculations. This bridge allows the app to communicate directly with the bank&apos;s central mainframe.
+              To connect to the live CBS, the app&apos;s hosting IP must be <strong>whitelisted</strong>. This is a &quot;VIP list&quot; at the bank&apos;s firewall. Even with valid credentials, requests from unknown IPs are rejected instantly to prevent unauthorized access.
             </p>
           </CardContent>
         </Card>
@@ -132,9 +132,9 @@ export default function CbsBridgePage() {
           </h2>
           <div className="bg-white rounded-xl border p-4 space-y-3">
             {[
-              { label: 'Network Whitelisting', desc: 'App IP added to bank firewall.', status: 'Pending' },
-              { label: 'mTLS Handshake', desc: 'Mutual TLS certs installed.', status: 'Mock' },
-              { label: 'API Mapping', desc: 'Standard EFT endpoints mapped.', status: 'Active' },
+              { label: 'Network Whitelisting', desc: 'App Server IP added to bank DMZ firewall.', status: 'Pending' },
+              { label: 'mTLS Handshake', desc: 'Mutual TLS client certificates installed.', status: 'Mock' },
+              { label: 'API Mapping', desc: 'ISO 20022 payment endpoints mapped.', status: 'Active' },
             ].map((step) => (
               <div key={step.label} className="flex items-start gap-3">
                 <div className="mt-1 h-2 w-2 rounded-full bg-primary" />
@@ -152,7 +152,7 @@ export default function CbsBridgePage() {
 
         <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
           <p className="text-xs text-blue-700 leading-relaxed">
-            <strong>System Notice:</strong> The CBS Bridge uses mutual TLS 1.3 encryption for all packets. Any connection outside of the whitelisted range will be automatically rejected by the HSM layer.
+            <strong>Security Notice:</strong> Outside of the whitelisted network range, the Core Banking System layer will ignore all packets, preventing DDoS and brute-force attempts at the hardware level.
           </p>
         </div>
       </main>
