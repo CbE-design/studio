@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Cpu, Activity, RefreshCw, CheckCircle2, ShieldCheck, Database, Info } from 'lucide-react';
+import { ArrowLeft, Cpu, Activity, RefreshCw, CheckCircle2, ShieldCheck, Database, Info, ListChecks } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getCbsSystemStatus, triggerCbsHandshake } from '@/app/lib/cbs-service';
@@ -126,24 +126,25 @@ export default function CbsBridgePage() {
         </Card>
 
         <div className="space-y-4">
-          <h2 className="text-sm font-bold text-gray-500 uppercase px-1">Infrastructure Health</h2>
-          <div className="grid gap-3">
+          <h2 className="text-sm font-bold text-gray-500 uppercase px-1 flex items-center gap-2">
+            <ListChecks className="h-4 w-4" />
+            Path to Production
+          </h2>
+          <div className="bg-white rounded-xl border p-4 space-y-3">
             {[
-              { label: 'Ledger Gateway', status: 'Healthy', icon: Database },
-              { label: 'Security Layer (HSM)', status: 'Active', icon: ShieldCheck },
-              { label: 'Transaction Manager', status: 'Operational', icon: CheckCircle2 },
-            ].map((item) => (
-              <div key={item.label} className="bg-white p-4 rounded-xl border flex items-center justify-between shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <item.icon className="h-5 w-5 text-primary" />
+              { label: 'Network Whitelisting', desc: 'App IP added to bank firewall.', status: 'Pending' },
+              { label: 'mTLS Handshake', desc: 'Mutual TLS certs installed.', status: 'Mock' },
+              { label: 'API Mapping', desc: 'Standard EFT endpoints mapped.', status: 'Active' },
+            ].map((step) => (
+              <div key={step.label} className="flex items-start gap-3">
+                <div className="mt-1 h-2 w-2 rounded-full bg-primary" />
+                <div className="flex-1">
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm font-bold">{step.label}</p>
+                    <span className="text-[10px] px-2 py-0.5 bg-gray-100 rounded text-gray-500 uppercase font-bold">{step.status}</span>
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-800 text-sm">{item.label}</p>
-                    <p className="text-xs text-green-600 font-medium">{item.status}</p>
-                  </div>
+                  <p className="text-xs text-gray-500">{step.desc}</p>
                 </div>
-                <div className="h-2 w-2 rounded-full bg-green-500" />
               </div>
             ))}
           </div>
