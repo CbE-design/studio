@@ -86,8 +86,8 @@ function SinglePaymentForm() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </div>
-        <div className="flex-1 flex items-center justify-center">
-          <h1 className="text-2xl font-semibold leading-tight text-center">
+        <div className="flex-1 flex items-center justify-start px-2">
+          <h1 className="text-2xl font-semibold leading-tight text-left">
             Whom would you like<br />to pay?
           </h1>
         </div>
