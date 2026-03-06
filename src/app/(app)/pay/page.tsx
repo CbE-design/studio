@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ChevronRight, User, LoaderCircle } from 'lucide-react';
+import { ArrowLeft, ChevronRight, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -197,33 +197,33 @@ export default function PayPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
+      <div className="bg-white border-b shadow-sm flex-shrink-0">
+        <header className="p-4 pt-6">
+          <Button variant="ghost" size="icon" className="-ml-2 mb-2" onClick={() => router.back()}>
+            <ArrowLeft className="h-6 w-6" />
+          </Button>
+          <h1 className="text-3xl font-bold text-gray-800 px-2 pb-6">What would you like to do?</h1>
+        </header>
+      </div>
+
       <main className="flex-1 overflow-y-auto">
-        <div className="bg-white border-b shadow-sm">
-          <header className="p-4 pt-6">
-            <Button variant="ghost" size="icon" className="-ml-2 mb-2" onClick={() => router.back()}>
-              <ArrowLeft className="h-6 w-6" />
-            </Button>
-            <h1 className="text-3xl font-bold text-gray-800 px-2 pb-6">What would you like to do?</h1>
-          </header>
-          
-          <div className="bg-white">
-              {paymentOptions.map((option, index) => (
-                <Link href={option.href || '#'} key={option.title}>
-                  <div
-                    className={`flex items-center p-4 px-6 cursor-pointer hover:bg-gray-50 transition-colors ${
-                      index < paymentOptions.length - 1 ? 'border-b border-gray-200' : ''
-                    }`}
-                  >
-                    <div className="mr-4">{option.icon}</div>
-                    <div className="flex-1">
-                      <h2 className="font-semibold text-gray-800 text-base">{option.title}</h2>
-                      <p className="text-muted-foreground text-sm">{option.description}</p>
-                    </div>
-                    <ChevronRight className="h-6 w-6 text-gray-400" />
+        <div className="bg-white border-b">
+            {paymentOptions.map((option, index) => (
+              <Link href={option.href || '#'} key={option.title}>
+                <div
+                  className={`flex items-center p-4 px-6 cursor-pointer hover:bg-gray-50 transition-colors ${
+                    index < paymentOptions.length - 1 ? 'border-b border-gray-200' : ''
+                  }`}
+                >
+                  <div className="mr-4">{option.icon}</div>
+                  <div className="flex-1">
+                    <h2 className="font-semibold text-gray-700 text-base">{option.title}</h2>
+                    <p className="text-muted-foreground text-sm">{option.description}</p>
                   </div>
-                </Link>
-              ))}
-          </div>
+                  <ChevronRight className="h-6 w-6 text-gray-400" />
+                </div>
+              </Link>
+            ))}
         </div>
 
         <div className="p-6">

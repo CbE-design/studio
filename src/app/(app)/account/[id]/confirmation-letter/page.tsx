@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -145,7 +144,7 @@ export default function ConfirmationLetterPage() {
                       <ConfirmationLetterSkeleton />
                     </div>
                 ) : (
-                    <div className="max-w-4xl mx-auto my-4 bg-white p-8 rounded-lg shadow font-serif text-sm text-gray-800">
+                    <div className="max-w-4xl mx-auto my-4 bg-white p-8 rounded-lg shadow font-sans text-sm text-gray-800">
                         <div className="text-right mb-8">
                             <p>NEDBANK</p>
                             <p>135 RIVONIA ROAD, SANDOWN, SANDTON, 2196</p>

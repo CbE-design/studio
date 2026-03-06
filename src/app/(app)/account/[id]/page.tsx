@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, MessageSquare, ChevronRight, Search } from 'lucide-react';
+import { ArrowLeft, MessageSquare, ChevronRight, Search, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, normalizeDate } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
@@ -190,10 +190,7 @@ export default function AccountDetailsPage() {
             </div>
             <div className="flex items-center gap-4">
               <Link href="/notifications">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
+                <Bell className="h-5 w-5" />
               </Link>
               <Link href="/ai-chat">
                 <MessageSquare className="h-5 w-5" />
