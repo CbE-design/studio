@@ -98,7 +98,7 @@ function SinglePaymentForm() {
           As the page scrolls, the solid background slides OVER the header.
       */}
       <main className="relative z-10 -mt-64 pt-64 flex-1">
-        <div className="bg-gray-50 pb-24 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] rounded-t-3xl min-h-screen">
+        <div className="bg-gray-50 pb-32 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] rounded-t-3xl min-h-screen">
             <div className="p-4 pt-8 space-y-2">
               <Label htmlFor="recipient-name" className="text-xs text-gray-500 font-semibold uppercase">A new recipient</Label>
               <Input id="recipient-name" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Enter name and surname" className="bg-white border-gray-300" />
@@ -167,22 +167,23 @@ function SinglePaymentForm() {
               </Alert>
             </div>
             
-            <div className="px-4 pb-6 flex items-center justify-between">
+            <div className="px-4 pb-10 flex items-center justify-between">
               <Label htmlFor="save-recipient" className="text-sm text-gray-800 font-medium">Save recipient</Label>
               <Switch id="save-recipient" checked={saveRecipient} onCheckedChange={setSaveRecipient} />
             </div>
+
+            {/* Next Button moved inside the scrollable content area for better positioning */}
+            <div className="px-4 pb-12">
+              <Button 
+                  className="w-full font-bold h-12 text-base shadow-lg"
+                  disabled={!isFormValid}
+                  onClick={handleNext}
+              >
+                Next
+              </Button>
+            </div>
         </div>
       </main>
-
-      <footer className="p-4 bg-white border-t fixed bottom-0 left-0 right-0 z-20">
-        <Button 
-            className="w-full font-bold h-12 text-base"
-            disabled={!isFormValid}
-            onClick={handleNext}
-        >
-          Next
-        </Button>
-      </footer>
     </div>
   );
 }
