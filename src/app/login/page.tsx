@@ -1,10 +1,9 @@
-
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Menu, AlertCircle, LoaderCircle, Fingerprint, Scan, Shield, Newspaper, Wallet, User, ArrowLeft } from 'lucide-react';
+import { Menu, AlertCircle, LoaderCircle, Fingerprint, Scan, Shield, Newspaper, Wallet, User, ArrowLeft, MessageSquare } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from '@/firebase-provider';
@@ -101,21 +100,7 @@ export default function LoginPage() {
           className="w-8 h-8"
         />
         <div className="flex items-center gap-4 text-primary">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-5 w-5"
-          >
-            <path d="M21.25 15.25a2 2 0 0 1-2 2H7.25l-4.25 4.25V5.25a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z" />
-            <path d="M8.25 9.25h7.5" />
-            <path d="M8.25 12.25h4.5" />
-          </svg>
+          <MessageSquare className="h-5 w-5" />
           <Menu />
         </div>
       </header>

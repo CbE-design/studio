@@ -188,7 +188,7 @@ export default function AccountDetailsPage() {
                 <p className="text-sm opacity-80">{account.accountNumber}</p>
               </div>
             </div>
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
               <Link href="/notifications">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -196,22 +196,7 @@ export default function AccountDetailsPage() {
                 </svg>
               </Link>
               <Link href="/ai-chat">
-                <svg 
-                  width="28" 
-                  height="24" 
-                  viewBox="0 0 28 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2.5" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  className="h-5 w-auto"
-                >
-                  <rect x="2" y="5" width="20" height="14" rx="7" />
-                  <path d="M18 17l5 4v-5" />
-                  <line x1="7" y1="10" x2="17" y2="10" />
-                  <line x1="7" y1="14" x2="14" y2="14" />
-                </svg>
+                <MessageSquare className="h-5 w-5" />
               </Link>
             </div>
           </div>

@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { collection, query, getDocs } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
+import { MessageSquare } from 'lucide-react';
 
 const LatestIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
@@ -208,7 +209,7 @@ export default function DashboardPage() {
                 {user.displayName || 'DICKSON FAMILY TRUST'}
               </span>
             </div>
-            <div className="flex items-center gap-6 text-white flex-shrink-0">
+            <div className="flex items-center gap-4 text-white flex-shrink-0">
               <Link href="/notifications">
                 <div className={cn('relative', isBellRinging && 'animate-ring')}>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
@@ -221,22 +222,7 @@ export default function DashboardPage() {
                 </div>
               </Link>
               <Link href="/ai-chat">
-                  <svg 
-                    width="28" 
-                    height="24" 
-                    viewBox="0 0 28 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2.5" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    className="h-5 w-auto"
-                  >
-                    <rect x="2" y="5" width="20" height="14" rx="7" />
-                    <path d="M18 17l5 4v-5" />
-                    <line x1="7" y1="10" x2="17" y2="10" />
-                    <line x1="7" y1="14" x2="14" y2="14" />
-                  </svg>
+                  <MessageSquare className="h-5 w-5" />
               </Link>
             </div>
           </div>
