@@ -45,6 +45,7 @@ export default function BuyPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
+      {/* Standalone Block Container */}
       <div className="bg-white border-b shadow-sm flex-shrink-0">
         <header className="p-4 pt-6">
           <Button variant="ghost" size="icon" className="-ml-2 mb-2" onClick={() => router.back()}>
@@ -54,7 +55,8 @@ export default function BuyPage() {
         </header>
       </div>
 
-      <main className="flex-1 overflow-y-auto">
+      {/* Separate Scrolling Section */}
+      <main className="flex-1 overflow-y-auto bg-gray-50">
         <div className="bg-white border-b">
             {buyOptions.map((option, index) => (
               <div

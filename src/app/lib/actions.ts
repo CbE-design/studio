@@ -7,7 +7,7 @@ import type { Transaction, TransactionType, Account, User, TransactionInput, Tra
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
 import { db as adminDb } from './firebase-admin';
-import { createPayment } from './repositories';
+import { createPayment, getAccountWithRealTimeBalance } from './repositories';
 import { format } from 'date-fns';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { app } from '@/app/lib/firebase';
@@ -99,12 +99,10 @@ export async function generateProofOfPaymentAction(
             throw new Error("Transaction data is required.");
         }
         
-        const accountDoc = await adminDb.doc(`users/${transaction.userId}/bankAccounts/${transaction.fromAccountId}`).get();
-        if (!accountDoc.exists) {
+        const accountData = await getAccountWithRealTimeBalance(transaction.userId!, transaction.fromAccountId!);
+        if (!accountData) {
              throw new Error("Account for transaction not found.");
         }
-        const accountData = accountDoc.data() as Account;
-
 
         const pdfBytes = await generateProofOfPaymentPdf(transaction, accountData);
         return pdfBytes;
@@ -127,11 +125,10 @@ export async function generatePopPdfBase64Action(
         }
         const transaction = txDoc.data() as Transaction;
 
-        const accountDoc = await adminDb.doc(`users/${userId}/bankAccounts/${accountId}`).get();
-        if (!accountDoc.exists) {
+        const accountData = await getAccountWithRealTimeBalance(userId, accountId);
+        if (!accountData) {
             throw new Error("Account not found.");
         }
-        const accountData = accountDoc.data() as Account;
 
         const pdfBytes = await generateProofOfPaymentPdf(transaction, accountData);
         const base64 = Buffer.from(pdfBytes).toString('base64');

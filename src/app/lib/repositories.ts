@@ -9,7 +9,7 @@ import { calculateFee } from './fees';
 
 /**
  * @fileOverview Data Repositories
- * Standalone functions for data access and integration workflows.
+ * Refactored to standalone functions to satisfy Next.js "use server" requirements.
  */
 
 export async function logAudit(log: Omit<IntegrationAuditLog, 'id' | 'timestamp'>) {

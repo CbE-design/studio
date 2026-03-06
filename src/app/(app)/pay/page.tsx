@@ -197,6 +197,7 @@ export default function PayPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
+      {/* Standalone Block Container */}
       <div className="bg-white border-b shadow-sm flex-shrink-0">
         <header className="p-4 pt-6">
           <Button variant="ghost" size="icon" className="-ml-2 mb-2" onClick={() => router.back()}>
@@ -206,7 +207,8 @@ export default function PayPage() {
         </header>
       </div>
 
-      <main className="flex-1 overflow-y-auto">
+      {/* Separate Scrolling Section */}
+      <main className="flex-1 overflow-y-auto bg-gray-50">
         <div className="bg-white border-b">
             {paymentOptions.map((option, index) => (
               <Link href={option.href || '#'} key={option.title}>
@@ -229,11 +231,11 @@ export default function PayPage() {
         <div className="p-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Your recent payments</h2>
             <Tabs defaultValue="recipient" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-transparent p-0">
-                <TabsTrigger value="recipient" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none data-[state=active]:text-primary font-semibold">Recipient payments</TabsTrigger>
-                <TabsTrigger value="once-off" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none data-[state=active]:text-primary font-semibold">Once-off payments</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 bg-transparent p-0 border-b border-gray-200">
+                <TabsTrigger value="recipient" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#00A651] rounded-none data-[state=active]:text-[#00A651] font-semibold text-gray-500">Recipient payments</TabsTrigger>
+                <TabsTrigger value="once-off" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-[#00A651] rounded-none data-[state=active]:text-[#00A651] font-semibold text-gray-500">Once-off payments</TabsTrigger>
               </TabsList>
-              <TabsContent value="recipient" className="pt-0 bg-white rounded-b-lg border border-t-0">
+              <TabsContent value="recipient" className="pt-0 bg-white rounded-b-lg border border-t-0 shadow-sm">
                  {isLoading ? (
                     <div className="p-8 text-center"><LoaderCircle className="h-6 w-6 animate-spin mx-auto text-primary" /></div>
                  ) : savedPayments.length > 0 ? (
@@ -242,7 +244,7 @@ export default function PayPage() {
                     <p className="text-gray-500 text-sm text-center py-8">There are no recipient payments to display.</p>
                  )}
               </TabsContent>
-              <TabsContent value="once-off" className="pt-0 bg-white rounded-b-lg border border-t-0">
+              <TabsContent value="once-off" className="pt-0 bg-white rounded-b-lg border border-t-0 shadow-sm">
                 {isLoading ? (
                     <div className="p-8 text-center"><LoaderCircle className="h-6 w-6 animate-spin mx-auto text-primary" /></div>
                 ) : onceOffPayments.length > 0 ? (
