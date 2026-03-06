@@ -30,32 +30,6 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
-  .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 151 100% 25.5%;
-    --primary-foreground: 120 20% 98%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 151 100% 25.5%;
-    --accent-foreground: 120 20% 98%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 151 100% 25.5%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
 }
 
 @layer base {
@@ -68,17 +42,11 @@
     color: hsl(var(--foreground));
     font-family: var(--font-roboto), "Roboto", sans-serif !important;
   }
-  h1, h2, h3, h4, h5, h6, p, span, div, button, input, label, textarea, select, a {
-    font-family: var(--font-roboto), "Roboto", sans-serif !important;
-  }
 }
 
 @layer components {
   .gradient-background {
     background: linear-gradient(to bottom, #00A651, #008241);
-  }
-  .light-gradient-background {
-    background: linear-gradient(to bottom, #556b2f, #6B8E23);
   }
 }
 
@@ -91,18 +59,10 @@
     animation: fade-in 1s ease-out forwards;
   }
   @keyframes ring {
-    10%, 90% {
-      transform: rotate3d(0, 0, 1, -10deg);
-    }
-    20%, 80% {
-      transform: rotate3d(0, 0, 1, 10deg);
-    }
-    30%, 50%, 70% {
-      transform: rotate3d(0, 0, 1, -5deg);
-    }
-    40%, 60% {
-      transform: rotate3d(0, 0, 1, 5deg);
-    }
+    10%, 90% { transform: rotate3d(0, 0, 1, -10deg); }
+    20%, 80% { transform: rotate3d(0, 0, 1, 10deg); }
+    30%, 50%, 70% { transform: rotate3d(0, 0, 1, -5deg); }
+    40%, 60% { transform: rotate3d(0, 0, 1, 5deg); }
   }
   .animate-ring {
     animation: ring 1.5s ease-in-out;

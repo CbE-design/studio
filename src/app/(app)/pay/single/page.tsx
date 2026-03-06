@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
 
 function SinglePaymentForm() {
   const router = useRouter();
