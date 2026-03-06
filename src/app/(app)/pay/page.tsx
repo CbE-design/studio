@@ -27,7 +27,7 @@ const SendMoneyIcon = () => (
   <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M21.3332 5.33301H10.6665C9.20128 5.33301 7.99984 6.53445 7.99984 7.99967V23.9997C7.99984 25.4649 9.20128 26.6663 10.6665 26.6663H21.3332C22.7984 26.6663 23.9998 25.4649 23.9998 23.9997V7.99967C23.9998 6.53445 22.7984 5.33301 21.3332 5.33301Z" stroke="#008248" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M16 21.333V21.333" stroke="#008248" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M15.0039 12.0859H16.0383C16.4886 12.0859 16.8549 12.4522 16.8549 12.9025V13.9369" stroke="#008248" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M15.0039 12.0859H16.0383C16.4808 12.0859 16.8549 12.4522 16.8549 12.9025V13.9369" stroke="#008248" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M16.0383 13.9365H15.0039" stroke="#008248" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
@@ -166,7 +166,6 @@ export default function PayPage() {
             const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
             transactionsSnapshot.forEach(doc => {
                 const data = doc.data() as Transaction;
-                // Only show debit payments and exclude bank fees
                 if (data.type === 'debit' && data.transactionType !== 'BANK_FEE') {
                      allTransactions.push({ 
                          id: doc.id, 
@@ -199,21 +198,19 @@ export default function PayPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="bg-white p-4 flex items-center sticky top-0 z-10 border-b">
-        <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
+      <header className="bg-white p-4 pb-10 flex flex-col sticky top-0 z-10 border-b">
+        <Button variant="ghost" size="icon" className="-ml-2 mb-4" onClick={() => router.back()}>
           <ArrowLeft className="h-6 w-6" />
         </Button>
+        <h1 className="text-3xl font-bold text-gray-800">What would you like to do?</h1>
       </header>
       
       <main className="flex-1 overflow-y-auto">
-        <div className="p-6">
-            <h1 className="text-2xl font-bold text-gray-800 mb-8">What would you like to do?</h1>
-
-          <div className="bg-white rounded-lg">
+        <div className="bg-white shadow-sm border-b">
             {paymentOptions.map((option, index) => (
               <Link href={option.href || '#'} key={option.title}>
                 <div
-                  className={`flex items-center p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
+                  className={`flex items-center p-4 px-6 cursor-pointer hover:bg-gray-50 transition-colors ${
                     index < paymentOptions.length - 1 ? 'border-b border-gray-200' : ''
                   }`}
                 >
@@ -226,9 +223,9 @@ export default function PayPage() {
                 </div>
               </Link>
             ))}
-          </div>
+        </div>
 
-          <div className="mt-12">
+        <div className="p-6">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Your recent payments</h2>
             <Tabs defaultValue="recipient" className="w-full">
               <TabsList className="grid w-full grid-cols-2 bg-transparent p-0">
@@ -255,8 +252,6 @@ export default function PayPage() {
               </TabsContent>
             </Tabs>
           </div>
-
-        </div>
       </main>
     </div>
   );

@@ -46,22 +46,19 @@ export default function BuyPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="gradient-background text-primary-foreground p-4 flex items-center shadow-sm sticky top-0 z-10 border-b">
-        <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
-          <ArrowLeft />
+      <header className="bg-white p-4 pb-10 flex flex-col sticky top-0 z-10 border-b">
+        <Button variant="ghost" size="icon" className="-ml-2 mb-4" onClick={() => router.back()}>
+          <ArrowLeft className="h-6 w-6" />
         </Button>
-        <h1 className="text-xl font-semibold">Buy</h1>
+        <h1 className="text-3xl font-bold text-gray-800">What would you like to do?</h1>
       </header>
       
       <main className="flex-1 overflow-y-auto">
-        <div className="p-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8">What would you like to do?</h1>
-          
-          <div className="bg-white rounded-lg">
+        <div className="bg-white shadow-sm border-b">
             {buyOptions.map((option, index) => (
               <div
                 key={option.title}
-                className={`flex items-center p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
+                className={`flex items-center p-4 px-6 cursor-pointer hover:bg-gray-50 transition-colors ${
                   index < buyOptions.length - 1 ? 'border-b border-gray-200' : ''
                 }`}
               >
@@ -72,7 +69,6 @@ export default function BuyPage() {
                 <ChevronRight className="h-6 w-6 text-gray-400" />
               </div>
             ))}
-          </div>
         </div>
       </main>
       <footer className="p-6 bg-gray-50 text-xs text-gray-500">
