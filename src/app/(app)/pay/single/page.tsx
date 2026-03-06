@@ -78,16 +78,16 @@ function SinglePaymentForm() {
       {/* 
           Header with lower z-index (z-0). 
           Sticky positioning makes it stay at the top.
-          Height increased to h-52 for a more spacious feel.
+          Height increased to h-64 for extra padding at the bottom.
       */}
-      <header className="sticky top-0 z-0 h-52 gradient-background text-primary-foreground px-4 pt-6 pb-8 flex flex-col">
+      <header className="sticky top-0 z-0 h-64 gradient-background text-primary-foreground px-4 pt-6 pb-8 flex flex-col">
         <div className="flex items-start mb-2">
           <Button variant="ghost" size="icon" className="-ml-2" onClick={() => router.back()}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </div>
-        <div className="flex-1 flex items-center">
-          <h1 className="text-2xl font-semibold leading-tight">
+        <div className="flex-1 flex items-center justify-center">
+          <h1 className="text-2xl font-semibold leading-tight text-center">
             Whom would you like<br />to pay?
           </h1>
         </div>
