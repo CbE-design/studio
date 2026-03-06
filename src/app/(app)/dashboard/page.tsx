@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { collection, query, getDocs } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
-import { MessageSquare, Bell } from 'lucide-react';
+import { MessageSquare, Bell, ShieldCheck } from 'lucide-react';
 
 const LatestIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
@@ -35,7 +35,7 @@ const StatementsIcon = ({ className }: { className?: string }) => (
 );
 
 const widgets = [
-  { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758622591390.jpg?alt=media&token=2f681462-7001-4654-9754-436e2c8f0ffe", label: 'Offers for you', href: '#' },
+  { icon: ShieldCheck, label: 'Approvals', href: '/approvals', isNew: true },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758629149375.jpg?alt=media&token=485765e5-456f-412c-8da5-751ff5991dd5", label: 'Applications', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758630016360.jpg?alt=media&token=a946409a-39bd-47d1-ac07-9a00dca954cb", label: 'Insure', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758633570031.jpg?alt=media&token=b776f61f-926e-48ab-9f7c-9b18821c8b02", label: 'Shop', href: '#' },

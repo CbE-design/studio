@@ -11,6 +11,7 @@ import {
   Shield,
   Cpu,
   Database,
+  ShieldCheck,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -131,6 +132,13 @@ export default function MorePage() {
       href: '/notifications',
       badge: unreadCount > 0 ? String(unreadCount) : null,
       badgeColor: 'bg-red-500',
+    },
+    {
+      icon: ShieldCheck,
+      label: 'Trustee Approvals',
+      href: '/approvals',
+      badge: '2',
+      badgeColor: 'bg-amber-500',
     },
     {
       icon: ApplicationsIcon,

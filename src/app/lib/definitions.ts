@@ -29,6 +29,18 @@ export type Transaction = {
   accountNumber?: string;
   popReferenceNumber?: string;
   popSecurityCode?: string;
+  status?: 'PENDING_APPROVAL' | 'SUCCESS' | 'FAILED' | 'REJECTED';
+};
+
+export type ApprovalRequest = {
+  id: string;
+  initiatorName: string;
+  amount: number;
+  recipientName: string;
+  date: string;
+  reference: string;
+  accountNumber: string;
+  bankName: string;
 };
 
 export type Beneficiary = {
