@@ -74,11 +74,10 @@ function SinglePaymentForm() {
 
 
   return (
-    <div className="relative h-screen overflow-y-auto bg-gray-50 flex flex-col">
+    <div className="relative h-screen overflow-y-auto bg-gray-50 flex flex-col scroll-smooth">
       {/* 
-          Header with lower z-index (z-0). 
-          Sticky positioning makes it stay at the top.
-          Height increased to h-64 for extra padding at the bottom.
+          Sticky Header with lower z-index (z-0). 
+          The main section below will slide over it as the user scrolls.
       */}
       <header className="sticky top-0 z-0 h-64 gradient-background text-primary-foreground px-4 pt-6 pb-8 flex flex-col">
         <div className="flex items-start mb-2">
@@ -94,29 +93,31 @@ function SinglePaymentForm() {
       </header>
       
       {/* 
-          Main section with higher z-index (z-10). 
-          It slides over the header when scrolling.
+          Main Content Section with higher z-index (z-10). 
+          It uses negative margin (-mt-64) to start at the top of the header,
+          and padding-top (pt-64) to push the content below the visible header text.
+          As the page scrolls, the solid background slides OVER the header.
       */}
-      <main className="relative z-10 bg-gray-50 flex-1 flex flex-col">
-        <div className="bg-gray-50 pb-24">
-            <div className="p-4 space-y-2">
-            <Label htmlFor="recipient-name" className="text-xs text-gray-500 font-semibold uppercase">A new recipient</Label>
-            <Input id="recipient-name" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Enter name and surname" className="bg-white border-gray-300" />
+      <main className="relative z-10 -mt-64 pt-64 flex-1">
+        <div className="bg-gray-50 pb-24 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] rounded-t-3xl min-h-screen">
+            <div className="p-4 pt-8 space-y-2">
+              <Label htmlFor="recipient-name" className="text-xs text-gray-500 font-semibold uppercase">A new recipient</Label>
+              <Input id="recipient-name" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Enter name and surname" className="bg-white border-gray-300" />
             </div>
 
             <div className="border-t border-b border-gray-200 bg-white">
-            <Link href="/recipients">
-                <div className="flex items-center px-4 py-3.5 border-b border-gray-100">
-                <Users className="h-5 w-5 mr-3 text-gray-500" />
-                <span className="flex-1 text-sm text-gray-700 font-medium">Select from saved recipients</span>
-                </div>
-            </Link>
-            <Link href="#">
-                <div className="flex items-center px-4 py-3.5">
-                <Smartphone className="h-5 w-5 mr-3 text-gray-500" />
-                <span className="flex-1 text-sm text-gray-700 font-medium">Select from phone contacts</span>
-                </div>
-            </Link>
+              <Link href="/recipients">
+                  <div className="flex items-center px-4 py-3.5 border-b border-gray-100">
+                  <Users className="h-5 w-5 mr-3 text-gray-500" />
+                  <span className="flex-1 text-sm text-gray-700 font-medium">Select from saved recipients</span>
+                  </div>
+              </Link>
+              <Link href="#">
+                  <div className="flex items-center px-4 py-3.5">
+                  <Smartphone className="h-5 w-5 mr-3 text-gray-500" />
+                  <span className="flex-1 text-sm text-gray-700 font-medium">Select from phone contacts</span>
+                  </div>
+              </Link>
             </div>
             
             <div className="p-4 pt-6 flex justify-center">
@@ -127,49 +128,49 @@ function SinglePaymentForm() {
             </div>
 
             <div className="p-4 space-y-4">
-            <h2 className="font-semibold text-sm text-gray-800 uppercase">To which account?</h2>
-            <div className="space-y-1">
-                <Label htmlFor="bank-name" className="text-xs text-gray-500 font-semibold uppercase">Bank name</Label>
-                <div className="relative" onClick={() => preserveStateAndNavigate('/pay/single/select-bank')}>
-                <Input 
-                    id="bank-name" 
-                    value={bankName} 
-                    readOnly 
-                    placeholder="Select bank" 
-                    className="pr-10 cursor-pointer bg-white border-gray-300"
-                />
-                <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                </div>
-            </div>
-            <div className="space-y-1">
-                <Label htmlFor="account-number" className="text-xs text-gray-500 font-semibold uppercase">Account number</Label>
-                <Input id="account-number" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} className="bg-white border-gray-300" />
-            </div>
+              <h2 className="font-semibold text-sm text-gray-800 uppercase">To which account?</h2>
+              <div className="space-y-1">
+                  <Label htmlFor="bank-name" className="text-xs text-gray-500 font-semibold uppercase">Bank name</Label>
+                  <div className="relative" onClick={() => preserveStateAndNavigate('/pay/single/select-bank')}>
+                  <Input 
+                      id="bank-name" 
+                      value={bankName} 
+                      readOnly 
+                      placeholder="Select bank" 
+                      className="pr-10 cursor-pointer bg-white border-gray-300"
+                  />
+                  <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  </div>
+              </div>
+              <div className="space-y-1">
+                  <Label htmlFor="account-number" className="text-xs text-gray-500 font-semibold uppercase">Account number</Label>
+                  <Input id="account-number" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} className="bg-white border-gray-300" />
+              </div>
             </div>
 
             <div className="px-4 pb-4 space-y-4">
-            <h2 className="font-semibold text-sm text-gray-800 uppercase">Payment type?</h2>
-            <div className="space-y-1">
-                <Label htmlFor="payment-method" className="text-xs text-gray-500 font-semibold uppercase">Payment method</Label>
-                <div className="relative" onClick={() => preserveStateAndNavigate('/pay/single/select-payment-type')}>
-                <Input id="payment-method" value={paymentType} readOnly className="pr-10 border-primary cursor-pointer bg-white" />
-                <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
-                </div>
-            </div>
+              <h2 className="font-semibold text-sm text-gray-800 uppercase">Payment type?</h2>
+              <div className="space-y-1">
+                  <Label htmlFor="payment-method" className="text-xs text-gray-500 font-semibold uppercase">Payment method</Label>
+                  <div className="relative" onClick={() => preserveStateAndNavigate('/pay/single/select-payment-type')}>
+                  <Input id="payment-method" value={paymentType} readOnly className="pr-10 border-primary cursor-pointer bg-white" />
+                  <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
+                  </div>
+              </div>
             </div>
 
             <div className="px-4 pb-4">
-            <Alert className="bg-blue-50 border-blue-100">
-                <Info className="h-4 w-4 text-blue-600" />
-                <AlertDescription className="text-xs text-gray-600 leading-relaxed">
-                Before you click Next, please make sure that your recipient&apos;s account information is correct. Nedbank doesn&apos;t validate account numbers or refund payments to a wrong recipient.
-                </AlertDescription>
-            </Alert>
+              <Alert className="bg-blue-50 border-blue-100">
+                  <Info className="h-4 w-4 text-blue-600" />
+                  <AlertDescription className="text-xs text-gray-600 leading-relaxed">
+                  Before you click Next, please make sure that your recipient&apos;s account information is correct. Nedbank doesn&apos;t validate account numbers or refund payments to a wrong recipient.
+                  </AlertDescription>
+              </Alert>
             </div>
             
             <div className="px-4 pb-6 flex items-center justify-between">
-            <Label htmlFor="save-recipient" className="text-sm text-gray-800 font-medium">Save recipient</Label>
-            <Switch id="save-recipient" checked={saveRecipient} onCheckedChange={setSaveRecipient} />
+              <Label htmlFor="save-recipient" className="text-sm text-gray-800 font-medium">Save recipient</Label>
+              <Switch id="save-recipient" checked={saveRecipient} onCheckedChange={setSaveRecipient} />
             </div>
         </div>
       </main>
