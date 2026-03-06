@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -46,15 +45,15 @@ export default function BuyPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="bg-white p-4 pb-10 flex flex-col sticky top-0 z-10 border-b">
+      <header className="bg-white p-4 sticky top-0 z-10">
         <Button variant="ghost" size="icon" className="-ml-2 mb-4" onClick={() => router.back()}>
           <ArrowLeft className="h-6 w-6" />
         </Button>
-        <h1 className="text-3xl font-bold text-gray-800">What would you like to do?</h1>
+        <h1 className="text-3xl font-bold text-gray-800 px-2 pb-6">What would you like to do?</h1>
       </header>
       
       <main className="flex-1 overflow-y-auto">
-        <div className="bg-white shadow-sm border-b">
+        <div className="bg-white border-b">
             {buyOptions.map((option, index) => (
               <div
                 key={option.title}
