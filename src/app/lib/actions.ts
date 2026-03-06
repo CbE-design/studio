@@ -7,7 +7,7 @@ import type { Transaction, TransactionType, Account, User, TransactionInput, Tra
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
 import { db as adminDb } from './firebase-admin';
-import { TransactionRepository } from './repositories';
+import { createPayment } from './repositories';
 import { format } from 'date-fns';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { app } from '@/app/lib/firebase';
@@ -42,7 +42,7 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
         
         const txType: TransactionType = paymentType === 'Instant Pay' ? 'EFT_IMMEDIATE' : 'EFT_STANDARD';
 
-        const result = await TransactionRepository.createPayment({
+        const result = await createPayment({
             userId,
             fromAccountId,
             amount: parseFloat(amount),

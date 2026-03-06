@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ChevronRight, Smartphone, Layers, Ticket, Lightbulb, Lamp, ShoppingCart, Gamepad2 } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Smartphone, Layers, Ticket, Lightbulb, ShoppingCart, Gamepad2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const buyOptions = [
@@ -45,29 +45,31 @@ export default function BuyPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="bg-white p-4 sticky top-0 z-10">
-        <Button variant="ghost" size="icon" className="-ml-2 mb-4" onClick={() => router.back()}>
-          <ArrowLeft className="h-6 w-6" />
-        </Button>
-        <h1 className="text-3xl font-bold text-gray-800 px-2 pb-6">What would you like to do?</h1>
-      </header>
-      
       <main className="flex-1 overflow-y-auto">
-        <div className="bg-white border-b">
-            {buyOptions.map((option, index) => (
-              <div
-                key={option.title}
-                className={`flex items-center p-4 px-6 cursor-pointer hover:bg-gray-50 transition-colors ${
-                  index < buyOptions.length - 1 ? 'border-b border-gray-200' : ''
-                }`}
-              >
-                <div className="mr-4">{option.icon}</div>
-                <div className="flex-1">
-                  <h2 className="font-semibold text-gray-700 text-base">{option.title}</h2>
+        <div className="bg-white border-b shadow-sm">
+          <header className="p-4 pt-6">
+            <Button variant="ghost" size="icon" className="-ml-2 mb-2" onClick={() => router.back()}>
+              <ArrowLeft className="h-6 w-6" />
+            </Button>
+            <h1 className="text-3xl font-bold text-gray-800 px-2 pb-6">What would you like to do?</h1>
+          </header>
+          
+          <div className="bg-white">
+              {buyOptions.map((option, index) => (
+                <div
+                  key={option.title}
+                  className={`flex items-center p-4 px-6 cursor-pointer hover:bg-gray-50 transition-colors ${
+                    index < buyOptions.length - 1 ? 'border-b border-gray-200' : ''
+                  }`}
+                >
+                  <div className="mr-4">{option.icon}</div>
+                  <div className="flex-1">
+                    <h2 className="font-semibold text-gray-700 text-base">{option.title}</h2>
+                  </div>
+                  <ChevronRight className="h-6 w-6 text-gray-400" />
                 </div>
-                <ChevronRight className="h-6 w-6 text-gray-400" />
-              </div>
-            ))}
+              ))}
+          </div>
         </div>
       </main>
       <footer className="p-6 bg-gray-50 text-xs text-gray-500">

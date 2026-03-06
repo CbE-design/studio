@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
@@ -89,7 +88,6 @@ export default function AccountDetailsPage() {
   const [isAccountLoading, setIsAccountLoading] = useState(true);
 
   const transactionsQuery = useMemoFirebase(() => {
-    // Only create the query if we have the required IDs
     if (!firestore || !user?.uid || !accountId) return null;
     return query(collection(firestore, 'users', user.uid, 'bankAccounts', accountId, 'transactions'));
   }, [firestore, user?.uid, accountId]);
@@ -181,28 +179,41 @@ export default function AccountDetailsPage() {
       <div className="sticky top-0 z-10 shadow-sm">
         <header className="gradient-background text-white p-4 space-y-4">
           <div className="flex items-center justify-between">
-            <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
-              <ArrowLeft strokeWidth={2.5} />
-            </Button>
-            <div className="text-left">
-              <h1 className="text-base font-medium">{account.name}</h1>
-              <p className="text-sm opacity-80">{account.accountNumber}</p>
+            <div className="flex items-center">
+              <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
+                <ArrowLeft strokeWidth={2.5} />
+              </Button>
+              <div className="text-left">
+                <h1 className="text-base font-medium">{account.name}</h1>
+                <p className="text-sm opacity-80">{account.accountNumber}</p>
+              </div>
             </div>
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-5 w-5"
-            >
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              <line x1="8" y1="9" x2="16" y2="9"></line>
-              <line x1="8" y1="13" x2="14" y2="13"></line>
-            </svg>
+            <div className="flex items-center gap-6">
+              <Link href="/notifications">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+              </Link>
+              <Link href="/ai-chat">
+                <svg 
+                  width="28" 
+                  height="24" 
+                  viewBox="0 0 28 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  className="h-5 w-auto"
+                >
+                  <rect x="2" y="5" width="20" height="14" rx="7" />
+                  <path d="M18 17l5 4v-5" />
+                  <line x1="7" y1="10" x2="17" y2="10" />
+                  <line x1="7" y1="14" x2="14" y2="14" />
+                </svg>
+              </Link>
+            </div>
           </div>
           <div className="flex justify-between">
             <div className="text-left">
