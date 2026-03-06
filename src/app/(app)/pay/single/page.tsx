@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
@@ -11,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 function SinglePaymentForm() {
   const router = useRouter();
@@ -24,6 +23,16 @@ function SinglePaymentForm() {
   const [saveRecipient, setSaveRecipient] = useState(false);
   const [paymentType, setPaymentType] = useState('Standard EFT');
   
+  // State for shrinking header
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  const handleScroll = (e: React.UIEvent<HTMLElement>) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    // Map scroll from 0 to 80px to progress 0 to 1
+    const progress = Math.min(1, scrollTop / 80);
+    setScrollProgress(progress);
+  };
+
   useEffect(() => {
     const queryBank = searchParams.get('bank');
     if (queryBank) setBankName(decodeURIComponent(queryBank));
@@ -43,7 +52,6 @@ function SinglePaymentForm() {
     const queryPaymentType = searchParams.get('paymentType');
     if (queryPaymentType) setPaymentType(decodeURIComponent(queryPaymentType));
     
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const preserveStateAndNavigate = (pathname: string) => {
@@ -77,14 +85,27 @@ function SinglePaymentForm() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="gradient-background text-primary-foreground px-4 pt-3 pb-6 sticky top-0 z-10">
+      <header 
+        className="gradient-background text-primary-foreground px-4 pt-3 sticky top-0 z-10 overflow-hidden"
+        style={{ 
+            paddingBottom: `${1.5 - (scrollProgress * 1)}rem`, // pb-6 (1.5rem) -> pb-2 (0.5rem)
+        }}
+      >
         <Button variant="ghost" size="icon" className="-ml-2 mb-1" onClick={() => router.back()}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-2xl font-semibold leading-tight">Whom would you like<br />to pay?</h1>
+        <h1 
+            className="font-semibold transition-all duration-75"
+            style={{ 
+                fontSize: `${1.5 - (scrollProgress * 0.375)}rem`, // 24px (1.5rem) -> 18px (1.125rem)
+                lineHeight: scrollProgress > 0.5 ? '1.2' : '1.1'
+            }}
+        >
+          {scrollProgress > 0.5 ? "Whom would you like to pay?" : <>Whom would you like<br />to pay?</>}
+        </h1>
       </header>
       
-      <main className="flex-1 overflow-y-auto bg-gray-50">
+      <main onScroll={handleScroll} className="flex-1 overflow-y-auto bg-gray-50">
         <div className="p-4 space-y-2">
           <Label htmlFor="recipient-name" className="text-xs text-gray-500 font-semibold">A new recipient</Label>
           <Input id="recipient-name" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Enter name and surname" className="bg-white" />
@@ -185,4 +206,3 @@ export default function SinglePaymentPage() {
         </Suspense>
     );
 }
-

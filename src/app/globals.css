@@ -61,13 +61,11 @@
 @layer base {
   * {
     border-color: hsl(var(--border));
+    font-family: var(--font-roboto), sans-serif !important;
   }
   html, body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: var(--font-roboto), sans-serif !important;
-  }
-  h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-roboto), sans-serif !important;
   }
 }
