@@ -3,6 +3,23 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Bot } from 'lucide-react';
 
+const MessageIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    <line x1="9" y1="9" x2="15" y2="9" />
+    <line x1="9" y1="13" x2="12" y2="13" />
+  </svg>
+);
+
 export default function AiChatPage() {
   const router = useRouter();
   return (
@@ -11,7 +28,10 @@ export default function AiChatPage() {
         <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>
-        <h1 className="text-lg font-semibold">AI Assistant</h1>
+        <h1 className="text-lg font-semibold flex items-center gap-2">
+          <MessageIcon className="h-5 w-5" />
+          AI Assistant
+        </h1>
       </header>
       <main className="flex-1 flex flex-col items-center justify-center text-center p-4">
         <Bot className="h-16 w-16 text-gray-400 mb-4" />

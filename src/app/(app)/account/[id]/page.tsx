@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, MessageSquare, ChevronRight, Search, Bell } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Search, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, normalizeDate } from '@/app/lib/data';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,23 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
 import { collection, doc, getDoc, query } from 'firebase/firestore';
+
+const MessageIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    <line x1="9" y1="9" x2="15" y2="9" />
+    <line x1="9" y1="13" x2="12" y2="13" />
+  </svg>
+);
 
 const FilterIcon = () => (
   <svg
@@ -53,11 +70,7 @@ const LoadingSkeleton = () => (
             <Skeleton className="h-4 w-32 mt-1 bg-white/20" />
           </div>
         </div>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-          <line x1="8" y1="9" x2="16" y2="9"></line>
-          <line x1="8" y1="12" x2="13" y2="12"></line>
-        </svg>
+        <MessageIcon className="h-6 w-6" />
       </div>
       <div className="flex justify-between">
         <div className="text-left">
@@ -193,7 +206,7 @@ export default function AccountDetailsPage() {
                 <Bell className="h-5 w-5" />
               </Link>
               <Link href="/ai-chat">
-                <MessageSquare className="h-5 w-5" />
+                <MessageIcon className="h-5 w-5" />
               </Link>
             </div>
           </div>

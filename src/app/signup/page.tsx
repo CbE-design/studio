@@ -1,10 +1,9 @@
-
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Menu, ArrowRight, AlertCircle, LoaderCircle } from 'lucide-react';
+import { Menu, ArrowRight, AlertCircle, LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useAuth, useFirestore } from '@/firebase-provider';
@@ -13,6 +12,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 
+const MessageIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    <line x1="9" y1="9" x2="15" y2="9" />
+    <line x1="9" y1="13" x2="12" y2="13" />
+  </svg>
+);
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -65,7 +80,7 @@ export default function SignupPage() {
           className="w-8 h-8"
         />
         <div className="flex items-center gap-4">
-          <MessageSquare />
+          <MessageIcon className="h-6 w-6" />
           <Menu />
         </div>
       </header>
