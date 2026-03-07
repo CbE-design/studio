@@ -35,7 +35,7 @@ export async function getAccountWithRealTimeBalance(userId: string, accountId: s
 
   try {
     const cbsBalance = await fetchCbsAccountBalance(accountData.accountNumber);
-    if (cbsBalance !== accountData.balance) {
+    if (cbsBalance !== accountData.balance && cbsBalance > 0) {
       console.log(`[AccountRepository] Reconciling balance for ${accountData.accountNumber}: ${accountData.balance} -> ${cbsBalance}`);
       await accountRef.update({ balance: cbsBalance });
       accountData.balance = cbsBalance;
@@ -126,6 +126,7 @@ export async function createPayment(input: {
   });
 
   if (resultTransactionId) {
+    // Simulate the ISO 20022 clearing phase
     const sapSynced = await syncTransactionToSap(resultTransactionId);
     await logAudit({
       system: 'SAP',

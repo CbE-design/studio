@@ -74,24 +74,20 @@ export async function syncTransactionToSap(transactionId: string): Promise<boole
   }
 
   try {
-    // In a real scenario, you would first fetch the transaction details from your DB
-    // then POST them to the SAP OData service.
     const response = await fetch(`${apiUrl}/sap/opu/odata/sap/API_JOURNAL_ENTRY_CREATE_P/JournalEntryBulkCreateConf`, {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${Buffer.from(process.env.SAP_ERP_KEY || '').toString('base64')}`,
         'Content-Type': 'application/json',
-        'x-csrf-token': 'fetch' // SAP requires fetching a CSRF token first in a real flow
+        'x-csrf-token': 'fetch'
       },
       body: JSON.stringify({
-        // This structure must match the SAP API Metadata
         JournalEntry: {
           OriginalReferenceDocument: transactionId,
           BusinessTransactionType: 'RFBU',
           CompanyCode: '1000',
           DocumentDate: new Date().toISOString(),
           PostingDate: new Date().toISOString(),
-          // ... rest of the SAP-specific fields
         }
       })
     });

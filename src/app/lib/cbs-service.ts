@@ -91,7 +91,9 @@ export async function fetchCbsAccountBalance(accountNumber: string): Promise<num
   const apiUrl = process.env.CBS_API_URL;
 
   if (!apiUrl) {
-    return 18502191.17;
+    // In a prototype, we return a high-value balance for the investment account to show liquidity
+    if (accountNumber === '111122223333') return 18502191.17;
+    return 0;
   }
 
   const response = await fetch(`${apiUrl}/ledger/balance?account=${accountNumber}`, {
