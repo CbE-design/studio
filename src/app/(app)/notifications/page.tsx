@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -7,10 +5,8 @@ import { ArrowLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
-import { collection, getDocs, query } from 'firebase/firestore';
+import { useUser, useAllTransactions } from '@/firebase-provider';
 import { useEffect, useState } from 'react';
-import type { Transaction } from '@/app/lib/definitions';
 
 const ToolAndGearIcon = () => (
     <div className="relative h-7 w-7 text-primary">
@@ -27,46 +23,25 @@ const ToolAndGearIcon = () => (
 export default function NotificationsHubPage() {
   const router = useRouter();
   const { user, isUserLoading } = useUser();
-  const firestore = useFirestore();
+  const { transactions, isLoading: isTransactionsLoading } = useAllTransactions();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const accountsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
-  }, [firestore, user?.uid]);
-  const { data: accounts, isLoading: isAccountsLoading } = useCollection(accountsQuery);
-  
   useEffect(() => {
-    if (!accounts || isUserLoading || isAccountsLoading) return;
+    if (isTransactionsLoading || transactions.length === 0) {
+        setUnreadCount(0);
+        return;
+    }
 
-    const fetchAndCountTransactions = async () => {
-        if (!user?.uid) return;
-
-        let allTransactions: Transaction[] = [];
-        for (const account of accounts) {
-            const transactionsCollectionRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
-            const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
-            transactionsSnapshot.forEach(doc => {
-                const data = doc.data();
-                if (data.date && data.transactionType !== 'BANK_FEE') {
-                     allTransactions.push({ id: doc.id, ...data } as Transaction);
-                }
-            });
-        }
-        
-        try {
-            const storedIdsValue = localStorage.getItem('readTransactionIds');
-            const readIds = storedIdsValue ? JSON.parse(storedIdsValue) : [];
-            const newUnreadCount = allTransactions.filter(tx => !readIds.includes(tx.id)).length;
-            setUnreadCount(newUnreadCount);
-        } catch (e) {
-            console.error("Failed to parse readTransactionIds from localStorage", e);
-            setUnreadCount(allTransactions.length);
-        }
-    };
-    
-    fetchAndCountTransactions();
-  }, [accounts, firestore, user?.uid, isUserLoading, isAccountsLoading]);
+    try {
+        const storedIdsValue = localStorage.getItem('readTransactionIds');
+        const readIds = storedIdsValue ? JSON.parse(storedIdsValue) : [];
+        const newUnreadCount = transactions.filter(tx => !readIds.includes(tx.id)).length;
+        setUnreadCount(newUnreadCount);
+    } catch (e) {
+        console.error("Failed to parse readTransactionIds from localStorage", e);
+        setUnreadCount(transactions.length);
+    }
+  }, [transactions, isTransactionsLoading]);
 
   const notificationOptions = [
     {

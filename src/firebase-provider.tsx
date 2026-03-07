@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, {
@@ -12,7 +11,7 @@ import type { FirebaseApp } from 'firebase/app';
 import type { Auth, User } from 'firebase/auth';
 import type { Firestore, Query, DocumentData, QuerySnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
-import { onSnapshot } from 'firebase/firestore';
+import { onSnapshot, collectionGroup, query, where, orderBy } from 'firebase/firestore';
 import { app, auth, firestore } from '@/app/lib/firebase';
 
 // Types for our context
@@ -97,6 +96,42 @@ export function useCollection<T extends DocumentData>(query: Query<T> | null) {
     }, [query]);
 
     return { data, isLoading, error };
+}
+
+// Custom hook to fetch all transactions across all accounts for the current user
+export function useAllTransactions() {
+  const { user } = useUser();
+  const firestore = useFirestore();
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user || !firestore) {
+      setTransactions([]);
+      setIsLoading(false);
+      return;
+    }
+
+    // Collection Group query requires a composite index: transactions (userId ASC, date DESC)
+    const q = query(
+      collectionGroup(firestore, 'transactions'),
+      where('userId', '==', user.uid),
+      orderBy('date', 'DESC')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const docs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+      setTransactions(docs);
+      setIsLoading(false);
+    }, (err) => {
+      console.error("Error in useAllTransactions collection group query:", err);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [user, firestore]);
+
+  return { transactions, isLoading };
 }
 
 // Custom hook to memoize expensive object creation (like Firestore queries)
