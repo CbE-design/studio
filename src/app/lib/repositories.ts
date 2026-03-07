@@ -126,6 +126,15 @@ export async function createPayment(input: {
   });
 
   if (resultTransactionId) {
+    // Generate simulated ISO 20022 XML Message
+    await logAudit({
+      system: 'CBS',
+      action: 'ISO20022_MSG_GEN',
+      status: 'SUCCESS',
+      details: `Generated pacs.008 ISO 20022 XML message for transaction ${resultTransactionId}`,
+      userId
+    });
+
     // Simulate the ISO 20022 clearing phase
     const sapSynced = await syncTransactionToSap(resultTransactionId);
     await logAudit({

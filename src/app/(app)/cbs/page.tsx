@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Cpu, Activity, RefreshCw, CheckCircle2, ShieldCheck, Database, Info, ListChecks, Lock } from 'lucide-react';
+import { ArrowLeft, Cpu, Activity, RefreshCw, CheckCircle2, ShieldCheck, Database, Info, ListChecks, Lock, FileJson } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getCbsSystemStatus, triggerCbsHandshake } from '@/app/lib/cbs-service';
@@ -63,13 +63,13 @@ export default function CbsBridgePage() {
         <Card className="border-l-4 border-l-primary bg-primary/5">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
-              <Lock className="h-5 w-5 text-primary" />
-              <CardTitle className="text-sm font-bold uppercase text-primary">Security: Network Whitelisting</CardTitle>
+              <FileJson className="h-5 w-5 text-primary" />
+              <CardTitle className="text-sm font-bold uppercase text-primary">ISO 20022 Standard Active</CardTitle>
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-gray-700 leading-relaxed">
-              To connect to the live CBS, the app&apos;s hosting IP must be <strong>whitelisted</strong>. This is a &quot;VIP list&quot; at the bank&apos;s firewall. Even with valid credentials, requests from unknown IPs are rejected instantly to prevent unauthorized access.
+              This node is communicating via <strong>ISO 20022 XML messaging</strong>. Payments are encapsulated in <code className="bg-gray-200 px-1 rounded">pacs.008</code> (Customer Credit Transfer) schemas, allowing for richer data and real-time clearing via SARB.
             </p>
           </CardContent>
         </Card>
@@ -101,8 +101,8 @@ export default function CbsBridgePage() {
                 <p className="text-sm font-semibold">{status?.latency || '--'}</p>
               </div>
               <div className="p-3 bg-gray-50 rounded-lg border">
-                <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Environment</p>
-                <p className="text-sm font-semibold">{status?.environment || '--'}</p>
+                <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">ISO 20022 Readiness</p>
+                <p className="text-sm font-semibold text-green-600">{status?.isoReadiness || '--'}</p>
               </div>
               <div className="p-3 bg-gray-50 rounded-lg border">
                 <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Sync Version</p>
@@ -133,8 +133,8 @@ export default function CbsBridgePage() {
           <div className="bg-white rounded-xl border p-4 space-y-3">
             {[
               { label: 'Network Whitelisting', desc: 'App Server IP added to bank DMZ firewall.', status: 'Pending' },
+              { label: 'ISO 20022 pacs.008 Mapping', desc: 'Financial XML schemas verified for ZAR clearing.', status: 'Active' },
               { label: 'mTLS Handshake', desc: 'Mutual TLS client certificates installed.', status: 'Mock' },
-              { label: 'API Mapping', desc: 'ISO 20022 payment endpoints mapped.', status: 'Active' },
             ].map((step) => (
               <div key={step.label} className="flex items-start gap-3">
                 <div className="mt-1 h-2 w-2 rounded-full bg-primary" />

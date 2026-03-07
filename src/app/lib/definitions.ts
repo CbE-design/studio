@@ -77,6 +77,7 @@ export type CbsStatus = {
   latency: string;
   lastSync: string;
   environment: 'Production' | 'Sandbox' | 'Mock';
+  isoReadiness: 'Active' | 'Pending' | 'Legacy';
 };
 
 export type IntegrationAuditLog = {
