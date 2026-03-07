@@ -9,7 +9,6 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from '@/firebase-provider';
 import { useToast } from '@/hooks/use-toast';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -25,8 +24,6 @@ const MessageIcon = ({ className }: { className?: string }) => (
     className={className}
   >
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    <line x1="9" y1="9" x2="15" y2="9" />
-    <line x1="9" y1="13" x2="12" y2="13" />
   </svg>
 );
 

@@ -3,12 +3,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { AccountsCarousel } from '@/components/accounts-carousel';
-import { useUser, useCollection, useFirestore, useMemoFirebase } from '@/firebase-provider';
+import { useUser, useAllTransactions } from '@/firebase-provider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import type { Account, Transaction } from '@/app/lib/definitions';
-import { collection, query, getDocs } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
 import { Bell, ShieldCheck } from 'lucide-react';
 
@@ -24,8 +22,6 @@ const MessageIcon = ({ className }: { className?: string }) => (
     className={className}
   >
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    <line x1="9" y1="9" x2="15" y2="9" />
-    <line x1="9" y1="13" x2="12" y2="13" />
   </svg>
 );
 
@@ -129,48 +125,6 @@ const LoadingSkeleton = () => (
     </main>
   </div>
 );
-
-function useAllTransactions() {
-    const { user, isUserLoading } = useUser();
-    const firestore = useFirestore();
-
-    const accountsQuery = useMemoFirebase(() => {
-        if (!firestore || !user?.uid) return null;
-        return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
-    }, [firestore, user?.uid]);
-    const { data: accounts, isLoading: isAccountsLoading } = useCollection<Account>(accountsQuery);
-
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchTransactions = async () => {
-            if (!accounts || !user?.uid) {
-              if(!isUserLoading && !isAccountsLoading) setIsLoading(false);
-              return;
-            }
-
-            setIsLoading(true);
-            let allTransactions: Transaction[] = [];
-            for (const account of accounts) {
-                const transactionsRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
-                const transactionsSnap = await getDocs(query(transactionsRef));
-                transactionsSnap.forEach(doc => {
-                    const data = doc.data();
-                    if (data.date && data.transactionType !== 'BANK_FEE') {
-                        allTransactions.push({ id: doc.id, ...data } as Transaction);
-                    }
-                });
-            }
-            setTransactions(allTransactions);
-            setIsLoading(false);
-        };
-
-        fetchTransactions();
-    }, [accounts, firestore, user?.uid, isUserLoading, isAccountsLoading]);
-
-    return { transactions, isLoading: isLoading || isUserLoading || isAccountsLoading };
-}
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
