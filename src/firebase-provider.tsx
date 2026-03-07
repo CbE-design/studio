@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, {
@@ -123,8 +124,10 @@ export function useAllTransactions() {
       const docs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
       setTransactions(docs);
       setIsLoading(false);
-    }, (err) => {
-      console.error("Error in useAllTransactions collection group query:", err);
+    }, (err: any) => {
+      // Catch index-related errors or other Firestore issues without crashing the UI
+      console.warn("Firestore index building or query error in useAllTransactions:", err.message);
+      setTransactions([]);
       setIsLoading(false);
     });
 
