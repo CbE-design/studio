@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { Suspense, useEffect, useState, useMemo } from 'react';
@@ -328,17 +326,17 @@ function AmountPageContent() {
                 </div>
 
                 <Dialog open={notificationDialogOpen} onOpenChange={setNotificationDialogOpen}>
-                    <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
+                    <DialogContent className="sm:max-w-md p-0">
+                        <DialogHeader className="p-6 pb-0">
                             <DialogTitle>Notifications</DialogTitle>
                         </DialogHeader>
-                        <Alert className="bg-blue-50 border-blue-100">
-                            <Info className="h-4 w-4 text-blue-600" />
-                            <AlertDescription className="text-sm text-gray-600">
-                                A service fee may be charged based on your banking account package. Please refer to our <span className="text-primary underline cursor-pointer">latest pricing guide</span>.
+                        <Alert className="bg-yellow-50 border-none rounded-none text-gray-800 p-5 mt-4">
+                            <Info className="h-5 w-5 text-gray-600" />
+                            <AlertDescription className="text-sm text-gray-800 leading-relaxed ml-2">
+                                A service fee may be charged based on your banking account package. Please refer to our <span className="text-primary underline cursor-pointer font-bold">latest pricing guide</span>.
                             </AlertDescription>
                         </Alert>
-                        <div className="space-y-0">
+                        <div className="space-y-0 p-6 pt-0">
                             <button
                                 className="w-full py-4 text-left font-semibold border-b hover:bg-gray-50"
                                 onClick={() => {

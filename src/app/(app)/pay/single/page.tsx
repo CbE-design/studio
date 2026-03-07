@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import Link from 'link';
+import Link from 'next/link';
 
 function SinglePaymentForm() {
   const router = useRouter();
@@ -172,10 +172,10 @@ function SinglePaymentForm() {
               </div>
             </div>
 
-            <div className="px-6 pb-6">
-              <Alert className="bg-blue-50 border-blue-100 p-5">
-                  <Info className="h-5 w-5 text-blue-600" />
-                  <AlertDescription className="text-sm text-gray-600 leading-relaxed ml-2">
+            <div className="pb-10">
+              <Alert className="bg-yellow-50 border-none rounded-none text-gray-800 p-6 w-full">
+                  <Info className="h-5 w-5 text-gray-600" />
+                  <AlertDescription className="text-sm text-gray-800 leading-relaxed ml-2">
                   Before you click Next, please make sure that your recipient&apos;s account information is correct. Nedbank doesn&apos;t validate account numbers or refund payments to a wrong recipient.
                   </AlertDescription>
               </Alert>
