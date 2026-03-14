@@ -113,16 +113,18 @@ export function useAllTransactions() {
       return;
     }
 
-    // Collection Group query requires a composite index: transactions (userId ASC, date DESC)
+    // Note: We use ASC order here and reverse in-memory to avoid a specific Firestore SDK 
+    // internal assertion failure related to DESC ordering in some environments.
     const q = query(
       collectionGroup(firestore, 'transactions'),
       where('userId', '==', user.uid),
-      orderBy('date', 'DESC')
+      orderBy('date', 'ASC')
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-      setTransactions(docs);
+      // Reverse to get latest-first for the UI
+      setTransactions([...docs].reverse());
       setIsLoading(false);
     }, (err: any) => {
       // Catch index-related errors or other Firestore issues without crashing the UI
@@ -131,7 +133,9 @@ export function useAllTransactions() {
       setIsLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+        if (unsubscribe) unsubscribe();
+    };
   }, [user, firestore]);
 
   return { transactions, isLoading };
