@@ -165,7 +165,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col bg-white text-black min-h-screen">
-      <header className="sticky top-0 z-20 bg-[#008248] text-white p-4">
+      <header className="sticky top-0 z-20 bg-[#00A651] text-white p-4">
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6 overflow-hidden">
