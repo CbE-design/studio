@@ -1,4 +1,3 @@
-
 import './lib/env';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
@@ -30,7 +29,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#00A651',
+  themeColor: '#004033',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
