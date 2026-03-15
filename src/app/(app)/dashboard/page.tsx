@@ -165,43 +165,46 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col bg-white text-black min-h-screen">
-      <header className="sticky top-0 z-20 bg-[#00A651] text-white p-4">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6 overflow-hidden">
-              <Image
-                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"
-                alt="Nedbank Logo"
-                width={24}
-                height={24}
-                className="w-6 h-6 flex-shrink-0"
-              />
-              <span className="font-normal text-xl uppercase truncate">
-                {user.displayName || 'DICKSON FAMILY TRUST'}
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-white flex-shrink-0">
-              <Link href="/notifications">
-                <div className={cn('relative', isBellRinging && 'animate-ring')}>
-                  <Bell className="h-5 w-5" />
-                  {unreadCount > 0 && (
-                    <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800" />
-                  )}
-                </div>
-              </Link>
-              <Link href="/ai-chat">
-                  <MessageIcon className="h-5 w-5" />
-              </Link>
+      {/* Unified Gradient Container for Header and Accounts Section */}
+      <div className="gradient-background text-white">
+        <header className="sticky top-0 z-20 gradient-background p-4">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6 overflow-hidden">
+                <Image
+                  src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"
+                  alt="Nedbank Logo"
+                  width={24}
+                  height={24}
+                  className="w-6 h-6 flex-shrink-0"
+                />
+                <span className="font-normal text-xl uppercase truncate">
+                  {user.displayName || 'DICKSON FAMILY TRUST'}
+                </span>
+              </div>
+              <div className="flex items-center gap-4 text-white flex-shrink-0">
+                <Link href="/notifications">
+                  <div className={cn('relative', isBellRinging && 'animate-ring')}>
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                      <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800" />
+                    )}
+                  </div>
+                </Link>
+                <Link href="/ai-chat">
+                    <MessageIcon className="h-5 w-5" />
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="flex flex-col bg-white">
-        <div className="gradient-background text-white p-4 pt-0">
+        <div className="p-4 pt-0">
           <AccountsCarousel />
         </div>
+      </div>
 
+      <main className="flex flex-col bg-white">
         <div className="px-6 py-4 mt-2 flex justify-center">
           <div className="relative w-full aspect-[16/5] p-1">
             <Image
