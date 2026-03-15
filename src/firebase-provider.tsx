@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, {
@@ -12,7 +11,7 @@ import type { FirebaseApp } from 'firebase/app';
 import type { Auth, User } from 'firebase/auth';
 import type { Firestore, Query, DocumentData, QuerySnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
-import { onSnapshot, collectionGroup, query, where, orderBy } from 'firebase/firestore';
+import { onSnapshot, collectionGroup, query, where } from 'firebase/firestore';
 import { app, auth, firestore } from '@/app/lib/firebase';
 
 // Types for our context
@@ -113,22 +112,27 @@ export function useAllTransactions() {
       return;
     }
 
-    // Note: We use ASC order here and reverse in-memory to avoid a specific Firestore SDK 
-    // internal assertion failure related to DESC ordering in some environments.
+    // We remove the server-side orderBy to avoid SDK assertion failures 
+    // and sort in memory for better compatibility.
     const q = query(
       collectionGroup(firestore, 'transactions'),
-      where('userId', '==', user.uid),
-      orderBy('date', 'ASC')
+      where('userId', '==', user.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const docs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-      // Reverse to get latest-first for the UI
-      setTransactions([...docs].reverse());
+      
+      // Sort in memory: Latest First
+      const sorted = [...docs].sort((a, b) => {
+          const dateA = a.date ? new Date(a.date).getTime() : 0;
+          const dateB = b.date ? new Date(b.date).getTime() : 0;
+          return dateB - dateA;
+      });
+
+      setTransactions(sorted);
       setIsLoading(false);
     }, (err: any) => {
-      // Catch index-related errors or other Firestore issues without crashing the UI
-      console.warn("Firestore index building or query error in useAllTransactions:", err.message);
+      console.warn("Firestore listener error in useAllTransactions:", err.message);
       setTransactions([]);
       setIsLoading(false);
     });

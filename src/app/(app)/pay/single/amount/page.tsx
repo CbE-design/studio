@@ -330,9 +330,9 @@ function AmountPageContent() {
                         <DialogHeader className="p-6 pb-0">
                             <DialogTitle>Notifications</DialogTitle>
                         </DialogHeader>
-                        <Alert className="bg-yellow-50 border-none rounded-none text-gray-800 p-5 mt-4">
-                            <Info className="h-5 w-5 text-gray-600" />
-                            <AlertDescription className="text-sm text-gray-800 leading-relaxed ml-2">
+                        <Alert className="bg-yellow-50 border-none rounded-none text-gray-800 p-5 mt-4 flex items-start gap-3">
+                            <Info className="h-5 w-5 text-gray-600 shrink-0 mt-0.5" />
+                            <AlertDescription className="text-xs text-gray-800 leading-relaxed">
                                 A service fee may be charged based on your banking account package. Please refer to our <span className="text-primary underline cursor-pointer font-bold">latest pricing guide</span>.
                             </AlertDescription>
                         </Alert>
