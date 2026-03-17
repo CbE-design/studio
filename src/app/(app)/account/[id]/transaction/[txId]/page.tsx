@@ -155,7 +155,7 @@ function TransactionDetailsContent() {
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `proof-of-payment-${transaction.id}.pdf`;
+      link.download = `Proof_Of_Payment.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
