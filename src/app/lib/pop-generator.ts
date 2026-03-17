@@ -4,6 +4,8 @@ import { PDFDocument, StandardFonts, rgb, PDFFont } from 'pdf-lib';
 import { format } from 'date-fns';
 import type { Transaction, Account } from './definitions';
 import { formatCurrency } from './data';
+import fs from 'fs';
+import path from 'path';
 
 async function embedImage(pdfDoc: PDFDocument, imageBytes: ArrayBuffer) {
     try {
@@ -58,6 +60,8 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const libreFranklinFontBytes = fs.readFileSync(path.join(process.cwd(), 'public', 'fonts', 'LibreFranklin.ttf'));
+    const libreFranklinFont = await pdfDoc.embedFont(libreFranklinFontBytes);
     
     const textColor = rgb(0, 0, 0);
     const grayColor = rgb(0.3, 0.3, 0.3);
@@ -212,7 +216,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     footerTextY = drawWrappedText(footerLine1, {
         x: margin,
         y: footerTextY,
-        font: font,
+        font: libreFranklinFont,
         size: 7,
         color: grayColor,
         lineHeight: 9,
@@ -223,7 +227,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     drawWrappedText(footerLine2, {
         x: margin,
         y: footerTextY,
-        font: font,
+        font: libreFranklinFont,
         size: 6,
         color: grayColor,
         lineHeight: 9,
