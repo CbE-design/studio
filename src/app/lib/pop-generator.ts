@@ -195,7 +195,8 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y = drawWrappedText(disclaimerParagraphs[2], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
     y -= 10;
     
-    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
+    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification', { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
+    y = drawWrappedText('and authentication details.', { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
     y -= 15;
 
     page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 10, color: textColor });
