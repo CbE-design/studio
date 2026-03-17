@@ -189,7 +189,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y = drawWrappedText(disclaimerParagraphs[0], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
     y -= 1;
     y = drawWrappedText(disclaimerParagraphs[1], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
-    y -= 5;
+    y -= 7;
     
     y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
     y -= 15;
