@@ -212,7 +212,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     const footerLine2b = "We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCR Reg No: NCRCP16).";
 
     const footerFontSize = 6.5;
-    const segGap = 8;
+    const segGap = 6;
     const seg1Width = font.widthOfTextAtSize(footerSeg1, footerFontSize);
     const seg2Width = font.widthOfTextAtSize(footerSeg2, footerFontSize);
     const seg3Width = font.widthOfTextAtSize(footerSeg3, footerFontSize);
