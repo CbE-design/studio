@@ -199,8 +199,8 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y -= 18;
 
     const emailDisclaimerParagraphs = [
-        'This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected',
-        'by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire',
+        'This email and any accompanying attachments may contain confidential and proprietary information. This information is',
+        'private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire',
         'communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on',
         'this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not',
         'accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of or',
