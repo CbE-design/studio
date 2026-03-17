@@ -205,21 +205,24 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
 
     const footerY = 30;
     page.drawLine({ start: { x: margin, y: footerY + 25 }, end: { x: width - margin, y: footerY + 25 }, thickness: 0.5, color: rgb(0.7, 0.7, 0.7) });
-    const footerLine1 = "Nedbank Limited Reg No 1951/000009/06          VAT Reg No 4320116074      135 Rivonia Road Sandown Sandton 2196 South Africa";
+    const footerSeg1 = "Nedbank Limited Reg No 1951/000009/06";
+    const footerSeg2 = "VAT Reg No 4320116074";
+    const footerSeg3 = "135 Rivonia Road Sandown Sandton 2196 South Africa";
     const footerLine2a = "We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services.";
     const footerLine2b = "We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCR Reg No: NCRCP16).";
 
+    const footerFontSize = 7;
+    const segGap = 20;
+    const seg1Width = font.widthOfTextAtSize(footerSeg1, footerFontSize);
+    const seg2Width = font.widthOfTextAtSize(footerSeg2, footerFontSize);
+    const seg3Width = font.widthOfTextAtSize(footerSeg3, footerFontSize);
+    const totalFooterLine1Width = seg1Width + segGap + seg2Width + segGap + seg3Width;
+    const footerLine1StartX = (width - totalFooterLine1Width) / 2;
+
     let footerTextY = footerY + 13;
-    footerTextY = drawWrappedText(footerLine1, {
-        x: margin,
-        y: footerTextY,
-        font: font,
-        size: 7,
-        color: grayColor,
-        lineHeight: 9,
-        maxWidth: width - margin * 2,
-        align: 'center'
-    });
+    page.drawText(footerSeg1, { x: footerLine1StartX, y: footerTextY, font, size: footerFontSize, color: grayColor });
+    page.drawText(footerSeg2, { x: footerLine1StartX + seg1Width + segGap, y: footerTextY, font, size: footerFontSize, color: grayColor });
+    page.drawText(footerSeg3, { x: footerLine1StartX + seg1Width + segGap + seg2Width + segGap, y: footerTextY, font, size: footerFontSize, color: grayColor });
     footerTextY -= 3;
     footerTextY = drawWrappedText(footerLine2a, {
         x: margin,
