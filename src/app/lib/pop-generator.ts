@@ -62,7 +62,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-    const libreFranklinFontBytes = fs.readFileSync(path.join(process.cwd(), 'public', 'fonts', 'LibreFranklin.ttf'));
+    const libreFranklinFontBytes = fs.readFileSync(path.join(process.cwd(), 'public', 'fonts', 'LibreFranklin-Regular.woff'));
     const libreFranklinFont = await pdfDoc.embedFont(libreFranklinFontBytes);
     
     const textColor = rgb(0, 0, 0);
