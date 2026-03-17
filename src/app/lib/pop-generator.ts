@@ -1,12 +1,9 @@
 'use server';
 
 import { PDFDocument, StandardFonts, rgb, PDFFont } from 'pdf-lib';
-import fontkit from '@pdf-lib/fontkit';
 import { format } from 'date-fns';
 import type { Transaction, Account } from './definitions';
 import { formatCurrency } from './data';
-import fs from 'fs';
-import path from 'path';
 
 async function embedImage(pdfDoc: PDFDocument, imageBytes: ArrayBuffer) {
     try {
@@ -46,7 +43,6 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     };
 
     const pdfDoc = await PDFDocument.create();
-    pdfDoc.registerFontkit(fontkit);
     
     // Set SAP ERP Metadata
     pdfDoc.setTitle(`Proof of Payment - ${referenceNumber}`);
@@ -62,8 +58,6 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-    const libreFranklinFontBytes = fs.readFileSync(path.join(process.cwd(), 'public', 'fonts', 'LibreFranklin-Regular.woff'));
-    const libreFranklinFont = await pdfDoc.embedFont(libreFranklinFontBytes);
     
     const textColor = rgb(0, 0, 0);
     const grayColor = rgb(0.3, 0.3, 0.3);
@@ -218,7 +212,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     footerTextY = drawWrappedText(footerLine1, {
         x: margin,
         y: footerTextY,
-        font: libreFranklinFont,
+        font: font,
         size: 7,
         color: grayColor,
         lineHeight: 9,
@@ -229,7 +223,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     drawWrappedText(footerLine2, {
         x: margin,
         y: footerTextY,
-        font: libreFranklinFont,
+        font: font,
         size: 6,
         color: grayColor,
         lineHeight: 9,
