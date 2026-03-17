@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Menu, AlertCircle, LoaderCircle, Fingerprint, Lock, LayoutGrid, QrCode, ScanEye, FileUser, ArrowLeft, MessageSquare } from 'lucide-react';
+import { Menu, AlertCircle, LoaderCircle, Fingerprint, Lock, LayoutGrid, QrCode, Wallet, FileUser, ArrowLeft, MessageSquare } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from '@/firebase-provider';
@@ -156,7 +156,7 @@ export default function LoginPage() {
           <BottomNavItem icon={LayoutGrid} label="Latest" />
           <BottomNavItem icon={Lock} label="Login" active />
           <BottomNavItem icon={QrCode} label="Scan QR" />
-          <BottomNavItem icon={ScanEye} label="Balance" />
+          <BottomNavItem icon={Wallet} label="Balance" />
           <BottomNavItem icon={FileUser} label="Applications" />
         </div>
       </footer>
