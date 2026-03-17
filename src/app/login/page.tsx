@@ -86,14 +86,14 @@ export default function LoginPage() {
         {!showPasswordLogin ? (
           <>
             <div className="text-left">
-              <h1 className="text-4xl font-normal text-gray-800 leading-tight">Welcome back,</h1>
-              <h1 className="text-4xl font-normal text-gray-800 leading-tight uppercase">DICKSON FAMILY TRUST.</h1>
+              <h1 className="text-2xl font-normal text-gray-800 leading-tight">Welcome back,</h1>
+              <h1 className="text-2xl font-normal text-gray-800 leading-tight uppercase">DICKSON FAMILY TRUST.</h1>
             </div>
 
             <div className="flex-1" />
 
             <div className="flex flex-col items-center gap-6 pb-4">
-              <Fingerprint className="h-24 w-24 text-gray-300" strokeWidth={1} />
+              <Fingerprint className="h-16 w-16 text-gray-300" strokeWidth={1} />
 
               <Button
                 onClick={handlePinLogin}
@@ -114,8 +114,8 @@ export default function LoginPage() {
         ) : (
           <>
             <div className="text-left mb-8">
-              <h1 className="text-4xl font-normal text-gray-800 leading-tight">Welcome back,</h1>
-              <h1 className="text-4xl font-normal text-gray-800 leading-tight uppercase">DICKSON FAMILY TRUST.</h1>
+              <h1 className="text-2xl font-normal text-gray-800 leading-tight">Welcome back,</h1>
+              <h1 className="text-2xl font-normal text-gray-800 leading-tight uppercase">DICKSON FAMILY TRUST.</h1>
             </div>
 
             <form onSubmit={handlePasswordLogin} className="space-y-4">
