@@ -183,12 +183,15 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
 
     const disclaimerParagraphs = [
       'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification.',
-      'Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information. Payments may take up to three business days. Please check your account to verify the existence of the funds.'
+      'Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information.',
+      'Payments may take up to three business days. Please check your account to verify the existence of the funds.'
     ];
     
     y = drawWrappedText(disclaimerParagraphs[0], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
     y -= 1;
     y = drawWrappedText(disclaimerParagraphs[1], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
+    y -= 1;
+    y = drawWrappedText(disclaimerParagraphs[2], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
     y -= 10;
     
     y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
