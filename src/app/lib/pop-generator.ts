@@ -213,7 +213,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         x: margin,
         y: footerTextY,
         font: font,
-        size: 6,
+        size: 7,
         color: grayColor,
         lineHeight: 9,
         maxWidth: width - margin * 2,
