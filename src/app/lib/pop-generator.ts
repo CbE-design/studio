@@ -220,7 +220,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         maxWidth: width - margin * 2,
         align: 'center'
     });
-    footerTextY -= 1.0;
+    footerTextY -= 3;
     footerTextY = drawWrappedText(footerLine2a, {
         x: margin,
         y: footerTextY,
