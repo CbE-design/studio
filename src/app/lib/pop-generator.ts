@@ -196,7 +196,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
 
     emailDisclaimerParagraphs.forEach(paragraph => {
         y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 10 });
-        y -= 5;
+        y -= 1;
     });
     
     y -= 15;
