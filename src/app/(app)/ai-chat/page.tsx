@@ -23,5 +23,7 @@ export default function AiChatPage() {
       </header>
       <main className="flex-1 p-4 overflow-hidden">
         <CustomerServiceChatExample />
+      </main>
+    </div>
   );
 }
