@@ -218,7 +218,10 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
 
     y -= 15;
 
-    drawDetailRow('Security Code', detailsForPdf.securityCode);
+    page.drawText('Security Code', { x: margin, y, font, size: 8, color: textColor });
+    page.drawText(':', { x: margin + 120, y, font, size: 8, color: textColor });
+    page.drawText(detailsForPdf.securityCode, { x: margin + 130, y, font, size: 8, color: textColor });
+    y -= 15;
     y -= 30;
 
     const footerY = 30;
