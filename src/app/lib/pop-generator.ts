@@ -186,10 +186,10 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
       'Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information. Payments may take up to three business days. Please check your account to verify the existence of the funds.'
     ];
     
-    disclaimerParagraphs.forEach(paragraph => {
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
-        y -= 18;
-    });
+    y = drawWrappedText(disclaimerParagraphs[0], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
+    y -= 12;
+    y = drawWrappedText(disclaimerParagraphs[1], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
+    y -= 18;
     
     y -= 5;
     
