@@ -162,19 +162,11 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
                 x = width - margin - textWidth;
                 page.drawText(line, { ...restOptions, x, y: currentY });
             } else if (align === 'justify') {
-                const words = line.split(' ');
-                if (words.length > 1) {
-                    const totalWordsWidth = words.reduce((sum, word) => sum + restOptions.font.widthOfTextAtSize(word, restOptions.size), 0);
-                    const totalSpaceWidth = restOptions.maxWidth - totalWordsWidth;
-                    const spaceWidth = totalSpaceWidth / (words.length - 1);
-                    let currentX = restOptions.x;
-                    words.forEach(word => {
-                        page.drawText(word, { ...restOptions, x: currentX, y: currentY });
-                        currentX += restOptions.font.widthOfTextAtSize(word, restOptions.size) + spaceWidth;
-                    });
-                } else {
-                    page.drawText(line, { ...restOptions, x, y: currentY });
-                }
+                const lineTextWidth = restOptions.font.widthOfTextAtSize(line, restOptions.size);
+                const extraSpace = restOptions.maxWidth - lineTextWidth;
+                const charCount = line.length - 1;
+                const charSpacing = charCount > 0 ? extraSpace / charCount : 0;
+                page.drawText(line, { ...restOptions, x, y: currentY, characterSpacing: charSpacing });
             } else {
                 page.drawText(line, { ...restOptions, x, y: currentY });
             }
