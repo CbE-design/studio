@@ -209,7 +209,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     
     drawWrappedText(footerText, {
         x: margin,
-        y: footerY,
+        y: footerY + 10,
         font: font,
         size: 7,
         color: grayColor,
