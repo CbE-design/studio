@@ -190,7 +190,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y = drawWrappedText(disclaimerParagraphs[0], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
     y -= 1;
     y = drawWrappedText(disclaimerParagraphs[1], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
-    y -= 1;
+    y -= 0.1;
     y = drawWrappedText(disclaimerParagraphs[2], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
     y -= 10;
     
