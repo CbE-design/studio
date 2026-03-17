@@ -125,7 +125,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y -= 20;
 
     drawDetailRow('Paid from Account Holder', detailsForPdf.payer.toUpperCase());
-    y -= 7;
+    y -= 9;
     
     const wrapText = (text: string, maxWidth: number, font: PDFFont, fontSize: number) => {
         const words = text.replace(/\s+/g, ' ').split(' ');
