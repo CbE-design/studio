@@ -176,7 +176,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     
     const commonTextOptions = { font, size: 8, color: textColor, lineHeight: 15, maxWidth: width - margin * 2 };
 
-    y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
+    y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12, align: 'justify' });
     y -= 6;
     
     page.drawLine({ start: { x: margin, y: y }, end: { x: width - margin, y: y }, thickness: 1, color: rgb(0, 0, 0) });
@@ -188,15 +188,15 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
       'Payments may take up to three business days. Please check your account to verify the existence of the funds.'
     ];
     
-    y = drawWrappedText(disclaimerParagraphs[0], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
+    y = drawWrappedText(disclaimerParagraphs[0], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12, align: 'justify' });
     y -= 1;
-    y = drawWrappedText(disclaimerParagraphs[1], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
+    y = drawWrappedText(disclaimerParagraphs[1], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12, align: 'justify' });
     y -= 0.1;
-    y = drawWrappedText(disclaimerParagraphs[2], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
+    y = drawWrappedText(disclaimerParagraphs[2], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12, align: 'justify' });
     y -= 10;
     
-    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification', { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
-    y = drawWrappedText('and authentication details.', { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12 });
+    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification', { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12, align: 'justify' });
+    y = drawWrappedText('and authentication details.', { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12, align: 'justify' });
     y -= 15;
 
     page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 10, color: textColor });
