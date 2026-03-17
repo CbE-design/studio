@@ -1,6 +1,7 @@
 'use server';
 
 import { PDFDocument, StandardFonts, rgb, PDFFont } from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
 import { format } from 'date-fns';
 import type { Transaction, Account } from './definitions';
 import { formatCurrency } from './data';
@@ -45,6 +46,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     };
 
     const pdfDoc = await PDFDocument.create();
+    pdfDoc.registerFontkit(fontkit);
     
     // Set SAP ERP Metadata
     pdfDoc.setTitle(`Proof of Payment - ${referenceNumber}`);
