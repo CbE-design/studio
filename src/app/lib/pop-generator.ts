@@ -161,7 +161,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
                 const textWidth = restOptions.font.widthOfTextAtSize(line, restOptions.size);
                 x = width - margin - textWidth;
                 page.drawText(line, { ...restOptions, x, y: currentY });
-            } else if (align === 'justify' && !isLastLine) {
+            } else if (align === 'justify') {
                 const words = line.split(' ');
                 if (words.length > 1) {
                     const totalWordsWidth = words.reduce((sum, word) => sum + restOptions.font.widthOfTextAtSize(word, restOptions.size), 0);
