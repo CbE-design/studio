@@ -204,7 +204,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y -= 30;
 
     const footerY = 30;
-    page.drawLine({ start: { x: margin, y: footerY + 25 }, end: { x: width - margin, y: footerY + 25 }, thickness: 0.5, color: grayColor });
+    page.drawLine({ start: { x: margin, y: footerY + 25 }, end: { x: width - margin, y: footerY + 25 }, thickness: 0.5, color: rgb(0.7, 0.7, 0.7) });
     const footerLine1 = "Nedbank Limited Reg No 1951/000009/06      VAT Reg No 4320116074      135 Rivonia Road Sandown Sandton 2196 South Africa";
     const footerLine2 = "We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCR Reg No: NCRCP16).";
 
