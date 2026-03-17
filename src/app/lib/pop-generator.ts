@@ -211,7 +211,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     const footerLine2a = "We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services.";
     const footerLine2b = "We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCR Reg No: NCRCP16).";
 
-    const footerFontSize = 6;
+    const footerFontSize = 6.5;
     const segGap = 8;
     const seg1Width = font.widthOfTextAtSize(footerSeg1, footerFontSize);
     const seg2Width = font.widthOfTextAtSize(footerSeg2, footerFontSize);
