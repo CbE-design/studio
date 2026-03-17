@@ -210,7 +210,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     ];
 
     emailDisclaimerParagraphs.forEach(paragraph => {
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 10, align: 'justify' });
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, size: 12, lineHeight: 15, align: 'justify' });
         y -= 1;
     });
 
