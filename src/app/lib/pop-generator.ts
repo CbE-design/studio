@@ -195,9 +195,16 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y });
     y -= 15;
 
-    page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 10, color: textColor });
+    const boxPadding = 8;
+    const boxWidth = width * 0.6;
+    const boxX = width - margin - boxWidth;
+    const textX = boxX + boxPadding;
+    const textMaxWidth = boxWidth - boxPadding * 2;
+    const boxTopY = y + boxPadding;
+
+    page.drawText('Nedbank Limited email', { x: textX, y, font: boldFont, size: 10, color: textColor });
     y -= 18;
-    
+
     const emailDisclaimerParagraphs = [
         'This email and any accompanying attachments may contain confidential and proprietary information. This information is',
         'private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire',
@@ -210,11 +217,23 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     ];
 
     emailDisclaimerParagraphs.forEach(paragraph => {
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 10, align: 'justify' });
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: textX, y, lineHeight: 10, maxWidth: textMaxWidth, align: 'left' });
         y -= 1;
     });
-    
-    y -= 15;
+
+    const boxBottomY = y - boxPadding;
+    const boxHeight = boxTopY - boxBottomY;
+
+    page.drawRectangle({
+        x: boxX,
+        y: boxBottomY,
+        width: boxWidth,
+        height: boxHeight,
+        borderColor: rgb(0, 0, 0),
+        borderWidth: 0.5,
+    });
+
+    y = boxBottomY - 15;
 
     drawDetailRow('Security Code', detailsForPdf.securityCode);
     y -= 30;
