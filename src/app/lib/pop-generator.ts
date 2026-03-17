@@ -223,7 +223,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     page.drawText(footerSeg1, { x: footerLine1StartX, y: footerTextY, font, size: footerFontSize, color: grayColor });
     page.drawText(footerSeg2, { x: footerLine1StartX + seg1Width + segGap, y: footerTextY, font, size: footerFontSize, color: grayColor });
     page.drawText(footerSeg3, { x: footerLine1StartX + seg1Width + segGap + seg2Width + segGap, y: footerTextY, font, size: footerFontSize, color: grayColor });
-    footerTextY -= 3;
+    footerTextY -= 6;
     footerTextY = drawWrappedText(footerLine2a, {
         x: margin,
         y: footerTextY,
