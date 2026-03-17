@@ -164,8 +164,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
             } else if (align === 'justify') {
                 const lineTextWidth = restOptions.font.widthOfTextAtSize(line, restOptions.size);
                 const extraSpace = restOptions.maxWidth - lineTextWidth;
-                const charCount = line.length - 1;
-                const charSpacing = charCount > 0 ? extraSpace / charCount : 0;
+                const charSpacing = line.length > 0 ? extraSpace / line.length : 0;
                 page.drawText(line, { ...restOptions, x, y: currentY, characterSpacing: charSpacing });
             } else {
                 page.drawText(line, { ...restOptions, x, y: currentY });
