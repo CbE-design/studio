@@ -146,20 +146,38 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         return lines;
     };
 
-    const drawWrappedText = (text: string, options: { x: number, y: number, font: PDFFont, size: number, color: any, lineHeight: number, maxWidth: number, align?: 'center' | 'left' | 'right' }) => {
+    const drawWrappedText = (text: string, options: { x: number, y: number, font: PDFFont, size: number, color: any, lineHeight: number, maxWidth: number, align?: 'center' | 'left' | 'right' | 'justify' }) => {
         const { align = 'left', ...restOptions } = options;
         const lines = wrapText(text, restOptions.maxWidth, restOptions.font, restOptions.size);
         let currentY = restOptions.y;
-        lines.forEach(line => {
+        lines.forEach((line, index) => {
+            const isLastLine = index === lines.length - 1;
             let x = restOptions.x;
             if (align === 'center') {
                 const textWidth = restOptions.font.widthOfTextAtSize(line, restOptions.size);
                 x = (width - textWidth) / 2;
+                page.drawText(line, { ...restOptions, x, y: currentY });
             } else if (align === 'right') {
                 const textWidth = restOptions.font.widthOfTextAtSize(line, restOptions.size);
                 x = width - margin - textWidth;
+                page.drawText(line, { ...restOptions, x, y: currentY });
+            } else if (align === 'justify' && !isLastLine) {
+                const words = line.split(' ');
+                if (words.length > 1) {
+                    const totalWordsWidth = words.reduce((sum, word) => sum + restOptions.font.widthOfTextAtSize(word, restOptions.size), 0);
+                    const totalSpaceWidth = restOptions.maxWidth - totalWordsWidth;
+                    const spaceWidth = totalSpaceWidth / (words.length - 1);
+                    let currentX = restOptions.x;
+                    words.forEach(word => {
+                        page.drawText(word, { ...restOptions, x: currentX, y: currentY });
+                        currentX += restOptions.font.widthOfTextAtSize(word, restOptions.size) + spaceWidth;
+                    });
+                } else {
+                    page.drawText(line, { ...restOptions, x, y: currentY });
+                }
+            } else {
+                page.drawText(line, { ...restOptions, x, y: currentY });
             }
-            page.drawText(line, { ...restOptions, x, y: currentY });
             currentY -= restOptions.lineHeight;
         });
         return currentY;
@@ -201,7 +219,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     ];
 
     emailDisclaimerParagraphs.forEach(paragraph => {
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 10, align: 'right' });
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 10, align: 'justify' });
         y -= 1;
     });
     
