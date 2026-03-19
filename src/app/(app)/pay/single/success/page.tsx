@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/app/lib/data';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import html2canvas from 'html2canvas';
+import Image from 'next/image';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null }) => (
     <div className="py-2">
@@ -100,6 +101,15 @@ function PaymentSuccessContent() {
         <div className="flex flex-col h-screen bg-white">
             <div ref={confirmationRef}>
                 <header className="gradient-background text-primary-foreground px-6 pt-4 pb-8 text-center flex flex-col items-center relative min-h-[220px] justify-center">
+                    <div className="absolute top-4 left-4">
+                        <Image
+                            src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"
+                            alt="Nedbank Logo"
+                            width={24}
+                            height={24}
+                            className="w-6 h-6"
+                        />
+                    </div>
                     <button
                         onClick={handleShare}
                         className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors"
