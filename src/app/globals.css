@@ -10,19 +10,19 @@
     --card-foreground: 220 10% 20%;
     --popover: 220 20% 100%;
     --popover-foreground: 220 10% 20%;
-    --primary: 113 39% 25%;
+    --primary: 113 39% 28%;
     --primary-foreground: 113 20% 98%;
     --secondary: 220 10% 90%;
     --secondary-foreground: 220 10% 20%;
     --muted: 220 10% 90%;
     --muted-foreground: 220 10% 40%;
-    --accent: 113 39% 25%;
+    --accent: 113 39% 28%;
     --accent-foreground: 113 20% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 220 10% 85%;
     --input: 220 10% 85%;
-    --ring: 113 39% 25%;
+    --ring: 113 39% 28%;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -62,7 +62,7 @@
 
 @layer components {
   .gradient-background {
-    background: linear-gradient(180deg, #2D5A27 0%, #4A8B3B 100%);
+    background: linear-gradient(180deg, #346B2E 0%, #549F44 100%);
   }
 }
 

@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { ShieldCheck } from 'lucide-react';
 
 const MessageIcon = ({ className }: { className?: string }) => (
-  <div className={cn("relative w-5 h-5 bg-[#2D5A27]", className)}>
+  <div className={cn("relative w-5 h-5 bg-[#346B2E]", className)}>
     <Image
       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_161739915.png?alt=media&token=6c0d1445-2514-495e-a86c-6202268bddc1"
       alt="AI Assistant"
@@ -162,7 +162,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col bg-white text-black min-h-screen">
       <div className="gradient-background text-white">
-        <header className="sticky top-0 z-20 p-4 bg-[#2D5A27]">
+        <header className="sticky top-0 z-20 p-4 bg-[#346B2E]">
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-6 overflow-hidden">
@@ -179,7 +179,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex items-center gap-4 text-white flex-shrink-0">
                 <Link href="/notifications">
-                  <div className={cn('relative w-5 h-5 bg-[#2D5A27]', isBellRinging && 'animate-ring')}>
+                  <div className={cn('relative w-5 h-5 bg-[#346B2E]', isBellRinging && 'animate-ring')}>
                     <Image
                       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320141309.png?alt=media&token=1836ae99-d919-48db-85fe-013baef40979"
                       alt="Notifications"

@@ -16,7 +16,7 @@ import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebas
 import { collection, doc, getDoc, query } from 'firebase/firestore';
 
 const MessageIcon = ({ className }: { className?: string }) => (
-  <div className={cn("relative w-5 h-5 bg-[#2D5A27]", className)}>
+  <div className={cn("relative w-5 h-5 bg-[#346B2E]", className)}>
     <Image
       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_161739915.png?alt=media&token=6c0d1445-2514-495e-a86c-6202268bddc1"
       alt="AI Assistant"
@@ -184,7 +184,7 @@ export default function AccountDetailsPage() {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       <div className="sticky top-0 z-10 shadow-sm">
-        <header className="gradient-background text-white p-4 space-y-4 bg-[#2D5A27]">
+        <header className="gradient-background text-white p-4 space-y-4 bg-[#346B2E]">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
@@ -197,7 +197,7 @@ export default function AccountDetailsPage() {
             </div>
             <div className="flex items-center gap-4">
               <Link href="/notifications">
-                <div className="relative w-5 h-5 bg-[#2D5A27]">
+                <div className="relative w-5 h-5 bg-[#346B2E]">
                   <Image
                     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320141309.png?alt=media&token=1836ae99-d919-48db-85fe-013baef40979"
                     alt="Notifications"
