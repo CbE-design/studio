@@ -16,18 +16,14 @@ import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebas
 import { collection, doc, getDoc, query } from 'firebase/firestore';
 
 const MessageIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-  </svg>
+  <div className={cn("relative w-[26px] h-[26px] bg-[#2D5A27]", className)}>
+    <Image
+      src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_161739915.png?alt=media&token=6c0d1445-2514-495e-a86c-6202268bddc1"
+      alt="AI Assistant"
+      fill
+      className="object-contain scale-110"
+    />
+  </div>
 );
 
 const FilterIcon = () => (
@@ -68,7 +64,7 @@ const LoadingSkeleton = () => (
             <Skeleton className="h-4 w-32 mt-1 bg-white/20" />
           </div>
         </div>
-        <MessageIcon className="h-6 w-6" />
+        <Skeleton className="h-6 w-6 bg-white/20 rounded-full" />
       </div>
       <div className="flex justify-between">
         <div className="text-left">
@@ -188,7 +184,7 @@ export default function AccountDetailsPage() {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       <div className="sticky top-0 z-10 shadow-sm">
-        <header className="gradient-background text-white p-4 space-y-4">
+        <header className="gradient-background text-white p-4 space-y-4 bg-[#2D5A27]">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
@@ -211,7 +207,7 @@ export default function AccountDetailsPage() {
                 </div>
               </Link>
               <Link href="/ai-chat">
-                <MessageIcon className="h-6 w-6" />
+                <MessageIcon />
               </Link>
             </div>
           </div>

@@ -12,18 +12,14 @@ import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 
 const MessageIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={className}
-  >
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-  </svg>
+  <div className={`relative w-[26px] h-[26px] bg-[#2D5A27] ${className || ''}`}>
+    <Image
+      src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_161739915.png?alt=media&token=6c0d1445-2514-495e-a86c-6202268bddc1"
+      alt="Message"
+      fill
+      className="object-contain scale-110"
+    />
+  </div>
 );
 
 export default function SignupPage() {
@@ -76,7 +72,7 @@ export default function SignupPage() {
           className="w-8 h-8"
         />
         <div className="flex items-center gap-4">
-          <MessageIcon className="h-6 w-6" />
+          <MessageIcon />
           <Menu />
         </div>
       </header>
