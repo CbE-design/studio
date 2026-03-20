@@ -203,7 +203,7 @@ export default function AccountDetailsPage() {
               <Link href="/notifications">
                 <div className="relative w-[26px] h-[26px] bg-[#2D5A27]">
                   <Image
-                    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320141309.png?alt=media&token=1836ae99-d919-48db-85fe-013baef40979"
+                    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_153413797.png?alt=media&token=76c1c9a9-bbea-4b8a-80af-18cd1cc86543"
                     alt="Notifications"
                     fill
                     className="object-contain scale-110"
