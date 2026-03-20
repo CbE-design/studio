@@ -201,12 +201,12 @@ export default function AccountDetailsPage() {
             </div>
             <div className="flex items-center gap-4">
               <Link href="/notifications">
-                <div className="relative w-6 h-6 bg-[#2D5A27]">
+                <div className="relative w-[26px] h-[26px] bg-[#2D5A27]">
                   <Image
                     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320141309.png?alt=media&token=1836ae99-d919-48db-85fe-013baef40979"
                     alt="Notifications"
                     fill
-                    className="object-contain"
+                    className="object-contain scale-110"
                   />
                 </div>
               </Link>

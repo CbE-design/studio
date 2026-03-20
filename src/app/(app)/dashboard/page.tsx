@@ -30,7 +30,7 @@ const LatestIcon = ({ className }: { className?: string }) => (
         <path d="M20 12v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>
         <path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/>
         <path d="M12 18a4 4 0 0 0 4-4H8a4 4 0 0 0 4 4z"/>
-        <path d="M10 6a2 2 1 1 4 0"/>
+        <path d="M10 6a2 1 1 4 0"/>
     </svg>
 );
 
@@ -183,12 +183,12 @@ export default function DashboardPage() {
               </div>
               <div className="flex items-center gap-4 text-white flex-shrink-0">
                 <Link href="/notifications">
-                  <div className={cn('relative w-6 h-6 bg-[#2D5A27]', isBellRinging && 'animate-ring')}>
+                  <div className={cn('relative w-[26px] h-[26px] bg-[#2D5A27]', isBellRinging && 'animate-ring')}>
                     <Image
                       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320141309.png?alt=media&token=1836ae99-d919-48db-85fe-013baef40979"
                       alt="Notifications"
                       fill
-                      className="object-contain"
+                      className="object-contain scale-110"
                     />
                     {unreadCount > 0 && (
                       <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800 z-10" />
