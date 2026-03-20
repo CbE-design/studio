@@ -199,7 +199,7 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        <div className="px-4 pt-20 pb-8">
+        <div className="px-4 pt-12 pb-8">
           <AccountsCarousel />
         </div>
       </div>
