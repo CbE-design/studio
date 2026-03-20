@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Bell, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
 const MessageIcon = ({ className }: { className?: string }) => (
   <svg
@@ -183,10 +183,15 @@ export default function DashboardPage() {
               </div>
               <div className="flex items-center gap-4 text-white flex-shrink-0">
                 <Link href="/notifications">
-                  <div className={cn('relative', isBellRinging && 'animate-ring')}>
-                    <Bell className="h-5 w-5" />
+                  <div className={cn('relative w-5 h-5', isBellRinging && 'animate-ring')}>
+                    <Image
+                      src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260306_174340.jpg?alt=media&token=68b29a10-59ac-4b6b-87a9-a36956c79b85"
+                      alt="Notifications"
+                      fill
+                      className="object-contain"
+                    />
                     {unreadCount > 0 && (
-                      <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800" />
+                      <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800 z-10" />
                     )}
                   </div>
                 </Link>

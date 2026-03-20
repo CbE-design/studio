@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, ChevronRight, Search, Bell } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, normalizeDate } from '@/app/lib/data';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -11,6 +11,7 @@ import { useMemo, useState, useEffect } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
 import { collection, doc, getDoc, query } from 'firebase/firestore';
 
@@ -200,7 +201,14 @@ export default function AccountDetailsPage() {
             </div>
             <div className="flex items-center gap-4">
               <Link href="/notifications">
-                <Bell className="h-5 w-5" />
+                <div className="relative w-5 h-5">
+                  <Image
+                    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260306_174340.jpg?alt=media&token=68b29a10-59ac-4b6b-87a9-a36956c79b85"
+                    alt="Notifications"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
               </Link>
               <Link href="/ai-chat">
                 <MessageIcon className="h-5 w-5" />
