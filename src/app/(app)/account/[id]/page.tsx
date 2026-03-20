@@ -16,7 +16,7 @@ import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebas
 import { collection, doc, getDoc, query } from 'firebase/firestore';
 
 const MessageIcon = ({ className }: { className?: string }) => (
-  <div className={cn("relative w-5 h-5 flex items-center justify-center bg-[#346B2E]", className)}>
+  <div className={cn("relative w-5 h-5 flex items-center justify-center bg-transparent", className)}>
     <Image
       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_172101952.png?alt=media&token=2d52b45c-6169-486b-8c04-8e3965a21d47"
       alt="Messages"
@@ -53,7 +53,7 @@ const tabs = ['Transactions', 'Debit orders', 'Scheduled', 'Card management', 'S
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col h-screen bg-gray-50">
-    <header className="gradient-background text-white p-4 sticky top-0 z-10 space-y-4">
+    <header className="gradient-background text-white p-4 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="mr-2 -ml-2">
@@ -183,8 +183,8 @@ export default function AccountDetailsPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <div className="sticky top-0 z-10 shadow-sm">
-        <header className="gradient-background text-white p-4 space-y-4 bg-[#346B2E]">
+      <div className="shadow-sm">
+        <header className="gradient-background text-white p-4 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
@@ -197,7 +197,7 @@ export default function AccountDetailsPage() {
             </div>
             <div className="flex items-center gap-4">
               <Link href="/notifications">
-                <div className="relative w-5 h-5 bg-[#346B2E]">
+                <div className="relative w-5 h-5 bg-transparent">
                   <Image
                     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320141309.png?alt=media&token=1836ae99-d919-48db-85fe-013baef40979"
                     alt="Notifications"

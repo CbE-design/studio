@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 const MessageIcon = ({ className }: { className?: string }) => (
-  <div className={cn("relative w-5 h-5 flex items-center justify-center bg-[#346B2E]", className)}>
+  <div className={cn("relative w-5 h-5 flex items-center justify-center bg-transparent", className)}>
     <Image
       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_172101952.png?alt=media&token=2d52b45c-6169-486b-8c04-8e3965a21d47"
       alt="Messages"
@@ -20,7 +20,7 @@ export default function AiChatPage() {
   const router = useRouter();
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      <header className="gradient-background text-primary-foreground p-4 flex items-center shadow-sm sticky top-0 z-10 border-b bg-[#346B2E]">
+      <header className="gradient-background text-primary-foreground p-4 flex items-center shadow-sm sticky top-0 z-10 border-b">
         <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>

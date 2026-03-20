@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { ShieldCheck } from 'lucide-react';
 
 const MessageIcon = ({ className }: { className?: string }) => (
-  <div className={cn("relative w-5 h-5 flex items-center justify-center bg-[#346B2E]", className)}>
+  <div className={cn("relative w-5 h-5 flex items-center justify-center bg-transparent", className)}>
     <Image
       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_172101952.png?alt=media&token=2d52b45c-6169-486b-8c04-8e3965a21d47"
       alt="Messages"
@@ -89,7 +89,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col h-screen bg-white text-black">
-    <div className="gradient-background text-white sticky top-0 z-20 p-4">
+    <div className="gradient-background text-white p-4">
         <header>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6 overflow-hidden">
@@ -162,7 +162,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col bg-white text-black min-h-screen">
       <div className="gradient-background text-white">
-        <header className="sticky top-0 z-20 p-4 bg-[#346B2E]">
+        <header className="p-4 bg-transparent">
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-6 overflow-hidden">
@@ -179,7 +179,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex items-center gap-4 text-white flex-shrink-0">
                 <Link href="/notifications">
-                  <div className={cn('relative w-5 h-5 bg-[#346B2E]', isBellRinging && 'animate-ring')}>
+                  <div className={cn('relative w-5 h-5 bg-transparent', isBellRinging && 'animate-ring')}>
                     <Image
                       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320141309.png?alt=media&token=1836ae99-d919-48db-85fe-013baef40979"
                       alt="Notifications"
