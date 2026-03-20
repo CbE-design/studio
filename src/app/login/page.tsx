@@ -13,13 +13,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const MessageIcon = ({ className }: { className?: string }) => (
-  <div className={`relative w-5 h-5 bg-[#346B2E] ${className || ''}`}>
-    <Image
-      src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_161739915.png?alt=media&token=6c0d1445-2514-495e-a86c-6202268bddc1"
-      alt="Message"
-      fill
-      className="object-contain"
-    />
+  <div className={`relative w-5 h-5 flex items-center justify-center bg-[#346B2E] ${className || ''}`}>
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-white"
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      <path d="M8 10h8" />
+      <path d="M8 14h5" />
+    </svg>
   </div>
 );
 
@@ -126,7 +135,7 @@ export default function LoginPage() {
                 <div className="flex justify-center pt-8">
                   <div onClick={handlePinLogin} className="flex flex-col items-center gap-6 cursor-pointer" >
                       <Fingerprint className="h-12 w-12 text-gray-400" />
-                      <Button className="w-64 h-12 text-lg font-bold gradient-background" disabled={isLoading}>
+                      <Button className="w-64 h-12 text-lg font-bold bg-[#346B2E] hover:bg-[#346B2E]/90 text-white" disabled={isLoading}>
                          {isLoading ? <LoaderCircle className="h-6 w-6 animate-spin" /> : 'Log in'}
                       </Button>
                   </div>
@@ -146,7 +155,7 @@ export default function LoginPage() {
                     <Label htmlFor="password">Password</Label>
                     <Input id="password" type="password" placeholder="••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
                 </div>
-                <Button type="submit" className="w-full h-12 text-lg font-bold gradient-background" disabled={isLoading}>
+                <Button type="submit" className="w-full h-12 text-lg font-bold bg-[#346B2E] hover:bg-[#346B2E]/90 text-white" disabled={isLoading}>
                     {isLoading ? <LoaderCircle className="h-6 w-6 animate-spin" /> : 'Sign In'}
                 </Button>
                 <Button variant="link" onClick={() => setShowPasswordLogin(false)} className="text-[#00A651] font-semibold w-full">

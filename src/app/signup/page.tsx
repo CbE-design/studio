@@ -12,13 +12,22 @@ import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 
 const MessageIcon = ({ className }: { className?: string }) => (
-  <div className={`relative w-5 h-5 bg-[#346B2E] ${className || ''}`}>
-    <Image
-      src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_161739915.png?alt=media&token=6c0d1445-2514-495e-a86c-6202268bddc1"
-      alt="Message"
-      fill
-      className="object-contain"
-    />
+  <div className={`relative w-5 h-5 flex items-center justify-center bg-[#346B2E] ${className || ''}`}>
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-white"
+    >
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      <path d="M8 10h8" />
+      <path d="M8 14h5" />
+    </svg>
   </div>
 );
 
@@ -63,7 +72,7 @@ export default function SignupPage() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <header className="flex items-center justify-between p-4 gradient-background text-white">
+      <header className="flex items-center justify-between p-4 bg-[#346B2E] text-white">
         <Image 
           src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
           alt="Nedbank Logo"
@@ -107,7 +116,7 @@ export default function SignupPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" aria-disabled={isLoading}>
+            <Button type="submit" className="w-full bg-[#346B2E] hover:bg-[#346B2E]/90 text-white" aria-disabled={isLoading}>
               {isLoading ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
               ) : (
