@@ -185,7 +185,7 @@ export default function DashboardPage() {
                 <Link href="/notifications">
                   <div className={cn('relative w-6 h-6 bg-[#2D5A27]', isBellRinging && 'animate-ring')}>
                     <Image
-                      src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260306_174340.jpg?alt=media&token=68b29a10-59ac-4b6b-87a9-a36956c79b85"
+                      src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320141309.png?alt=media"
                       alt="Notifications"
                       fill
                       className="object-contain"
