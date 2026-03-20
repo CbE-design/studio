@@ -166,7 +166,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col bg-white text-black min-h-screen">
       <div className="gradient-background text-white pb-6">
-        <header className="sticky top-0 z-20 p-4 bg-[#2D5A27]">
+        <header className="sticky top-0 z-20 p-4 bg-transparent">
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-6 overflow-hidden">
@@ -198,7 +198,7 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        <div className="px-4 pt-6">
+        <div className="px-4 pt-12">
           <AccountsCarousel />
         </div>
       </div>
