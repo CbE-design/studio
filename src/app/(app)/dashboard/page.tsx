@@ -198,7 +198,7 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        <div className="px-4 pt-2">
+        <div className="px-4 pt-6">
           <AccountsCarousel />
         </div>
       </div>
