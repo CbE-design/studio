@@ -16,12 +16,12 @@ import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebas
 import { collection, doc, getDoc, query } from 'firebase/firestore';
 
 const MessageIcon = ({ className }: { className?: string }) => (
-  <div className={cn("relative w-[26px] h-[26px] bg-[#2D5A27]", className)}>
+  <div className={cn("relative w-5 h-5 bg-[#2D5A27]", className)}>
     <Image
       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_161739915.png?alt=media&token=6c0d1445-2514-495e-a86c-6202268bddc1"
       alt="AI Assistant"
       fill
-      className="object-contain scale-110"
+      className="object-contain"
     />
   </div>
 );
@@ -64,7 +64,7 @@ const LoadingSkeleton = () => (
             <Skeleton className="h-4 w-32 mt-1 bg-white/20" />
           </div>
         </div>
-        <Skeleton className="h-6 w-6 bg-white/20 rounded-full" />
+        <Skeleton className="h-5 w-5 bg-white/20 rounded-full" />
       </div>
       <div className="flex justify-between">
         <div className="text-left">
@@ -197,12 +197,12 @@ export default function AccountDetailsPage() {
             </div>
             <div className="flex items-center gap-4">
               <Link href="/notifications">
-                <div className="relative w-[26px] h-[26px] bg-[#2D5A27]">
+                <div className="relative w-5 h-5 bg-[#2D5A27]">
                   <Image
                     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_153413797.png?alt=media&token=76c1c9a9-bbea-4b8a-80af-18cd1cc86543"
                     alt="Notifications"
                     fill
-                    className="object-contain scale-110"
+                    className="object-contain"
                   />
                 </div>
               </Link>

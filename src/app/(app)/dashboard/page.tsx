@@ -11,12 +11,12 @@ import { cn } from '@/lib/utils';
 import { ShieldCheck } from 'lucide-react';
 
 const MessageIcon = ({ className }: { className?: string }) => (
-  <div className={cn("relative w-[26px] h-[26px] bg-[#2D5A27]", className)}>
+  <div className={cn("relative w-5 h-5 bg-[#2D5A27]", className)}>
     <Image
       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_161739915.png?alt=media&token=6c0d1445-2514-495e-a86c-6202268bddc1"
       alt="AI Assistant"
       fill
-      className="object-contain scale-110"
+      className="object-contain"
     />
   </div>
 );
@@ -97,8 +97,8 @@ const LoadingSkeleton = () => (
               <Skeleton className="h-6 w-48 bg-white/20" />
             </div>
             <div className="flex items-center gap-4">
-              <Skeleton className="h-6 w-6 rounded-full bg-white/20" />
-              <Skeleton className="h-6 w-6 rounded-full bg-white/20" />
+              <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
+              <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
             </div>
           </div>
         </header>
@@ -179,12 +179,12 @@ export default function DashboardPage() {
               </div>
               <div className="flex items-center gap-4 text-white flex-shrink-0">
                 <Link href="/notifications">
-                  <div className={cn('relative w-[26px] h-[26px] bg-[#2D5A27]', isBellRinging && 'animate-ring')}>
+                  <div className={cn('relative w-5 h-5 bg-[#2D5A27]', isBellRinging && 'animate-ring')}>
                     <Image
                       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_153413797.png?alt=media&token=76c1c9a9-bbea-4b8a-80af-18cd1cc86543"
                       alt="Notifications"
                       fill
-                      className="object-contain scale-110"
+                      className="object-contain"
                     />
                     {unreadCount > 0 && (
                       <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800 z-10" />
