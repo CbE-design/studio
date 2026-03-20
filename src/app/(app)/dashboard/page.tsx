@@ -101,8 +101,8 @@ const LoadingSkeleton = () => (
               <Skeleton className="h-6 w-48 bg-white/20" />
             </div>
             <div className="flex items-center gap-4">
-              <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
-              <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
+              <Skeleton className="h-6 w-6 rounded-full bg-white/20" />
+              <Skeleton className="h-6 w-6 rounded-full bg-white/20" />
             </div>
           </div>
         </header>
@@ -183,7 +183,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex items-center gap-4 text-white flex-shrink-0">
                 <Link href="/notifications">
-                  <div className={cn('relative w-5 h-5', isBellRinging && 'animate-ring')}>
+                  <div className={cn('relative w-6 h-6 bg-[#2D5A27]', isBellRinging && 'animate-ring')}>
                     <Image
                       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260306_174340.jpg?alt=media&token=68b29a10-59ac-4b6b-87a9-a36956c79b85"
                       alt="Notifications"
@@ -196,7 +196,7 @@ export default function DashboardPage() {
                   </div>
                 </Link>
                 <Link href="/ai-chat">
-                    <MessageIcon className="h-5 w-5" />
+                    <MessageIcon className="h-6 w-6" />
                 </Link>
               </div>
             </div>
