@@ -59,6 +59,12 @@
       "description": "Statements and documents widget icon",
       "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_170055535.png?alt=media&token=d62d1811-b112-4f52-a184-ef7e853057f9",
       "imageHint": "bank statements"
+    },
+    {
+      "id": "widget-shop",
+      "description": "Shop widget icon",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_200057955.png?alt=media&token=c1ed22af-00c0-4a63-ad53-38c6c8fe7bce",
+      "imageHint": "shopping bag"
     }
   ]
 }
