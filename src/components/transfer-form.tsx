@@ -150,7 +150,7 @@ export function TransferForm({ allAccounts }: { allAccounts: Account[] }) {
 
   return (
     <div className="flex flex-col h-screen">
-      <header className="gradient-background text-primary-foreground p-4 flex items-center">
+      <header className="brand-header text-primary-foreground p-4 flex items-center">
         <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>
