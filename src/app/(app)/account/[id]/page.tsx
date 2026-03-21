@@ -184,7 +184,7 @@ export default function AccountDetailsPage() {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       <div className="shadow-sm">
-        <header className="sticky top-0 z-30 bg-[#3C7D35] text-white p-4 space-y-4">
+        <header className="sticky top-0 z-30 bg-[#549F44] text-white p-4 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
