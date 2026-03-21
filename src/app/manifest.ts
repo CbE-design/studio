@@ -1,4 +1,4 @@
-import type { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Nedbank Digital Banking for Trusts',
     start_url: '/',
     display: 'standalone',
-    background_color: '#006039',
-    theme_color: '#006039',
+    background_color: '#007244',
+    theme_color: '#007244',
     icons: [
       {
         src: 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/images.jpeg?alt=media&token=68f3444e-f792-4cba-8f08-3e02b43743ed',
