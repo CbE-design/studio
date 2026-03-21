@@ -47,6 +47,12 @@
       "description": "Home loans widget icon",
       "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_164401412.png?alt=media&token=236072f8-0330-4c93-8653-116d7e344c35",
       "imageHint": "home loans"
+    },
+    {
+      "id": "widget-latest",
+      "description": "Latest widget icon",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_165956880.png?alt=media&token=d5b88368-2452-43b7-ad1f-5942c8966997",
+      "imageHint": "latest news"
     }
   ]
 }

@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -23,15 +22,6 @@ const MessageIcon = ({ className }: { className?: string }) => (
   </div>
 );
 
-const LatestIcon = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
-        <path d="M20 12v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"/>
-        <path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/>
-        <path d="M12 18a4 4 0 0 0 4-4H8a4 4 0 0 0 4 4z"/>
-        <path d="M10 6a2 1 1 4 0"/>
-    </svg>
-);
-
 const StatementsIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
         <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
@@ -40,6 +30,7 @@ const StatementsIcon = ({ className }: { className?: string }) => (
 );
 
 const homeLoansImg = PlaceHolderImages.find(img => img.id === 'widget-home-loans');
+const latestImg = PlaceHolderImages.find(img => img.id === 'widget-latest');
 
 const widgets = [
   { icon: ShieldCheck, label: 'Approvals', href: '/approvals', isNew: true },
@@ -47,7 +38,7 @@ const widgets = [
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758630016360.jpg?alt=media&token=a946409a-39bd-47d1-ac07-9a00dca954cb", label: 'Insure', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758633570031.jpg?alt=media&token=b776f61f-926e-48ab-9f7c-9b18821c8b02", label: 'Shop', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758635261879.jpg?alt=media&token=c6e6272c-58fc-4a13-bc26-12f5c77ceb7e", label: 'PayShap', href: '#', isNew: true },
-  { icon: LatestIcon, label: 'Latest', href: '#' },
+  { src: latestImg?.imageUrl, hint: latestImg?.imageHint, label: 'Latest', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758635889725.jpg?alt=media&token=7ac2249c-b95f-43b6-83e6-80a4fd291ab2", label: 'Quick Pay', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758636434590.jpg?alt=media&token=9a2b5c0a-b399-4780-981a-3bd21e8d55e9", label: 'Get cash', href: '#' },
   { src: homeLoansImg?.imageUrl, hint: homeLoansImg?.imageHint, label: 'Home loans', href: '#' },
