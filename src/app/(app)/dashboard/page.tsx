@@ -31,7 +31,6 @@ const widgets = [
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758629149375.jpg?alt=media&token=485765e5-456f-412c-8da5-751ff5991dd5", label: 'Applications', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758630016360.jpg?alt=media&token=a946409a-39bd-47d1-ac07-9a00dca954cb", label: 'Insure', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758633570031.jpg?alt=media&token=b776f61f-926e-48ab-9f7c-9b18821c8b02", label: 'Shop', href: '#' },
-  { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758635261879.jpg?alt=media&token=c6e6272c-58fc-4a13-bc26-127ceb7e", label: 'PayShap', href: '#', isNew: true },
   { src: latestImg?.imageUrl, hint: latestImg?.imageHint, label: 'Latest', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758635889725.jpg?alt=media&token=7ac2249c-b95f-43b6-83e6-80a4fd291ab2", label: 'Quick Pay', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758636434590.jpg?alt=media&token=9a2b5c0a-b399-4780-981a-3bd21e8d55e9", label: 'Get cash', href: '#' },
@@ -49,9 +48,9 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: strin
                             New
                         </div>
                     )}
-                    <div className="relative w-14 h-14 flex items-center justify-center">
+                    <div className="relative flex items-center justify-center">
                        {src ? (
-                            <div className="relative w-14 h-14">
+                            <div className="relative w-10 h-10">
                                 <Image 
                                     src={src}
                                     alt={`${label} icon`}
@@ -61,7 +60,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: strin
                                 />
                             </div>
                         ) : Icon ? (
-                            <Icon className="h-10 w-10 text-primary" />
+                            <Icon className="h-8 w-8 text-primary" />
                         ) : null}
                     </div>
                 </div>
