@@ -10,19 +10,19 @@
     --card-foreground: 220 10% 20%;
     --popover: 220 20% 100%;
     --popover-foreground: 220 10% 20%;
-    --primary: 151 100% 26%; /* Darkened uniform brand green HSL */
+    --primary: 145 100% 24%; /* Balanced brand green based on gradient mid-tone */
     --primary-foreground: 113 20% 98%;
     --secondary: 220 10% 90%;
     --secondary-foreground: 220 10% 20%;
     --muted: 220 10% 90%;
     --muted-foreground: 220 10% 40%;
-    --accent: 151 100% 26%;
+    --accent: 145 100% 24%;
     --accent-foreground: 113 20% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 220 10% 85%;
     --input: 220 10% 85%;
-    --ring: 151 100% 26%;
+    --ring: 145 100% 24%;
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
@@ -75,12 +75,22 @@
   }
 
   .gradient-background {
-    background: linear-gradient(225deg, #008243 0%, #006b35 50%, #006b35 100%);
+    background: radial-gradient(
+      circle at 50% 30%, 
+      #10a342 0%,   /* Bright center */
+      #007a33 70%,  /* Mid-tone */
+      #005a26 100%  /* Dark edges */
+    );
     @apply brand-pattern-base;
   }
 
   .brand-header {
-    background-color: #008243; /* Uniform darker brand green */
+    background: radial-gradient(
+      circle at 50% 30%, 
+      #10a342 0%,   /* Bright center */
+      #007a33 70%,  /* Mid-tone */
+      #005a26 100%  /* Dark edges */
+    );
     @apply brand-pattern-base;
   }
 }
