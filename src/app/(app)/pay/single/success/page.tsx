@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Suspense, useState, useEffect, useRef, useCallback } from 'react';
@@ -100,7 +99,7 @@ function PaymentSuccessContent() {
     return (
         <div className="flex flex-col h-screen bg-white">
             <div ref={confirmationRef}>
-                <header className="gradient-background text-primary-foreground px-6 pt-4 pb-8 text-center flex flex-col items-center relative min-h-[220px] justify-center">
+                <header className="brand-header text-primary-foreground px-6 pt-4 pb-8 text-center flex flex-col items-center relative min-h-[220px] justify-center">
                     <div className="absolute top-4 left-4">
                         <Image
                             src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"

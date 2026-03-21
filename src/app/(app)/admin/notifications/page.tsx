@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -58,7 +57,7 @@ export default function AdminNotificationsPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="gradient-background text-primary-foreground p-4 flex items-center shadow-sm sticky top-0 z-10 border-b">
+      <header className="brand-header text-primary-foreground p-4 flex items-center shadow-sm sticky top-0 z-10 border-b">
         <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>

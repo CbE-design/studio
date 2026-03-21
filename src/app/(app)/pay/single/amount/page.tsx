@@ -64,7 +64,7 @@ const AccountCard = ({
 
 const LoadingSkeleton = () => (
     <div className="flex flex-col h-screen">
-        <div className="gradient-background p-4 space-y-4">
+        <div className="brand-header p-4 space-y-4">
             <div className="flex items-center justify-between">
                 <Skeleton className="h-6 w-6 bg-white/20" />
                 <Skeleton className="h-8 w-32 bg-white/20" />
@@ -235,7 +235,7 @@ function AmountPageContent() {
 
     return (
         <div className="flex flex-col h-screen bg-gray-50">
-            <header className="gradient-background text-primary-foreground px-4 pt-3 pb-4 sticky top-0 z-10">
+            <header className="brand-header text-primary-foreground px-4 pt-3 pb-4 sticky top-0 z-10">
                 <div className="w-full flex items-center justify-between">
                     <Button variant="ghost" size="icon" className="-ml-2" onClick={() => router.back()}>
                         <ArrowLeft className="h-5 w-5" />

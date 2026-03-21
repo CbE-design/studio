@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Suspense, useState } from 'react';
@@ -210,7 +209,7 @@ function ReviewPaymentContent() {
 
     return (
         <div className="flex flex-col h-screen bg-gray-50">
-            <header className="gradient-background text-primary-foreground p-4 flex items-center justify-between sticky top-0 z-10">
+            <header className="brand-header text-primary-foreground p-4 flex items-center justify-between sticky top-0 z-10">
                  <Button variant="ghost" size="icon" className="-ml-2" onClick={() => router.back()}>
                     <ArrowLeft />
                 </Button>

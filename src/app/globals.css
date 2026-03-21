@@ -80,7 +80,7 @@
   }
 
   .brand-header {
-    background: linear-gradient(225deg, #00a354 0%, #008243 50%, #008243 100%);
+    background-color: #008243;
     @apply brand-pattern-base;
   }
 }

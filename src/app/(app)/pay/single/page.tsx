@@ -74,7 +74,7 @@ function SinglePaymentForm() {
 
   return (
     <div className="relative h-screen overflow-y-auto bg-gray-50 flex flex-col scroll-smooth">
-      <header className="sticky top-0 z-0 h-64 gradient-background text-primary-foreground px-4 pt-6 pb-8 flex flex-col">
+      <header className="sticky top-0 z-0 h-64 brand-header text-primary-foreground px-4 pt-6 pb-8 flex flex-col">
         <div className="flex items-start mb-2">
           <Button variant="ghost" size="icon" className="-ml-2" onClick={() => router.back()}>
             <ArrowLeft className="h-6 w-6" />

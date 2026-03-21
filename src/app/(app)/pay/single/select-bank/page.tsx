@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, Suspense } from 'react';
@@ -55,7 +54,7 @@ function BankSelector() {
 
   return (
     <div className="flex flex-col h-screen bg-white">
-      <header className="gradient-background text-primary-foreground p-4 flex items-center sticky top-0 z-20">
+      <header className="brand-header text-primary-foreground p-4 flex items-center sticky top-0 z-20">
         <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
           <ArrowLeft />
         </Button>
