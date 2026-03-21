@@ -31,18 +31,21 @@ const widgets = [
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758629149375.jpg?alt=media&token=485765e5-456f-412c-8da5-751ff5991dd5", label: 'Applications', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758630016360.jpg?alt=media&token=a946409a-39bd-47d1-ac07-9a00dca954cb", label: 'Insure', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758633570031.jpg?alt=media&token=b776f61f-926e-48ab-9f7c-9b18821c8b02", label: 'Shop', href: '#' },
-  { src: latestImg?.imageUrl, hint: latestImg?.imageHint, label: 'Latest', href: '#' },
+  { src: latestImg?.imageUrl, hint: latestImg?.imageHint, label: 'Latest', href: '#', isSmall: true },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758635889725.jpg?alt=media&token=7ac2249c-b95f-43b6-83e6-80a4fd291ab2", label: 'Quick Pay', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758636434590.jpg?alt=media&token=9a2b5c0a-b399-4780-981a-3bd21e8d55e9", label: 'Get cash', href: '#' },
-  { src: homeLoansImg?.imageUrl, hint: homeLoansImg?.imageHint, label: 'Home loans', href: '#' },
-  { src: statementsImg?.imageUrl, hint: statementsImg?.imageHint, label: 'Statements and docs', href: '/documents' },
+  { src: homeLoansImg?.imageUrl, hint: homeLoansImg?.imageHint, label: 'Home loans', href: '#', isSmall: true },
+  { src: statementsImg?.imageUrl, hint: statementsImg?.imageHint, label: 'Statements and docs', href: '/documents', isSmall: true },
 ];
 
-const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: string, icon?: React.ElementType<{className?: string}>, label: string, href: string, isNew?: boolean, hint?: string }) => {
+const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint, isSmall }: { src?: string, icon?: React.ElementType<{className?: string}>, label: string, href: string, isNew?: boolean, hint?: string, isSmall?: boolean }) => {
     return (
         <Link href={href}>
             <div className="flex flex-col items-center justify-start space-y-1.5 text-center h-full group">
-                 <div className="relative flex items-center justify-center w-14 h-14 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden">
+                 <div className={cn(
+                    "relative flex items-center justify-center bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden",
+                    isSmall ? "w-11 h-11" : "w-14 h-14"
+                 )}>
                     {isNew && (
                         <div className="absolute top-0 right-0 px-1 py-0.5 text-[7px] font-bold text-white bg-green-600 rounded-bl-sm z-10 uppercase leading-none">
                             New
@@ -50,7 +53,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: strin
                     )}
                     <div className="relative flex items-center justify-center">
                        {src ? (
-                            <div className="relative w-8 h-8">
+                            <div className={cn("relative", isSmall ? "w-6 h-6" : "w-8 h-8")}>
                                 <Image 
                                     src={src}
                                     alt={`${label} icon`}
@@ -60,7 +63,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: strin
                                 />
                             </div>
                         ) : Icon ? (
-                            <Icon className="h-6 w-6 text-primary" />
+                            <Icon className={cn("text-primary", isSmall ? "h-5 w-5" : "h-6 w-6")} />
                         ) : null}
                     </div>
                 </div>
@@ -81,7 +84,7 @@ const LoadingSkeleton = () => (
             </div>
             <div className="flex items-center gap-4">
               <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
-              <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
+              <Skeleton className="h-4 w-4 rounded-full bg-white/20" />
             </div>
           </div>
         </header>
@@ -216,6 +219,7 @@ export default function DashboardPage() {
                   href={widget.href}
                   isNew={widget.isNew}
                   hint={widget.hint}
+                  isSmall={widget.isSmall}
                 />
               ))}
             </div>
