@@ -215,12 +215,12 @@ export function AccountsCarousel() {
                 <button onClick={scrollPrev} className="p-1 disabled:opacity-50 mx-1 text-white" disabled={current === 0}>
                     <ChevronLeft className="h-6 w-6" />
                 </button>
-                <div className="flex items-center justify-center space-x-1.5 mx-2">
+                <div className="flex items-center justify-center space-x-2.5 mx-2">
                     {Array.from({ length: count }).map((_, index) => (
                         <button
                             key={index}
                             onClick={() => api?.scrollTo(index)}
-                            className={`h-2.5 w-2.5 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
+                            className={`h-3.5 w-3.5 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
                         />
                     ))}
                 </div>
