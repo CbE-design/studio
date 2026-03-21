@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { ShieldCheck } from 'lucide-react';
 
 const MessageIcon = ({ className }: { className?: string }) => (
-  <div className={cn("relative w-3 h-3 flex items-center justify-center bg-transparent", className)}>
+  <div className={cn("relative w-4 h-4 flex items-center justify-center bg-transparent", className)}>
     <Image
       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_172101952.png?alt=media&token=2d52b45c-6169-486b-8c04-8e3965a21d47"
       alt="Messages"
