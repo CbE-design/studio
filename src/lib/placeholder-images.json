@@ -53,6 +53,12 @@
       "description": "Latest widget icon",
       "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_165956880.png?alt=media&token=d5b88368-2452-43b7-ad1f-5942c8966997",
       "imageHint": "latest news"
+    },
+    {
+      "id": "widget-statements",
+      "description": "Statements and documents widget icon",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_170055535.png?alt=media&token=d62d1811-b112-4f52-a184-ef7e853057f9",
+      "imageHint": "bank statements"
     }
   ]
 }
