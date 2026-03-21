@@ -71,6 +71,12 @@
       "description": "Insure widget icon",
       "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_200126624.png?alt=media&token=542e735a-dca4-4455-b071-f58ef6f422f9",
       "imageHint": "insurance umbrella"
+    },
+    {
+      "id": "widget-applications",
+      "description": "Applications widget icon",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_200150995.png?alt=media&token=8a6851f7-89b9-4e83-bf0a-c70f0c959602",
+      "imageHint": "mobile apps"
     }
   ]
 }

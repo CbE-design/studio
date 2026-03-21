@@ -27,10 +27,11 @@ const latestImg = PlaceHolderImages.find(img => img.id === 'widget-latest');
 const statementsImg = PlaceHolderImages.find(img => img.id === 'widget-statements');
 const shopImg = PlaceHolderImages.find(img => img.id === 'widget-shop');
 const insureImg = PlaceHolderImages.find(img => img.id === 'widget-insure');
+const applicationsImg = PlaceHolderImages.find(img => img.id === 'widget-applications');
 
 const widgets = [
   { icon: ShieldCheck, label: 'Approvals', href: '/approvals', isNew: true },
-  { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758629149375.jpg?alt=media&token=485765e5-456f-412c-8da5-751ff5991dd5", label: 'Applications', href: '#' },
+  { src: applicationsImg?.imageUrl, hint: applicationsImg?.imageHint, label: 'Applications', href: '#' },
   { src: insureImg?.imageUrl, hint: insureImg?.imageHint, label: 'Insure', href: '#' },
   { src: shopImg?.imageUrl, hint: shopImg?.imageHint, label: 'Shop', href: '#' },
   { src: latestImg?.imageUrl, hint: latestImg?.imageHint, label: 'Latest', href: '#' },
