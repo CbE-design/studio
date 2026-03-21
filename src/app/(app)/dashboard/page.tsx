@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { ShieldCheck } from 'lucide-react';
 
 const MessageIcon = ({ className }: { className?: string }) => (
-  <div className={cn("relative w-5 h-5 flex items-center justify-center bg-transparent", className)}>
+  <div className={cn("relative w-6 h-6 flex items-center justify-center bg-transparent", className)}>
     <Image
       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_172101952.png?alt=media&token=2d52b45c-6169-486b-8c04-8e3965a21d47"
       alt="Messages"
@@ -175,13 +175,13 @@ export default function DashboardPage() {
                 height={24}
                 className="w-6 h-6 flex-shrink-0"
               />
-              <span className="font-normal text-xl uppercase truncate">
+              <span className="font-normal text-xl uppercase truncate max-w-[180px]">
                 {user.displayName || 'DICKSON FAMILY TRUST'}
               </span>
             </div>
             <div className="flex items-center gap-4 text-white flex-shrink-0">
               <Link href="/notifications">
-                <div className={cn('relative w-5 h-5 bg-transparent', isBellRinging && 'animate-ring')}>
+                <div className={cn('relative w-7 h-7 bg-transparent', isBellRinging && 'animate-ring')}>
                   <Image
                     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320141309.png?alt=media&token=1836ae99-d919-48db-85fe-013baef40979"
                     alt="Notifications"
