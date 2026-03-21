@@ -220,7 +220,7 @@ export function AccountsCarousel() {
                         <button
                             key={index}
                             onClick={() => api?.scrollTo(index)}
-                            className={`h-3.5 w-3.5 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
+                            className={`h-3 w-3 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
                         />
                     ))}
                 </div>
