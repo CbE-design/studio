@@ -55,7 +55,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: strin
                     )}
                     <div className="relative flex items-center justify-center">
                        {src ? (
-                            <div className="relative w-10 h-10">
+                            <div className="relative w-7 h-7">
                                 <Image 
                                     src={src}
                                     alt={`${label} icon`}
@@ -65,7 +65,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: strin
                                 />
                             </div>
                         ) : Icon ? (
-                            <Icon className="text-primary h-8 w-8" />
+                            <Icon className="text-primary h-6 w-6" strokeWidth={2.5} />
                         ) : null}
                     </div>
                 </div>
