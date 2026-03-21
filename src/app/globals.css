@@ -75,12 +75,12 @@
   }
 
   .gradient-background {
-    background-color: #008243;
+    background: linear-gradient(225deg, #00a354 0%, #008243 50%, #008243 100%);
     @apply brand-pattern-base;
   }
 
   .brand-header {
-    background-color: #008243;
+    background: linear-gradient(225deg, #00a354 0%, #008243 50%, #008243 100%);
     @apply brand-pattern-base;
   }
 }
