@@ -43,15 +43,15 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: strin
     return (
         <Link href={href}>
             <div className="flex flex-col items-center justify-start space-y-1.5 text-center h-full group">
-                 <div className="relative flex items-center justify-center w-14 h-14 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden">
+                 <div className="relative flex items-center justify-center w-16 h-16 bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden">
                     {isNew && (
                         <div className="absolute top-0 right-0 px-1 py-0.5 text-[7px] font-bold text-white bg-green-600 rounded-bl-sm z-10 uppercase leading-none">
                             New
                         </div>
                     )}
-                    <div className="relative w-12 h-12 flex items-center justify-center">
+                    <div className="relative w-14 h-14 flex items-center justify-center">
                        {src ? (
-                            <div className="relative w-12 h-12">
+                            <div className="relative w-14 h-14">
                                 <Image 
                                     src={src}
                                     alt={`${label} icon`}
@@ -61,7 +61,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: strin
                                 />
                             </div>
                         ) : Icon ? (
-                            <Icon className="h-8 w-8 text-primary" />
+                            <Icon className="h-10 w-10 text-primary" />
                         ) : null}
                     </div>
                 </div>
@@ -98,7 +98,7 @@ const LoadingSkeleton = () => (
             <div className="grid grid-cols-4 gap-y-6">
               {Array.from({ length: 12 }).map((_, i) => (
                 <div key={i} className="flex flex-col items-center space-y-2">
-                  <Skeleton className="w-12 h-12 bg-gray-200 rounded-lg" />
+                  <Skeleton className="w-16 h-16 bg-gray-200 rounded-lg" />
                   <Skeleton className="w-16 h-4 bg-gray-200 rounded-md" />
                 </div>
               ))}
@@ -178,7 +178,7 @@ export default function DashboardPage() {
                 </div>
               </Link>
               <Link href="/ai-chat">
-                  <MessageIcon />
+                  <MessageIcon className="w-4 h-4" />
               </Link>
             </div>
           </div>
