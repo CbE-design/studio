@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -157,7 +156,7 @@ export function TransferForm({ allAccounts }: { allAccounts: Account[] }) {
         <h1 className="text-xl font-bold">Transfer</h1>
       </header>
 
-      <div className="gradient-background text-primary-foreground p-4 space-y-2">
+      <div className="brand-header text-primary-foreground p-4 space-y-2">
         <label className="text-sm">Amount</label>
         <div className="flex items-end">
             <span className="text-2xl font-light mr-1">R</span>

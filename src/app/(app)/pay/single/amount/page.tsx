@@ -251,7 +251,7 @@ function AmountPageContent() {
                 </div>
             </header>
 
-            <div className="gradient-background px-4 py-4 border-b border-white/20">
+            <div className="brand-header px-4 py-4 border-b border-white/20">
                 <Label className="text-xs text-white/80 font-semibold">Amount</Label>
                 <div className="flex items-baseline mt-2">
                     <span className="text-3xl font-light text-white">R</span>

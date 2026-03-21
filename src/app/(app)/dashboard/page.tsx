@@ -93,7 +93,7 @@ const LoadingSkeleton = () => (
     </div>
 
     <div className="flex-1 overflow-y-auto bg-gray-50">
-        <div className="gradient-background px-4 pt-8 pb-8">
+        <div className="brand-header px-4 pt-8 pb-8">
             <Skeleton className="h-40 w-full bg-white/20 rounded-lg" />
         </div>
         <div className="p-4">
@@ -151,7 +151,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full bg-white">
-      {/* Standalone Sticky Header - Reverted padding to standard p-4 */}
+      {/* Standalone Sticky Header */}
       <header className="sticky top-0 z-50 brand-header p-4 text-white shadow-sm shrink-0">
         <div className="relative z-10 flex flex-col gap-1">
           <div className="flex items-center justify-between">
@@ -191,7 +191,7 @@ export default function DashboardPage() {
 
       {/* Scrollable Content Area */}
       <div className="flex-1 overflow-y-auto min-h-0">
-        <div className="gradient-background px-4 pt-8 pb-8">
+        <div className="brand-header px-4 pt-8 pb-8">
           <div className="relative z-10">
             <AccountsCarousel />
           </div>
