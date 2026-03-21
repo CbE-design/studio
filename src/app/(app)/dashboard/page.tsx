@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -177,7 +178,7 @@ export default function DashboardPage() {
                     className="object-contain"
                   />
                   {unreadCount > 0 && (
-                    <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800 z-10" />
+                    <div className="absolute top-[1px] right-[1px] h-2 w-2 rounded-full bg-[#9fff00] border border-[#004d00] z-10" />
                   )}
                 </div>
               </Link>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
@@ -12,7 +13,7 @@ import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
+import { useCollection, useFirestore, useMemoFirebase, useUser, useAllTransactions } from '@/firebase-provider';
 import { collection, doc, getDoc, query } from 'firebase/firestore';
 
 const MessageIcon = ({ className }: { className?: string }) => (
@@ -80,9 +81,11 @@ export default function AccountDetailsPage() {
   const accountId = params.id as string;
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
+  const { transactions: allTransactions, isLoading: isAllTransactionsLoading } = useAllTransactions();
   
   const [account, setAccount] = useState<Account | null>(null);
   const [isAccountLoading, setIsAccountLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const transactionsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid || !accountId) return null;
@@ -120,6 +123,17 @@ export default function AccountDetailsPage() {
     };
     fetchAccountData();
   }, [firestore, user?.uid, accountId, isUserLoading]);
+
+  useEffect(() => {
+    if (isAllTransactionsLoading || allTransactions.length === 0) return;
+    try {
+        const storedIdsValue = localStorage.getItem('readTransactionIds');
+        const readIds = storedIdsValue ? JSON.parse(storedIdsValue) : [];
+        setUnreadCount(allTransactions.filter(tx => !readIds.includes(tx.id)).length);
+    } catch (e) {
+        console.error("Failed to parse readTransactionIds", e);
+    }
+  }, [allTransactions, isAllTransactionsLoading]);
 
   const groupedTransactions = useMemo(() => {
     if (!accountTransactions) return {};
@@ -194,6 +208,9 @@ export default function AccountDetailsPage() {
                     fill
                     className="object-contain"
                   />
+                  {unreadCount > 0 && (
+                    <div className="absolute top-[1px] right-[1px] h-2 w-2 rounded-full bg-[#9fff00] border border-[#004d00] z-10" />
+                  )}
                 </div>
               </Link>
               <Link href="/ai-chat">
