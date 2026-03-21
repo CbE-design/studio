@@ -29,6 +29,7 @@ const shopImg = PlaceHolderImages.find(img => img.id === 'widget-shop');
 const insureImg = PlaceHolderImages.find(img => img.id === 'widget-insure');
 const applicationsImg = PlaceHolderImages.find(img => img.id === 'widget-applications');
 const quickPayImg = PlaceHolderImages.find(img => img.id === 'widget-quick-pay');
+const getCashImg = PlaceHolderImages.find(img => img.id === 'widget-get-cash');
 
 const widgets = [
   { icon: ShieldCheck, label: 'Approvals', href: '/approvals', isNew: true },
@@ -37,7 +38,7 @@ const widgets = [
   { src: shopImg?.imageUrl, hint: shopImg?.imageHint, label: 'Shop', href: '#' },
   { src: latestImg?.imageUrl, hint: latestImg?.imageHint, label: 'Latest', href: '#' },
   { src: quickPayImg?.imageUrl, hint: quickPayImg?.imageHint, label: 'Quick Pay', href: '#' },
-  { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758636434590.jpg?alt=media&token=9a2b5c0a-b399-4780-981a-3bd21e8d55e9", label: 'Get cash', href: '#' },
+  { src: getCashImg?.imageUrl, hint: getCashImg?.imageHint, label: 'Get cash', href: '#' },
   { src: homeLoansImg?.imageUrl, hint: homeLoansImg?.imageHint, label: 'Home loans', href: '#' },
   { src: statementsImg?.imageUrl, hint: statementsImg?.imageHint, label: 'Statements and docs', href: '/documents' },
 ];

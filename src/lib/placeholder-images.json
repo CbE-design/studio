@@ -83,6 +83,12 @@
       "description": "Quick Pay widget icon",
       "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_200233327.png?alt=media&token=ffa60136-185e-434d-9438-cd0f731f8b91",
       "imageHint": "quick pay"
+    },
+    {
+      "id": "widget-get-cash",
+      "description": "Get cash widget icon",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_200531859.png?alt=media&token=7119166b-1564-4f6e-8820-854c198ba5a7",
+      "imageHint": "withdraw money"
     }
   ]
 }
