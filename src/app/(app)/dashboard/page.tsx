@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -9,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { ShieldCheck } from 'lucide-react';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const MessageIcon = ({ className }: { className?: string }) => (
   <div className={cn("relative w-4 h-4 flex items-center justify-center bg-transparent", className)}>
@@ -30,18 +32,14 @@ const LatestIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
-const HomeLoansIcon = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
-        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-        <path d="M9 22V12h6v10"/>
-    </svg>
-);
 const StatementsIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={cn("text-primary", className)}>
         <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
         <path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/>
     </svg>
 );
+
+const homeLoansImg = PlaceHolderImages.find(img => img.id === 'widget-home-loans');
 
 const widgets = [
   { icon: ShieldCheck, label: 'Approvals', href: '/approvals', isNew: true },
@@ -52,11 +50,11 @@ const widgets = [
   { icon: LatestIcon, label: 'Latest', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758635889725.jpg?alt=media&token=7ac2249c-b95f-43b6-83e6-80a4fd291ab2", label: 'Quick Pay', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758636434590.jpg?alt=media&token=9a2b5c0a-b399-4780-981a-3bd21e8d55e9", label: 'Get cash', href: '#' },
-  { icon: HomeLoansIcon, label: 'Home loans', href: '#' },
+  { src: homeLoansImg?.imageUrl, hint: homeLoansImg?.imageHint, label: 'Home loans', href: '#' },
   { icon: StatementsIcon, label: 'Statements and docs', href: '/documents' },
 ];
 
-const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, icon?: React.ElementType<{className?: string}>, label: string, href: string, isNew?: boolean }) => {
+const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: string, icon?: React.ElementType<{className?: string}>, label: string, href: string, isNew?: boolean, hint?: string }) => {
     return (
         <Link href={href}>
             <div className="flex flex-col items-center justify-start space-y-1.5 text-center h-full group">
@@ -74,6 +72,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
                                     alt={`${label} icon`}
                                     fill
                                     className="object-contain"
+                                    data-ai-hint={hint}
                                 />
                             </div>
                         ) : Icon ? (
@@ -232,6 +231,7 @@ export default function DashboardPage() {
                   label={widget.label}
                   href={widget.href}
                   isNew={widget.isNew}
+                  hint={widget.hint}
                 />
               ))}
             </div>
