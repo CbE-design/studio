@@ -88,8 +88,8 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew }: { src?: string, ico
 };
 
 const LoadingSkeleton = () => (
-  <div className="flex flex-col h-screen bg-white text-black">
-    <div className="gradient-background text-white p-4">
+  <div className="flex flex-col h-full bg-white text-black">
+    <div className="brand-header text-white p-4">
         <header>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6 overflow-hidden">
@@ -102,23 +102,25 @@ const LoadingSkeleton = () => (
             </div>
           </div>
         </header>
-        <div className="mt-4">
-            <Skeleton className="h-40 w-full bg-white/20 rounded-lg" />
-        </div>
     </div>
 
-    <main className="flex-1 overflow-y-auto bg-gray-50 p-4">
-        <Skeleton className="h-24 w-full mb-6 rounded-lg bg-gray-200" />
-        <Skeleton className="h-8 w-1/3 mb-4 bg-gray-200" />
-        <div className="grid grid-cols-4 gap-y-6">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="flex flex-col items-center space-y-2">
-              <Skeleton className="w-12 h-12 bg-gray-200 rounded-lg" />
-              <Skeleton className="w-16 h-4 bg-gray-200 rounded-md" />
-            </div>
-          ))}
+    <div className="flex-1 overflow-y-auto bg-gray-50">
+        <div className="gradient-background px-4 pt-8 pb-8">
+            <Skeleton className="h-40 w-full bg-white/20 rounded-lg" />
         </div>
-    </main>
+        <div className="p-4">
+            <Skeleton className="h-24 w-full mb-6 rounded-lg bg-gray-200" />
+            <Skeleton className="h-8 w-1/3 mb-4 bg-gray-200" />
+            <div className="grid grid-cols-4 gap-y-6">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="flex flex-col items-center space-y-2">
+                  <Skeleton className="w-12 h-12 bg-gray-200 rounded-lg" />
+                  <Skeleton className="w-16 h-4 bg-gray-200 rounded-md" />
+                </div>
+              ))}
+            </div>
+        </div>
+    </div>
   </div>
 );
 
@@ -160,78 +162,82 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col bg-white text-black min-h-screen">
-      <div className="gradient-background text-white">
-        <header className="sticky top-0 z-30 bg-[#549F44] p-4">
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-6 overflow-hidden">
-                <Image
-                  src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"
-                  alt="Nedbank Logo"
-                  width={24}
-                  height={24}
-                  className="w-6 h-6 flex-shrink-0"
-                />
-                <span className="font-normal text-xl uppercase truncate">
-                  {user.displayName || 'DICKSON FAMILY TRUST'}
-                </span>
-              </div>
-              <div className="flex items-center gap-4 text-white flex-shrink-0">
-                <Link href="/notifications">
-                  <div className={cn('relative w-5 h-5 bg-transparent', isBellRinging && 'animate-ring')}>
-                    <Image
-                      src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320141309.png?alt=media&token=1836ae99-d919-48db-85fe-013baef40979"
-                      alt="Notifications"
-                      fill
-                      className="object-contain"
-                    />
-                    {unreadCount > 0 && (
-                      <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800 z-10" />
-                    )}
-                  </div>
-                </Link>
-                <Link href="/ai-chat">
-                    <MessageIcon />
-                </Link>
-              </div>
+    <div className="flex flex-col h-full bg-white">
+      {/* Standalone Sticky Header */}
+      <header className="sticky top-0 z-50 brand-header p-4 text-white shadow-sm shrink-0">
+        <div className="relative z-10 flex flex-col gap-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6 overflow-hidden">
+              <Image
+                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"
+                alt="Nedbank Logo"
+                width={24}
+                height={24}
+                className="w-6 h-6 flex-shrink-0"
+              />
+              <span className="font-normal text-xl uppercase truncate">
+                {user.displayName || 'DICKSON FAMILY TRUST'}
+              </span>
+            </div>
+            <div className="flex items-center gap-4 text-white flex-shrink-0">
+              <Link href="/notifications">
+                <div className={cn('relative w-5 h-5 bg-transparent', isBellRinging && 'animate-ring')}>
+                  <Image
+                    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320141309.png?alt=media&token=1836ae99-d919-48db-85fe-013baef40979"
+                    alt="Notifications"
+                    fill
+                    className="object-contain"
+                  />
+                  {unreadCount > 0 && (
+                    <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-lime-400 border border-green-800 z-10" />
+                  )}
+                </div>
+              </Link>
+              <Link href="/ai-chat">
+                  <MessageIcon />
+              </Link>
             </div>
           </div>
-        </header>
-
-        <div className="px-4 pt-8 pb-8">
-          <AccountsCarousel />
         </div>
-      </div>
+      </header>
 
-      <main className="flex flex-col bg-white">
-        <div className="px-6 py-4 mt-2 flex justify-center">
-          <div className="relative w-full aspect-[16/5] p-1">
-            <Image
-              src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
-              alt="Advertisement banner"
-              fill
-              className="object-contain"
-            />
+      {/* Scrollable Content Area */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <div className="gradient-background px-4 pt-8 pb-8">
+          <div className="relative z-10">
+            <AccountsCarousel />
           </div>
         </div>
 
-        <div className="p-4 mt-2">
-          <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
-          <div className="grid grid-cols-4 gap-x-2 gap-y-4">
-            {widgets.map((widget) => (
-              <WidgetItem
-                key={widget.label}
-                src={widget.src}
-                icon={widget.icon}
-                label={widget.label}
-                href={widget.href}
-                isNew={widget.isNew}
+        <main className="flex flex-col bg-white">
+          <div className="px-6 py-4 mt-2 flex justify-center">
+            <div className="relative w-full aspect-[16/5] p-1">
+              <Image
+                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
+                alt="Advertisement banner"
+                fill
+                className="object-contain"
               />
-            ))}
+            </div>
           </div>
-        </div>
-      </main>
+
+          <div className="p-4 mt-2">
+            <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
+            <div className="grid grid-cols-4 gap-x-2 gap-y-4">
+              {widgets.map((widget) => (
+                <WidgetItem
+                  key={widget.label}
+                  src={widget.src}
+                  icon={widget.icon}
+                  label={widget.label}
+                  href={widget.href}
+                  isNew={widget.isNew}
+                />
+              ))}
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

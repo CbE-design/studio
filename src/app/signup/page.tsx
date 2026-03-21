@@ -9,7 +9,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useAuth, useFirestore } from '@/firebase-provider';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import Link from 'next/link';
+import Link from 'link';
 import { cn } from '@/lib/utils';
 
 const MessageIcon = ({ className }: { className?: string }) => (
@@ -43,9 +43,7 @@ export default function SignupPage() {
     setErrorMessage(undefined);
 
     try {
-      // The onUserCreate Cloud Function will handle creating the user document in Firestore.
       await createUserWithEmailAndPassword(auth, email, password);
-      
       router.push('/dashboard');
     } catch (error: any) {
       console.error('Sign-up failed:', error);
@@ -64,17 +62,19 @@ export default function SignupPage() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <header className="flex items-center justify-between p-4 bg-[#549F44] text-white">
-        <Image 
-          src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
-          alt="Nedbank Logo"
-          width={32}
-          height={32}
-          className="w-8 h-8"
-        />
-        <div className="flex items-center gap-4">
-          <MessageIcon />
-          <Menu />
+      <header className="brand-header p-4 text-white flex items-center justify-between">
+        <div className="relative z-10 flex items-center justify-between w-full">
+          <Image 
+            src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
+            alt="Nedbank Logo"
+            width={32}
+            height={32}
+            className="w-8 h-8"
+          />
+          <div className="flex items-center gap-4">
+            <MessageIcon />
+            <Menu />
+          </div>
         </div>
       </header>
 
@@ -108,7 +108,7 @@ export default function SignupPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full bg-[#346B2E] hover:bg-[#346B2E]/90 text-white" aria-disabled={isLoading}>
+            <Button type="submit" className="w-full h-12 text-lg font-bold" aria-disabled={isLoading}>
               {isLoading ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
               ) : (

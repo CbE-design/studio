@@ -52,9 +52,9 @@ const FilterIcon = () => (
 const tabs = ['Transactions', 'Debit orders', 'Scheduled', 'Card management', 'Statements'];
 
 const LoadingSkeleton = () => (
-  <div className="flex flex-col h-screen bg-gray-50">
-    <header className="gradient-background text-white p-4 space-y-4">
-      <div className="flex items-center justify-between">
+  <div className="flex flex-col h-full bg-gray-50">
+    <header className="brand-header text-white p-4 space-y-4">
+      <div className="flex items-center justify-between relative z-10">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="mr-2 -ml-2">
             <ArrowLeft />
@@ -65,16 +65,6 @@ const LoadingSkeleton = () => (
           </div>
         </div>
         <Skeleton className="h-5 w-5 bg-white/20 rounded-full" />
-      </div>
-      <div className="flex justify-between">
-        <div className="text-left">
-          <p className="text-xs opacity-80">Current balance</p>
-          <Skeleton className="h-7 w-36 mt-1 bg-white/20" />
-        </div>
-        <div className="text-right">
-          <p className="text-xs opacity-80">Available balance</p>
-          <Skeleton className="h-7 w-36 mt-1 bg-white/20" />
-        </div>
       </div>
     </header>
     <div className="p-4 space-y-4">
@@ -174,7 +164,7 @@ export default function AccountDetailsPage() {
 
   if (!account) {
     return (
-      <div className="flex flex-col h-screen bg-gray-50 items-center justify-center p-4 text-center">
+      <div className="flex flex-col h-full bg-gray-50 items-center justify-center p-4 text-center">
         <p className="text-xl text-destructive-foreground bg-destructive p-4 rounded-md">Account not found.</p>
         <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
       </div>
@@ -182,10 +172,10 @@ export default function AccountDetailsPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      <div className="shadow-sm">
-        <header className="sticky top-0 z-30 bg-[#549F44] text-white p-4 space-y-4">
-          <div className="flex items-center justify-between">
+    <div className="flex flex-col h-full bg-gray-50">
+      <div className="shadow-sm shrink-0">
+        <header className="sticky top-0 z-30 brand-header text-white p-4 space-y-4">
+          <div className="relative z-10 flex items-center justify-between">
             <div className="flex items-center">
               <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
                 <ArrowLeft strokeWidth={2.5} />
@@ -211,7 +201,7 @@ export default function AccountDetailsPage() {
               </Link>
             </div>
           </div>
-          <div className="flex justify-between">
+          <div className="relative z-10 flex justify-between">
             <div className="text-left">
               <p className="text-xs opacity-80">Current balance</p>
               <p className="text-sm font-medium">{formatCurrency(account.balance, account.currency)}</p>
