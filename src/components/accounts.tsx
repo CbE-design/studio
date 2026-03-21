@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
@@ -213,7 +212,7 @@ export function AccountsCarousel() {
             </Carousel>
             <div className="flex items-center justify-center space-x-2.5 py-4">
                 <button onClick={scrollPrev} className="p-1 disabled:opacity-50 text-white" disabled={current === 0}>
-                    <ChevronLeft className="h-8 w-8" />
+                    <ChevronLeft className="h-5 w-5" />
                 </button>
                 {Array.from({ length: count }).map((_, index) => (
                     <button
@@ -223,7 +222,7 @@ export function AccountsCarousel() {
                     />
                 ))}
                 <button onClick={scrollNext} className="p-1 disabled:opacity-50 text-white" disabled={current === count - 1}>
-                    <ChevronRight className="h-8 w-8" />
+                    <ChevronRight className="h-5 w-5" />
                 </button>
             </div>
         </div>
