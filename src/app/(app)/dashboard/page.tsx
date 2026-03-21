@@ -42,10 +42,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint, isSmall }: { sr
     return (
         <Link href={href}>
             <div className="flex flex-col items-center justify-start space-y-1.5 text-center h-full group">
-                 <div className={cn(
-                    "relative flex items-center justify-center bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden",
-                    isSmall ? "w-11 h-11" : "w-14 h-14"
-                 )}>
+                 <div className="relative flex items-center justify-center bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden w-14 h-14">
                     {isNew && (
                         <div className="absolute top-0 right-0 px-1 py-0.5 text-[7px] font-bold text-white bg-green-600 rounded-bl-sm z-10 uppercase leading-none">
                             New
