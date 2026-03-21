@@ -151,8 +151,8 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full bg-white">
-      {/* Standalone Sticky Header */}
-      <header className="sticky top-0 z-50 brand-header p-4 text-white shadow-sm shrink-0">
+      {/* Standalone Sticky Header - Added pb-10 to bring the tone down */}
+      <header className="sticky top-0 z-50 brand-header pt-4 pb-10 px-4 text-white shadow-sm shrink-0">
         <div className="relative z-10 flex flex-col gap-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6 overflow-hidden">
