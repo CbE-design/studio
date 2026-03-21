@@ -186,7 +186,6 @@ function TransactionDetailsContent() {
       toast({ variant: 'destructive', title: 'Error', description: result.message });
       setIsFailing(false);
     }
-    // No need to set isFailing to false on success, as we are navigating away.
   };
 
   const handleSend = async () => {
@@ -271,12 +270,9 @@ function TransactionDetailsContent() {
                   <AlertDialogContent>
                       <AlertDialogHeader>
                           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                          <AlertDialogHeader>
-                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                  This will create a new credit transaction to reverse the funds for this payment and log it in the failed transactions list. This action cannot be undone.
-                              </AlertDialogDescription>
-                          </AlertDialogHeader>
+                          <AlertDialogDescription>
+                              This will create a new credit transaction to reverse the funds for this payment and log it in the failed transactions list. This action cannot be undone.
+                          </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
