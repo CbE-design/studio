@@ -26,11 +26,12 @@ const homeLoansImg = PlaceHolderImages.find(img => img.id === 'widget-home-loans
 const latestImg = PlaceHolderImages.find(img => img.id === 'widget-latest');
 const statementsImg = PlaceHolderImages.find(img => img.id === 'widget-statements');
 const shopImg = PlaceHolderImages.find(img => img.id === 'widget-shop');
+const insureImg = PlaceHolderImages.find(img => img.id === 'widget-insure');
 
 const widgets = [
   { icon: ShieldCheck, label: 'Approvals', href: '/approvals', isNew: true },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758629149375.jpg?alt=media&token=485765e5-456f-412c-8da5-751ff5991dd5", label: 'Applications', href: '#' },
-  { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758630016360.jpg?alt=media&token=a946409a-39bd-47d1-ac07-9a00dca954cb", label: 'Insure', href: '#' },
+  { src: insureImg?.imageUrl, hint: insureImg?.imageHint, label: 'Insure', href: '#' },
   { src: shopImg?.imageUrl, hint: shopImg?.imageHint, label: 'Shop', href: '#' },
   { src: latestImg?.imageUrl, hint: latestImg?.imageHint, label: 'Latest', href: '#' },
   { src: "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2F1758635889725.jpg?alt=media&token=7ac2249c-b95f-43b6-83e6-80a4fd291ab2", label: 'Quick Pay', href: '#' },

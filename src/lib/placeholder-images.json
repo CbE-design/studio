@@ -65,6 +65,12 @@
       "description": "Shop widget icon",
       "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_200057955.png?alt=media&token=c1ed22af-00c0-4a63-ad53-38c6c8fe7bce",
       "imageHint": "shopping bag"
+    },
+    {
+      "id": "widget-insure",
+      "description": "Insure widget icon",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_200126624.png?alt=media&token=542e735a-dca4-4455-b071-f58ef6f422f9",
+      "imageHint": "insurance umbrella"
     }
   ]
 }
