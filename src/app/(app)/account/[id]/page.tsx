@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
@@ -15,6 +14,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useCollection, useFirestore, useMemoFirebase, useUser, useAllTransactions } from '@/firebase-provider';
 import { collection, doc, getDoc, query } from 'firebase/firestore';
+
+export const dynamic = 'force-dynamic';
 
 const MessageIcon = ({ className }: { className?: string }) => (
   <div className={cn("relative w-4 h-4 flex items-center justify-center bg-transparent", className)}>

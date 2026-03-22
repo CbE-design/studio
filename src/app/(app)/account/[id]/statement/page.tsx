@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -14,6 +13,8 @@ import { StatementSummaryPage } from '@/components/statement-summary';
 import { StatementTransactionsPage } from '@/components/statement-transactions';
 import { generateStatementPdf, type StatementData } from '@/app/lib/statement-generator';
 import { normalizeDate } from '@/app/lib/data';
+
+export const dynamic = 'force-dynamic';
 
 const StatementLoadingSkeleton = () => (
   <div className="p-4">

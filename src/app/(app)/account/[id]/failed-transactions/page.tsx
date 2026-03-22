@@ -14,6 +14,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
+export const dynamic = 'force-dynamic';
+
 interface FailedTransaction {
     id: string;
     returnDate: string;

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
@@ -45,6 +44,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import html2canvas from 'html2canvas';
+
+export const dynamic = 'force-dynamic';
 
 const DetailRow = ({ label, value }: { label: string; value: string | undefined }) => (
   <div className="py-4 border-b last:border-b-0">

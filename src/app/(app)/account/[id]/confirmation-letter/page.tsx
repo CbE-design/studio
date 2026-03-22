@@ -12,6 +12,8 @@ import { doc, getDoc } from 'firebase/firestore';
 import { generateConfirmationLetterAction } from '@/app/lib/actions';
 import { format } from 'date-fns';
 
+export const dynamic = 'force-dynamic';
+
 const ConfirmationLetterSkeleton = () => (
   <div className="p-4">
     <Skeleton className="h-10 w-1/4 mb-6" />
