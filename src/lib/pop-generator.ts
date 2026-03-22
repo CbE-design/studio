@@ -135,8 +135,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
       
         for (let p = 0; p < paragraphs.length; p++) {
             const words = paragraphs[p].split(' ');
-            if (words.length === 0) ||
-          (words.length === 1 && words[0] === '')) {          
+            if (words.length === 0 || (words.length === 1 && words[0] === '')) {          
                 lines.push('');
                 continue;
             }
@@ -186,10 +185,10 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     page.drawLine({ start: { x: margin, y: y }, end: { x: width - margin, y: y }, thickness: 1, color: rgb(0, 0, 0) });
     y -= 15;
 
-          const disclaimerParagraphs = [
-            'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification\nshould be directed to the Nedbank Contact Centre on 0860 555 111.\nPlease contact the payer for enquiries regarding the contents of this notification. Nedbank Ltd will not be held responsible for the accuracy of\nthe information on this notification and we accept no liability whatsoever arising from the transmission and use of the information',
-            'Payments may take up to three business days. Please check your account to verify the existence of the funds.'
-        ];
+    const disclaimerParagraphs = [
+        'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification\nshould be directed to the Nedbank Contact Centre on 0860 555 111.\nPlease contact the payer for enquiries regarding the contents of this notification. Nedbank Ltd will not be held responsible for the accuracy of\nthe information on this notification and we accept no liability whatsoever arising from the transmission and use of the information',
+        'Payments may take up to three business days. Please check your account to verify the existence of the funds.'
+    ];
 
     disclaimerParagraphs.forEach(paragraph => {
         y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y });
@@ -222,8 +221,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     const footerY = 30;
     page.drawLine({ start: { x: margin, y: footerY + 25 }, end: { x: width - margin, y: footerY + 25 }, thickness: 0.5, color: grayColor });
     
-    const footerText = "Nedbank Limited Reg No 1951/000009/06 VAT Reg No 4320116074   135 Rivonia Road Sandown Sandton 2196 South Africa 
-    We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCR Reg No: NCRCP16).";
+    const footerText = "Nedbank Limited Reg No 1951/000009/06 VAT Reg No 4320116074 135 Rivonia Road Sandown Sandton 2196 South Africa We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCR Reg No: NCRCP16).";
     
     drawWrappedText(footerText, {
         x: margin,
@@ -235,5 +233,6 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         maxWidth: width - margin * 2,
         align: 'center'
     });
-    
-    
+
+    return await pdfDoc.save();
+}
