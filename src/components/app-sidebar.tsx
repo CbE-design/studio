@@ -11,13 +11,14 @@ import {
   SidebarFooter,
 } from '@/components/ui/sidebar';
 import { LogoWithName } from '@/components/logo';
-import { LayoutDashboard, Wallet, Lightbulb, MapPin, LogOut, Settings } from 'lucide-react';
+import { LayoutDashboard, Wallet, Lightbulb, MapPin, LogOut, Settings, Bot, HelpCircle } from 'lucide-react';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/payments', label: 'Payments', icon: Wallet },
   { href: '/tips', label: 'Financial Tips', icon: Lightbulb },
   { href: '/locator', label: 'ATM Locator', icon: MapPin },
+  { href: '/ai-chat', label: 'AI Support', icon: Bot },
 ];
 
 export function AppSidebar() {

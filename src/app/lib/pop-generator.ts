@@ -125,7 +125,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     y -= 20;
 
     drawDetailRow('Paid from Account Holder', detailsForPdf.payer.toUpperCase());
-    y -= 14;
+    y -= 9;
     
     const wrapText = (text: string, maxWidth: number, font: PDFFont, fontSize: number) => {
         const words = text.replace(/\s+/g, ' ').split(' ');
@@ -146,20 +146,29 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         return lines;
     };
 
-    const drawWrappedText = (text: string, options: { x: number, y: number, font: PDFFont, size: number, color: any, lineHeight: number, maxWidth: number, align?: 'center' | 'left' | 'right' }) => {
+    const drawWrappedText = (text: string, options: { x: number, y: number, font: PDFFont, size: number, color: any, lineHeight: number, maxWidth: number, align?: 'center' | 'left' | 'right' | 'justify' }) => {
         const { align = 'left', ...restOptions } = options;
         const lines = wrapText(text, restOptions.maxWidth, restOptions.font, restOptions.size);
         let currentY = restOptions.y;
-        lines.forEach(line => {
+        lines.forEach((line, index) => {
+            const isLastLine = index === lines.length - 1;
             let x = restOptions.x;
             if (align === 'center') {
                 const textWidth = restOptions.font.widthOfTextAtSize(line, restOptions.size);
                 x = (width - textWidth) / 2;
+                page.drawText(line, { ...restOptions, x, y: currentY });
             } else if (align === 'right') {
                 const textWidth = restOptions.font.widthOfTextAtSize(line, restOptions.size);
                 x = width - margin - textWidth;
+                page.drawText(line, { ...restOptions, x, y: currentY });
+            } else if (align === 'justify') {
+                const lineTextWidth = restOptions.font.widthOfTextAtSize(line, restOptions.size);
+                const extraSpace = restOptions.maxWidth - lineTextWidth;
+                const charSpacing = line.length > 0 ? extraSpace / line.length : 0;
+                page.drawText(line, { ...restOptions, x, y: currentY, characterSpacing: charSpacing });
+            } else {
+                page.drawText(line, { ...restOptions, x, y: currentY });
             }
-            page.drawText(line, { ...restOptions, x, y: currentY });
             currentY -= restOptions.lineHeight;
         });
         return currentY;
@@ -167,51 +176,93 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     
     const commonTextOptions = { font, size: 8, color: textColor, lineHeight: 15, maxWidth: width - margin * 2 };
 
-    y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y });
+    y = drawWrappedText('Nedbank will never send you an e-mail link to access Verify payments, always go to Online Banking on www.nedbank.co.za and click on Verify payments.', { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12, align: 'justify' });
+    y -= 6;
     
     page.drawLine({ start: { x: margin, y: y }, end: { x: width - margin, y: y }, thickness: 1, color: rgb(0, 0, 0) });
-    y -= 15;
+    y -= 18;
 
     const disclaimerParagraphs = [
-      'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification. Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information. Payments may take up to three business days. Please check your account to verify the existence of the funds.'
+      'This notification of payment is sent to you by Nedbank Limited Reg No 1951/000009/06. Enquiries regarding this payment notification should be directed to the Nedbank Contact Centre on 0860 555 111. Please contact the payer for enquiries regarding the contents of this notification.',
+      'Nedbank Ltd will not be held responsible for the accuracy of the information on this notification and we accept no liability whatsoever arising from the transmission and use of the information.',
+      'Payments may take up to three business days. Please check your account to verify the existence of the funds.'
     ];
     
-    disclaimerParagraphs.forEach(paragraph => {
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y });
-        y -= 18;
-    });
+    y = drawWrappedText(disclaimerParagraphs[0], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12, align: 'justify' });
+    y -= 1;
+    y = drawWrappedText(disclaimerParagraphs[1], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12, align: 'justify' });
+    y -= 0.1;
+    y = drawWrappedText(disclaimerParagraphs[2], { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12, align: 'justify' });
+    y -= 10;
     
-    y -= 5;
-    
-    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification and authentication details.', { ...commonTextOptions, x: margin, y });
+    y = drawWrappedText('Note: We as a bank will never send you an e-mail requesting you to enter your personal details or private identification', { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12, align: 'justify' });
+    y = drawWrappedText('and authentication details.', { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12, align: 'justify' });
     y -= 15;
 
     page.drawText('Nedbank Limited email', { x: margin, y, font: boldFont, size: 10, color: textColor });
     y -= 18;
-    
+
     const emailDisclaimerParagraphs = [
-        'This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment is required, please request a hard copy version.'
+        'This email and any accompanying attachments may contain confidential and proprietary information. This information is',
+        'private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire',
+        'communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on',
+        'this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not',
+        'accept any liability or responsibility for any interception, corruption, destruction, loss, late arrival or incompleteness of or',
+        'tampering or interference with any of the information contained in this email or for its incorrect delivery or non-delivery for',
+        'whatsoever reason or for its effect on any electronic device of the recipient. If verification of this email or any attachment',
+        'is required, please request a hard copy version.'
     ];
 
     emailDisclaimerParagraphs.forEach(paragraph => {
-        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, lineHeight: 18 });
-        y -= 10;
+        y = drawWrappedText(paragraph, { ...commonTextOptions, x: margin, y, size: 9, lineHeight: 12, align: 'justify' });
+        y -= 1;
     });
-    
+
     y -= 15;
 
-    drawDetailRow('Security Code', detailsForPdf.securityCode);
+    page.drawText('Security Code', { x: margin, y, font, size: 8, color: textColor });
+    page.drawText(':', { x: margin + 120, y, font, size: 8, color: textColor });
+    page.drawText(detailsForPdf.securityCode, { x: margin + 130, y, font, size: 8, color: textColor });
+    y -= 15;
     y -= 30;
 
     const footerY = 30;
-    page.drawLine({ start: { x: margin, y: footerY + 25 }, end: { x: width - margin, y: footerY + 25 }, thickness: 0.5, color: grayColor });
-    const footerText = "Nedbank Limited Reg No 1951/000009/06 VAT Reg No 4320116074 135 Rivonia Road Sandown Sandton 2196 South Africa We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services. We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCR Reg No: NCRCP16).";
-    
-    drawWrappedText(footerText, {
+    page.drawLine({ start: { x: margin, y: footerY + 25 }, end: { x: width - margin, y: footerY + 25 }, thickness: 0.5, color: rgb(0.7, 0.7, 0.7) });
+    const footerSeg1 = "Nedbank Limited Reg No 1951/000009/06";
+    const footerSeg2 = "VAT Reg No 4320116074";
+    const footerSeg3 = "135 Rivonia Road Sandown Sandton 2196 South Africa";
+    const footerLine2a = "We subscribe to the Code of Banking Practice of The Banking Association South Africa and, for unresolved disputes, support resolution through the Ombudsman for Banking Services.";
+    const footerLine2b = "We are an authorised financial services provider. We are a registered credit provider in terms of the National Credit Act (NCR Reg No: NCRCP16).";
+
+    const footerFontSize = 6.5;
+    const segGap = 6;
+    const seg1Width = font.widthOfTextAtSize(footerSeg1, footerFontSize);
+    const seg2Width = font.widthOfTextAtSize(footerSeg2, footerFontSize);
+    const seg3Width = font.widthOfTextAtSize(footerSeg3, footerFontSize);
+    const totalFooterLine1Width = seg1Width + segGap + seg2Width + segGap + seg3Width;
+    const footerLine1StartX = (width - totalFooterLine1Width) / 2;
+
+    let footerTextY = footerY + 13;
+    page.drawText(footerSeg1, { x: footerLine1StartX, y: footerTextY, font, size: footerFontSize, color: grayColor });
+    page.drawText(footerSeg2, { x: footerLine1StartX + seg1Width + segGap, y: footerTextY, font, size: footerFontSize, color: grayColor });
+    page.drawText(footerSeg3, { x: footerLine1StartX + seg1Width + segGap + seg2Width + segGap, y: footerTextY, font, size: footerFontSize, color: grayColor });
+    footerTextY -= 11;
+    footerTextY = drawWrappedText(footerLine2a, {
         x: margin,
-        y: footerY,
+        y: footerTextY,
         font: font,
-        size: 7,
+        size: 6,
+        color: grayColor,
+        lineHeight: 9,
+        maxWidth: width - margin * 2,
+        align: 'center'
+    });
+    footerTextY += 9 - 7; // add back lineHeight, then apply 7px gap
+    drawWrappedText(footerLine2b, {
+        x: margin,
+        y: footerTextY,
+        font: font,
+        size: 6,
         color: grayColor,
         lineHeight: 9,
         maxWidth: width - margin * 2,
