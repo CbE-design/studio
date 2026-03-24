@@ -7,10 +7,8 @@ import { Menu, AlertCircle, LoaderCircle, Fingerprint, Lock, LayoutGrid, QrCode,
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from '@/firebase-provider';
-import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
 
 const BottomNavItem = ({ icon: Icon, label, active = false }: { icon: React.ElementType, label: string, active?: boolean }) => (
     <div className={`flex flex-col items-center gap-1 ${active ? 'text-[#00A651]' : 'text-gray-500'}`}>
@@ -28,7 +26,6 @@ export default function LoginPage() {
 
   const router = useRouter();
   const auth = useAuth();
-  const { toast } = useToast();
 
   const DEMO_EMAIL = 'cbenterprise@outlook.com';
   const DEMO_PASSWORD = 'Ninkenel@143';
@@ -137,11 +134,7 @@ export default function LoginPage() {
           </>
         )}
 
-        <div
-          className="flex items-center justify-center gap-2 mt-2"
-          aria-live="polite"
-          aria-atomic="true"
-        >
+        <div className="flex items-center justify-center gap-2 mt-2" aria-live="polite" aria-atomic="true">
           {errorMessage && !isLoading && (
             <>
               <AlertCircle className="h-5 w-5 text-red-500" />

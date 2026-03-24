@@ -80,17 +80,12 @@
   }
 
   .gradient-background {
-    background: radial-gradient(
-      circle at 50% 30%, 
-      #10a342 0%,   /* Bright center */
-      #007a33 70%,  /* Mid-tone */
-      #005a26 100%  /* Dark edges */
-    );
+    background-color: #007a33;
     @apply brand-pattern-base;
   }
 
   .brand-header {
-    background-color: #007a33; /* Solid mid-tone green throughout */
+    background-color: #007a33;
     @apply brand-pattern-base;
   }
 }

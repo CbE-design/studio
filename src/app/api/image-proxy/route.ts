@@ -10,9 +10,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const fetchUrl = imageUrl;
-    
-    const response = await fetch(fetchUrl, {
+    const response = await fetch(imageUrl, {
       cache: 'force-cache',
     });
 
