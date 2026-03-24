@@ -29,7 +29,7 @@ export default function CardsPage() {
 
   return (
     <div className="flex flex-col h-screen bg-white">
-      <header className="gradient-background text-primary-foreground p-4 sticky top-0 z-10">
+      <header className="brand-header text-primary-foreground p-4 sticky top-0 z-10">
         <h1 className="text-xl font-bold text-center">My cards</h1>
       </header>
       

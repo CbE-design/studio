@@ -41,6 +41,54 @@
       "description": "Debit graph for bank statement",
       "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/My%20Widget%20Buttons%2Fgraph2.png?alt=media&token=8544a034-7a1f-4c57-a36c-9c748c14828b",
       "imageHint": "bar chart"
+    },
+    {
+      "id": "widget-home-loans",
+      "description": "Home loans widget icon",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_164401412.png?alt=media&token=236072f8-0330-4c93-8653-116d7e344c35",
+      "imageHint": "home loans"
+    },
+    {
+      "id": "widget-latest",
+      "description": "Latest widget icon",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_165956880.png?alt=media&token=d5b88368-2452-43b7-ad1f-5942c8966997",
+      "imageHint": "latest news"
+    },
+    {
+      "id": "widget-statements",
+      "description": "Statements and documents widget icon",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_170055535.png?alt=media&token=d62d1811-b112-4f52-a184-ef7e853057f9",
+      "imageHint": "bank statements"
+    },
+    {
+      "id": "widget-shop",
+      "description": "Shop widget icon",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_200057955.png?alt=media&token=c1ed22af-00c0-4a63-ad53-38c6c8fe7bce",
+      "imageHint": "shopping bag"
+    },
+    {
+      "id": "widget-insure",
+      "description": "Insure widget icon",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_200126624.png?alt=media&token=542e735a-dca4-4455-b071-f58ef6f422f9",
+      "imageHint": "insurance umbrella"
+    },
+    {
+      "id": "widget-applications",
+      "description": "Applications widget icon",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_200150995.png?alt=media&token=8a6851f7-89b9-4e83-bf0a-c70f0c959602",
+      "imageHint": "mobile apps"
+    },
+    {
+      "id": "widget-quick-pay",
+      "description": "Quick Pay widget icon",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_200233327.png?alt=media&token=ffa60136-185e-434d-9438-cd0f731f8b91",
+      "imageHint": "quick pay"
+    },
+    {
+      "id": "widget-get-cash",
+      "description": "Get cash widget icon",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260321_200531859.png?alt=media&token=7119166b-1564-4f6e-8820-854c198ba5a7",
+      "imageHint": "withdraw money"
     }
   ]
 }

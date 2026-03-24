@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import {
@@ -10,19 +8,20 @@ import {
   ChevronRight,
   Plus,
   LogOut,
+  Shield,
+  Cpu,
+  Database,
+  ShieldCheck,
 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useAuth, useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
+import { useAuth, useUser, useAllTransactions } from '@/firebase-provider';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { collection, getDocs, query } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
-import type { Transaction } from '@/app/lib/definitions';
-import { parseISO } from 'date-fns';
 
 const CustomBellIcon = ({className}: {className?: string}) => (
     <svg
@@ -30,7 +29,7 @@ const CustomBellIcon = ({className}: {className?: string}) => (
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
@@ -81,88 +80,113 @@ export default function MorePage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user, isUserLoading } = useUser();
-  const firestore = useFirestore();
+  const { transactions, isLoading: isTransactionsLoading } = useAllTransactions();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const accountsQuery = useMemoFirebase(() => {
-      if (!firestore || !user?.uid) return null;
-      return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
-  }, [firestore, user?.uid]);
-  const { data: accounts } = useCollection(accountsQuery);
-  
   useEffect(() => {
-    if (!accounts || isUserLoading) return;
+    if (isTransactionsLoading || transactions.length === 0) {
+        setUnreadCount(0);
+        return;
+    }
 
-    const fetchAndCountTransactions = async () => {
-        if (!user?.uid) return;
-
-        let allTransactions: Transaction[] = [];
-        for (const account of accounts) {
-            const transactionsCollectionRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
-            const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
-            transactionsSnapshot.forEach(doc => {
-                const data = doc.data();
-                if (data.date && data.transactionType !== 'BANK_FEE') {
-                     allTransactions.push({ id: doc.id, ...data } as Transaction);
-                }
-            });
-        }
-        
-        try {
-            const storedIdsValue = localStorage.getItem('readTransactionIds');
-            const readIds = storedIdsValue ? JSON.parse(storedIdsValue) : [];
-            const newUnreadCount = allTransactions.filter(tx => !readIds.includes(tx.id)).length;
-            setUnreadCount(newUnreadCount);
-        } catch (e) {
-            console.error("Failed to parse readTransactionIds from localStorage", e);
-            setUnreadCount(allTransactions.length);
-        }
-    };
-    
-    fetchAndCountTransactions();
-  }, [accounts, firestore, user?.uid, isUserLoading]);
+    try {
+        const storedIdsValue = localStorage.getItem('readTransactionIds');
+        const readIds = storedIdsValue ? JSON.parse(storedIdsValue) : [];
+        const newUnreadCount = transactions.filter(tx => !readIds.includes(tx.id)).length;
+        setUnreadCount(newUnreadCount);
+    } catch (e) {
+        console.error("Failed to parse readTransactionIds from localStorage", e);
+        setUnreadCount(transactions.length);
+    }
+  }, [transactions, isTransactionsLoading]);
 
 
-  const menuItems = [
+  const menuSections = [
     {
-      icon: CustomBellIcon,
-      label: 'Notifications',
-      href: '/notifications',
-      badge: unreadCount > 0 ? String(unreadCount) : null,
-      badgeColor: 'bg-red-500',
+      title: 'TRUST ADMINISTRATION',
+      items: [
+        {
+          icon: ShieldCheck,
+          label: 'Authorizations',
+          href: '/approvals',
+          badge: '2',
+          badgeColor: 'bg-amber-500',
+        },
+        {
+          icon: FileText,
+          label: 'Statements and Documents',
+          href: '/documents',
+        },
+        {
+          icon: ApplicationsIcon,
+          label: 'New Applications',
+          href: '#',
+        },
+      ]
     },
     {
-      icon: ApplicationsIcon,
-      label: 'Applications',
-      href: '#',
+      title: 'SYSTEM INTEGRATION',
+      items: [
+        {
+          icon: Cpu,
+          label: 'CBS Core Bridge',
+          href: '/cbs',
+          badge: 'Online',
+          badgeColor: 'bg-green-600',
+        },
+        {
+          icon: Database,
+          label: 'SAP ERP Ledger',
+          href: '/saperp',
+          badge: 'Synced',
+          badgeColor: 'bg-blue-600',
+        },
+      ]
     },
     {
-      icon: NedbankConnectIcon,
-      label: 'Nedbank Connect',
-      href: '#',
-      badge: 'New',
-      badgeColor: 'bg-green-500',
+      title: 'COMMUNICATIONS',
+      items: [
+        {
+          icon: CustomBellIcon,
+          label: 'Notifications',
+          href: '/notifications',
+          badge: unreadCount > 0 ? String(unreadCount) : null,
+          badgeColor: 'bg-red-500',
+        },
+        {
+          icon: NedbankConnectIcon,
+          label: 'Nedbank Connect',
+          href: '#',
+          badge: 'New',
+          badgeColor: 'bg-green-500',
+        },
+        {
+          icon: Phone,
+          label: 'Get in touch',
+          href: '#',
+        },
+      ]
     },
     {
-      icon: FileText,
-      label: 'Statements and Documents',
-      href: '/documents',
-    },
-    {
-      icon: Phone,
-      label: 'Get in touch',
-      href: '#',
-    },
-    {
-      icon: Lock,
-      label: 'Login and security',
-      href: '#',
-    },
-    {
-      icon: Settings,
-      label: 'Settings',
-      href: '#',
-    },
+      title: 'SECURITY & SETTINGS',
+      items: [
+        {
+          icon: Lock,
+          label: 'Login and security',
+          href: '#',
+        },
+        {
+          icon: Settings,
+          label: 'Settings',
+          href: '#',
+        },
+        {
+          icon: Shield,
+          label: 'Admin Panel',
+          href: '/admin',
+        },
+      ]
+    }
   ];
 
   const handleLogout = async () => {
@@ -182,64 +206,73 @@ export default function MorePage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      <header className="bg-transparent h-16" />
+      <header className="bg-transparent h-12" />
 
       <main className="flex-1 overflow-y-auto">
-        <div className="bg-white pb-6 shadow-sm">
+        <div className="bg-white pb-6 shadow-sm border-b">
           <div className="flex justify-around items-start p-6 text-center">
             <div className="flex flex-col items-center">
               <Avatar className="h-16 w-16 mb-2 border-2 border-primary">
                 <AvatarFallback className="text-2xl bg-gray-100 text-primary font-bold">
-                  GS
+                  DT
                 </AvatarFallback>
               </Avatar>
               <p className="font-bold text-gray-800">
-                GGS FAMILY TRUST
+                DICKSON FAMILY TRUST
               </p>
-              <p className="text-sm text-gray-500">3120634863</p>
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Master Profile</p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="h-16 w-16 mb-2 rounded-full border border-gray-300 flex items-center justify-center cursor-pointer">
+              <div className="h-16 w-16 mb-2 rounded-full border border-gray-300 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors">
                 <Plus className="h-8 w-8 text-gray-400" />
               </div>
-              <p className="font-semibold text-gray-700">Link a Profile</p>
+              <p className="font-semibold text-gray-700">Link Profile</p>
             </div>
           </div>
         </div>
 
-        <div className="mt-4 bg-white">
-          <ul className="divide-y divide-gray-200">
-            {menuItems.map((item) => (
-              <li key={item.label}>
-                <Link href={item.href}>
-                  <div className="flex items-center p-4 cursor-pointer hover:bg-gray-50">
-                    <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center mr-4">
-                      <item.icon className="h-6 w-6 text-gray-600" />
-                    </div>
-                    <span className="flex-1 font-medium text-gray-700">
-                      {item.label}
-                    </span>
-                    {item.badge && (
-                      <Badge className={`${item.badgeColor} text-white mr-2`}>
-                        {item.badge}
-                      </Badge>
-                    )}
-                    <ChevronRight className="h-5 w-5 text-gray-400" />
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="p-4 mt-4">
+        {menuSections.map((section) => (
+          <div key={section.title} className="mt-6">
+            <h2 className="px-4 mb-2 text-[10px] font-bold text-gray-400 tracking-widest uppercase">{section.title}</h2>
+            <div className="bg-white border-y">
+              <ul className="divide-y divide-gray-100">
+                {section.items.map((item) => (
+                  <li key={item.label}>
+                    <Link href={item.href}>
+                      <div className="flex items-center p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                        <div className="h-10 w-10 rounded-full bg-gray-50 flex items-center justify-center mr-4 border border-gray-100">
+                          <item.icon className="h-5 w-5 text-gray-600" />
+                        </div>
+                        <span className="flex-1 font-medium text-gray-700 text-sm">
+                          {item.label}
+                        </span>
+                        {item.badge && (
+                          <Badge className={`${item.badgeColor} text-[10px] font-bold text-white mr-2`}>
+                            {item.badge}
+                          </Badge>
+                        )}
+                        <ChevronRight className="h-4 w-4 text-gray-300" />
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        ))}
+
+        <div className="p-4 mt-8 mb-12">
           <Button
             variant="outline"
-            className="w-full justify-start text-lg p-6 border-gray-300"
+            className="w-full justify-start text-sm p-6 border-gray-200 bg-white hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all"
             onClick={handleLogout}
           >
-            <LogOut className="mr-4 h-6 w-6 text-primary" />
-            Sign Out
+            <LogOut className="mr-4 h-5 w-5 text-primary" />
+            Sign Out of Production
           </Button>
+          <p className="text-center text-[9px] text-gray-400 mt-4 uppercase tracking-tighter">
+            Application Version 2.4.0 (Production Node)
+          </p>
         </div>
       </main>
     </div>

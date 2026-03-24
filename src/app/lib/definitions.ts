@@ -1,5 +1,3 @@
-
-
 import { z } from "zod";
 
 export type Account = {
@@ -17,7 +15,7 @@ export type TransactionType = 'EFT_IMMEDIATE' | 'EFT_STANDARD' | 'POS_PURCHASE' 
 export type Transaction = {
   id: string;
   fromAccountId?: string;
-  userId?: string; // Add userId to link transaction to the user
+  userId?: string; 
   date: string;
   description: string;
   amount: number;
@@ -31,6 +29,18 @@ export type Transaction = {
   accountNumber?: string;
   popReferenceNumber?: string;
   popSecurityCode?: string;
+  status?: 'PENDING_APPROVAL' | 'SUCCESS' | 'FAILED' | 'REJECTED';
+};
+
+export type ApprovalRequest = {
+  id: string;
+  initiatorName: string;
+  amount: number;
+  recipientName: string;
+  date: string;
+  reference: string;
+  accountNumber: string;
+  bankName: string;
 };
 
 export type Beneficiary = {
@@ -61,6 +71,25 @@ export type User = {
     createdAt: any;
 }
 
+export type CbsStatus = {
+  connected: boolean;
+  systemName: string;
+  latency: string;
+  lastSync: string;
+  environment: 'Production' | 'Sandbox' | 'Mock';
+  isoReadiness: 'Active' | 'Pending' | 'Legacy';
+};
+
+export type IntegrationAuditLog = {
+  id: string;
+  timestamp: string;
+  system: 'CBS' | 'SAP' | 'FIREBASE';
+  action: string;
+  status: 'SUCCESS' | 'FAILURE';
+  details: string;
+  userId: string;
+};
+
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
     userId: z.string().min(1, { message: 'User ID is required.'}),
@@ -70,7 +99,7 @@ const TransactionSchema = z.object({
     recipientReference: z.string().optional(),
     bankName: z.string().optional(),
     accountNumber: z.string().optional(),
-    paymentType: z.string(), // e.g. 'Instant Pay', 'Standard EFT'
+    paymentType: z.string(), 
 });
 
 export type TransactionInput = z.infer<typeof TransactionSchema>;

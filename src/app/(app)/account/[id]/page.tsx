@@ -2,10 +2,9 @@
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, MessageSquare, ChevronRight, Search } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, normalizeDate } from '@/app/lib/data';
-import { Input } from '@/components/ui/input';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { format, isThisWeek, startOfWeek, subDays } from 'date-fns';
@@ -13,8 +12,20 @@ import { useMemo, useState, useEffect } from 'react';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
+import Image from 'next/image';
+import { useCollection, useFirestore, useMemoFirebase, useUser, useAllTransactions } from '@/firebase-provider';
 import { collection, doc, getDoc, query } from 'firebase/firestore';
+
+const MessageIcon = ({ className }: { className?: string }) => (
+  <div className={cn("relative w-4 h-4 flex items-center justify-center bg-transparent", className)}>
+    <Image
+      src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_172101952.png?alt=media&token=2d52b45c-6169-486b-8c04-8e3965a21d47"
+      alt="Messages"
+      fill
+      className="object-contain"
+    />
+  </div>
+);
 
 const FilterIcon = () => (
   <svg
@@ -42,9 +53,9 @@ const FilterIcon = () => (
 const tabs = ['Transactions', 'Debit orders', 'Scheduled', 'Card management', 'Statements'];
 
 const LoadingSkeleton = () => (
-  <div className="flex flex-col h-screen bg-gray-50">
-    <header className="gradient-background text-white p-4 sticky top-0 z-10 space-y-4">
-      <div className="flex items-center justify-between">
+  <div className="flex flex-col h-full bg-gray-50">
+    <header className="brand-header text-white p-4 space-y-4">
+      <div className="flex items-center justify-between relative z-10">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="mr-2 -ml-2">
             <ArrowLeft />
@@ -54,21 +65,7 @@ const LoadingSkeleton = () => (
             <Skeleton className="h-4 w-32 mt-1 bg-white/20" />
           </div>
         </div>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-          <line x1="8" y1="9" x2="16" y2="9"></line>
-          <line x1="8" y1="12" x2="13" y2="12"></line>
-        </svg>
-      </div>
-      <div className="flex justify-between">
-        <div className="text-left">
-          <p className="text-xs opacity-80">Current balance</p>
-          <Skeleton className="h-7 w-36 mt-1 bg-white/20" />
-        </div>
-        <div className="text-right">
-          <p className="text-xs opacity-80">Available balance</p>
-          <Skeleton className="h-7 w-36 mt-1 bg-white/20" />
-        </div>
+        <Skeleton className="h-5 w-5 bg-white/20 rounded-full" />
       </div>
     </header>
     <div className="p-4 space-y-4">
@@ -84,12 +81,13 @@ export default function AccountDetailsPage() {
   const accountId = params.id as string;
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
+  const { transactions: allTransactions, isLoading: isAllTransactionsLoading } = useAllTransactions();
   
   const [account, setAccount] = useState<Account | null>(null);
   const [isAccountLoading, setIsAccountLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const transactionsQuery = useMemoFirebase(() => {
-    // Only create the query if we have the required IDs
     if (!firestore || !user?.uid || !accountId) return null;
     return query(collection(firestore, 'users', user.uid, 'bankAccounts', accountId, 'transactions'));
   }, [firestore, user?.uid, accountId]);
@@ -125,6 +123,17 @@ export default function AccountDetailsPage() {
     };
     fetchAccountData();
   }, [firestore, user?.uid, accountId, isUserLoading]);
+
+  useEffect(() => {
+    if (isAllTransactionsLoading || allTransactions.length === 0) return;
+    try {
+        const storedIdsValue = localStorage.getItem('readTransactionIds');
+        const readIds = storedIdsValue ? JSON.parse(storedIdsValue) : [];
+        setUnreadCount(allTransactions.filter(tx => !readIds.includes(tx.id)).length);
+    } catch (e) {
+        console.error("Failed to parse readTransactionIds", e);
+    }
+  }, [allTransactions, isAllTransactionsLoading]);
 
   const groupedTransactions = useMemo(() => {
     if (!accountTransactions) return {};
@@ -169,7 +178,7 @@ export default function AccountDetailsPage() {
 
   if (!account) {
     return (
-      <div className="flex flex-col h-screen bg-gray-50 items-center justify-center p-4 text-center">
+      <div className="flex flex-col h-full bg-gray-50 items-center justify-center p-4 text-center">
         <p className="text-xl text-destructive-foreground bg-destructive p-4 rounded-md">Account not found.</p>
         <Button onClick={() => router.back()} className="mt-4">Go Back</Button>
       </div>
@@ -177,34 +186,39 @@ export default function AccountDetailsPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      <div className="sticky top-0 z-10 shadow-sm">
-        <header className="gradient-background text-white p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
-              <ArrowLeft strokeWidth={2.5} />
-            </Button>
-            <div className="text-left">
-              <h1 className="text-base font-medium">{account.name}</h1>
-              <p className="text-sm opacity-80">{account.accountNumber}</p>
+    <div className="flex flex-col h-full bg-gray-50">
+      <div className="shadow-sm shrink-0">
+        <header className="sticky top-0 z-30 brand-header text-white p-4 space-y-4">
+          <div className="relative z-10 flex items-center justify-between">
+            <div className="flex items-center">
+              <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2 -ml-2">
+                <ArrowLeft strokeWidth={2.5} />
+              </Button>
+              <div className="text-left">
+                <h1 className="text-base font-medium">{account.name}</h1>
+                <p className="text-sm opacity-80">{account.accountNumber}</p>
+              </div>
             </div>
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-5 w-5"
-            >
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              <line x1="8" y1="9" x2="16" y2="9"></line>
-              <line x1="8" y1="13" x2="14" y2="13"></line>
-            </svg>
+            <div className="flex items-center gap-4">
+              <Link href="/notifications">
+                <div className="relative w-5 h-5 bg-transparent">
+                  <Image
+                    src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320141309.png?alt=media&token=1836ae99-d919-48db-85fe-013baef40979"
+                    alt="Notifications"
+                    fill
+                    className="object-contain"
+                  />
+                  {unreadCount > 0 && (
+                    <div className="absolute top-[1px] right-[1px] h-2 w-2 rounded-full bg-[#9fff00] border border-[#004d00] z-10" />
+                  )}
+                </div>
+              </Link>
+              <Link href="/ai-chat">
+                <MessageIcon />
+              </Link>
+            </div>
           </div>
-          <div className="flex justify-between">
+          <div className="relative z-10 flex justify-between">
             <div className="text-left">
               <p className="text-xs opacity-80">Current balance</p>
               <p className="text-sm font-medium">{formatCurrency(account.balance, account.currency)}</p>

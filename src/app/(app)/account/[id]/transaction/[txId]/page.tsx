@@ -55,7 +55,7 @@ const DetailRow = ({ label, value }: { label: string; value: string | undefined 
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col h-screen">
-    <header className="gradient-background text-white p-4 flex items-center">
+    <header className="brand-header text-white p-4 flex items-center">
       <Skeleton className="h-6 w-6 mr-4 bg-white/20" />
       <Skeleton className="h-6 w-32 bg-white/20" />
     </header>
@@ -155,7 +155,7 @@ function TransactionDetailsContent() {
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `proof-of-payment-${transaction.id}.pdf`;
+      link.download = `Proof_Of_Payment.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -186,7 +186,6 @@ function TransactionDetailsContent() {
       toast({ variant: 'destructive', title: 'Error', description: result.message });
       setIsFailing(false);
     }
-    // No need to set isFailing to false on success, as we are navigating away.
   };
 
   const handleSend = async () => {
@@ -207,7 +206,7 @@ function TransactionDetailsContent() {
             const accNumberLast6 = transaction.accountNumber ? `...${transaction.accountNumber.slice(-6)}` : '...';
             const formattedAmount = `R${transaction.amount.toFixed(2)}`;
             const formattedDate = format(normalizeDate(transaction.date), 'dd/MM/yyyy');
-            const senderName = 'C.VAN SCHALKWYK';
+            const senderName = 'DICKSON FAMILY TRUST';
             const reference = transaction.popReferenceNumber || `${format(normalizeDate(transaction.date), 'yyyy-MM-dd')}/NEDBANK/${transaction.id}`;
             const text = `Nedbank Payment: ${senderName} has paid ${formattedAmount} into Acc No: ${accNumberLast6} on ${formattedDate} ,Ref: ${reference} .Please check your account.`;
             await sendSmsFn({ to: recipient, text });
@@ -253,7 +252,7 @@ function TransactionDetailsContent() {
   return (
     <>
       <div className="flex flex-col h-screen bg-white">
-        <header className="gradient-background text-white p-4 flex items-center justify-between sticky top-0 z-10">
+        <header className="brand-header text-white p-4 flex items-center justify-between sticky top-0 z-10">
           <div className="flex items-center">
               <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
                   <ArrowLeft />
@@ -375,10 +374,9 @@ function TransactionDetailsContent() {
 
 
 export default function TransactionDetailsPage() {
-    return (
-        <Suspense fallback={<LoadingSkeleton />}>
-            <TransactionDetailsContent />
-        </Suspense>
-    )
+  return (
+    <Suspense fallback={<LoadingSkeleton />}>
+      <TransactionDetailsContent />
+    </Suspense>
+  )
 }
-

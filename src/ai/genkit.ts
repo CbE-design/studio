@@ -63,3 +63,4 @@ export const generateSupportResponse = async (input: any) => ({
   actionItems: [],
   followUpActions: [],
 });
+

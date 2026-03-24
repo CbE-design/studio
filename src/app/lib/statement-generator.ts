@@ -1,4 +1,3 @@
-
 'use server';
 
 import { PDFDocument, StandardFonts, rgb, PDFFont, PageSizes, PDFPage } from 'pdf-lib';
@@ -6,6 +5,8 @@ import { format } from 'date-fns';
 import type { Account, Transaction, User } from './definitions';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
+// --- Type Definitions ---
+// Structure for the summary data displayed on the statement
 type StatementSummaryData = {
     accountType: string;
     accountNumber: string;
@@ -17,6 +18,7 @@ type StatementSummaryData = {
     clientVatNumber: string;
 };
 
+// Structure for the bank charges and balance summary
 type BankSummaryData = {
     cashFees: number;
     otherCharges: number;
@@ -30,6 +32,7 @@ type BankSummaryData = {
     annualCreditInterestRate: number;
 };
 
+// Structure for the graph data (Money In / Money Out)
 type GraphData = {
     fundsReceived: {
         totalCredits: number;
@@ -47,6 +50,7 @@ type GraphData = {
     };
 };
 
+// Main data structure passed to the generator
 export type StatementData = {
     account: Account;
     user: User;
@@ -56,6 +60,7 @@ export type StatementData = {
     graphsData: GraphData;
 };
 
+// Resources loaded for PDF generation (fonts, images)
 type PDFResources = {
     pdfDoc: PDFDocument;
     font: PDFFont;
@@ -66,6 +71,7 @@ type PDFResources = {
     nLogoDims: { width: number; height: number };
 };
 
+// --- Constants ---
 const COLORS = {
     primary: rgb(0, 0.447, 0.243), // #00723E / darkgreen
     black: rgb(0, 0, 0),
@@ -78,18 +84,28 @@ const COLORS = {
 
 const MARGIN = 40;
 
+/**
+ * Formats a number as a currency string.
+ * @param amount The amount to format.
+ * @param currency The currency symbol (default: 'R').
+ */
 const formatCurrency = (amount: number, currency: string = 'R') => {
     const isNegative = amount < 0;
     const absAmount = Math.abs(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
     return `${isNegative ? '-' : ''}${currency}${absAmount}`;
 };
 
+/**
+ * Loads fonts and images needed for the PDF.
+ * @param pdfDoc The PDF document instance.
+ */
 async function loadResources(pdfDoc: PDFDocument): Promise<PDFResources> {
     const [font, boldFont] = await Promise.all([
         pdfDoc.embedFont(StandardFonts.Helvetica),
         pdfDoc.embedFont(StandardFonts.HelveticaBold),
     ]);
 
+    // Helper to embed image, trying PNG then JPG
     const embedImage = async (imageBytes: ArrayBuffer) => {
         try { return await pdfDoc.embedPng(imageBytes); } 
         catch (pngError) {
@@ -101,10 +117,12 @@ async function loadResources(pdfDoc: PDFDocument): Promise<PDFResources> {
         }
     };
     
+    // Image URLs (Replace with your actual asset URLs or paths)
     const nLogoUrl = 'https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/images.png?alt=media&token=9c75c65e-fc09-4827-9a36-91caa0ae3ee5';
     const eConfirmLogoUrl = PlaceHolderImages.find(i => i.id === 'statement-econfirm')?.imageUrl!;
     const barcodeUrl = PlaceHolderImages.find(i => i.id === 'statement-barcode')?.imageUrl!;
     
+    // Fetch images in parallel
     const [nLogoBytes, eConfirmBytes, barcodeBytes] = await Promise.all([
          fetch(nLogoUrl).then(res => res.arrayBuffer()),
          fetch(eConfirmLogoUrl).then(res => res.arrayBuffer()),
@@ -119,25 +137,32 @@ async function loadResources(pdfDoc: PDFDocument): Promise<PDFResources> {
     return { pdfDoc, font, boldFont, nLogoImage, eConfirmImage, barcodeImage, nLogoDims };
 }
 
+/**
+ * Draws the content of the first page (Summary Page).
+ */
 function drawSummaryPageContent(page: PDFPage, data: StatementData, resources: PDFResources) {
     const { user, accountSummary, bankSummary, graphsData } = data;
     const { font, boldFont, nLogoImage, eConfirmImage, barcodeImage, nLogoDims } = resources;
     const { width, height } = page.getSize();
     let y = height - MARGIN;
 
-    // --- Header ---
+    // --- Header Section ---
     page.drawImage(eConfirmImage, { x: MARGIN, y: y - 30, width: 80, height: 40 });
     page.drawImage(nLogoImage, { x: width - MARGIN - nLogoDims.width, y: y - nLogoDims.height, width: nLogoDims.width, height: nLogoDims.height });
     y -= 80;
 
-    // --- Addresses and Right-side details ---
+    // --- Addresses and Bank Details ---
     page.drawImage(barcodeImage, { x: MARGIN, y: y, width: 250, height: 20 });
     const rightAddressX = width - MARGIN - 200;
+    
+    // Bank Address (Right)
     page.drawText('135 Rivonia Road, Sandown, 2196', { x: rightAddressX, y: y + 25, font, size: 8, color: COLORS.gray });
     page.drawText('P O Box 1144, Johannesburg, 2000, South Africa', { x: rightAddressX, y: y + 15, font, size: 8, color: COLORS.gray });
 
     y -= 20;
     let leftY = y;
+    
+    // User Address (Left)
     page.drawText('Mr', { x: MARGIN, y: leftY, font, size: 9, color: COLORS.black });
     leftY -= 12;
     page.drawText((`${user.firstName || ''} ${user.lastName || ''}`).trim().toUpperCase(), { x: MARGIN, y: leftY, font: boldFont, size: 9, color: COLORS.black });
@@ -152,6 +177,7 @@ function drawSummaryPageContent(page: PDFPage, data: StatementData, resources: P
     leftY -= 12;
     page.drawText('2128', { x: MARGIN, y: leftY, font, size: 9, color: COLORS.black });
 
+    // Bank Contact Details (Right)
     let rightDetailsY = y;
     page.drawText('Bank VAT Reg No 4320116074', { x: rightAddressX, y: rightDetailsY, font, size: 8, color: COLORS.gray });
     rightDetailsY -= 10;
@@ -176,8 +202,9 @@ function drawSummaryPageContent(page: PDFPage, data: StatementData, resources: P
     page.drawText('Please examine this statement soonest. If no error is reported within 30 days after receipt, the statement will be considered as being correct.', { x: MARGIN, y, font, size: 7, color: COLORS.gray });
     y -= 20;
 
-    // --- Account Summary Box ---
+    // --- Account Summary Section ---
     const ACCOUNT_SUMMARY_BAR_HEIGHT = 20;
+    // Green Header Bar
     page.drawRectangle({ x: MARGIN, y: y - ACCOUNT_SUMMARY_BAR_HEIGHT, width: width - MARGIN * 2, height: ACCOUNT_SUMMARY_BAR_HEIGHT, color: COLORS.primary });
     page.drawText('Account summary', { x: MARGIN + 4, y: y - 14, font: boldFont, size: 10, color: COLORS.white });
     page.drawText('Account number', { x: width - MARGIN - 120, y: y - 14, font, size: 10, color: COLORS.white });
@@ -187,6 +214,7 @@ function drawSummaryPageContent(page: PDFPage, data: StatementData, resources: P
     page.drawText(accountNumberText, { x: width - MARGIN - 4 - accountNumberWidth, y: y - 14, font: boldFont, size: 10, color: COLORS.white });
     y -= ACCOUNT_SUMMARY_BAR_HEIGHT;
 
+    // Account Details Rows
     const LINE_HEIGHT = 15;
     const COL_1_X = MARGIN + 4;
     const COL_2_X = MARGIN + 104;
@@ -226,9 +254,12 @@ function drawSummaryPageContent(page: PDFPage, data: StatementData, resources: P
     // --- Bank charges summary (Left) & Cashflow (Right) ---
     const SECTION_TITLE_Y = y - LINE_HEIGHT;
     const CHARGES_RIGHT_EDGE = MARGIN + 180;
+    
+    // Headers
     page.drawText('Bank charges summary', { x: COL_1_X, y: SECTION_TITLE_Y, font: boldFont, size: 9 });
     page.drawText('Cashflow', { x: COL_3_X, y: SECTION_TITLE_Y, font: boldFont, size: 9 });
 
+    // Left Column: Charges
     let y_charges = SECTION_TITLE_Y - LINE_HEIGHT;
     const cashFeeText = formatCurrency(bankSummary.cashFees);
     page.drawText('Cash fees', { x: COL_1_X, y: y_charges, font, size: 9 });
@@ -254,6 +285,7 @@ function drawSummaryPageContent(page: PDFPage, data: StatementData, resources: P
     page.drawText('VAT calculated monthly', { x: COL_1_X, y: y_charges, font, size: 9 });
     page.drawText(vatMonthlyText, { x: CHARGES_RIGHT_EDGE - font.widthOfTextAtSize(vatMonthlyText, 9), y: y_charges, font, size: 9});
 
+    // Right Column: Cashflow
     let y_cashflow = SECTION_TITLE_Y - LINE_HEIGHT;
     const openBalText = formatCurrency(bankSummary.openingBalance);
     page.drawText('Opening balance', { x: COL_3_X, y: y_cashflow, font, size: 9 });
@@ -279,13 +311,18 @@ function drawSummaryPageContent(page: PDFPage, data: StatementData, resources: P
     page.drawText('Annual credit interest rate', { x: COL_3_X, y: y_cashflow, font, size: 9 });
     page.drawText(interestText, { x: RIGHT_EDGE - font.widthOfTextAtSize(interestText, 9), y: y_cashflow, font, size: 9 });
     
+    // Draw separator line below summary
     y = Math.min(y_charges, y_cashflow) - 15;
     page.drawLine({ start: { x: MARGIN, y }, end: { x: width - MARGIN, y }, thickness: 1 });
     y -= 10;
     
+    // --- Draw Financial Graphs ---
     drawFinancialGraphs(page, graphsData, y, resources);
 }
 
+/**
+ * Draws the visual bar charts for Funds Received vs Funds Used.
+ */
 function drawFinancialGraphs(page: PDFPage, graphsData: GraphData, startY: number, resources: PDFResources) {
     const { font, boldFont } = resources;
     
@@ -298,12 +335,10 @@ function drawFinancialGraphs(page: PDFPage, graphsData: GraphData, startY: numbe
     
     const LABEL_WIDTH_LEFT = 110;
     const BAR_X_LEFT = START_X_LEFT + LABEL_WIDTH_LEFT;
-    const VALUE_X_LEFT = BAR_X_LEFT + CHART_WIDTH + 5;
     const VALUE_RIGHT_EDGE_LEFT = START_X_RIGHT - 10;
 
     const LABEL_WIDTH_RIGHT = 100;
     const BAR_X_RIGHT = START_X_RIGHT + LABEL_WIDTH_RIGHT;
-    const VALUE_X_RIGHT = BAR_X_RIGHT + CHART_WIDTH + 5;
     const VALUE_RIGHT_EDGE_RIGHT = page.getSize().width - MARGIN;
 
     let y = startY;
@@ -312,6 +347,7 @@ function drawFinancialGraphs(page: PDFPage, graphsData: GraphData, startY: numbe
     const received = graphsData.fundsReceived;
     const receivedTotal = received.totalCredits;
     
+    // Header
     const totalReceivedText = formatCurrency(receivedTotal);
     page.drawText('Total funds received/credits', { x: START_X_LEFT, y, font: boldFont, size: 9 });
     page.drawText(totalReceivedText, { x: VALUE_RIGHT_EDGE_LEFT - boldFont.widthOfTextAtSize(totalReceivedText, 9), y, font: boldFont, size: 9, color: COLORS.primary });
@@ -324,6 +360,7 @@ function drawFinancialGraphs(page: PDFPage, graphsData: GraphData, startY: numbe
         { label: 'Other credits', value: received.otherCredits },
     ];
     
+    // Draw bars
     receivedRows.forEach(row => {
         const barWidth = receivedTotal > 0 ? (row.value / receivedTotal) * CHART_WIDTH : 0;
         page.drawText(row.label, { x: START_X_LEFT, y: y + 2, font, size: 9 });
@@ -333,6 +370,7 @@ function drawFinancialGraphs(page: PDFPage, graphsData: GraphData, startY: numbe
         y -= ROW_HEIGHT;
     });
 
+    // Total bar
     page.drawText('Total', { x: START_X_LEFT, y: y + 2, font: boldFont, size: 9 });
     page.drawRectangle({ x: BAR_X_LEFT, y: y, width: CHART_WIDTH, height: BAR_HEIGHT, color: COLORS.primary });
     const totalReceivedTextBottom = formatCurrency(receivedTotal);
@@ -343,6 +381,7 @@ function drawFinancialGraphs(page: PDFPage, graphsData: GraphData, startY: numbe
     const used = graphsData.fundsUsed;
     const usedTotal = used.totalDebits;
     
+    // Header
     const totalUsedText = formatCurrency(usedTotal);
     page.drawText('Total funds used/debits', { x: START_X_RIGHT, y, font: boldFont, size: 9 });
     page.drawText(totalUsedText, { x: VALUE_RIGHT_EDGE_RIGHT - boldFont.widthOfTextAtSize(totalUsedText, 9), y, font: boldFont, size: 9, color: COLORS.primary });
@@ -355,6 +394,7 @@ function drawFinancialGraphs(page: PDFPage, graphsData: GraphData, startY: numbe
         { label: 'Other debits', value: used.otherDebits },
     ];
     
+    // Draw bars
     usedRows.forEach(row => {
         const barWidth = usedTotal > 0 ? (row.value / usedTotal) * CHART_WIDTH : 0;
         page.drawText(row.label, { x: START_X_RIGHT, y: y+2, font, size: 9 });
@@ -364,13 +404,16 @@ function drawFinancialGraphs(page: PDFPage, graphsData: GraphData, startY: numbe
         y -= ROW_HEIGHT;
     });
 
+    // Total bar
     page.drawText('Total', { x: START_X_RIGHT, y: y+2, font: boldFont, size: 9 });
     page.drawRectangle({ x: BAR_X_RIGHT, y, width: CHART_WIDTH, height: BAR_HEIGHT, color: COLORS.primary });
     const totalUsedTextBottom = formatCurrency(usedTotal);
     page.drawText(totalUsedTextBottom, { x: VALUE_RIGHT_EDGE_RIGHT - boldFont.widthOfTextAtSize(totalUsedTextBottom, 9), y: y+2, font: boldFont, size: 9 });
 }
 
-
+/**
+ * Draws the standard header for transaction pages.
+ */
 function drawPageHeader(page: PDFPage, data: StatementData, resources: PDFResources) {
     const { account } = data;
     const { eConfirmImage, nLogoImage, nLogoDims, boldFont } = resources;
@@ -382,12 +425,18 @@ function drawPageHeader(page: PDFPage, data: StatementData, resources: PDFResour
     page.drawText(`${account.name} - ${account.accountNumber}`, { x: MARGIN, y: height - 80, font: resources.font, size: 10, color: COLORS.gray });
 }
 
+/**
+ * Draws the footer with the slogan.
+ */
 function drawFooter(page: PDFPage, resources: PDFResources) {
     const { boldFont } = resources;
     const { width } = page.getSize();
     page.drawText('see money differently', { x: (width / 2) - 50, y: MARGIN, font: boldFont, size: 10, color: COLORS.primary });
 }
 
+/**
+ * Draws the page number at the top and bottom.
+ */
 function drawPageNumber(page: PDFPage, pageNum: number, totalPages: number, resources: PDFResources) {
     const { font } = resources;
     const { width } = page.getSize();
@@ -395,14 +444,19 @@ function drawPageNumber(page: PDFPage, pageNum: number, totalPages: number, reso
 
     const textWidth = font.widthOfTextAtSize(pageNumText, 8);
     
+    // Draw at top right (if not first page logic elsewhere, but here logic is simple)
     if (pageNum > 1) { 
         page.drawText(pageNumText, { x: width - MARGIN - textWidth, y: page.getSize().height - 80, font: font, size: 8, color: COLORS.gray });
     }
     
+    // Draw at bottom right
     page.drawText(pageNumText, { x: width - MARGIN - textWidth, y: MARGIN, font: font, size: 8 });
 }
 
-
+/**
+ * Renders a page of transactions.
+ * Returns the remaining transactions and the closing balance for this page.
+ */
 function drawTransactionsPageContent(page: PDFPage, transactions: Transaction[], openingBalance: number, data: StatementData, resources: PDFResources): { remainingTransactions: Transaction[], lastBalance: number } {
     const { account } = data;
     const { font, boldFont } = resources;
@@ -411,6 +465,7 @@ function drawTransactionsPageContent(page: PDFPage, transactions: Transaction[],
 
     drawPageHeader(page, data, resources);
     
+    // Table Column layout
     const tableRightEdge = width - MARGIN;
     const colXs = {
         date: MARGIN,
@@ -428,6 +483,7 @@ function drawTransactionsPageContent(page: PDFPage, transactions: Transaction[],
         balance: tableRightEdge
     }
 
+    // Draw Table Header
     page.drawRectangle({ x: MARGIN, y: y - 20, width: tableRightEdge - MARGIN, height: 20, color: COLORS.primary });
     
     page.drawText('Date', { x: colXs.date + 5, y: y - 14, font: boldFont, size: 9, color: COLORS.white });
@@ -441,8 +497,9 @@ function drawTransactionsPageContent(page: PDFPage, transactions: Transaction[],
     
     y -= 25;
 
+    // Helper to draw a single row
     const drawRow = (rowData: (string|null)[], isHeader = false) => {
-        if (y < MARGIN + 40) return false; 
+        if (y < MARGIN + 40) return false; // Check for page overflow
         const fontToUse = isHeader || rowData.length -1 ? boldFont : font;
 
         // Date
@@ -475,6 +532,8 @@ function drawTransactionsPageContent(page: PDFPage, transactions: Transaction[],
     const firstTransactionDate = transactions.length > 0 ? new Date(transactions[0].date) : new Date();
 
     const openingBalanceText = formatCurrency(openingBalance, '');
+    
+    // Draw Opening Balance Row
     drawRow([
         format(firstTransactionDate, 'dd/MM/yyyy'),
         'Opening Balance',
@@ -484,6 +543,7 @@ function drawTransactionsPageContent(page: PDFPage, transactions: Transaction[],
     
     let processedCount = 0;
 
+    // Iterate through transactions and draw them
     for (const tx of transactions) {
         runningBalance += tx.type === 'credit' ? tx.amount : -tx.amount;
         const rowData = [
@@ -507,7 +567,11 @@ function drawTransactionsPageContent(page: PDFPage, transactions: Transaction[],
     return { remainingTransactions: [], lastBalance: runningBalance };
 }
 
-
+/**
+ * Main function to generate the Statement PDF.
+ * @param data Data object containing account, user, and transaction details.
+ * @returns Uint8Array containing the PDF bytes.
+ */
 export async function generateStatementPdf(data: StatementData): Promise<Uint8Array> {
     const pdfDoc = await PDFDocument.create();
     const resources = await loadResources(pdfDoc);
@@ -541,8 +605,7 @@ export async function generateStatementPdf(data: StatementData): Promise<Uint8Ar
     
     const totalPages = pages.length;
 
-    // Now that we have all pages, draw content that depends on total page count
-    // Draw Summary Content on Page 1
+    // Update total pages in summary data and draw Page 1 content
     const finalStatementData = {...data, accountSummary: {...data.accountSummary, totalPages: String(totalPages)}};
     drawSummaryPageContent(summaryPage, finalStatementData, resources);
     drawFooter(summaryPage, resources);

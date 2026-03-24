@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
@@ -21,14 +20,14 @@ const AccountSkeleton = () => (
         <Skeleton className="h-5 w-40 bg-white/20" />
         <Skeleton className="h-6 w-32 mt-1 bg-white/20" />
       </div>
-      <ChevronRight className="h-7 w-7" />
+      <ChevronRight className="h-7 w-7 text-white" />
     </div>
     <div className="flex flex-row justify-between items-center p-3">
       <div>
         <Skeleton className="h-5 w-32 bg-white/20" />
         <Skeleton className="h-6 w-28 mt-1 bg-white/20" />
       </div>
-      <ChevronRight className="h-7 w-7" />
+      <ChevronRight className="h-7 w-7 text-white" />
     </div>
   </div>
 )
@@ -49,7 +48,7 @@ const AccountsDisplay = () => {
   }
 
   return (
-    <div className="space-y-0">
+    <div className="space-y-0 text-white">
       {accounts && accounts.length > 0 ? (
         accounts.map((account, index) => {
           const isDormant = account.name === 'Savvy Bundle Current Account';
@@ -60,10 +59,10 @@ const AccountsDisplay = () => {
                 index < accounts.length - 1 ? 'border-b border-white/20' : ''
               )}>
                 <div>
-                  <p className={cn("text-sm font-normal normal-case", isDormant && "text-white/60")}>{account.name}</p>
-                  <p className={cn("text-base font-normal", isDormant && "text-white/60")}>{formatCurrency(account.balance, account.currency)}</p>
+                  <p className={cn("text-sm font-normal normal-case", isDormant ? "text-white/70" : "text-white")}>{account.name}</p>
+                  <p className={cn("text-base font-normal", isDormant ? "text-white/70" : "text-white")}>{formatCurrency(account.balance, account.currency)}</p>
                 </div>
-                <ChevronRight className={cn("h-7 w-7", isDormant && "text-white/60")} />
+                <ChevronRight className={cn("h-7 w-7", isDormant ? "text-white/70" : "text-white")} />
               </div>
             </Link>
           );
@@ -92,13 +91,13 @@ export function AccountsCarousel() {
         {
           title: 'Rewards',
           content: (
-             <div key="rewards" className="space-y-2">
+             <div key="rewards" className="space-y-2 text-white">
               <div className="flex flex-row justify-between items-center p-4 border-b border-white/20">
                 <div>
-                  <p className="text-base">Greenbacks Rewards</p>
-                  <div className="text-lg font-normal">GB 0</div>
+                  <p className="text-base text-white">Greenbacks Rewards</p>
+                  <div className="text-lg font-normal text-white">GB 0</div>
                 </div>
-                <ChevronRightIcon className="h-7 w-7" />
+                <ChevronRightIcon className="h-7 w-7 text-white" />
               </div>
             </div>
           ),
@@ -106,20 +105,20 @@ export function AccountsCarousel() {
         {
           title: 'International banking and travel',
           content: (
-            <div key="international" className="space-y-4">
+            <div key="international" className="space-y-4 text-white">
               <div className="flex flex-row justify-between items-center py-3 border-b border-white/20">
                 <div>
-                  <p className="text-sm">Incoming and outgoing payments</p>
-                  <p className="text-lg font-normal">International payments</p>
+                  <p className="text-sm text-white">Incoming and outgoing payments</p>
+                  <p className="text-lg font-normal text-white">International payments</p>
                 </div>
                 <Button variant="link" className="text-white font-bold text-base">View</Button>
               </div>
               <div className="flex flex-row justify-between items-center py-3 border-b border-white/20 last:border-b-0">
                 <div>
-                  <p className="text-sm">Foreign Currency Accounts</p>
-                  <p className="text-lg font-normal">Your currencies</p>
+                  <p className="text-sm text-white">Foreign Currency Accounts</p>
+                  <p className="text-lg font-normal text-white">Your currencies</p>
                 </div>
-                <ChevronRightIcon className="h-7 w-7" />
+                <ChevronRightIcon className="h-7 w-7 text-white" />
               </div>
             </div>
           ),
@@ -127,17 +126,17 @@ export function AccountsCarousel() {
         {
           title: 'Savings & Investments',
           content: (
-            <div key="savings" className="space-y-2">
+            <div key="savings" className="space-y-2 text-white">
               <div className="flex flex-row justify-between items-center p-4 border-b border-white/20">
                 <div>
-                  <p className="text-base">Tax certificates</p>
-                  <p className="text-lg font-normal">Tax certificates</p>
+                  <p className="text-base text-white">Tax certificates</p>
+                  <p className="text-lg font-normal text-white">Tax certificates</p>
                 </div>
-                <ChevronRightIcon className="h-7 w-7" />
+                <ChevronRightIcon className="h-7 w-7 text-white" />
               </div>
-              <div className="flex flex-row justify-between items-center p-4">
+              <div className="flex flex-row justify-between items-center p-4 text-white">
                 <div>
-                  <p className="text-lg font-normal">Save & Invest</p>
+                  <p className="text-lg font-normal text-white">Save & Invest</p>
                 </div>
                  <Button variant="link" className="font-bold text-yellow-400 text-base">Explore options</Button>
               </div>
@@ -147,18 +146,18 @@ export function AccountsCarousel() {
         {
           title: 'Insurance',
           content: (
-            <div key="insurance" className="space-y-4">
+            <div key="insurance" className="space-y-4 text-white">
               <div className="flex flex-row justify-between items-center py-3 border-b border-white/20">
                 <div>
-                  <p className="text-sm">Insurance</p>
-                  <p className="text-lg font-normal">My policies and applications</p>
+                  <p className="text-sm text-white">Insurance</p>
+                  <p className="text-lg font-normal text-white">My policies and applications</p>
                 </div>
-                <ChevronRightIcon className="h-7 w-7" />
+                <ChevronRightIcon className="h-7 w-7 text-white" />
               </div>
               <div className="flex flex-row justify-between items-center py-3 border-b border-white/20 last:border-b-0">
                 <div>
-                  <p className="text-sm">Insurance</p>
-                  <p className="text-lg font-normal">New policy</p>
+                  <p className="text-sm text-white">Insurance</p>
+                  <p className="text-lg font-normal text-white">New policy</p>
                 </div>
                  <Button variant="link" className="font-bold text-yellow-400 text-base">Get cover</Button>
               </div>
@@ -192,15 +191,15 @@ export function AccountsCarousel() {
     const CurrentSlideTitle = () => {
         const title = slides[current]?.title || 'Accounts';
          return (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-white">
                 <h1 className="text-xl font-bold">{title}</h1>
-                <Eye className="h-6 w-6" />
+                <Eye className="h-6 w-6 text-white" />
             </div>
         )
     }
 
     return (
-        <div>
+        <div className="text-white">
             <CurrentSlideTitle />
             <Carousel setApi={setApi}>
                 <CarouselContent>
@@ -212,20 +211,20 @@ export function AccountsCarousel() {
                 </CarouselContent>
             </Carousel>
             <div className="flex items-center justify-center pt-4">
-                <button onClick={scrollPrev} className="p-1 disabled:opacity-50 mx-1" disabled={current === 0}>
-                    <ChevronLeft className="h-6 w-6" />
+                <button onClick={scrollPrev} className="p-1 disabled:opacity-50 mx-1 text-white" disabled={current === 0}>
+                    <ChevronLeft className="h-5 w-5" />
                 </button>
-                <div className="flex items-center justify-center space-x-1.5 mx-2">
+                <div className="flex items-center justify-center space-x-2.5 mx-2">
                     {Array.from({ length: count }).map((_, index) => (
                         <button
                             key={index}
                             onClick={() => api?.scrollTo(index)}
-                            className={`h-2.5 w-2.5 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
+                            className={`h-3 w-3 rounded-full ${current === index ? 'bg-white' : 'bg-white/50'}`}
                         />
                     ))}
                 </div>
-                <button onClick={scrollNext} className="p-1 disabled:opacity-50 mx-1" disabled={current === count - 1}>
-                    <ChevronRight className="h-6 w-6" />
+                <button onClick={scrollNext} className="p-1 disabled:opacity-50 mx-1 text-white" disabled={current === count - 1}>
+                    <ChevronRight className="h-5 w-5" />
                 </button>
             </div>
         </div>

@@ -1,5 +1,4 @@
 
-
 'use strict';
 
 const functions = require('firebase-functions');
@@ -32,12 +31,28 @@ exports.sendEmail = functions.region('us-central1').https.onCall(async (data, co
     }
     const resend = new Resend(resendApiKey);
 
+    const signatureHtml = `
+      <br><br>
+      <div style="font-family: Arial, sans-serif; font-size: 12px; color: #555555; border-top: 1px solid #dddddd; padding-top: 15px; margin-top: 20px;">
+        <img src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/images.png?alt=media&token=9c75c65e-fc09-4827-9a36-91caa0ae3ee5" alt="Nedbank Logo" width="100" style="margin-bottom: 10px;" />
+        <p style="margin: 0;"><strong>Nedbank Digital Team</strong></p>
+        <p style="font-size: 10px; color: #777777; margin: 5px 0 0 0;">
+          Nedbank Ltd Reg No 1951/000009/06. Licensed financial services provider (FSP9363) and registered credit provider (NCRCP16).
+        </p>
+        <p style="font-size: 10px; color: #777777; margin-top: 5px;">
+            This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited.
+        </p>
+      </div>
+    `;
+
+    const fullHtml = `${html}${signatureHtml}`;
+
     try {
         const emailPayload = {
             from: `"${fromName}" <${fromEmail}>`,
             to: to,
             subject: subject,
-            html: html,
+            html: fullHtml,
             attachments: attachments || [],
         };
         await resend.emails.send(emailPayload);
@@ -143,6 +158,10 @@ exports.processScheduledPayment = functions.region('us-central1').https.onCall(a
 
 
 exports.sendSms = functions.region('us-central1').runWith({ memory: '512MiB', timeoutSeconds: 60 }).https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
+    }
+    
     const { to, text } = data;
     if (!to || !text) {
         throw new functions.https.HttpsError(
@@ -200,6 +219,22 @@ exports.sendSms = functions.region('us-central1').runWith({ memory: '512MiB', ti
     }
 });
 
+exports.getAllUsers = functions.region('us-central1').https.onCall(async (data, context) => {
+    // IMPORTANT: Add admin check here in a real application.
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
+    }
+
+    try {
+        const listUsersResult = await admin.auth().listUsers(1000); // paginate if more than 1000 users
+        return { success: true, users: listUsersResult.users };
+    } catch (error) {
+        console.error('Error listing users:', error);
+        throw new functions.https.HttpsError('internal', 'Unable to list users.');
+    }
+});
+
+
 // This is the specific list of transactions to be seeded into the Savvy Bundle Current Account.
 const initialSavvyBundleTransactions = [
     { timestamp: new Date(), description: 'NEDBANK SEND-IMALI', amount: '-R3000.00', transactionType: 'EFT_IMMEDIATE' },
@@ -253,7 +288,7 @@ const initialSavvyBundleTransactions = [
     { timestamp: new Date('2022-10-04'), description: 'UBER EATS 3D 377121716833693', amount: '-R66.51', transactionType: 'POS_PURCHASE' },
     { timestamp: new Date('2022-10-04'), description: 'NEDBANK SEND-IMALI', amount: '-R15.00', transactionType: 'EFT_IMMEDIATE' },
     { timestamp: new Date('2022-10-04'), description: 'PREPAID AIRTIME', amount: '-R1.50', transactionType: 'POS_PURCHASE' },
-    { timestamp: new Date('2022-10-05'), description: 'CORRIE', amount: '+R420000.00', transactionType: 'EFT_STANDARD' },
+    { timestamp: new Date('2022-10-05'), description: 'DICKSON', amount: '+R420000.00', transactionType: 'EFT_STANDARD' },
     { timestamp: new Date('2022-10-05'), description: 'BR CASH R420000.00 FEE', amount: '-R9660.00', transactionType: 'BANK_FEE' },
     { timestamp: new Date('2022-10-05'), description: 'CASH TRANSACTION FEE', amount: '-R80.00', transactionType: 'BANK_FEE' },
     { timestamp: new Date('2022-10-05'), description: 'OOM DANNA', amount: '-R20000.00', transactionType: 'EFT_STANDARD' },
@@ -367,12 +402,12 @@ const initialSavvyBundleTransactions = [
     { timestamp: new Date('2022-10-17'), description: 'SASW CASH 377121716833693', amount: '-R5000.00', transactionType: 'ATM_WITHDRAWAL_OWN' },
     { timestamp: new Date('2022-10-17'), description: 'ATM CASH 377121716833693', amount: '-R3000.00', transactionType: 'ATM_WITHDRAWAL_OTHER' },
     { timestamp: new Date('2022-10-17'), description: 'ATM CASH 377121716833693', amount: '-R3000.00', transactionType: 'ATM_WITHDRAWAL_OTHER' },
-    { timestamp: new Date('2022-10-17'), description: 'SASW CASH 377121716833693', amount: '-R3000.00', transactionType: 'ATM_WITHDRAWAL_OWN' },
+    { timestamp: new Date('2022-10-17'), description: 'SASW CASH 377121716833693', amount: '-R300.00', transactionType: 'ATM_WITHDRAWAL_OWN' },
     { timestamp: new Date('2022-10-17'), description: 'ATM CASH 377121716833693', amount: '-R2000.00', transactionType: 'ATM_WITHDRAWAL_OTHER' },
     { timestamp: new Date('2022-10-17'), description: 'SASW CASH 377121716833693', amount: '-R1900.00', transactionType: 'ATM_WITHDRAWAL_OWN' },
     { timestamp: new Date('2022-10-17'), description: 'SASW CASH 377121716833693', amount: '-R300.00', transactionType: 'ATM_WITHDRAWAL_OWN' },
     { timestamp: new Date('2022-10-17'), description: 'PEERMONT GLOBA377121716833693', amount: '-R9000.00', transactionType: 'POS_PURCHASE' },
-    { timestamp: new Date('2022-10-17'), description: 'PEERMONT GLOBA377121716833693', amount: '-R5000.00', transactionType: 'POS_PURCHASE' },
+    { timestamp: new Date('2022-10-17'), description: 'PEERMONT GLOBA377121716833693', amount: '-R500.00', transactionType: 'POS_PURCHASE' },
     { timestamp: new Date('2022-10-17'), description: 'DOORNPOORTMOTO377121716833693', amount: '-R661.96', transactionType: 'POS_PURCHASE' },
     { timestamp: new Date('2022-10-17'), description: 'DOORNPOORTMOTO377121716833693', amount: '-R637.99', transactionType: 'POS_PURCHASE' },
     { timestamp: new Date('2022-10-17'), description: 'PEERMONT GLOBA377121716833693', amount: '-R500.00', transactionType: 'POS_PURCHASE' },
@@ -398,7 +433,7 @@ const initialSavvyBundleTransactions = [
     { timestamp: new Date('2022-10-20'), description: 'ATM CASH 377121716833693', amount: '-R400.00', transactionType: 'ATM_WITHDRAWAL_OTHER' },
     { timestamp: new Date('2022-10-20'), description: 'INSTANT PAYMENT FEE', amount: '-R49.00', transactionType: 'BANK_FEE' },
     { timestamp: new Date('2022-10-21'), description: 'WYNKAS', amount: '-R10000.00', transactionType: 'EFT_STANDARD' },
-    { timestamp: new Date('2022-10-21'), description: 'Corrie Bussiness Enterprise', amount: '+R57100.00', transactionType: 'EFT_STANDARD' },
+    { timestamp: new Date('2022-10-21'), description: 'DICKSON FAMILY TRUST', amount: '+R57100.00', transactionType: 'EFT_STANDARD' },
     { timestamp: new Date('2022-10-21'), description: 'INTERACCOUNT TRANSFER FROM JUST INVEST', amount: '+R18949581.42', transactionType: 'EFT_STANDARD' },
 ];
 
@@ -416,11 +451,11 @@ exports.provisionNewUser = functions.auth.user().onCreate(async (userRecord) => 
     batch.set(userDocRef, {
       id: uid,
       email: email,
-      firstName: 'Corrie',
+      firstName: 'DICKSON FAMILY TRUST',
       lastName: '',
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
     });
-    await admin.auth().updateUser(uid, { displayName: 'Corrie' });
+    await admin.auth().updateUser(uid, { displayName: 'DICKSON FAMILY TRUST' });
     console.log(`Successfully created user document for: ${uid}`);
 
     const accountsCollectionRef = userDocRef.collection('bankAccounts');
@@ -486,7 +521,7 @@ exports.provisionNewUser = functions.auth.user().onCreate(async (userRecord) => 
     });
 
     const failedTransactionsToAdd = [
-        { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'Corrie', failureReason: 'Not Authorised' },
+        { returnDate: '30 Sept 2025', fromAccount: '1234066912', toAccount: '4106210638', beneficiaryName: 'DICKSON FAMILY TRUST', failureReason: 'Not Authorised' },
         { returnDate: '01 Oct 2025', fromAccount: '1234066912', toAccount: '9876543210', beneficiaryName: 'H.Nel', failureReason: 'Not Authorised' },
     ];
     failedTransactionsToAdd.forEach(tx => {

@@ -4,15 +4,25 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Menu, ArrowRight, AlertCircle, LoaderCircle } from 'lucide-react';
+import { Menu, ArrowRight, AlertCircle, LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useAuth, useFirestore } from '@/firebase-provider';
-import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
+const MessageIcon = ({ className }: { className?: string }) => (
+  <div className={cn("relative w-4 h-4 flex items-center justify-center bg-transparent", className)}>
+    <Image
+      src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_172101952.png?alt=media&token=2d52b45c-6169-486b-8c04-8e3965a21d47"
+      alt="Messages"
+      fill
+      className="object-contain"
+    />
+  </div>
+);
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -22,7 +32,6 @@ export default function SignupPage() {
   const router = useRouter();
   const auth = useAuth();
   const firestore = useFirestore();
-  const { toast } = useToast();
 
   const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -35,9 +44,7 @@ export default function SignupPage() {
     setErrorMessage(undefined);
 
     try {
-      // The onUserCreate Cloud Function will handle creating the user document in Firestore.
       await createUserWithEmailAndPassword(auth, email, password);
-      
       router.push('/dashboard');
     } catch (error: any) {
       console.error('Sign-up failed:', error);
@@ -56,17 +63,19 @@ export default function SignupPage() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <header className="flex items-center justify-between p-4 gradient-background text-white">
-        <Image 
-          src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
-          alt="Nedbank Logo"
-          width={32}
-          height={32}
-          className="w-8 h-8"
-        />
-        <div className="flex items-center gap-4">
-          <MessageSquare />
-          <Menu />
+      <header className="brand-header p-4 text-white flex items-center justify-between">
+        <div className="relative z-10 flex items-center justify-between w-full">
+          <Image 
+            src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7" 
+            alt="Nedbank Logo"
+            width={32}
+            height={32}
+            className="w-8 h-8"
+          />
+          <div className="flex items-center gap-4">
+            <MessageIcon />
+            <Menu />
+          </div>
         </div>
       </header>
 
@@ -100,7 +109,7 @@ export default function SignupPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" aria-disabled={isLoading}>
+            <Button type="submit" className="w-full h-12 text-lg font-bold" aria-disabled={isLoading}>
               {isLoading ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
               ) : (

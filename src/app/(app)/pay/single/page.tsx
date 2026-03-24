@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
@@ -23,7 +21,7 @@ function SinglePaymentForm() {
   const [recipientReference, setRecipientReference] = useState('');
   const [saveRecipient, setSaveRecipient] = useState(false);
   const [paymentType, setPaymentType] = useState('Standard EFT');
-  
+
   useEffect(() => {
     const queryBank = searchParams.get('bank');
     if (queryBank) setBankName(decodeURIComponent(queryBank));
@@ -43,7 +41,6 @@ function SinglePaymentForm() {
     const queryPaymentType = searchParams.get('paymentType');
     if (queryPaymentType) setPaymentType(decodeURIComponent(queryPaymentType));
     
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const preserveStateAndNavigate = (pathname: string) => {
@@ -76,98 +73,127 @@ function SinglePaymentForm() {
 
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      <header className="gradient-background text-primary-foreground px-4 pt-3 pb-6 sticky top-0 z-10">
-        <Button variant="ghost" size="icon" className="-ml-2 mb-1" onClick={() => router.back()}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-2xl font-semibold leading-tight">Whom would you like<br />to pay?</h1>
+    <div className="relative h-screen overflow-y-auto bg-gray-50 flex flex-col scroll-smooth">
+      <header className="sticky top-0 z-0 h-64 brand-header text-primary-foreground px-4 pt-6 pb-8 flex flex-col">
+        <div className="flex items-start mb-2">
+          <Button variant="ghost" size="icon" className="-ml-2" onClick={() => router.back()}>
+            <ArrowLeft className="h-6 w-6" />
+          </Button>
+        </div>
+        <div className="flex-1 flex items-center justify-start px-2">
+          <h1 className="text-3xl font-semibold leading-tight text-left">
+            Whom would you like<br />to pay?
+          </h1>
+        </div>
       </header>
       
-      <main className="flex-1 overflow-y-auto bg-gray-50">
-        <div className="p-4 space-y-2">
-          <Label htmlFor="recipient-name" className="text-xs text-gray-500 font-semibold">A new recipient</Label>
-          <Input id="recipient-name" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Enter name and surname" className="bg-white" />
-        </div>
+      <main className="relative z-10 -mt-64 pt-64 flex-1">
+        <div className="bg-gray-50 pb-32 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] rounded-t-3xl min-h-screen">
+            <div className="p-6 pt-10 space-y-4">
+              <Label htmlFor="recipient-name" className="text-sm text-gray-500 font-bold uppercase tracking-widest">A new recipient</Label>
+              <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                <Input 
+                  id="recipient-name" 
+                  value={recipientName} 
+                  onChange={e => setRecipientName(e.target.value)} 
+                  placeholder="Enter name and surname" 
+                  className="bg-gray-50 border-gray-200 h-16 text-xl px-5 rounded-xl focus:bg-white" 
+                />
+              </div>
+            </div>
 
-        <div className="border-t border-b border-gray-200 bg-white">
-          <Link href="/recipients">
-            <div className="flex items-center px-4 py-3.5 border-b border-gray-100">
-              <Users className="h-5 w-5 mr-3 text-gray-500" />
-              <span className="flex-1 text-sm text-gray-700">Select from saved recipients</span>
+            <div className="border-t border-b border-gray-200 bg-white">
+              <button 
+                onClick={() => router.push('/recipients')}
+                className="flex items-center w-full px-6 py-6 border-b border-gray-100 text-left hover:bg-gray-50"
+              >
+                <Users className="h-7 w-7 mr-4 text-primary" />
+                <span className="flex-1 text-lg text-gray-700 font-semibold">Select from saved recipients</span>
+                <ChevronRight className="h-6 w-6 text-gray-400" />
+              </button>
+              <button 
+                className="flex items-center w-full px-6 py-6 text-left hover:bg-gray-50"
+              >
+                <Smartphone className="h-7 w-7 mr-4 text-primary" />
+                <span className="flex-1 text-lg text-gray-700 font-semibold">Select from phone contacts</span>
+                <ChevronRight className="h-6 w-6 text-gray-400" />
+              </button>
             </div>
-          </Link>
-          <Link href="#">
-            <div className="flex items-center px-4 py-3.5">
-              <Smartphone className="h-5 w-5 mr-3 text-gray-500" />
-              <span className="flex-1 text-sm text-gray-700">Select from phone contacts</span>
-            </div>
-          </Link>
-        </div>
-        
-        <div className="p-4 pt-6 border-b border-gray-200 flex justify-center">
-            <div className="w-40 h-40 bg-primary text-white font-semibold p-4 rounded-lg flex flex-col items-center justify-center text-center">
-                <Landmark className="h-8 w-8 mb-2" />
-                <p>Pay to a bank account</p>
-            </div>
-        </div>
+            
+            <div className="p-6 pt-10 space-y-8">
+              <div className="space-y-6">
+                <h2 className="font-bold text-sm text-gray-800 uppercase tracking-widest px-1">To which account?</h2>
+                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-6">
+                    <div className="space-y-2">
+                        <Label htmlFor="bank-name" className="text-xs text-gray-400 font-bold uppercase">Bank name</Label>
+                        <div className="relative" onClick={() => preserveStateAndNavigate('/pay/single/select-bank')}>
+                        <Input 
+                            id="bank-name" 
+                            value={bankName} 
+                            readOnly 
+                            placeholder="Select bank" 
+                            className="pr-12 cursor-pointer bg-gray-50 border-gray-200 h-16 text-xl px-5 font-semibold rounded-xl"
+                        />
+                        <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-7 w-7 text-primary" />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="account-number" className="text-xs text-gray-400 font-bold uppercase">Account number</Label>
+                        <Input 
+                          id="account-number" 
+                          value={accountNumber} 
+                          onChange={e => setAccountNumber(e.target.value)} 
+                          placeholder="Account number"
+                          className="bg-gray-50 border-gray-200 h-16 text-xl px-5 rounded-xl focus:bg-white" 
+                        />
+                    </div>
+                </div>
+              </div>
 
-        <div className="p-4 space-y-4">
-          <h2 className="font-semibold text-sm text-gray-800">To which account?</h2>
-          <div className="space-y-1">
-            <Label htmlFor="bank-name" className="text-xs text-gray-500 font-semibold">Bank name</Label>
-            <div className="relative" onClick={() => preserveStateAndNavigate('/pay/single/select-bank')}>
-              <Input 
-                id="bank-name" 
-                value={bankName} 
-                readOnly 
-                placeholder="Select bank" 
-                className="pr-10 cursor-pointer bg-white"
-              />
-              <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <div className="space-y-6">
+                <h2 className="font-bold text-sm text-gray-800 uppercase tracking-widest px-1">Payment type?</h2>
+                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+                    <div className="space-y-2">
+                        <Label htmlFor="payment-method" className="text-xs text-gray-400 font-bold uppercase">Payment method</Label>
+                        <div className="relative" onClick={() => preserveStateAndNavigate('/pay/single/select-payment-type')}>
+                        <Input 
+                          id="payment-method" 
+                          value={paymentType} 
+                          readOnly 
+                          className="pr-12 border-primary/20 cursor-pointer bg-primary/5 h-16 text-xl px-5 font-bold text-primary rounded-xl" 
+                        />
+                        <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-7 w-7 text-primary" />
+                        </div>
+                    </div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="account-number" className="text-xs text-gray-500 font-semibold">Account number</Label>
-            <Input id="account-number" value={accountNumber} onChange={e => setAccountNumber(e.target.value)} className="bg-white" />
-          </div>
-        </div>
 
-        <div className="px-4 pb-4 space-y-4">
-          <h2 className="font-semibold text-sm text-gray-800">Payment type?</h2>
-          <div className="space-y-1">
-            <Label htmlFor="payment-method" className="text-xs text-gray-500 font-semibold">Payment method</Label>
-            <div className="relative" onClick={() => preserveStateAndNavigate('/pay/single/select-payment-type')}>
-              <Input id="payment-method" value={paymentType} readOnly className="pr-10 border-primary cursor-pointer bg-white" />
-              <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
+            <div className="pb-8">
+              <Alert className="bg-yellow-50 border-none rounded-none text-gray-800 p-6 w-full flex items-start gap-4">
+                  <Info className="h-6 w-6 text-gray-600 shrink-0 mt-0.5" />
+                  <AlertDescription className="text-sm text-gray-800 leading-relaxed">
+                  Before you click Next, please make sure that your recipient&apos;s account information is correct. Nedbank doesn&apos;t validate account numbers or refund payments to a wrong recipient.
+                  </AlertDescription>
+              </Alert>
             </div>
-          </div>
-        </div>
+            
+            <div className="px-6 pb-10 flex items-center justify-between">
+              <Label htmlFor="save-recipient" className="text-lg text-gray-800 font-bold">Save recipient</Label>
+              <Switch id="save-recipient" checked={saveRecipient} onCheckedChange={setSaveRecipient} className="scale-125" />
+            </div>
 
-        <div className="px-4 pb-4">
-          <Alert className="bg-blue-50 border-blue-100">
-            <Info className="h-4 w-4 text-blue-600" />
-            <AlertDescription className="text-xs text-gray-600">
-              Before you click Next, please make sure that your recipient&apos;s account information is correct. Nedbank doesn&apos;t validate account numbers or refund payments to a wrong recipient.
-            </AlertDescription>
-          </Alert>
-        </div>
-        
-        <div className="px-4 pb-6 flex items-center justify-between">
-          <Label htmlFor="save-recipient" className="text-sm text-gray-800">Save recipient</Label>
-          <Switch id="save-recipient" checked={saveRecipient} onCheckedChange={setSaveRecipient} />
+            <div className="px-6 pb-12">
+              <Button 
+                  className="w-full font-bold h-16 text-xl shadow-xl bg-primary hover:bg-primary/90 rounded-2xl transition-transform active:scale-95"
+                  disabled={!isFormValid}
+                  onClick={handleNext}
+              >
+                Next
+              </Button>
+            </div>
         </div>
       </main>
-
-      <footer className="p-4 bg-white border-t sticky bottom-0 z-20">
-        <Button 
-            className="w-full font-bold"
-            disabled={!isFormValid}
-            onClick={handleNext}
-        >
-          Next
-        </Button>
-      </footer>
     </div>
   );
 }
@@ -185,4 +211,3 @@ export default function SinglePaymentPage() {
         </Suspense>
     );
 }
-

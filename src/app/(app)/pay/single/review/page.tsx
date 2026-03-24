@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Suspense, useState } from 'react';
@@ -118,7 +117,7 @@ function ReviewPaymentContent() {
                         const accNumberLast6 = paymentDetails.accountNumber ? `...${paymentDetails.accountNumber.slice(-6)}` : '...';
                         const formattedAmount = `R${parseFloat(paymentDetails.amount || '0').toFixed(2)}`;
                         const smsDate = format(new Date(), 'dd/MM/yyyy');
-                        const senderName = 'C.VAN SCHALKWYK';
+                        const senderName = 'DICKSON FAMILY TRUST';
                         const reference = result.popReferenceNumber || `${format(new Date(), 'yyyy-MM-dd')}/NEDBANK/${result.transactionId}`;
                         const smsText = `Nedbank Payment: ${senderName} has paid ${formattedAmount} into Acc No: ${accNumberLast6} on ${smsDate} ,Ref: ${reference} .Please check your account.`;
                         await sendSmsFn({ to: paymentDetails.notificationValue, text: smsText });
@@ -210,7 +209,7 @@ function ReviewPaymentContent() {
 
     return (
         <div className="flex flex-col h-screen bg-gray-50">
-            <header className="gradient-background text-primary-foreground p-4 flex items-center justify-between sticky top-0 z-10">
+            <header className="brand-header text-primary-foreground p-4 flex items-center justify-between sticky top-0 z-10">
                  <Button variant="ghost" size="icon" className="-ml-2" onClick={() => router.back()}>
                     <ArrowLeft />
                 </Button>

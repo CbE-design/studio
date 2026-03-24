@@ -216,3 +216,4 @@ export async function generateSupportResponse(input: {
     followUpActions: ['Check email for updates', 'Monitor your account'],
   };
 }
+

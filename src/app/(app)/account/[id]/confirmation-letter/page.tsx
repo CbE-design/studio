@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
@@ -15,7 +13,7 @@ import { generateConfirmationLetterAction } from '@/app/lib/actions';
 import { format } from 'date-fns';
 
 const ConfirmationLetterSkeleton = () => (
-  <div class="p-4">
+  <div className="p-4">
     <Skeleton className="h-10 w-1/4 mb-6" />
     <div className="space-y-4">
       <Skeleton className="h-4 w-full" />
@@ -52,7 +50,7 @@ export default function ConfirmationLetterPage() {
                 const plainUser: User = {
                     id: data.id,
                     email: data.email,
-                    firstName: data.firstName || 'GGS FAMILY TRUST',
+                    firstName: data.firstName || 'DICKSON FAMILY TRUST',
                     lastName: data.lastName || '',
                     createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString(),
                 };
@@ -146,7 +144,7 @@ export default function ConfirmationLetterPage() {
                       <ConfirmationLetterSkeleton />
                     </div>
                 ) : (
-                    <div className="max-w-4xl mx-auto my-4 bg-white p-8 rounded-lg shadow font-serif text-sm text-gray-800">
+                    <div className="max-w-4xl mx-auto my-4 bg-white p-8 rounded-lg shadow font-sans text-sm text-gray-800">
                         <div className="text-right mb-8">
                             <p>NEDBANK</p>
                             <p>135 RIVONIA ROAD, SANDOWN, SANDTON, 2196</p>
@@ -211,4 +209,3 @@ export default function ConfirmationLetterPage() {
         </div>
     );
 }
-    

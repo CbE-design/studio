@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { Suspense, useState, useEffect, useRef, useCallback } from 'react';
@@ -10,9 +8,10 @@ import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/app/lib/data';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import html2canvas from 'html2canvas';
+import Image from 'next/image';
 
 const DetailRow = ({ label, value }: { label: string; value: string | null }) => (
-    <div className="py-3">
+    <div className="py-2">
         <p className="text-sm text-gray-400">{label}</p>
         <p className="text-base font-light text-gray-800">{value || '-'}</p>
     </div>
@@ -100,7 +99,16 @@ function PaymentSuccessContent() {
     return (
         <div className="flex flex-col h-screen bg-white">
             <div ref={confirmationRef}>
-                <header className="gradient-background text-primary-foreground px-6 pt-4 pb-8 text-center flex flex-col items-center relative min-h-[220px] justify-center">
+                <header className="brand-header text-primary-foreground px-6 pt-4 pb-8 text-center flex flex-col items-center relative min-h-[220px] justify-center">
+                    <div className="absolute top-4 left-4">
+                        <Image
+                            src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"
+                            alt="Nedbank Logo"
+                            width={24}
+                            height={24}
+                            className="w-6 h-6"
+                        />
+                    </div>
                     <button
                         onClick={handleShare}
                         className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors"
@@ -110,22 +118,22 @@ function PaymentSuccessContent() {
                     </button>
                     <div className="flex flex-col items-center">
                         <Check className="h-12 w-12 text-white mb-3" strokeWidth={2} />
-                        <h1 className="text-xl font-light text-center leading-snug px-4">
+                        <h1 className="text-xl font-light text-center leading-snug px-4 tracking-tight">
                             {`${formatCurrency(Number(paymentDetails.amount))} paid to ${paymentDetails.recipientName}'s bank account`}
                         </h1>
                     </div>
                 </header>
 
-                <main className="bg-white px-5">
-                    {isInstantPayment && (
-                        <div className="flex items-start gap-3 py-4 border-b border-gray-100">
-                            <Info className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                            <p className="text-sm text-gray-600 leading-relaxed">
-                                Instant payments take up to 30 minutes to process. Once successful, you can share your proof of payment from payment history.
-                            </p>
-                        </div>
-                    )}
+                {isInstantPayment && (
+                   <Alert className="bg-yellow-50 border-none rounded-none text-gray-800 -mx-0 w-full font-['Roboto']">
+                        <Info className="h-5 w-5 text-gray-600" />
+                        <AlertDescription>
+                            Instant payments take up to 30 minutes to process. Once successful, you can share your proof of payment from payment history.
+                        </AlertDescription>
+                    </Alert>
+                )}
 
+                <main className="bg-white px-5 py-4">
                     <DetailRow label="Payment date" value={formattedDate} />
                     <DetailRow label="Bank name" value={paymentDetails.bankName} />
                     <DetailRow label="Account number" value={paymentDetails.accountNumber} />

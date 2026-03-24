@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { Suspense, useEffect, useState, useMemo } from 'react';
@@ -66,7 +64,7 @@ const AccountCard = ({
 
 const LoadingSkeleton = () => (
     <div className="flex flex-col h-screen">
-        <div className="gradient-background p-4 space-y-4">
+        <div className="brand-header p-4 space-y-4">
             <div className="flex items-center justify-between">
                 <Skeleton className="h-6 w-6 bg-white/20" />
                 <Skeleton className="h-8 w-32 bg-white/20" />
@@ -237,7 +235,7 @@ function AmountPageContent() {
 
     return (
         <div className="flex flex-col h-screen bg-gray-50">
-            <header className="gradient-background text-primary-foreground px-4 pt-3 pb-4 sticky top-0 z-10">
+            <header className="brand-header text-primary-foreground px-4 pt-3 pb-4 sticky top-0 z-10">
                 <div className="w-full flex items-center justify-between">
                     <Button variant="ghost" size="icon" className="-ml-2" onClick={() => router.back()}>
                         <ArrowLeft className="h-5 w-5" />
@@ -253,7 +251,7 @@ function AmountPageContent() {
                 </div>
             </header>
 
-            <div className="gradient-background px-4 py-4 border-b border-white/20">
+            <div className="brand-header px-4 py-4 border-b border-white/20">
                 <Label className="text-xs text-white/80 font-semibold">Amount</Label>
                 <div className="flex items-baseline mt-2">
                     <span className="text-3xl font-light text-white">R</span>
@@ -328,17 +326,17 @@ function AmountPageContent() {
                 </div>
 
                 <Dialog open={notificationDialogOpen} onOpenChange={setNotificationDialogOpen}>
-                    <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
+                    <DialogContent className="sm:max-w-md p-0">
+                        <DialogHeader className="p-6 pb-0">
                             <DialogTitle>Notifications</DialogTitle>
                         </DialogHeader>
-                        <Alert className="bg-blue-50 border-blue-100">
-                            <Info className="h-4 w-4 text-blue-600" />
-                            <AlertDescription className="text-sm text-gray-600">
-                                A service fee may be charged based on your banking account package. Please refer to our <span className="text-primary underline cursor-pointer">latest pricing guide</span>.
+                        <Alert className="bg-yellow-50 border-none rounded-none text-gray-800 p-5 mt-4 flex items-start gap-3">
+                            <Info className="h-5 w-5 text-gray-600 shrink-0 mt-0.5" />
+                            <AlertDescription className="text-xs text-gray-800 leading-relaxed">
+                                A service fee may be charged based on your banking account package. Please refer to our <span className="text-primary underline cursor-pointer font-bold">latest pricing guide</span>.
                             </AlertDescription>
                         </Alert>
-                        <div className="space-y-0">
+                        <div className="space-y-0 p-6 pt-0">
                             <button
                                 className="w-full py-4 text-left font-semibold border-b hover:bg-gray-50"
                                 onClick={() => {

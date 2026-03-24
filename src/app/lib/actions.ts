@@ -1,16 +1,14 @@
-
 'use server';
 
 import 'dotenv/config';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import type { Transaction, TransactionType, Account, User, TransactionInput, TransactionResult } from './definitions';
-import { calculateFee } from './fees';
 import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
 import { db as adminDb } from './firebase-admin';
+import { createPayment, getAccountWithRealTimeBalance } from './repositories';
 import { format } from 'date-fns';
-import { formatCurrency } from './data';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { app } from '@/app/lib/firebase';
 
@@ -24,7 +22,7 @@ const TransactionSchema = z.object({
     recipientReference: z.string().optional(),
     bankName: z.string().optional(),
     accountNumber: z.string().optional(),
-    paymentType: z.string(), // e.g. 'Instant Pay', 'Standard EFT'
+    paymentType: z.string(), 
 });
 
 
@@ -40,79 +38,20 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
     }
 
     try {
-        let mainTxId: string | undefined;
-        let savedPopReferenceNumber: string | undefined;
         const { fromAccountId, userId, amount, recipientName, yourReference, recipientReference, bankName, accountNumber, paymentType } = validatedFields.data;
-        const numericAmount = parseFloat(amount);
         
-        const transactionType: TransactionType = paymentType === 'Instant Pay' ? 'EFT_IMMEDIATE' : 'EFT_STANDARD';
+        const txType: TransactionType = paymentType === 'Instant Pay' ? 'EFT_IMMEDIATE' : 'EFT_STANDARD';
 
-        const generateRandomSuffix = (length: number) => Math.random().toString().substring(2, 2 + length);
-        const generateSecurityCode = () => Array.from({ length: 40 }, () => '0123456789ABCDEF'[Math.floor(Math.random() * 16)]).join('');
-        
-        const accountRef = adminDb.doc(`users/${userId}/bankAccounts/${fromAccountId}`);
-        
-        await adminDb.runTransaction(async (transaction) => {
-            const accountDoc = await transaction.get(accountRef);
-
-            if (!accountDoc.exists) {
-                throw new Error("Account not found.");
-            }
-
-            const accountData = accountDoc.data() as Account;
-            const currentBalance = accountData.balance || 0;
-            
-            const { amount: feeAmount, description: feeDescription } = calculateFee(numericAmount, transactionType, accountData.type);
-
-            const totalDebit = numericAmount + feeAmount;
-            if (currentBalance < totalDebit) {
-                throw new Error("Insufficient funds to complete the transaction and cover fees.");
-            }
-            
-            const newBalance = currentBalance - totalDebit;
-            
-            const newTransactionRef = adminDb.collection(`users/${userId}/bankAccounts/${fromAccountId}/transactions`).doc();
-            mainTxId = newTransactionRef.id;
-            
-            const popReferenceNumber = `${format(new Date(), 'yyyy-MM-dd')}/NEDBANK/${generateRandomSuffix(12)}`;
-            savedPopReferenceNumber = popReferenceNumber;
-            const popSecurityCode = generateSecurityCode();
-
-            const mainTransactionData: Transaction = {
-                id: newTransactionRef.id,
-                userId: userId,
-                fromAccountId: fromAccountId,
-                amount: numericAmount,
-                type: 'debit' as const,
-                transactionType: transactionType,
-                date: new Date().toISOString(),
-                description: (recipientName || 'RECIPIENT').toUpperCase(),
-                recipientName: recipientName ? recipientName.toUpperCase() : undefined,
-                yourReference: yourReference || undefined,
-                recipientReference: recipientReference || undefined,
-                bank: bankName || undefined,
-                accountNumber: accountNumber || undefined,
-                popReferenceNumber,
-                popSecurityCode
-            };
-            transaction.set(newTransactionRef, mainTransactionData);
-
-            if (feeAmount > 0) {
-                const feeTransactionRef = adminDb.collection(`users/${userId}/bankAccounts/${fromAccountId}/transactions`).doc();
-                const feeTransactionData = {
-                    id: feeTransactionRef.id,
-                    userId: userId,
-                    fromAccountId: fromAccountId,
-                    amount: feeAmount,
-                    type: 'debit' as const,
-                    transactionType: 'BANK_FEE' as TransactionType,
-                    date: new Date().toISOString(),
-                    description: feeDescription,
-                };
-                transaction.set(feeTransactionRef, feeTransactionData);
-            }
-
-            transaction.update(accountRef, { balance: newBalance });
+        const result = await createPayment({
+            userId,
+            fromAccountId,
+            amount: parseFloat(amount),
+            recipientName: recipientName || 'RECIPIENT',
+            bankName: bankName || undefined,
+            accountNumber: accountNumber || undefined,
+            yourReference: yourReference || undefined,
+            recipientReference: recipientReference || undefined,
+            transactionType: txType
         });
 
         revalidatePath(`/account/${fromAccountId}`);
@@ -121,12 +60,12 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
         return { 
             success: true, 
             message: 'Transaction created successfully.',
-            transactionId: mainTxId,
-            popReferenceNumber: savedPopReferenceNumber,
+            transactionId: result.transactionId,
+            popReferenceNumber: result.popReferenceNumber
         };
 
     } catch (error: any) {
-        console.error('Firestore transaction failed:', error);
+        console.error('Transaction Action failed:', error);
         return { 
             success: false, 
             message: error.message || 'An error occurred while creating the transaction.'
@@ -160,12 +99,10 @@ export async function generateProofOfPaymentAction(
             throw new Error("Transaction data is required.");
         }
         
-        const accountDoc = await adminDb.doc(`users/${transaction.userId}/bankAccounts/${transaction.fromAccountId}`).get();
-        if (!accountDoc.exists) {
+        const accountData = await getAccountWithRealTimeBalance(transaction.userId!, transaction.fromAccountId!);
+        if (!accountData) {
              throw new Error("Account for transaction not found.");
         }
-        const accountData = accountDoc.data() as Account;
-
 
         const pdfBytes = await generateProofOfPaymentPdf(transaction, accountData);
         return pdfBytes;
@@ -188,11 +125,10 @@ export async function generatePopPdfBase64Action(
         }
         const transaction = txDoc.data() as Transaction;
 
-        const accountDoc = await adminDb.doc(`users/${userId}/bankAccounts/${accountId}`).get();
-        if (!accountDoc.exists) {
+        const accountData = await getAccountWithRealTimeBalance(userId, accountId);
+        if (!accountData) {
             throw new Error("Account not found.");
         }
-        const accountData = accountDoc.data() as Account;
 
         const pdfBytes = await generateProofOfPaymentPdf(transaction, accountData);
         const base64 = Buffer.from(pdfBytes).toString('base64');
@@ -212,7 +148,6 @@ export async function markTransactionAsFailedAction(
   try {
     const accountRef = adminDb.doc(`users/${userId}/bankAccounts/${accountId}`);
     await adminDb.runTransaction(async (firestoreTransaction) => {
-      // --- READ PHASE ---
       const txRef = adminDb.doc(`users/${userId}/bankAccounts/${accountId}/transactions/${transactionId}`);
       
       const txSnap = await firestoreTransaction.get(txRef);
@@ -228,9 +163,6 @@ export async function markTransactionAsFailedAction(
       const txData = txSnap.data() as Transaction;
       const accountData = accountSnap.data() as Account;
 
-      // --- WRITE PHASE ---
-      
-      // 1. Create a log in failedTransactions
       const failedTxRef = adminDb.collection(`users/${userId}/bankAccounts/${accountId}/failedTransactions`).doc();
       const newFailedTxData = {
         id: failedTxRef.id,
@@ -244,26 +176,22 @@ export async function markTransactionAsFailedAction(
       };
       firestoreTransaction.set(failedTxRef, newFailedTxData);
 
-      // 2. Create a new credit transaction to represent the return
       const returnTxRef = adminDb.collection(`users/${userId}/bankAccounts/${accountId}/transactions`).doc();
       const returnTxData: Transaction = {
           id: returnTxRef.id,
           userId: userId,
           fromAccountId: accountId,
-          amount: txData.amount, // Credit the same amount
+          amount: txData.amount, 
           type: 'credit',
-          transactionType: 'EFT_STANDARD', // Or a new 'RETURN' type if defined
+          transactionType: 'EFT_STANDARD', 
           date: new Date().toISOString(),
           description: `RETURN: ${txData.description}`,
           recipientName: 'SELF',
       };
       firestoreTransaction.set(returnTxRef, returnTxData);
       
-      // 3. Update the account balance by adding the amount back
       const newBalance = accountData.balance + txData.amount;
       firestoreTransaction.update(accountRef, { balance: newBalance });
-
-      // 4. The original transaction is NOT deleted. It remains as a record.
     });
 
     revalidatePath(`/account/${accountId}`);
@@ -286,7 +214,6 @@ export async function sendProofOfPaymentEmailAction(
     const functions = getFunctions(app, 'us-central1');
     const sendEmail = httpsCallable(functions, 'sendEmail');
 
-    // Generate the PDF
     const pdfResult = await generateProofOfPaymentAction(transaction);
     if ('error' in pdfResult) {
       throw new Error(pdfResult.error);
@@ -305,7 +232,6 @@ export async function sendProofOfPaymentEmailAction(
         </div>
     `;
 
-    // Call the Cloud Function
     const result = await sendEmail({
       to: recipientEmail,
       subject: subject,
@@ -324,28 +250,6 @@ export async function sendProofOfPaymentEmailAction(
     return { success: true, message: "Email sent successfully." };
   } catch (error: any) {
     console.error("Failed to send proof of payment email:", error);
-    return { success: false, message: error.message || "An unknown error occurred." };
-  }
-}
-
-export async function sendProofOfPaymentSmsAction(
-  transaction: Transaction,
-  recipientNumber: string
-): Promise<{ success: boolean; message: string }> {
-  try {
-    if (!transaction) throw new Error("Transaction data is required.");
-    if (!recipientNumber) throw new Error("Recipient phone number is required.");
-    
-    const functions = getFunctions(app, 'us-central1');
-    const sendSmsFn = httpsCallable(functions, 'sendSms');
-
-    const text = `Nedbank: Proof of payment for ${formatCurrency(transaction.amount, 'ZAR')} to ${transaction.recipientName || 'recipient'} on ${format(new Date(transaction.date), 'dd/MM/yyyy')}. Ref: ${transaction.popReferenceNumber}`;
-
-    await sendSmsFn({ to: recipientNumber, text });
-
-    return { success: true, message: "SMS sent successfully." };
-  } catch (error: any) {
-    console.error("Failed to send proof of payment SMS:", error);
     return { success: false, message: error.message || "An unknown error occurred." };
   }
 }
@@ -394,17 +298,13 @@ export async function createInternalTransferAction(data: z.infer<typeof Internal
         throw new Error("Insufficient funds.");
       }
 
-      // Decrement fromAccount
       transaction.update(fromAccountRef, { balance: fromData.balance - numericAmount });
-
-      // Increment toAccount
       transaction.update(toAccountRef, { balance: toData.balance + numericAmount });
 
       const now = new Date().toISOString();
       const transferDescription = `TRANSFER TO ${toData.name.toUpperCase()}`;
       const receiveDescription = `TRANSFER FROM ${fromData.name.toUpperCase()}`;
 
-      // Create debit transaction for fromAccount
       const fromTxRef = fromAccountRef.collection('transactions').doc();
       transaction.set(fromTxRef, {
         id: fromTxRef.id,
@@ -419,7 +319,6 @@ export async function createInternalTransferAction(data: z.infer<typeof Internal
         recipientName: toData.name
       });
 
-      // Create credit transaction for toAccount
       const toTxRef = toAccountRef.collection('transactions').doc();
       transaction.set(toTxRef, {
         id: toTxRef.id,

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -33,7 +32,7 @@ const FilterIcon = () => (
     <line x1="20" y1="12" x2="20" y2="3" />
     <line x1="1" y1="14" x2="7" y2="14" />
     <line x1="9" y1="8" x2="15" y2="8" />
-    <line x1="17" y1="16" x2="23" y2="16" />
+    <line x1="17" x2="23" y2="16" />
   </svg>
 );
 
@@ -198,7 +197,7 @@ export default function TransactionNotificationsPage() {
 
     return (
         <div className="flex flex-col h-screen bg-gray-100">
-            <header className="gradient-background text-primary-foreground p-4 flex items-center sticky top-0 z-30">
+            <header className="brand-header text-primary-foreground p-4 flex items-center sticky top-0 z-30">
                 <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
                     <ArrowLeft />
                 </Button>
