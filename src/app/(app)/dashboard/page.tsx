@@ -196,7 +196,7 @@ export default function DashboardPage() {
         </div>
 
         <main className="flex flex-col bg-transparent">
-          <div className="px-6 py-4">
+          <div className="px-6 pt-4 pb-0">
             <div className="relative aspect-[16/7] w-full">
               <Image
                 src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
@@ -207,8 +207,8 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="p-6">
-            <h2 className="text-lg font-bold mb-5 text-gray-900 tracking-tight">My widgets</h2>
+          <div className="px-6 py-4">
+            <h2 className="text-xl font-bold mb-4 text-gray-800 tracking-tight">My widgets</h2>
             <div className="grid grid-cols-4 gap-x-3 gap-y-6">
               {widgets.map((widget) => (
                 <WidgetItem
