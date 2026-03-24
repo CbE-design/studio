@@ -176,7 +176,7 @@ export default function DashboardPage() {
                     className="object-contain"
                   />
                   {unreadCount > 0 && (
-                    <div className="absolute top-[1.5px] right-[1.5px] h-2 w-2 rounded-full bg-[#9fff00] border border-[#004d00] z-10" />
+                    <div className="absolute top-[1px] right-[1px] h-2 w-2 rounded-full bg-[#9fff00] border border-[#004d00] z-10" />
                   )}
                 </div>
               </Link>
@@ -189,7 +189,7 @@ export default function DashboardPage() {
       </header>
 
       <div className="flex-1 overflow-y-auto min-h-0 bg-gray-50/50">
-        <div className="brand-header px-4 pt-6 pb-10 rounded-b-[2rem] shadow-lg">
+        <div className="brand-header px-4 pt-6 pb-10 shadow-lg">
           <div className="relative z-10">
             <AccountsCarousel />
           </div>
