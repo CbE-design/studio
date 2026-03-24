@@ -1,5 +1,4 @@
-export const dynamic = 
-'force-static'
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
@@ -11,15 +10,14 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Use a temporary proxy for development if needed, or fetch directly.
     const fetchUrl = imageUrl;
     
     const response = await fetch(fetchUrl, {
-      cache: 'force-cache', // Cache the logo since it won't change
+      cache: 'force-cache',
     });
 
     if (!response.ok) {
-      console.error(`Failed to fetch image: ${response.status} ${response.statusText}`, await response.text());
+      console.error(`Failed to fetch image: ${response.status} ${response.statusText}`);
       throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
     }
 

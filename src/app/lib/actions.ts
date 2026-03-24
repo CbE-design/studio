@@ -8,10 +8,6 @@ import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
 import { db as adminDb } from './firebase-admin';
 import { createPayment, getAccountWithRealTimeBalance } from './repositories';
-import { format } from 'date-fns';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { app } from '@/app/lib/firebase';
-
 
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
@@ -24,7 +20,6 @@ const TransactionSchema = z.object({
     accountNumber: z.string().optional(),
     paymentType: z.string(), 
 });
-
 
 export async function createTransactionAction(data: TransactionInput): Promise<TransactionResult> {
     const validatedFields = TransactionSchema.safeParse(data);
@@ -73,7 +68,6 @@ export async function createTransactionAction(data: TransactionInput): Promise<T
     }
 }
 
-
 export async function generateConfirmationLetterAction(
     account: Account,
     user: User
@@ -89,7 +83,6 @@ export async function generateConfirmationLetterAction(
         return { error: e.message || "An unknown error occurred during PDF generation." };
     }
 }
-
 
 export async function generateProofOfPaymentAction(
     transaction: Transaction
@@ -111,7 +104,6 @@ export async function generateProofOfPaymentAction(
         return { error: e.message || "An unknown error occurred during PDF generation." };
     }
 }
-
 
 export async function generatePopPdfBase64Action(
     userId: string,
@@ -138,7 +130,6 @@ export async function generatePopPdfBase64Action(
         return { error: e.message || "An unknown error occurred." };
     }
 }
-
 
 export async function markTransactionAsFailedAction(
   userId: string,
@@ -200,57 +191,6 @@ export async function markTransactionAsFailedAction(
   } catch (error: any) {
     console.error('Failed to mark transaction as failed:', error);
     return { success: false, message: error.message || 'Failed to mark transaction as failed.' };
-  }
-}
-
-export async function sendProofOfPaymentEmailAction(
-  transaction: Transaction,
-  recipientEmail: string
-): Promise<{ success: boolean; message: string }> {
-  try {
-    if (!transaction) throw new Error("Transaction data is required.");
-    if (!recipientEmail) throw new Error("Recipient email is required.");
-    
-    const functions = getFunctions(app, 'us-central1');
-    const sendEmail = httpsCallable(functions, 'sendEmail');
-
-    const pdfResult = await generateProofOfPaymentAction(transaction);
-    if ('error' in pdfResult) {
-      throw new Error(pdfResult.error);
-    }
-    const pdfBytes = pdfResult;
-    const pdfBase64 = Buffer.from(pdfBytes).toString('base64');
-    
-    const subject = 'Payment Notification';
-    const html = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="padding: 20px;">
-                <p>A payment has been made to your account. To view the details of the payment, please open the attached PDF file.</p>
-                <p>You may require Adobe Acrobat Reader on your computer to open the PDF file.</p>
-                <p>Please do not reply as this email was sent from an unattended mailbox.</p>
-            </div>
-        </div>
-    `;
-
-    const result = await sendEmail({
-      to: recipientEmail,
-      subject: subject,
-      html: html,
-      attachments: [{
-        filename: 'Proof_Of_Payment.pdf',
-        content: pdfBase64
-      }]
-    });
-
-    const data = result.data as { success: boolean, message: string };
-    if (!data.success) {
-        throw new Error(data.message || 'The sendEmail function returned an error.');
-    }
-
-    return { success: true, message: "Email sent successfully." };
-  } catch (error: any) {
-    console.error("Failed to send proof of payment email:", error);
-    return { success: false, message: error.message || "An unknown error occurred." };
   }
 }
 
