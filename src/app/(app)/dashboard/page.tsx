@@ -207,8 +207,8 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="px-6 py-4">
-            <h2 className="text-xl font-bold mb-4 text-gray-800 tracking-tight">My widgets</h2>
+          <div className="px-6 pt-2 pb-4">
+            <h2 className="text-2xl font-bold mb-4 text-gray-700 tracking-tight">My widgets</h2>
             <div className="grid grid-cols-4 gap-x-3 gap-y-6">
               {widgets.map((widget) => (
                 <WidgetItem
