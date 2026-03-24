@@ -1,35 +1,29 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 220 20% 96%;
-    --foreground: 220 10% 20%;
-    --card: 220 20% 100%;
-    --card-foreground: 220 10% 20%;
-    --popover: 220 20% 100%;
-    --popover-foreground: 220 10% 20%;
+    --background: 220 20% 98%; /* Slightly lighter Material surface */
+    --foreground: 220 10% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 10% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 10% 10%;
     --primary: 145 100% 23%;
     --primary-foreground: 113 20% 98%;
-    --secondary: 220 10% 90%;
+    --secondary: 220 10% 94%;
     --secondary-foreground: 220 10% 20%;
-    --muted: 220 10% 90%;
+    --muted: 220 10% 94%;
     --muted-foreground: 220 10% 40%;
     --accent: 145 100% 23%;
     --accent-foreground: 113 20% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 10% 85%;
-    --input: 220 10% 85%;
+    --border: 220 10% 90%;
+    --input: 220 10% 90%;
     --ring: 145 100% 23%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --radius: 1.5rem; /* Larger Material 3 radii */
   }
 }
 
@@ -65,15 +59,18 @@
     position: relative;
     overflow: hidden;
   }
+  
+  /* Triangular Mosaic Pattern Layer */
   .brand-pattern-base::before {
     content: "";
     position: absolute;
     inset: 0;
+    /* Mosaic triangles */
     background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 30 L0 0 H60 Z M30 30 L0 60 H60 Z' fill='%23ffffff'/%3E%3C/svg%3E");
     background-repeat: repeat;
     background-size: 20px 20px;
     mix-blend-mode: overlay;
-    opacity: 0.05;
+    opacity: 0.05; /* Refined opacity */
     pointer-events: none;
     z-index: 0;
   }
@@ -84,7 +81,7 @@
   }
 
   .brand-header {
-    background-color: #007a33;
+    background-color: #007a33; /* Uniform green */
     @apply brand-pattern-base;
   }
 }

@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -13,7 +12,7 @@ import { ShieldCheck } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const MessageIcon = ({ className }: { className?: string }) => (
-  <div className={cn("relative w-4 h-4 flex items-center justify-center bg-transparent", className)}>
+  <div className={cn("relative w-5 h-5 flex items-center justify-center bg-transparent", className)}>
     <Image
       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_172101952.png?alt=media&token=2d52b45c-6169-486b-8c04-8e3965a21d47"
       alt="Messages"
@@ -47,16 +46,16 @@ const widgets = [
 const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: string, icon?: React.ElementType<{className?: string}>, label: string, href: string, isNew?: boolean, hint?: string }) => {
     return (
         <Link href={href}>
-            <div className="flex flex-col items-center justify-start space-y-1.5 text-center h-full group">
-                 <div className="relative flex items-center justify-center bg-white rounded-lg shadow-sm border border-gray-200 group-hover:shadow-md transition-shadow overflow-hidden w-[52px] h-[52px]">
+            <div className="flex flex-col items-center justify-start space-y-2 text-center h-full group">
+                 <div className="relative flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 group-hover:shadow-md transition-all active:scale-95 overflow-hidden w-16 h-16">
                     {isNew && (
-                        <div className="absolute top-0 right-0 px-1 py-0.5 text-[7px] font-bold text-white bg-green-600 rounded-bl-sm z-10 uppercase leading-none">
+                        <div className="absolute top-0 right-0 px-1.5 py-0.5 text-[8px] font-bold text-white bg-green-600 rounded-bl-lg z-10 uppercase leading-none">
                             New
                         </div>
                     )}
                     <div className="relative flex items-center justify-center">
                        {src ? (
-                            <div className="relative w-7 h-7">
+                            <div className="relative w-8 h-8">
                                 <Image 
                                     src={src}
                                     alt={`${label} icon`}
@@ -66,11 +65,11 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: strin
                                 />
                             </div>
                         ) : Icon ? (
-                            <Icon className="text-primary h-6 w-6" strokeWidth={2.5} />
+                            <Icon className="text-primary h-7 w-7" strokeWidth={2} />
                         ) : null}
                     </div>
                 </div>
-                <p className="text-[10px] text-gray-700 font-medium h-8 flex items-center justify-center text-center px-0.5 leading-tight">{label}</p>
+                <p className="text-[11px] text-gray-700 font-medium h-8 flex items-center justify-center text-center px-0.5 leading-tight">{label}</p>
             </div>
         </Link>
     );
@@ -103,7 +102,7 @@ const LoadingSkeleton = () => (
             <div className="grid grid-cols-4 gap-y-6">
               {Array.from({ length: 12 }).map((_, i) => (
                 <div key={i} className="flex flex-col items-center space-y-2">
-                  <Skeleton className="w-[52px] h-[52px] bg-gray-200 rounded-lg" />
+                  <Skeleton className="w-16 h-16 bg-gray-200 rounded-2xl" />
                   <Skeleton className="w-14 h-4 bg-gray-200 rounded-md" />
                 </div>
               ))}
@@ -154,22 +153,22 @@ export default function DashboardPage() {
     <div className="flex flex-col h-full bg-white">
       <header className="sticky top-0 z-50 brand-header p-4 text-white shadow-sm shrink-0">
         <div className="relative z-10 flex flex-col gap-1">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-6 overflow-hidden">
+          <div className="flex items-center justify-between h-14">
+            <div className="flex items-center gap-4 overflow-hidden">
               <Image
                 src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"
                 alt="Nedbank Logo"
-                width={24}
-                height={24}
-                className="w-6 h-6 flex-shrink-0"
+                width={28}
+                height={28}
+                className="flex-shrink-0"
               />
-              <span className="font-normal text-xl uppercase truncate max-w-[180px]">
+              <span className="font-semibold text-lg uppercase truncate tracking-wide">
                 {user.displayName || 'DICKSON FAMILY TRUST'}
               </span>
             </div>
-            <div className="flex items-center gap-4 text-white flex-shrink-0">
-              <Link href="/notifications">
-                <div className={cn('relative w-5 h-5 bg-transparent', isBellRinging && 'animate-ring')}>
+            <div className="flex items-center gap-5 text-white flex-shrink-0">
+              <Link href="/notifications" className="relative p-1">
+                <div className={cn('relative w-6 h-6 bg-transparent', isBellRinging && 'animate-ring')}>
                   <Image
                     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320141309.png?alt=media&token=1836ae99-d919-48db-85fe-013baef40979"
                     alt="Notifications"
@@ -177,28 +176,28 @@ export default function DashboardPage() {
                     className="object-contain"
                   />
                   {unreadCount > 0 && (
-                    <div className="absolute top-[1.5px] right-[1.5px] h-1.5 w-1.5 rounded-full bg-[#9fff00] border border-[#004d00] z-10" />
+                    <div className="absolute top-[1.5px] right-[1.5px] h-2 w-2 rounded-full bg-[#9fff00] border border-[#004d00] z-10" />
                   )}
                 </div>
               </Link>
-              <Link href="/ai-chat">
-                  <MessageIcon className="w-4 h-4" />
+              <Link href="/ai-chat" className="p-1">
+                  <MessageIcon />
               </Link>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto min-h-0">
-        <div className="brand-header px-4 pt-8 pb-8">
+      <div className="flex-1 overflow-y-auto min-h-0 bg-gray-50/50">
+        <div className="brand-header px-4 pt-6 pb-10 rounded-b-[2rem] shadow-lg">
           <div className="relative z-10">
             <AccountsCarousel />
           </div>
         </div>
 
-        <main className="flex flex-col bg-white">
-          <div className="px-6 py-4 mt-2 flex justify-center">
-            <div className="relative w-full aspect-[16/5] p-1">
+        <main className="flex flex-col bg-transparent -mt-4">
+          <div className="px-4 py-2 flex justify-center">
+            <div className="relative w-full aspect-[16/5] bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden p-1">
               <Image
                 src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
                 alt="Advertisement banner"
@@ -208,9 +207,9 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="p-4 mt-2">
-            <h2 className="text-xl font-bold mb-4 text-gray-800">My widgets</h2>
-            <div className="grid grid-cols-4 gap-x-2 gap-y-4">
+          <div className="p-6">
+            <h2 className="text-lg font-bold mb-5 text-gray-900 tracking-tight">My widgets</h2>
+            <div className="grid grid-cols-4 gap-x-3 gap-y-6">
               {widgets.map((widget) => (
                 <WidgetItem
                   key={widget.label}
