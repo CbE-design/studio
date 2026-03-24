@@ -196,13 +196,15 @@ export default function DashboardPage() {
         </div>
 
         <main className="flex flex-col bg-transparent">
-          <div className="w-full relative aspect-[16/5] bg-white">
-            <Image
-              src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
-              alt="Advertisement banner"
-              fill
-              className="object-contain"
-            />
+          <div className="px-6 pt-6 pb-2">
+            <div className="relative aspect-[16/7] w-full rounded-2xl overflow-hidden shadow-sm border border-gray-100 bg-white">
+              <Image
+                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
+                alt="Advertisement banner"
+                fill
+                className="object-cover"
+              />
+            </div>
           </div>
 
           <div className="p-6">
