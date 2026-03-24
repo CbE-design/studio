@@ -197,7 +197,7 @@ export default function DashboardPage() {
 
         <main className="flex flex-col bg-transparent">
           <div className="px-6 py-4">
-            <div className="relative aspect-[16/7] w-full border border-gray-200">
+            <div className="relative aspect-[16/7] w-full">
               <Image
                 src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
                 alt="Advertisement banner"
