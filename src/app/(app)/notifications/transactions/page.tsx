@@ -120,10 +120,15 @@ export default function TransactionNotificationsPage() {
       if (!firestore || !user?.uid) return null;
       return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
     }, [firestore, user?.uid]);
-    const { data: accounts } = useCollection(accountsQuery);
+    const { data: accounts, isLoading: isAccountsLoading } = useCollection(accountsQuery);
 
     useEffect(() => {
-        if (!accounts || isUserLoading) return;
+        if (isUserLoading || isAccountsLoading) return;
+
+        if (!accounts || accounts.length === 0) {
+            setIsTransactionsLoading(false);
+            return;
+        }
 
         const fetchAllTransactions = async () => {
             setIsTransactionsLoading(true);
@@ -135,15 +140,18 @@ export default function TransactionNotificationsPage() {
                 let allTransactions: Transaction[] = [];
 
                 for (const account of accounts) {
-                    const transactionsCollectionRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
-                    const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
-                    transactionsSnapshot.forEach(doc => {
-                        const data = doc.data();
-                        // Filter out bank fees and ensure date exists
-                        if (data.date && data.transactionType !== 'BANK_FEE') {
-                             allTransactions.push({ id: doc.id, ...data, accountNumber: account.accountNumber } as Transaction);
-                        }
-                    });
+                    try {
+                        const transactionsCollectionRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
+                        const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
+                        transactionsSnapshot.forEach(doc => {
+                            const data = doc.data();
+                            if (data.date && data.transactionType !== 'BANK_FEE') {
+                                allTransactions.push({ id: doc.id, ...data, accountNumber: account.accountNumber } as Transaction);
+                            }
+                        });
+                    } catch (accountError: any) {
+                        console.warn(`Could not fetch transactions for account ${account.id}:`, accountError.message);
+                    }
                 }
                 
                 allTransactions.sort((a, b) => normalizeDate(b.date).getTime() - normalizeDate(a.date).getTime());
@@ -156,7 +164,7 @@ export default function TransactionNotificationsPage() {
         };
 
         fetchAllTransactions();
-    }, [accounts, firestore, user?.uid, isUserLoading]);
+    }, [accounts, isAccountsLoading, firestore, user?.uid, isUserLoading]);
     
     const handleToggle = (id: string) => {
         setExpandedId(prevId => (prevId === id ? null : id));
