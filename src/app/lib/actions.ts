@@ -126,27 +126,15 @@ export async function sendProofOfPaymentEmailAction(
     const pdfBytes = await generateProofOfPaymentPdf(transaction, accountData);
     const base64 = Buffer.from(pdfBytes).toString('base64');
 
-    const formattedAmount = `R${transaction.amount.toFixed(2)}`;
-    
     await resend.emails.send({
       from: 'Nedbank <noreply@notificationsnedbank.co.za>',
       to: recipientEmail,
       subject: `Payment Notification: ${transaction.recipientName || transaction.description}`,
       html: `
-        <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 8px;">
-          <div style="text-align: center; margin-bottom: 20px;">
-            <h2 style="color: #007a33; margin: 0;">Payment Notification</h2>
-          </div>
-          <p>A payment has been made to your account. Details of the transaction are attached in the official Proof of Payment PDF.</p>
-          <div style="background-color: #f9f9f9; padding: 15px; border-radius: 4px; margin: 20px 0;">
-            <p style="margin: 5px 0;"><strong>Recipient:</strong> ${transaction.recipientName || 'N/A'}</p>
-            <p style="margin: 5px 0;"><strong>Amount:</strong> ${formattedAmount}</p>
-            <p style="margin: 5px 0;"><strong>Reference:</strong> ${transaction.popReferenceNumber}</p>
-            <p style="margin: 5px 0;"><strong>Date:</strong> ${format(new Date(), 'dd MMMM yyyy')}</p>
-          </div>
-          <p style="font-size: 13px; color: #666; line-height: 1.5;">Please note that it may take up to 3 business days for the funds to reflect in your account depending on the clearing cycle of the banks involved.</p>
-          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-          <p style="font-size: 11px; color: #999; text-align: center;">Nedbank Limited is an authorised financial services and registered credit provider.</p>
+        <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333;">
+          <p>A payment has been made to your account. To view the details of the payment, please open the attached PDF file.</p>
+          <p>You may require Adobe Acrobat Reader on your computer to open the PDF file.</p>
+          <p>Please do not reply as this email was sent from an unattended mailbox.</p>
         </div>
       `,
       attachments: [
