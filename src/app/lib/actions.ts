@@ -1,3 +1,4 @@
+
 'use server';
 
 import 'dotenv/config';
@@ -8,6 +9,8 @@ import { generateConfirmationPdf } from './confirmation-letter-generator';
 import { generateProofOfPaymentPdf } from './pop-generator';
 import { db as adminDb } from './firebase-admin';
 import { createPayment, getAccountWithRealTimeBalance } from './repositories';
+import { Resend } from 'resend';
+import { format } from 'date-fns';
 
 const TransactionSchema = z.object({
     fromAccountId: z.string().min(1, { message: 'From Account is required.'}),
@@ -103,6 +106,89 @@ export async function generateProofOfPaymentAction(
         console.error("Failed to generate proof of payment:", e);
         return { error: e.message || "An unknown error occurred during PDF generation." };
     }
+}
+
+export async function sendProofOfPaymentEmailAction(
+  transaction: Transaction,
+  recipientEmail: string
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const resendApiKey = process.env.RESEND_API_KEY;
+    if (!resendApiKey) {
+      throw new Error('Email service not configured (RESEND_API_KEY missing).');
+    }
+    const resend = new Resend(resendApiKey);
+
+    const accountData = await getAccountWithRealTimeBalance(transaction.userId!, transaction.fromAccountId!);
+    if (!accountData) {
+      throw new Error('Account not found.');
+    }
+
+    const pdfBytes = await generateProofOfPaymentPdf(transaction, accountData);
+    const base64 = Buffer.from(pdfBytes).toString('base64');
+
+    const formattedAmount = `R${transaction.amount.toFixed(2)}`;
+    
+    await resend.emails.send({
+      from: 'Nedbank <noreply@notificationsnedbank.com>',
+      to: recipientEmail,
+      subject: `Payment Notification: ${transaction.recipientName || transaction.description}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 8px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="color: #007a33; margin: 0;">Payment Notification</h2>
+          </div>
+          <p>A payment has been made to your account. Details of the transaction are attached in the official Proof of Payment PDF.</p>
+          <div style="background-color: #f9f9f9; padding: 15px; border-radius: 4px; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>Recipient:</strong> ${transaction.recipientName || 'N/A'}</p>
+            <p style="margin: 5px 0;"><strong>Amount:</strong> ${formattedAmount}</p>
+            <p style="margin: 5px 0;"><strong>Reference:</strong> ${transaction.popReferenceNumber}</p>
+            <p style="margin: 5px 0;"><strong>Date:</strong> ${format(new Date(), 'dd MMMM yyyy')}</p>
+          </div>
+          <p style="font-size: 13px; color: #666; line-height: 1.5;">Please note that it may take up to 3 business days for the funds to reflect in your account depending on the clearing cycle of the banks involved.</p>
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+          <p style="font-size: 11px; color: #999; text-align: center;">Nedbank Limited is an authorised financial services and registered credit provider.</p>
+        </div>
+      `,
+      attachments: [
+        {
+          filename: 'Proof_Of_Payment.pdf',
+          content: base64,
+        },
+      ],
+    });
+
+    return { success: true, message: 'Email sent successfully.' };
+  } catch (error: any) {
+    console.error('Failed to send POP email:', error);
+    return { success: false, message: error.message || 'Failed to send email.' };
+  }
+}
+
+export async function sendEmailAction(data: {
+  to: string;
+  subject: string;
+  html: string;
+  attachments?: { filename: string; content: string }[];
+}): Promise<{ success: boolean; message: string }> {
+  try {
+    const resendApiKey = process.env.RESEND_API_KEY;
+    if (!resendApiKey) throw new Error('RESEND_API_KEY is not configured.');
+    const resend = new Resend(resendApiKey);
+
+    await resend.emails.send({
+      from: 'Nedbank <noreply@notificationsnedbank.com>',
+      to: data.to,
+      subject: data.subject,
+      html: data.html,
+      attachments: data.attachments,
+    });
+
+    return { success: true, message: 'Email sent successfully.' };
+  } catch (error: any) {
+    console.error('sendEmailAction failed:', error);
+    return { success: false, message: error.message || 'Failed to send email.' };
+  }
 }
 
 export async function generatePopPdfBase64Action(

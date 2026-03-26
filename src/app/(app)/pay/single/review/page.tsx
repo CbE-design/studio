@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Suspense, useState } from 'react';
@@ -5,8 +6,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, X, User, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
-import { formatCurrency, normalizeDate } from '@/app/lib/data';
-import { createTransactionAction, generatePopPdfBase64Action } from '@/app/lib/actions';
+import { formatCurrency } from '@/app/lib/data';
+import { createTransactionAction, sendProofOfPaymentEmailAction } from '@/app/lib/actions';
 import { useUser } from '@/firebase-provider';
 import { useToast } from '@/hooks/use-toast';
 import { functions } from '@/app/lib/firebase';
@@ -111,6 +112,7 @@ function ReviewPaymentContent() {
             });
 
             if (result.success) {
+                // Handle SMS Notification
                 if (paymentDetails.notificationType === 'sms' && paymentDetails.notificationValue) {
                     try {
                         const sendSmsFn = httpsCallable(functions, 'sendSms');
@@ -135,44 +137,35 @@ function ReviewPaymentContent() {
                     }
                 }
 
-                if (paymentDetails.notificationType === 'email' && paymentDetails.notificationValue) {
+                // Handle Email Notification using Server Action
+                if (paymentDetails.notificationType === 'email' && paymentDetails.notificationValue && result.transactionId) {
                     try {
-                        const pdfResult = await generatePopPdfBase64Action(
-                            user.uid,
-                            paymentDetails.fromAccountId!,
-                            result.transactionId!,
-                        );
+                        // Create a transaction object for the action
+                        const txForEmail: Transaction = {
+                            id: result.transactionId,
+                            userId: user.uid,
+                            fromAccountId: paymentDetails.fromAccountId!,
+                            amount: parseFloat(paymentDetails.amount!),
+                            date: new Date().toISOString(),
+                            description: paymentDetails.recipientName?.toUpperCase() || 'PAYMENT',
+                            recipientName: paymentDetails.recipientName || undefined,
+                            bank: paymentDetails.bankName || undefined,
+                            accountNumber: paymentDetails.accountNumber || undefined,
+                            recipientReference: paymentDetails.recipientReference || undefined,
+                            popReferenceNumber: result.popReferenceNumber,
+                            type: 'debit'
+                        };
 
-                        if ('error' in pdfResult) {
-                            throw new Error(pdfResult.error);
+                        const emailResult = await sendProofOfPaymentEmailAction(txForEmail, paymentDetails.notificationValue);
+                        
+                        if (emailResult.success) {
+                            toast({
+                                title: 'Email Sent',
+                                description: 'Proof of payment email sent successfully.',
+                            });
+                        } else {
+                            throw new Error(emailResult.message);
                         }
-
-                        const sendEmailFn = httpsCallable(functions, 'sendEmail');
-                        const formattedAmount = `R${parseFloat(paymentDetails.amount || '0').toFixed(2)}`;
-                        const reference = result.popReferenceNumber || `${format(new Date(), 'yyyy-MM-dd')}/NEDBANK/${result.transactionId}`;
-
-                        await sendEmailFn({
-                            to: paymentDetails.notificationValue,
-                            subject: 'Payment Notification',
-                            html: `
-                                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                                    <div style="padding: 20px;">
-                                        <p>A payment has been made to your account. To view the details of the payment, please open the attached PDF file.</p>
-                                        <p>You may require Adobe Acrobat Reader on your computer to open the PDF file.</p>
-                                        <p>Please do not reply as this email was sent from an unattended mailbox.</p>
-                                    </div>
-                                </div>
-                            `,
-                            attachments: [{
-                                filename: 'Proof_Of_Payment.pdf',
-                                content: pdfResult.base64,
-                            }],
-                        });
-
-                        toast({
-                            title: 'Email Sent',
-                            description: 'Proof of payment email sent successfully.',
-                        });
                     } catch (emailError: any) {
                         console.error('Failed to send email notification:', emailError);
                         toast({
