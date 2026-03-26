@@ -1,4 +1,3 @@
-
 'use server';
 
 import 'dotenv/config';
@@ -130,7 +129,7 @@ export async function sendProofOfPaymentEmailAction(
     const formattedAmount = `R${transaction.amount.toFixed(2)}`;
     
     await resend.emails.send({
-      from: 'Nedbank <noreply@notificationsnedbank.com>',
+      from: 'Nedbank <noreply@notificationsnedbank.co.za>',
       to: recipientEmail,
       subject: `Payment Notification: ${transaction.recipientName || transaction.description}`,
       html: `
@@ -177,7 +176,7 @@ export async function sendEmailAction(data: {
     const resend = new Resend(resendApiKey);
 
     await resend.emails.send({
-      from: 'Nedbank <noreply@notificationsnedbank.com>',
+      from: 'Nedbank <noreply@notificationsnedbank.co.za>',
       to: data.to,
       subject: data.subject,
       html: data.html,

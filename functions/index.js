@@ -1,4 +1,3 @@
-
 'use strict';
 
 const functions = require('firebase-functions');
@@ -22,7 +21,7 @@ exports.sendEmail = functions.region('us-central1').https.onCall(async (data, co
     }
     
     const fromName = "Nedbank";
-    const fromEmail = process.env.MAIL_FROM || 'noreply@notificationsnedbank.com';
+    const fromEmail = process.env.MAIL_FROM || 'noreply@notificationsnedbank.co.za';
     const resendApiKey = process.env.RESEND_API_KEY;
 
     if (!resendApiKey) {
