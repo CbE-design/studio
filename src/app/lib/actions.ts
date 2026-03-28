@@ -129,7 +129,7 @@ export async function sendProofOfPaymentEmailAction(
     await resend.emails.send({
       from: 'Nedbank <noreply@notificationsnedbank.co.za>',
       to: recipientEmail,
-      subject: `Payment Notification: ${transaction.recipientName || transaction.description}`,
+      subject: 'Payment Notification',
       html: `
         <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333;">
           <p>A payment has been made to your account. To view the details of the payment, please open the attached PDF file.</p>
