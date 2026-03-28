@@ -10,7 +10,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import type { Account, Transaction } from '@/app/lib/definitions';
 import { format } from 'date-fns';
 import { formatCurrency, normalizeDate } from '@/app/lib/data';
-import { generateProofOfPaymentAction, generatePopPdfBase64Action, markTransactionAsFailedAction } from '@/app/lib/actions';
+import { generateProofOfPaymentAction, markTransactionAsFailedAction, sendProofOfPaymentEmailAction } from '@/app/lib/actions';
 import { functions } from '@/app/lib/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { useToast } from '@/hooks/use-toast';
@@ -195,32 +195,10 @@ function TransactionDetailsContent() {
     setIsSending(true);
     try {
         if (dialogOpen === 'email') {
-            const pdfResult = await generatePopPdfBase64Action(
-                transaction.userId!,
-                transaction.fromAccountId!,
-                transaction.id!,
-            );
-            if ('error' in pdfResult) {
-                throw new Error(pdfResult.error);
+            const result = await sendProofOfPaymentEmailAction(transaction, recipient);
+            if (!result.success) {
+                throw new Error(result.message);
             }
-            const sendEmailFn = httpsCallable(functions, 'sendEmail');
-            await sendEmailFn({
-                to: recipient,
-                subject: 'Payment Notification',
-                html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                        <div style="padding: 20px;">
-                            <p>A payment has been made to your account. To view the details of the payment, please open the attached PDF file.</p>
-                            <p>You may require Adobe Acrobat Reader on your computer to open the PDF file.</p>
-                            <p>Please do not reply as this email was sent from an unattended mailbox.</p>
-                        </div>
-                    </div>
-                `,
-                attachments: [{
-                    filename: 'Proof_Of_Payment.pdf',
-                    content: pdfResult.base64,
-                }],
-            });
             setDialogOpen(null);
             setRecipient('');
             toast({
