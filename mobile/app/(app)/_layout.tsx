@@ -12,6 +12,10 @@ export default function AppLayout() {
         <Stack.Screen name="pay/amount" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="pay/review" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="pay/success" options={{ animation: 'slide_from_bottom', gestureEnabled: false }} />
+        <Stack.Screen name="notifications" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="tips" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="ai-chat" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="documents" options={{ animation: 'slide_from_right' }} />
       </Stack>
     </PaymentProvider>
   );

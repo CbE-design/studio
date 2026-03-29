@@ -1,24 +1,55 @@
-import { View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+  Modal,
+  TextInput,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
 import { firestore } from '@/lib/firebase';
-import { collection, onSnapshot } from 'firebase/firestore';
+import {
+  collection,
+  onSnapshot,
+  addDoc,
+  deleteDoc,
+  doc,
+} from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import type { Beneficiary } from '@/lib/definitions';
+import type { ComponentProps } from 'react';
+
+type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 
 const PRIMARY = '#00843d';
+
+type FormState = {
+  name: string;
+  bank: string;
+  accountNumber: string;
+  phoneNumber: string;
+};
+
+const EMPTY_FORM: FormState = { name: '', bank: '', accountNumber: '', phoneNumber: '' };
 
 export default function RecipientsScreen() {
   const { user } = useAuth();
   const [recipients, setRecipients] = useState<Beneficiary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [isSaving, setIsSaving] = useState(false);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
-    if (!user) {
-      setIsLoading(false);
-      return;
-    }
+    if (!user) { setIsLoading(false); return; }
     const q = collection(firestore, `users/${user.uid}/beneficiaries`);
     const unsub = onSnapshot(
       q,
@@ -31,14 +62,81 @@ export default function RecipientsScreen() {
     return () => unsub();
   }, [user]);
 
+  const filtered = recipients.filter((r) =>
+    r.name.toLowerCase().includes(search.toLowerCase()) ||
+    r.bank.toLowerCase().includes(search.toLowerCase()) ||
+    r.accountNumber.includes(search),
+  );
+
+  const handleAdd = async () => {
+    if (!user) return;
+    if (!form.name.trim() || !form.bank.trim() || !form.accountNumber.trim()) {
+      Alert.alert('Missing fields', 'Name, bank and account number are required.');
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await addDoc(collection(firestore, `users/${user.uid}/beneficiaries`), {
+        name: form.name.trim(),
+        bank: form.bank.trim(),
+        accountNumber: form.accountNumber.trim(),
+        phoneNumber: form.phoneNumber.trim(),
+      });
+      setForm(EMPTY_FORM);
+      setModalVisible(false);
+    } catch {
+      Alert.alert('Error', 'Failed to add recipient. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = (recipient: Beneficiary) => {
+    if (!user) return;
+    Alert.alert(
+      'Delete recipient',
+      `Remove ${recipient.name} from your recipients?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteDoc(doc(firestore, `users/${user.uid}/beneficiaries/${recipient.id}`));
+            } catch {
+              Alert.alert('Error', 'Failed to delete recipient.');
+            }
+          },
+        },
+      ],
+    );
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f9fafb' }}>
-      <View style={{ backgroundColor: PRIMARY, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 20 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      <View style={{ backgroundColor: PRIMARY, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <Text style={{ color: '#fff', fontSize: 20, fontWeight: '700' }}>Recipients</Text>
-          <TouchableOpacity>
-            <Ionicons name="person-add-outline" size={22} color="#fff" />
+          <TouchableOpacity
+            onPress={() => { setForm(EMPTY_FORM); setModalVisible(true); }}
+            style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20, padding: 6 }}
+          >
+            <Ionicons name={'person-add-outline' as IoniconsName} size={20} color="#fff" />
           </TouchableOpacity>
+        </View>
+        <View style={{
+          flexDirection: 'row', alignItems: 'center',
+          backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 10, paddingHorizontal: 10,
+        }}>
+          <Ionicons name={'search-outline' as IoniconsName} size={16} color="rgba(255,255,255,0.7)" />
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            placeholder="Search recipients..."
+            placeholderTextColor="rgba(255,255,255,0.6)"
+            style={{ flex: 1, color: '#fff', paddingVertical: 8, paddingHorizontal: 8, fontSize: 14 }}
+          />
         </View>
       </View>
 
@@ -46,53 +144,32 @@ export default function RecipientsScreen() {
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator color={PRIMARY} />
         </View>
-      ) : recipients.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 32 }}>
-          <Ionicons name="people-outline" size={56} color="#d1d5db" />
+          <Ionicons name={'people-outline' as IoniconsName} size={56} color="#d1d5db" />
           <Text style={{ color: '#6b7280', fontSize: 16, fontWeight: '600', marginTop: 16 }}>
-            No recipients yet
+            {search ? 'No matches found' : 'No recipients yet'}
           </Text>
           <Text style={{ color: '#9ca3af', fontSize: 13, marginTop: 6, textAlign: 'center' }}>
-            Add recipients to quickly send payments
+            {search ? 'Try a different search term' : 'Add recipients to quickly send payments'}
           </Text>
-          <TouchableOpacity style={{
-            backgroundColor: PRIMARY,
-            borderRadius: 12,
-            paddingHorizontal: 24,
-            paddingVertical: 12,
-            marginTop: 20,
-          }}>
-            <Text style={{ color: '#fff', fontWeight: '600' }}>Add recipient</Text>
-          </TouchableOpacity>
+          {!search && (
+            <TouchableOpacity
+              onPress={() => { setForm(EMPTY_FORM); setModalVisible(true); }}
+              style={{ backgroundColor: PRIMARY, borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12, marginTop: 20 }}
+            >
+              <Text style={{ color: '#fff', fontWeight: '600' }}>Add recipient</Text>
+            </TouchableOpacity>
+          )}
         </View>
       ) : (
         <FlatList
-          data={recipients}
+          data={filtered}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16 }}
           renderItem={({ item }) => (
-            <TouchableOpacity style={{
-              backgroundColor: '#fff',
-              borderRadius: 14,
-              padding: 14,
-              marginBottom: 10,
-              flexDirection: 'row',
-              alignItems: 'center',
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.05,
-              shadowRadius: 3,
-              elevation: 1,
-            }}>
-              <View style={{
-                width: 44,
-                height: 44,
-                backgroundColor: '#e8f5ee',
-                borderRadius: 22,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginRight: 12,
-              }}>
+            <View style={styles.card}>
+              <View style={styles.avatar}>
                 <Text style={{ color: PRIMARY, fontSize: 18, fontWeight: '700' }}>
                   {item.name.charAt(0).toUpperCase()}
                 </Text>
@@ -103,11 +180,116 @@ export default function RecipientsScreen() {
                   {item.bank} · {item.accountNumber}
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
-            </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleDelete(item)} style={{ padding: 8 }}>
+                <Ionicons name={'trash-outline' as IoniconsName} size={18} color="#ef4444" />
+              </TouchableOpacity>
+            </View>
           )}
         />
       )}
+
+      <Modal visible={modalVisible} animationType="slide" transparent onRequestClose={() => setModalVisible(false)}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}
+        >
+          <View style={styles.sheet}>
+            <View style={styles.sheetHandle} />
+            <Text style={styles.sheetTitle}>Add recipient</Text>
+
+            {(['name', 'bank', 'accountNumber', 'phoneNumber'] as const).map((field) => (
+              <View key={field} style={{ marginBottom: 14 }}>
+                <Text style={styles.label}>
+                  {field === 'accountNumber' ? 'Account number' :
+                   field === 'phoneNumber' ? 'Phone number (optional)' :
+                   field.charAt(0).toUpperCase() + field.slice(1)}
+                </Text>
+                <TextInput
+                  value={form[field]}
+                  onChangeText={(v) => setForm((f) => ({ ...f, [field]: v }))}
+                  placeholder={
+                    field === 'name' ? 'Full name' :
+                    field === 'bank' ? 'Bank name' :
+                    field === 'accountNumber' ? '000 000 0000' :
+                    '+27 00 000 0000'
+                  }
+                  keyboardType={
+                    field === 'accountNumber' || field === 'phoneNumber' ? 'numeric' : 'default'
+                  }
+                  style={styles.input}
+                  placeholderTextColor="#9ca3af"
+                />
+              </View>
+            ))}
+
+            <TouchableOpacity
+              onPress={handleAdd}
+              disabled={isSaving}
+              style={[styles.btn, { opacity: isSaving ? 0.7 : 1 }]}
+            >
+              {isSaving ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>Add recipient</Text>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.cancelBtn}>
+              <Text style={{ color: '#6b7280', fontWeight: '600', fontSize: 15 }}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  avatar: {
+    width: 44, height: 44,
+    backgroundColor: '#e8f5ee',
+    borderRadius: 22,
+    alignItems: 'center', justifyContent: 'center',
+    marginRight: 12,
+  },
+  sheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    padding: 24,
+    paddingBottom: 40,
+  },
+  sheetHandle: {
+    width: 40, height: 4, backgroundColor: '#e5e7eb',
+    borderRadius: 2, alignSelf: 'center', marginBottom: 20,
+  },
+  sheetTitle: {
+    fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 20,
+  },
+  label: {
+    fontSize: 13, color: '#6b7280', marginBottom: 6, fontWeight: '500',
+  },
+  input: {
+    borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10,
+    paddingHorizontal: 14, paddingVertical: 12,
+    fontSize: 15, color: '#111827', backgroundColor: '#f9fafb',
+  },
+  btn: {
+    backgroundColor: PRIMARY, borderRadius: 12,
+    paddingVertical: 14, alignItems: 'center', marginTop: 8,
+  },
+  cancelBtn: {
+    borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 8,
+  },
+});

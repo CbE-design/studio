@@ -5,6 +5,12 @@ import {
   ScrollView,
   ActivityIndicator,
   Share,
+  Modal,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,17 +20,18 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, firestore } from '@/lib/firebase';
 import { formatCurrency, formatDate } from '@/lib/format';
 import type { Account, Transaction } from '@/lib/definitions';
+import type { ComponentProps } from 'react';
+
+type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 
 const PRIMARY = '#00843d';
+const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? '';
 
 type DetailRowProps = { label: string; value?: string | null };
 
 function DetailRow({ label, value }: DetailRowProps) {
   return (
-    <View style={{
-      paddingVertical: 14,
-      borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
-    }}>
+    <View style={{ paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' }}>
       <Text style={{ color: '#9ca3af', fontSize: 12, marginBottom: 4 }}>{label}</Text>
       <Text style={{ color: '#111827', fontSize: 16 }}>{value ?? '-'}</Text>
     </View>
@@ -50,6 +57,8 @@ function LoadingSkeleton() {
   );
 }
 
+type ShareMode = 'email' | 'share' | null;
+
 export default function TransactionDetailScreen() {
   const router = useRouter();
   const { accountId, txId } = useLocalSearchParams<{ accountId: string; txId: string }>();
@@ -57,16 +66,15 @@ export default function TransactionDetailScreen() {
   const [account, setAccount] = useState<Account | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [shareSheetOpen, setShareSheetOpen] = useState(false);
+  const [shareMode, setShareMode] = useState<ShareMode>(null);
+  const [emailInput, setEmailInput] = useState('');
+  const [isSending, setIsSending] = useState(false);
+
   useEffect(() => {
-    if (!accountId || !txId) {
-      setIsLoading(false);
-      return;
-    }
+    if (!accountId || !txId) { setIsLoading(false); return; }
     const uid = auth.currentUser?.uid;
-    if (!uid) {
-      setIsLoading(false);
-      return;
-    }
+    if (!uid) { setIsLoading(false); return; }
     const fetchData = async () => {
       try {
         const [txSnap, accSnap] = await Promise.all([
@@ -84,11 +92,11 @@ export default function TransactionDetailScreen() {
     fetchData();
   }, [accountId, txId]);
 
-  const handleShare = async () => {
+  const handleNativeShare = async () => {
     if (!transaction) return;
     const isNegative = transaction.type === 'debit';
     const msg = [
-      `Nedbank Proof of Payment`,
+      'MoneyGO Proof of Payment',
       `Recipient: ${transaction.recipientName ?? transaction.description}`,
       `Amount: ${isNegative ? '-' : '+'}${formatCurrency(transaction.amount, account?.currency)}`,
       `Date: ${formatDate(transaction.date, 'full')}`,
@@ -97,7 +105,34 @@ export default function TransactionDetailScreen() {
     try {
       await Share.share({ message: msg });
     } catch {
-      // share cancelled or failed
+      // cancelled
+    }
+  };
+
+  const handleSendEmail = async () => {
+    if (!transaction || !emailInput.trim()) return;
+    setIsSending(true);
+    try {
+      const idToken = await auth.currentUser?.getIdToken();
+      const res = await fetch(`${API_BASE}/api/email/pop`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken ?? ''}`,
+        },
+        body: JSON.stringify({ transaction, recipientEmail: emailInput.trim() }),
+      });
+      const data = (await res.json()) as { success?: boolean; message?: string };
+      if (!res.ok || !data.success) throw new Error(data.message ?? 'Failed to send');
+      setShareMode(null);
+      setShareSheetOpen(false);
+      setEmailInput('');
+      Alert.alert('Email sent', 'Proof of payment sent successfully.');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Unknown error';
+      Alert.alert('Failed to send', msg);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -106,7 +141,7 @@ export default function TransactionDetailScreen() {
   if (!transaction) {
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 }}>
-        <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+        <Ionicons name={'alert-circle-outline' as IoniconsName} size={48} color="#ef4444" />
         <Text style={{ color: '#374151', fontSize: 16, marginTop: 12 }}>Transaction not found</Text>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -120,27 +155,25 @@ export default function TransactionDetailScreen() {
 
   const isCredit = transaction.type === 'credit';
   const isReturn = transaction.description.startsWith('RETURN:');
+  const canShare = !isReturn && !isCredit;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
       <View style={{ backgroundColor: PRIMARY, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16, flexDirection: 'row', alignItems: 'center' }}>
         <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 12, padding: 4 }}>
-          <Ionicons name="arrow-back" size={22} color="#fff" />
+          <Ionicons name={'arrow-back' as IoniconsName} size={22} color="#fff" />
         </TouchableOpacity>
         <Text style={{ color: '#fff', fontSize: 18, fontWeight: '600' }}>Transaction details</Text>
       </View>
 
-      <View style={{
-        alignItems: 'center', paddingVertical: 24,
-        borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
-      }}>
+      <View style={{ alignItems: 'center', paddingVertical: 24, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' }}>
         <View style={{
           width: 60, height: 60, borderRadius: 30,
           backgroundColor: isCredit ? '#dcfce7' : '#fee2e2',
           alignItems: 'center', justifyContent: 'center', marginBottom: 12,
         }}>
           <Ionicons
-            name={isCredit ? 'arrow-down-outline' : 'arrow-up-outline'}
+            name={(isCredit ? 'arrow-down-outline' : 'arrow-up-outline') as IoniconsName}
             size={28}
             color={isCredit ? '#16a34a' : '#dc2626'}
           />
@@ -154,15 +187,11 @@ export default function TransactionDetailScreen() {
         {transaction.status && (
           <View style={{
             marginTop: 8,
-            backgroundColor: transaction.status === 'SUCCESS' ? '#dcfce7'
-              : transaction.status === 'FAILED' ? '#fee2e2'
-              : '#fef3c7',
+            backgroundColor: transaction.status === 'SUCCESS' ? '#dcfce7' : transaction.status === 'FAILED' ? '#fee2e2' : '#fef3c7',
             borderRadius: 12, paddingHorizontal: 12, paddingVertical: 4,
           }}>
             <Text style={{
-              color: transaction.status === 'SUCCESS' ? '#16a34a'
-                : transaction.status === 'FAILED' ? '#dc2626'
-                : '#d97706',
+              color: transaction.status === 'SUCCESS' ? '#16a34a' : transaction.status === 'FAILED' ? '#dc2626' : '#d97706',
               fontSize: 12, fontWeight: '600',
             }}>
               {transaction.status}
@@ -177,43 +206,132 @@ export default function TransactionDetailScreen() {
         <DetailRow label="Your reference" value={transaction.yourReference} />
         <DetailRow label="Bank" value={transaction.bank} />
         <DetailRow label="Account number" value={transaction.accountNumber} />
-        <DetailRow
-          label="Transaction type"
-          value={isReturn ? 'Reversal / Return' : isCredit ? 'Credit' : 'Payment'}
-        />
+        <DetailRow label="Transaction type" value={isReturn ? 'Reversal / Return' : isCredit ? 'Credit' : 'Payment'} />
         <DetailRow label="POP reference" value={transaction.popReferenceNumber} />
         <DetailRow label="Status" value={transaction.status} />
       </ScrollView>
 
-      <View style={{
-        padding: 16, backgroundColor: '#fff',
-        borderTopWidth: 1, borderTopColor: '#f3f4f6',
-        gap: 10,
-      }}>
-        <TouchableOpacity
-          onPress={handleShare}
-          style={{
-            backgroundColor: PRIMARY, borderRadius: 12, paddingVertical: 14,
-            alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8,
-          }}
-          activeOpacity={0.85}
-        >
-          <Ionicons name="share-outline" size={18} color="#fff" />
-          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700' }}>
-            Share proof of payment
-          </Text>
-        </TouchableOpacity>
+      <View style={{ padding: 16, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f3f4f6', gap: 10 }}>
+        {canShare && (
+          <TouchableOpacity
+            onPress={() => setShareSheetOpen(true)}
+            style={styles.primaryBtn}
+            activeOpacity={0.85}
+          >
+            <Ionicons name={'share-outline' as IoniconsName} size={18} color="#fff" />
+            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700' }}>Share proof of payment</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           onPress={() => router.back()}
-          style={{
-            borderRadius: 12, paddingVertical: 14,
-            alignItems: 'center', borderWidth: 1, borderColor: PRIMARY,
-          }}
+          style={styles.outlineBtn}
           activeOpacity={0.85}
         >
           <Text style={{ color: PRIMARY, fontSize: 16, fontWeight: '600' }}>Done</Text>
         </TouchableOpacity>
       </View>
+
+      <Modal visible={shareSheetOpen} transparent animationType="slide" onRequestClose={() => setShareSheetOpen(false)}>
+        <TouchableOpacity
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }}
+          activeOpacity={1}
+          onPress={() => setShareSheetOpen(false)}
+        />
+        <View style={styles.sheet}>
+          <View style={styles.sheetHandle} />
+          <Text style={styles.sheetTitle}>Share Proof of Payment</Text>
+          <TouchableOpacity
+            onPress={() => { setShareSheetOpen(false); setShareMode('email'); }}
+            style={styles.sheetRow}
+          >
+            <Ionicons name={'mail-outline' as IoniconsName} size={20} color={PRIMARY} style={{ marginRight: 12 }} />
+            <Text style={styles.sheetRowText}>Send via Email</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => { setShareSheetOpen(false); handleNativeShare(); }}
+            style={styles.sheetRow}
+          >
+            <Ionicons name={'share-social-outline' as IoniconsName} size={20} color={PRIMARY} style={{ marginRight: 12 }} />
+            <Text style={styles.sheetRowText}>Share (SMS, WhatsApp…)</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setShareSheetOpen(false)}
+            style={[styles.sheetRow, { borderBottomWidth: 0 }]}
+          >
+            <Ionicons name={'close-outline' as IoniconsName} size={20} color="#6b7280" style={{ marginRight: 12 }} />
+            <Text style={[styles.sheetRowText, { color: '#6b7280' }]}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      <Modal visible={shareMode === 'email'} transparent animationType="slide" onRequestClose={() => setShareMode(null)}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}
+        >
+          <View style={styles.sheet}>
+            <View style={styles.sheetHandle} />
+            <Text style={styles.sheetTitle}>Send Proof of Payment</Text>
+            <Text style={{ color: '#6b7280', fontSize: 13, marginBottom: 16 }}>
+              Enter the recipient's email address.
+            </Text>
+            <TextInput
+              value={emailInput}
+              onChangeText={setEmailInput}
+              placeholder="name@example.com"
+              placeholderTextColor="#9ca3af"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              style={styles.emailInput}
+            />
+            <TouchableOpacity
+              onPress={handleSendEmail}
+              disabled={isSending || !emailInput.trim()}
+              style={[styles.primaryBtn, { opacity: isSending || !emailInput.trim() ? 0.6 : 1, marginTop: 12, borderRadius: 12 }]}
+            >
+              {isSending ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={{ color: '#fff', fontWeight: '700', fontSize: 15 }}>Send Email</Text>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setShareMode(null)} style={{ paddingVertical: 14, alignItems: 'center', marginTop: 4 }}>
+              <Text style={{ color: '#6b7280', fontWeight: '600' }}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  primaryBtn: {
+    backgroundColor: PRIMARY, borderRadius: 12, paddingVertical: 14,
+    alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8,
+  },
+  outlineBtn: {
+    borderRadius: 12, paddingVertical: 14,
+    alignItems: 'center', borderWidth: 1, borderColor: PRIMARY,
+  },
+  sheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    padding: 24, paddingBottom: 40,
+  },
+  sheetHandle: {
+    width: 40, height: 4, backgroundColor: '#e5e7eb',
+    borderRadius: 2, alignSelf: 'center', marginBottom: 20,
+  },
+  sheetTitle: { fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 16 },
+  sheetRow: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+  },
+  sheetRowText: { fontSize: 15, color: '#111827', fontWeight: '500' },
+  emailInput: {
+    borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10,
+    paddingHorizontal: 14, paddingVertical: 12, fontSize: 15,
+    color: '#111827', backgroundColor: '#f9fafb',
+  },
+});
