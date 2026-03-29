@@ -47,16 +47,18 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: strin
     return (
         <Link href={href}>
             <div className="flex flex-col items-center justify-start space-y-2 text-center h-full group">
-                 <div className="relative flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 group-hover:shadow-md transition-all active:scale-95 overflow-hidden w-16 h-16">
+                <div className="relative flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 group-hover:shadow-md transition-all active:scale-95 overflow-hidden w-[72px] h-[72px]">
                     {isNew && (
-                        <div className="absolute top-0 right-0 px-1.5 py-0.5 text-[8px] font-bold text-white bg-green-600 rounded-bl-lg z-10 uppercase leading-none">
-                            New
+                        <div className="absolute top-0 left-0 z-10 overflow-hidden w-[52px] h-[52px] pointer-events-none">
+                            <div className="absolute -top-1 -left-1 bg-green-600 text-white text-[8px] font-bold uppercase leading-none rotate-[-45deg] origin-bottom-right px-6 py-1">
+                                NEW
+                            </div>
                         </div>
                     )}
                     <div className="relative flex items-center justify-center">
-                       {src ? (
-                            <div className="relative w-8 h-8">
-                                <Image 
+                        {src ? (
+                            <div className="relative w-10 h-10">
+                                <Image
                                     src={src}
                                     alt={`${label} icon`}
                                     fill
@@ -65,11 +67,11 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: strin
                                 />
                             </div>
                         ) : Icon ? (
-                            <Icon className="text-primary h-7 w-7" strokeWidth={2} />
+                            <Icon className="text-primary h-9 w-9" strokeWidth={1.5} />
                         ) : null}
                     </div>
                 </div>
-                <p className="text-[11px] text-gray-700 font-medium h-8 flex items-center justify-center text-center px-0.5 leading-tight">{label}</p>
+                <p className="text-[11px] text-gray-700 font-normal h-8 flex items-start justify-center text-center px-0.5 leading-tight">{label}</p>
             </div>
         </Link>
     );
@@ -102,7 +104,7 @@ const LoadingSkeleton = () => (
             <div className="grid grid-cols-4 gap-y-6">
               {Array.from({ length: 12 }).map((_, i) => (
                 <div key={i} className="flex flex-col items-center space-y-2">
-                  <Skeleton className="w-16 h-16 bg-gray-200 rounded-2xl" />
+                  <Skeleton className="w-[72px] h-[72px] bg-gray-200 rounded-2xl" />
                   <Skeleton className="w-14 h-4 bg-gray-200 rounded-md" />
                 </div>
               ))}
