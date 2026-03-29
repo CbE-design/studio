@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Tag, Wifi, Zap, Plane, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const MessageIcon = ({ className }: { className?: string }) => (
@@ -22,33 +22,6 @@ const MessageIcon = ({ className }: { className?: string }) => (
   </div>
 );
 
-const NedbankConnectBanner = () => (
-  <div className="relative flex items-center px-2">
-    <button className="flex-shrink-0 p-1 text-gray-400">
-      <ChevronLeft className="h-5 w-5" />
-    </button>
-    <div className="flex-1 mx-1 rounded-2xl border border-gray-100 shadow-sm bg-white overflow-hidden flex flex-row items-center min-h-[90px]">
-      <div className="relative w-28 h-[90px] flex-shrink-0">
-        <Image
-          src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
-          alt="Nedbank Connect"
-          fill
-          className="object-cover"
-        />
-      </div>
-      <div className="flex-1 px-3 py-3">
-        <p className="text-sm font-normal text-gray-800 leading-snug">
-          Stay connected<br />for less with<br />
-          <span className="font-bold text-gray-900">Nedbank Connect!</span>
-        </p>
-      </div>
-    </div>
-    <button className="flex-shrink-0 p-1 text-gray-400">
-      <ChevronRight className="h-5 w-5" />
-    </button>
-  </div>
-);
-
 const homeLoansImg = PlaceHolderImages.find(img => img.id === 'widget-home-loans');
 const latestImg = PlaceHolderImages.find(img => img.id === 'widget-latest');
 const statementsImg = PlaceHolderImages.find(img => img.id === 'widget-statements');
@@ -56,90 +29,85 @@ const shopImg = PlaceHolderImages.find(img => img.id === 'widget-shop');
 const insureImg = PlaceHolderImages.find(img => img.id === 'widget-insure');
 const applicationsImg = PlaceHolderImages.find(img => img.id === 'widget-applications');
 const quickPayImg = PlaceHolderImages.find(img => img.id === 'widget-quick-pay');
+const getCashImg = PlaceHolderImages.find(img => img.id === 'widget-get-cash');
 
 const widgets = [
-  { icon: Tag, label: 'Offers for you', href: '#' },
+  { icon: ShieldCheck, label: 'Approvals', href: '/approvals', isNew: true },
   { src: applicationsImg?.imageUrl, hint: applicationsImg?.imageHint, label: 'Applications', href: '#' },
   { src: insureImg?.imageUrl, hint: insureImg?.imageHint, label: 'Insure', href: '#' },
-  { icon: Wifi, label: 'Nedbank Connect', href: '#', isNew: true },
   { src: shopImg?.imageUrl, hint: shopImg?.imageHint, label: 'Shop', href: '#' },
-  { icon: Zap, label: 'PayShap', href: '#', isNew: true },
-  { icon: Plane, label: 'Travel', href: '#' },
   { src: latestImg?.imageUrl, hint: latestImg?.imageHint, label: 'Latest', href: '#' },
   { src: quickPayImg?.imageUrl, hint: quickPayImg?.imageHint, label: 'Quick Pay', href: '#' },
+  { src: getCashImg?.imageUrl, hint: getCashImg?.imageHint, label: 'Get cash', href: '#' },
   { src: homeLoansImg?.imageUrl, hint: homeLoansImg?.imageHint, label: 'Home loans', href: '#' },
   { src: statementsImg?.imageUrl, hint: statementsImg?.imageHint, label: 'Statements and docs', href: '/documents' },
 ];
 
-const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: {
-  src?: string;
-  icon?: React.ElementType<{ className?: string }>;
-  label: string;
-  href: string;
-  isNew?: boolean;
-  hint?: string;
-}) => (
-  <Link href={href}>
-    <div className="flex flex-col items-center justify-start space-y-2 text-center h-full group">
-      <div className="relative flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 group-hover:shadow-md transition-all active:scale-95 overflow-hidden w-16 h-16">
-        {isNew && (
-          <div className="absolute top-0 right-0 px-1.5 py-0.5 text-[8px] font-bold text-white bg-green-600 rounded-bl-lg z-10 uppercase leading-none">
-            New
-          </div>
-        )}
-        <div className="relative flex items-center justify-center">
-          {src ? (
-            <div className="relative w-8 h-8">
-              <Image
-                src={src}
-                alt={`${label} icon`}
-                fill
-                className="object-contain"
-                data-ai-hint={hint}
-              />
+const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: string, icon?: React.ElementType<{className?: string}>, label: string, href: string, isNew?: boolean, hint?: string }) => {
+    return (
+        <Link href={href}>
+            <div className="flex flex-col items-center justify-start space-y-2 text-center h-full group">
+                 <div className="relative flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 group-hover:shadow-md transition-all active:scale-95 overflow-hidden w-16 h-16">
+                    {isNew && (
+                        <div className="absolute top-0 right-0 px-1.5 py-0.5 text-[8px] font-bold text-white bg-green-600 rounded-bl-lg z-10 uppercase leading-none">
+                            New
+                        </div>
+                    )}
+                    <div className="relative flex items-center justify-center">
+                       {src ? (
+                            <div className="relative w-8 h-8">
+                                <Image 
+                                    src={src}
+                                    alt={`${label} icon`}
+                                    fill
+                                    className="object-contain"
+                                    data-ai-hint={hint}
+                                />
+                            </div>
+                        ) : Icon ? (
+                            <Icon className="text-primary h-7 w-7" strokeWidth={2} />
+                        ) : null}
+                    </div>
+                </div>
+                <p className="text-[11px] text-gray-700 font-medium h-8 flex items-center justify-center text-center px-0.5 leading-tight">{label}</p>
             </div>
-          ) : Icon ? (
-            <Icon className="text-primary h-7 w-7" />
-          ) : null}
-        </div>
-      </div>
-      <p className="text-[11px] text-gray-700 font-medium h-8 flex items-center justify-center text-center px-0.5 leading-tight">{label}</p>
-    </div>
-  </Link>
-);
+        </Link>
+    );
+};
 
 const LoadingSkeleton = () => (
   <div className="flex flex-col h-full bg-white text-black">
     <div className="brand-header text-white p-4">
-      <header>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6 overflow-hidden">
-            <Skeleton className="w-6 h-6 rounded-md bg-white/20" />
-            <Skeleton className="h-6 w-48 bg-white/20" />
-          </div>
-          <div className="flex items-center gap-4">
-            <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
-            <Skeleton className="h-4 w-4 rounded-full bg-white/20" />
-          </div>
-        </div>
-      </header>
-    </div>
-    <div className="flex-1 overflow-y-auto bg-gray-50">
-      <div className="brand-header px-4 pt-8 pb-8">
-        <Skeleton className="h-40 w-full bg-white/20 rounded-lg" />
-      </div>
-      <div className="p-4">
-        <Skeleton className="h-24 w-full mb-6 rounded-lg bg-gray-200" />
-        <Skeleton className="h-8 w-1/3 mb-4 bg-gray-200" />
-        <div className="grid grid-cols-4 gap-y-6">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="flex flex-col items-center space-y-2">
-              <Skeleton className="w-16 h-16 bg-gray-200 rounded-2xl" />
-              <Skeleton className="w-14 h-4 bg-gray-200 rounded-md" />
+        <header>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-6 overflow-hidden">
+              <Skeleton className="w-6 h-6 rounded-md bg-white/20" />
+              <Skeleton className="h-6 w-48 bg-white/20" />
             </div>
-          ))}
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-5 w-5 rounded-full bg-white/20" />
+              <Skeleton className="h-4 w-4 rounded-full bg-white/20" />
+            </div>
+          </div>
+        </header>
+    </div>
+
+    <div className="flex-1 overflow-y-auto bg-gray-50">
+        <div className="brand-header px-4 pt-8 pb-8">
+            <Skeleton className="h-40 w-full bg-white/20 rounded-lg" />
         </div>
-      </div>
+        <div className="p-4">
+            <Skeleton className="h-24 w-full mb-6 rounded-lg bg-gray-200" />
+            <Skeleton className="h-8 w-1/3 mb-4 bg-gray-200" />
+            <div className="grid grid-cols-4 gap-y-6">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="flex flex-col items-center space-y-2">
+                  <Skeleton className="w-16 h-16 bg-gray-200 rounded-2xl" />
+                  <Skeleton className="w-14 h-4 bg-gray-200 rounded-md" />
+                </div>
+              ))}
+            </div>
+        </div>
     </div>
   </div>
 );
@@ -159,19 +127,21 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (isTransactionsLoading || transactions.length === 0) return;
+
     try {
-      const storedIdsValue = localStorage.getItem('readTransactionIds');
-      const readIds = storedIdsValue ? JSON.parse(storedIdsValue) : [];
-      const newUnreadCount = transactions.filter(tx => !readIds.includes(tx.id)).length;
-      setUnreadCount(newUnreadCount);
-      if (newUnreadCount > 0) {
-        setIsBellRinging(true);
-        const timer = setTimeout(() => setIsBellRinging(false), 30000);
-        return () => clearTimeout(timer);
-      }
+        const storedIdsValue = localStorage.getItem('readTransactionIds');
+        const readIds = storedIdsValue ? JSON.parse(storedIdsValue) : [];
+        const newUnreadCount = transactions.filter(tx => !readIds.includes(tx.id)).length;
+        setUnreadCount(newUnreadCount);
+
+        if (newUnreadCount > 0) {
+            setIsBellRinging(true);
+            const timer = setTimeout(() => setIsBellRinging(false), 30000);
+            return () => clearTimeout(timer);
+        }
     } catch (e) {
-      console.error("Failed to parse readTransactionIds from localStorage", e);
-      setUnreadCount(transactions.length);
+        console.error("Failed to parse readTransactionIds from localStorage", e);
+        setUnreadCount(transactions.length);
     }
   }, [transactions, isTransactionsLoading]);
 
@@ -192,8 +162,8 @@ export default function DashboardPage() {
                 height={28}
                 className="flex-shrink-0"
               />
-              <span className="font-semibold text-lg truncate tracking-wide">
-                {user.displayName || 'User'}
+              <span className="font-semibold text-lg uppercase truncate tracking-wide">
+                {user.displayName || 'DICKSON FAMILY TRUST'}
               </span>
             </div>
             <div className="flex items-center gap-5 text-white flex-shrink-0">
@@ -211,7 +181,7 @@ export default function DashboardPage() {
                 </div>
               </Link>
               <Link href="/ai-chat" className="p-1">
-                <MessageIcon />
+                  <MessageIcon />
               </Link>
             </div>
           </div>
@@ -225,13 +195,20 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <main className="flex flex-col bg-white">
-          <div className="px-2 py-4">
-            <NedbankConnectBanner />
+        <main className="flex flex-col bg-transparent">
+          <div className="px-6 pt-4 pb-0">
+            <div className="relative aspect-[16/7] w-full">
+              <Image
+                src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
+                alt="Advertisement banner"
+                fill
+                className="object-contain"
+              />
+            </div>
           </div>
 
-          <div className="px-6 pb-6">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800 tracking-tight">My widgets</h2>
+          <div className="px-6 pt-2 pb-4">
+            <h2 className="text-2xl font-bold mb-4 text-gray-700 tracking-tight">My widgets</h2>
             <div className="grid grid-cols-4 gap-x-3 gap-y-6">
               {widgets.map((widget) => (
                 <WidgetItem
@@ -240,7 +217,6 @@ export default function DashboardPage() {
                   icon={widget.icon}
                   label={widget.label}
                   href={widget.href}
-                  isNew={widget.isNew}
                   hint={widget.hint}
                 />
               ))}

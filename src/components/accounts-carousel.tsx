@@ -55,7 +55,8 @@ const AccountsDisplay = () => {
           return (
             <Link href={`/account/${account.id}`} key={account.id}>
               <div className={cn(
-                "flex flex-row justify-between items-center p-3 cursor-pointer text-white border-b border-white/20"
+                "flex flex-row justify-between items-center p-3 cursor-pointer text-white",
+                index < accounts.length - 1 ? 'border-b border-white/20' : ''
               )}>
                 <div>
                   <p className={cn("text-sm font-normal normal-case", isDormant ? "text-white/70" : "text-white")}>{account.name}</p>
@@ -72,13 +73,6 @@ const AccountsDisplay = () => {
             <p className="text-sm text-white/80">This can happen if you just signed up. Try refreshing.</p>
          </div>
       )}
-      <div className="flex flex-row justify-between items-center px-3 py-3">
-        <div>
-          <p className="text-sm text-white/80">Insure with us</p>
-          <p className="text-base font-semibold text-white">Up to 20% in discounts</p>
-        </div>
-        <button className="text-[#ffcc00] font-bold text-base px-2">Apply</button>
-      </div>
     </div>
   );
 }
