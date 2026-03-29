@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useUnreadCount } from '@/hooks/useUnreadCount';
 import type { ComponentProps } from 'react';
 
 type IoniconsName = ComponentProps<typeof Ionicons>['name'];
@@ -13,6 +14,9 @@ function TabBarIcon({ name, color, size }: { name: IoniconsName; color: string; 
 }
 
 export default function TabsLayout() {
+  const unreadCount = useUnreadCount();
+  const badgeValue = unreadCount > 0 ? (unreadCount > 99 ? 99 : unreadCount) : undefined;
+
   return (
     <Tabs
       screenOptions={{
@@ -85,6 +89,8 @@ export default function TabsLayout() {
         name="more"
         options={{
           title: 'More',
+          tabBarBadge: badgeValue,
+          tabBarBadgeStyle: { backgroundColor: '#ef4444', fontSize: 10 },
           tabBarIcon: ({ color, size }) => (
             <TabBarIcon name="ellipsis-horizontal" color={color} size={size} />
           ),

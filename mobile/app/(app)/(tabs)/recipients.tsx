@@ -10,7 +10,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  Animated,
 } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
@@ -22,7 +24,7 @@ import {
   deleteDoc,
   doc,
 } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Beneficiary } from '@/lib/definitions';
 import type { ComponentProps } from 'react';
 
@@ -38,6 +40,60 @@ type FormState = {
 };
 
 const EMPTY_FORM: FormState = { name: '', bank: '', accountNumber: '', phoneNumber: '' };
+
+function RecipientRow({
+  item,
+  onDelete,
+}: {
+  item: Beneficiary;
+  onDelete: (item: Beneficiary) => void;
+}) {
+  const swipeRef = useRef<Swipeable>(null);
+
+  const renderRightActions = (
+    _progress: Animated.AnimatedInterpolation<number>,
+    dragX: Animated.AnimatedInterpolation<number>,
+  ) => {
+    const scale = dragX.interpolate({ inputRange: [-80, 0], outputRange: [1, 0], extrapolate: 'clamp' });
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          swipeRef.current?.close();
+          onDelete(item);
+        }}
+        style={styles.deleteAction}
+        activeOpacity={0.85}
+      >
+        <Animated.View style={{ transform: [{ scale }] }}>
+          <Ionicons name={'trash-outline' as IoniconsName} size={22} color="#fff" />
+        </Animated.View>
+        <Text style={styles.deleteActionText}>Delete</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  return (
+    <Swipeable ref={swipeRef} renderRightActions={renderRightActions} rightThreshold={40}>
+      <View style={styles.card}>
+        <View style={styles.avatar}>
+          <Text style={{ color: PRIMARY, fontSize: 18, fontWeight: '700' }}>
+            {item.name.charAt(0).toUpperCase()}
+          </Text>
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: '#111827', fontSize: 15, fontWeight: '600' }}>{item.name}</Text>
+          <Text style={{ color: '#6b7280', fontSize: 12, marginTop: 2 }}>
+            {item.bank} · {item.accountNumber}
+          </Text>
+          {item.phoneNumber ? (
+            <Text style={{ color: '#9ca3af', fontSize: 11, marginTop: 2 }}>{item.phoneNumber}</Text>
+          ) : null}
+        </View>
+        <Ionicons name={'chevron-forward' as IoniconsName} size={16} color="#d1d5db" />
+      </View>
+    </Swipeable>
+  );
+}
 
 export default function RecipientsScreen() {
   const { user } = useAuth();
@@ -125,10 +181,7 @@ export default function RecipientsScreen() {
             <Ionicons name={'person-add-outline' as IoniconsName} size={20} color="#fff" />
           </TouchableOpacity>
         </View>
-        <View style={{
-          flexDirection: 'row', alignItems: 'center',
-          backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 10, paddingHorizontal: 10,
-        }}>
+        <View style={styles.searchBar}>
           <Ionicons name={'search-outline' as IoniconsName} size={16} color="rgba(255,255,255,0.7)" />
           <TextInput
             value={search}
@@ -166,25 +219,15 @@ export default function RecipientsScreen() {
         <FlatList
           data={filtered}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ padding: 16 }}
+          contentContainerStyle={{ padding: 16, gap: 10 }}
           renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View style={styles.avatar}>
-                <Text style={{ color: PRIMARY, fontSize: 18, fontWeight: '700' }}>
-                  {item.name.charAt(0).toUpperCase()}
-                </Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ color: '#111827', fontSize: 15, fontWeight: '600' }}>{item.name}</Text>
-                <Text style={{ color: '#6b7280', fontSize: 12, marginTop: 2 }}>
-                  {item.bank} · {item.accountNumber}
-                </Text>
-              </View>
-              <TouchableOpacity onPress={() => handleDelete(item)} style={{ padding: 8 }}>
-                <Ionicons name={'trash-outline' as IoniconsName} size={18} color="#ef4444" />
-              </TouchableOpacity>
-            </View>
+            <RecipientRow item={item} onDelete={handleDelete} />
           )}
+          ListFooterComponent={
+            <Text style={styles.swipeHint}>
+              Swipe left to delete a recipient
+            </Text>
+          }
         />
       )}
 
@@ -244,11 +287,14 @@ export default function RecipientsScreen() {
 }
 
 const styles = StyleSheet.create({
+  searchBar: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 10, paddingHorizontal: 10,
+  },
   card: {
     backgroundColor: '#fff',
     borderRadius: 14,
     padding: 14,
-    marginBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
     shadowColor: '#000',
@@ -263,6 +309,22 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center', justifyContent: 'center',
     marginRight: 12,
+  },
+  deleteAction: {
+    backgroundColor: '#ef4444',
+    borderRadius: 14,
+    marginLeft: 8,
+    marginBottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    flexDirection: 'column',
+    gap: 2,
+  },
+  deleteActionText: { color: '#fff', fontSize: 11, fontWeight: '600' },
+  swipeHint: {
+    textAlign: 'center', color: '#d1d5db', fontSize: 11,
+    marginTop: 12, marginBottom: 8,
   },
   sheet: {
     backgroundColor: '#fff',

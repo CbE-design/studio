@@ -9,13 +9,13 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
-  Alert,
+  Animated,
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, firestore } from '@/lib/firebase';
 import { formatCurrency, formatDate } from '@/lib/format';
@@ -58,6 +58,38 @@ function LoadingSkeleton() {
 }
 
 type ShareMode = 'email' | 'share' | null;
+type ToastState = { message: string; variant: 'success' | 'error' } | null;
+
+function InAppToast({ toast }: { toast: ToastState }) {
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!toast) return;
+    opacity.setValue(0);
+    Animated.sequence([
+      Animated.timing(opacity, { toValue: 1, duration: 200, useNativeDriver: true }),
+      Animated.delay(2400),
+      Animated.timing(opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
+    ]).start();
+  }, [toast, opacity]);
+
+  if (!toast) return null;
+  return (
+    <Animated.View style={[toastStyles.container, { opacity, backgroundColor: toast.variant === 'success' ? '#16a34a' : '#dc2626' }]}>
+      <Text style={toastStyles.text}>{toast.message}</Text>
+    </Animated.View>
+  );
+}
+
+const toastStyles = StyleSheet.create({
+  container: {
+    position: 'absolute', top: 80, left: 16, right: 16,
+    borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12,
+    zIndex: 9999, shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 8,
+  },
+  text: { color: '#fff', fontWeight: '600', fontSize: 14, textAlign: 'center' },
+});
 
 export default function TransactionDetailScreen() {
   const router = useRouter();
@@ -70,6 +102,14 @@ export default function TransactionDetailScreen() {
   const [shareMode, setShareMode] = useState<ShareMode>(null);
   const [emailInput, setEmailInput] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [toast, setToast] = useState<ToastState>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const showToast = (message: string, variant: 'success' | 'error') => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast({ message, variant });
+    toastTimer.current = setTimeout(() => setToast(null), 3200);
+  };
 
   useEffect(() => {
     if (!accountId || !txId) { setIsLoading(false); return; }
@@ -127,10 +167,10 @@ export default function TransactionDetailScreen() {
       setShareMode(null);
       setShareSheetOpen(false);
       setEmailInput('');
-      Alert.alert('Email sent', 'Proof of payment sent successfully.');
+      showToast('Proof of payment email sent successfully.', 'success');
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Unknown error';
-      Alert.alert('Failed to send', msg);
+      showToast(msg || 'Failed to send email.', 'error');
     } finally {
       setIsSending(false);
     }
@@ -159,6 +199,7 @@ export default function TransactionDetailScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <InAppToast toast={toast} />
       <View style={{ backgroundColor: PRIMARY, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 16, flexDirection: 'row', alignItems: 'center' }}>
         <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 12, padding: 4 }}>
           <Ionicons name={'arrow-back' as IoniconsName} size={22} color="#fff" />
