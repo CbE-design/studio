@@ -2,10 +2,16 @@ import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
+import type { ComponentProps } from 'react';
+
+type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 
 const PRIMARY = '#00843d';
 
-const moreItems = [
+type MoreItem = { label: string; icon: IoniconsName };
+type MoreSection = { section: string; items: MoreItem[] };
+
+const moreItems: MoreSection[] = [
   { section: 'Services', items: [
     { label: 'AI Financial Tips', icon: 'bulb-outline' },
     { label: 'Locate ATM / Branch', icon: 'location-outline' },
@@ -33,6 +39,12 @@ export default function MoreScreen() {
       { text: 'Sign out', style: 'destructive', onPress: logOut },
     ]);
   };
+
+  const displayName = appUser?.firstName && appUser?.lastName
+    ? `${appUser.firstName} ${appUser.lastName}`
+    : appUser?.email ?? 'User';
+
+  const initial = appUser?.firstName?.charAt(0) ?? appUser?.email?.charAt(0)?.toUpperCase() ?? 'U';
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f9fafb' }}>
@@ -63,17 +75,11 @@ export default function MoreScreen() {
             justifyContent: 'center',
             marginRight: 14,
           }}>
-            <Text style={{ color: PRIMARY, fontSize: 20, fontWeight: '700' }}>
-              {appUser?.firstName?.charAt(0) || appUser?.email?.charAt(0)?.toUpperCase() || 'U'}
-            </Text>
+            <Text style={{ color: PRIMARY, fontSize: 20, fontWeight: '700' }}>{initial}</Text>
           </View>
           <View>
-            <Text style={{ color: '#111827', fontSize: 16, fontWeight: '700' }}>
-              {appUser?.firstName && appUser?.lastName
-                ? `${appUser.firstName} ${appUser.lastName}`
-                : appUser?.email || 'User'}
-            </Text>
-            <Text style={{ color: '#6b7280', fontSize: 13 }}>{appUser?.email}</Text>
+            <Text style={{ color: '#111827', fontSize: 16, fontWeight: '700' }}>{displayName}</Text>
+            <Text style={{ color: '#6b7280', fontSize: 13 }}>{appUser?.email ?? ''}</Text>
           </View>
         </View>
 
@@ -113,7 +119,7 @@ export default function MoreScreen() {
                     justifyContent: 'center',
                     marginRight: 12,
                   }}>
-                    <Ionicons name={item.icon as any} size={18} color={PRIMARY} />
+                    <Ionicons name={item.icon} size={18} color={PRIMARY} />
                   </View>
                   <Text style={{ flex: 1, color: '#111827', fontSize: 15 }}>{item.label}</Text>
                   <Ionicons name="chevron-forward" size={16} color="#d1d5db" />

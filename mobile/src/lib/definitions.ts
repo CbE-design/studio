@@ -51,7 +51,7 @@ export type User = {
   email: string;
   firstName?: string;
   lastName?: string;
-  createdAt: any;
+  createdAt: string | null;
 };
 
 export type ApprovalRequest = {
@@ -82,5 +82,5 @@ export type TransactionResult = {
   message: string;
   transactionId?: string;
   popReferenceNumber?: string;
-  errors?: any;
+  errors?: Record<string, string[]>;
 };

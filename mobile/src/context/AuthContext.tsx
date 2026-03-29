@@ -1,5 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut, type User } from 'firebase/auth';
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  type User,
+} from 'firebase/auth';
 import { auth, firestore } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import type { User as AppUser } from '@/lib/definitions';
@@ -32,10 +37,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const userDoc = await getDoc(doc(firestore, 'users', firebaseUser.uid));
           if (userDoc.exists()) {
-            setAppUser({ id: firebaseUser.uid, ...userDoc.data() } as AppUser);
+            const data = userDoc.data();
+            setAppUser({
+              id: firebaseUser.uid,
+              email: firebaseUser.email ?? '',
+              firstName: typeof data['firstName'] === 'string' ? data['firstName'] : undefined,
+              lastName: typeof data['lastName'] === 'string' ? data['lastName'] : undefined,
+              createdAt: typeof data['createdAt'] === 'string' ? data['createdAt'] : null,
+            });
           }
-        } catch (e) {
-          console.warn('Could not fetch user profile:', e);
+        } catch {
+          // User profile fetch failed — auth still proceeds
         }
       } else {
         setAppUser(null);
@@ -46,11 +58,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<void> => {
     await signInWithEmailAndPassword(auth, email, password);
   };
 
-  const logOut = async () => {
+  const logOut = async (): Promise<void> => {
     await signOut(auth);
   };
 

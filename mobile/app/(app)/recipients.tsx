@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
 import { firestore } from '@/lib/firebase';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import type { Beneficiary } from '@/lib/definitions';
 
@@ -15,12 +15,19 @@ export default function RecipientsScreen() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
-    const q = query(collection(firestore, `users/${user.uid}/beneficiaries`));
-    const unsub = onSnapshot(q, (snap) => {
-      setRecipients(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Beneficiary));
+    if (!user) {
       setIsLoading(false);
-    }, () => setIsLoading(false));
+      return;
+    }
+    const q = collection(firestore, `users/${user.uid}/beneficiaries`);
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        setRecipients(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Beneficiary));
+        setIsLoading(false);
+      },
+      () => setIsLoading(false),
+    );
     return () => unsub();
   }, [user]);
 

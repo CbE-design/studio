@@ -8,11 +8,23 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/context/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
+
+function getLoginErrorMessage(code: string): string {
+  switch (code) {
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+      return 'Incorrect email or password. Please try again.';
+    case 'auth/too-many-requests':
+      return 'Too many attempts. Please try again later.';
+    default:
+      return 'Sign in failed. Please check your connection.';
+  }
+}
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
@@ -31,15 +43,9 @@ export default function LoginScreen() {
     setIsLoading(true);
     try {
       await signIn(email.trim(), password);
-    } catch (e: any) {
-      const code = e?.code || '';
-      if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
-        setError('Incorrect email or password. Please try again.');
-      } else if (code === 'auth/too-many-requests') {
-        setError('Too many attempts. Please try again later.');
-      } else {
-        setError('Sign in failed. Please check your connection.');
-      }
+    } catch (err: unknown) {
+      const code = err instanceof Error && 'code' in err ? String((err as { code: string }).code) : '';
+      setError(getLoginErrorMessage(code));
     } finally {
       setIsLoading(false);
     }
@@ -64,7 +70,7 @@ export default function LoginScreen() {
                 padding: 20,
                 marginBottom: 24,
               }}>
-                <Text style={{ fontSize: 32, fontWeight: '900', color: '#ffffff', letterSpacing: 2 }}>
+                <Text style={{ fontSize: 32, fontWeight: '900', color: '#ffffff', letterSpacing: 2, textAlign: 'center' }}>
                   NEDBANK
                 </Text>
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center' }}>

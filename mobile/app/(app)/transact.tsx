@@ -1,20 +1,26 @@
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import type { ComponentProps } from 'react';
+
+type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 
 const PRIMARY = '#00843d';
 
-const transactOptions = [
-  { label: 'Pay someone', icon: 'arrow-up-circle-outline', desc: 'Send money to a recipient', route: '/(app)/pay' },
-  { label: 'Transfer between accounts', icon: 'swap-horizontal-outline', desc: 'Move money between your accounts', route: null },
-  { label: 'Buy prepaid', icon: 'phone-portrait-outline', desc: 'Airtime, electricity, and more', route: null },
-  { label: 'Pay bills', icon: 'receipt-outline', desc: 'Utilities, insurance, and more', route: null },
+type TransactOption = {
+  label: string;
+  icon: IoniconsName;
+  desc: string;
+};
+
+const transactOptions: TransactOption[] = [
+  { label: 'Pay someone', icon: 'arrow-up-circle-outline', desc: 'Send money to a recipient' },
+  { label: 'Transfer between accounts', icon: 'swap-horizontal-outline', desc: 'Move money between your accounts' },
+  { label: 'Buy prepaid', icon: 'phone-portrait-outline', desc: 'Airtime, electricity, and more' },
+  { label: 'Pay bills', icon: 'receipt-outline', desc: 'Utilities, insurance, and more' },
 ];
 
 export default function TransactScreen() {
-  const router = useRouter();
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f9fafb' }}>
       <View style={{ backgroundColor: PRIMARY, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 20 }}>
@@ -28,7 +34,6 @@ export default function TransactScreen() {
         {transactOptions.map((option) => (
           <TouchableOpacity
             key={option.label}
-            onPress={() => option.route && router.push(option.route as any)}
             style={{
               backgroundColor: '#fff',
               borderRadius: 16,
@@ -53,7 +58,7 @@ export default function TransactScreen() {
               justifyContent: 'center',
               marginRight: 14,
             }}>
-              <Ionicons name={option.icon as any} size={24} color={PRIMARY} />
+              <Ionicons name={option.icon} size={24} color={PRIMARY} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ color: '#111827', fontSize: 15, fontWeight: '600' }}>{option.label}</Text>

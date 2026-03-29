@@ -1,11 +1,16 @@
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/context/AuthContext';
+import type { ComponentProps } from 'react';
+
+type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 
 const PRIMARY = '#00843d';
 
-const widgets = [
+type WidgetConfig = { label: string; icon: IoniconsName; isNew?: boolean };
+
+const widgets: WidgetConfig[] = [
   { label: 'Offers for you', icon: 'cash-outline' },
   { label: 'Applications', icon: 'document-text-outline' },
   { label: 'Insure', icon: 'umbrella-outline' },
@@ -18,7 +23,7 @@ const widgets = [
   { label: 'Statements\nand docs', icon: 'copy-outline' },
 ];
 
-function WidgetItem({ label, icon, isNew }: { label: string; icon: string; isNew?: boolean }) {
+function WidgetItem({ label, icon, isNew }: WidgetConfig) {
   return (
     <TouchableOpacity
       style={{ width: '25%', alignItems: 'center', marginBottom: 20, paddingHorizontal: 4 }}
@@ -54,7 +59,7 @@ function WidgetItem({ label, icon, isNew }: { label: string; icon: string; isNew
             <Text style={{ color: '#fff', fontSize: 7, fontWeight: '800', letterSpacing: 0.5 }}>NEW</Text>
           </View>
         )}
-        <Ionicons name={icon as any} size={28} color={PRIMARY} />
+        <Ionicons name={icon} size={28} color={PRIMARY} />
       </View>
       <Text style={{
         fontSize: 11,

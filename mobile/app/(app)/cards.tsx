@@ -1,8 +1,20 @@
 import { View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import type { ComponentProps } from 'react';
+
+type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 
 const PRIMARY = '#00843d';
+
+type CardAction = { label: string; icon: IoniconsName };
+
+const cardActions: CardAction[] = [
+  { label: 'Freeze card', icon: 'snow-outline' },
+  { label: 'View PIN', icon: 'lock-closed-outline' },
+  { label: 'Limits', icon: 'speedometer-outline' },
+  { label: 'Replace', icon: 'refresh-outline' },
+];
 
 export default function CardsScreen() {
   return (
@@ -46,9 +58,9 @@ export default function CardsScreen() {
         </View>
 
         <View style={{ flexDirection: 'row', gap: 12, marginBottom: 20 }}>
-          {['Freeze card', 'View PIN', 'Limits', 'Replace'].map((action) => (
+          {cardActions.map((action) => (
             <TouchableOpacity
-              key={action}
+              key={action.label}
               style={{
                 flex: 1,
                 backgroundColor: '#fff',
@@ -62,8 +74,8 @@ export default function CardsScreen() {
                 elevation: 1,
               }}
             >
-              <Ionicons name="settings-outline" size={20} color={PRIMARY} />
-              <Text style={{ color: '#374151', fontSize: 10, marginTop: 4, textAlign: 'center' }}>{action}</Text>
+              <Ionicons name={action.icon} size={20} color={PRIMARY} />
+              <Text style={{ color: '#374151', fontSize: 10, marginTop: 4, textAlign: 'center' }}>{action.label}</Text>
             </TouchableOpacity>
           ))}
         </View>

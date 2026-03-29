@@ -1,11 +1,14 @@
 import { Tabs } from 'expo-router';
 import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import type { ComponentProps } from 'react';
+
+type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 
 const PRIMARY = '#00843d';
 const INACTIVE = '#9ca3af';
 
-function TabBarIcon({ name, color, size }: { name: any; color: string; size: number }) {
+function TabBarIcon({ name, color, size }: { name: IoniconsName; color: string; size: number }) {
   return <Ionicons name={name} size={size} color={color} />;
 }
 
