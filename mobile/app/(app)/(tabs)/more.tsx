@@ -20,6 +20,7 @@ const moreItems: MoreSection[] = [
       { label: 'AI Chat Support', icon: 'chatbubbles-outline', route: '/(app)/ai-chat' },
       { label: 'Notifications', icon: 'notifications-outline', route: '/(app)/notifications' },
       { label: 'Documents & Statements', icon: 'document-outline', route: '/(app)/documents' },
+      { label: 'Locate ATM / Branch', icon: 'location-outline' },
       { label: 'Approvals', icon: 'checkmark-circle-outline' },
     ],
   },
