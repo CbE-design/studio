@@ -21,7 +21,7 @@ function RootNavigator() {
     if (!user && !inAuthGroup) {
       router.replace('/(auth)/login');
     } else if (user && inAuthGroup) {
-      router.replace('/(app)');
+      router.replace('/(app)/(tabs)');
     }
   }, [user, isLoading, segments]);
 
