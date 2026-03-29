@@ -23,11 +23,10 @@ const PRIMARY = '#00843d';
 type WidgetConfig = { label: string; icon: IoniconsName; isNew?: boolean };
 
 const widgets: WidgetConfig[] = [
-  { label: 'Offers for you', icon: 'cash-outline' },
+  { label: 'Approvals', icon: 'checkmark-circle-outline', isNew: true },
   { label: 'Applications', icon: 'document-text-outline' },
   { label: 'Insure', icon: 'umbrella-outline' },
   { label: 'Shop', icon: 'cart-outline' },
-  { label: 'PayShap', icon: 'flash-outline', isNew: true },
   { label: 'Latest', icon: 'gift-outline' },
   { label: 'Quick Pay', icon: 'swap-horizontal-outline' },
   { label: 'Get cash', icon: 'business-outline' },
@@ -241,9 +240,22 @@ export default function OverviewScreen() {
           shadowOpacity: 0.05, shadowRadius: 4, elevation: 1,
         }}>
           {txLoading ? (
-            <View style={{ padding: 24, alignItems: 'center' }}>
-              <ActivityIndicator color={PRIMARY} />
-            </View>
+            [1, 2, 3, 4, 5].map((i) => (
+              <View
+                key={i}
+                style={{
+                  flexDirection: 'row', alignItems: 'center',
+                  paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#f3f4f6',
+                }}
+              >
+                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#e5e7eb', marginRight: 12 }} />
+                <View style={{ flex: 1 }}>
+                  <View style={{ width: '60%', height: 14, borderRadius: 6, backgroundColor: '#e5e7eb', marginBottom: 6 }} />
+                  <View style={{ width: '35%', height: 11, borderRadius: 5, backgroundColor: '#f3f4f6' }} />
+                </View>
+                <View style={{ width: 56, height: 14, borderRadius: 6, backgroundColor: '#e5e7eb' }} />
+              </View>
+            ))
           ) : recentTxs.length === 0 ? (
             <View style={{ padding: 24, alignItems: 'center' }}>
               <Ionicons name="receipt-outline" size={36} color="#d1d5db" />
