@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import type { Beneficiary } from '@/lib/definitions';
+import type { Account, Beneficiary } from '@/lib/definitions';
 
 export type PaymentState = {
   recipient: Beneficiary | null;
@@ -9,6 +9,7 @@ export type PaymentState = {
   paymentType: 'Standard EFT' | 'Instant Pay';
   fromAccountId: string;
   fromAccountName: string;
+  fromAccountType: Account['type'];
   fromAccountBalance: number;
   amount: string;
   yourReference: string;
@@ -24,6 +25,7 @@ const defaultState: PaymentState = {
   paymentType: 'Standard EFT',
   fromAccountId: '',
   fromAccountName: '',
+  fromAccountType: 'Cheque',
   fromAccountBalance: 0,
   amount: '',
   yourReference: '',

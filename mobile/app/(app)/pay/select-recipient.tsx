@@ -48,7 +48,6 @@ export default function SelectRecipientScreen() {
   const [newBank, setNewBank] = useState('');
   const [newAccountNumber, setNewAccountNumber] = useState('');
   const [bankPickerOpen, setBankPickerOpen] = useState(false);
-  const [paymentType, setPaymentType] = useState<'Standard EFT' | 'Instant Pay'>('Standard EFT');
 
   useEffect(() => {
     const load = async () => {
@@ -85,7 +84,6 @@ export default function SelectRecipientScreen() {
       recipientName: b.name,
       bank: b.bank,
       accountNumber: b.accountNumber,
-      paymentType,
     }));
     router.push('/pay/amount');
   };
@@ -98,7 +96,6 @@ export default function SelectRecipientScreen() {
       recipientName: newName.trim(),
       bank: newBank.trim(),
       accountNumber: newAccountNumber.trim(),
-      paymentType,
     }));
     router.push('/pay/amount');
   };
@@ -139,37 +136,9 @@ export default function SelectRecipientScreen() {
         </View>
       </View>
 
-      <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8 }}>
-        <Text style={{ fontSize: 12, color: '#6b7280', fontWeight: '600', marginBottom: 6 }}>PAYMENT TYPE</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          {(['Standard EFT', 'Instant Pay'] as const).map((pt) => (
-            <TouchableOpacity
-              key={pt}
-              onPress={() => setPaymentType(pt)}
-              style={{
-                flex: 1,
-                paddingVertical: 8,
-                borderRadius: 8,
-                borderWidth: 1.5,
-                borderColor: paymentType === pt ? PRIMARY : '#e5e7eb',
-                backgroundColor: paymentType === pt ? '#e8f5ee' : '#fff',
-                alignItems: 'center',
-              }}
-            >
-              <Text style={{ color: paymentType === pt ? PRIMARY : '#6b7280', fontWeight: '600', fontSize: 13 }}>
-                {pt}
-              </Text>
-              <Text style={{ color: '#9ca3af', fontSize: 10, marginTop: 2 }}>
-                {pt === 'Standard EFT' ? 'Free – 1-2 days' : 'R40 fee – instant'}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-
       {tab === 'saved' ? (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-          <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
+          <View style={{ paddingHorizontal: 16, paddingVertical: 10 }}>
             <View style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -247,7 +216,9 @@ export default function SelectRecipientScreen() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ color: '#111827', fontWeight: '600', fontSize: 15 }}>{item.name}</Text>
-                    <Text style={{ color: '#6b7280', fontSize: 12, marginTop: 2 }}>{item.bank} • {item.accountNumber}</Text>
+                    <Text style={{ color: '#6b7280', fontSize: 12, marginTop: 2 }}>
+                      {item.bank} • {item.accountNumber}
+                    </Text>
                   </View>
                   <Ionicons name="chevron-forward" size={18} color="#d1d5db" />
                 </TouchableOpacity>
@@ -257,7 +228,7 @@ export default function SelectRecipientScreen() {
         </KeyboardAvoidingView>
       ) : (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-          <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 8 }}>
+          <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 12 }}>
             <Field label="Recipient's name" value={newName} onChangeText={setNewName} placeholder="e.g. John Smith" />
 
             <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 6, fontWeight: '600' }}>BANK</Text>
@@ -310,7 +281,13 @@ export default function SelectRecipientScreen() {
               </View>
             )}
 
-            <Field label="Account number" value={newAccountNumber} onChangeText={setNewAccountNumber} placeholder="e.g. 1234567890" keyboardType="numeric" />
+            <Field
+              label="Account number"
+              value={newAccountNumber}
+              onChangeText={setNewAccountNumber}
+              placeholder="e.g. 1234567890"
+              keyboardType="numeric"
+            />
           </View>
 
           <View style={{ padding: 16, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f3f4f6' }}>

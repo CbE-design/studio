@@ -17,21 +17,10 @@ import { firestore } from '@/lib/firebase';
 import { useAuth } from '@/context/AuthContext';
 import { usePayment } from '@/context/PaymentContext';
 import { formatCurrency } from '@/lib/format';
+import { calculateFee } from '@/lib/fees';
 import type { Account } from '@/lib/definitions';
 
 const PRIMARY = '#00843d';
-
-function calculateFee(amount: number, paymentType: string, accountType: string): number {
-  if (accountType === 'Cheque' || accountType === 'Savings') {
-    if (paymentType === 'Instant Pay') return 40;
-    return 1;
-  }
-  if (accountType === 'Student') {
-    if (paymentType === 'Instant Pay') return 10;
-    return 0;
-  }
-  return 0;
-}
 
 export default function AmountScreen() {
   const router = useRouter();
@@ -43,8 +32,17 @@ export default function AmountScreen() {
   const [amount, setAmount] = useState(payment.amount || '');
   const [yourReference, setYourReference] = useState(payment.yourReference || '');
   const [recipientReference, setRecipientReference] = useState(payment.recipientReference || '');
-  const [notifyEmail, setNotifyEmail] = useState(payment.notifyEmail || '');
   const [selectedAccountId, setSelectedAccountId] = useState(payment.fromAccountId || '');
+  const [paymentType, setPaymentType] = useState<'Standard EFT' | 'Instant Pay'>(
+    payment.paymentType || 'Standard EFT',
+  );
+
+  const paymentDateLabel = new Date().toLocaleDateString('en-ZA', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
 
   useEffect(() => {
     const load = async () => {
@@ -71,13 +69,19 @@ export default function AmountScreen() {
 
   const selectedAccount = accounts.find((a) => a.id === selectedAccountId);
   const numericAmount = parseFloat(amount) || 0;
+
   const fee = useMemo(
-    () => calculateFee(numericAmount, payment.paymentType, selectedAccount?.type ?? 'Cheque'),
-    [numericAmount, payment.paymentType, selectedAccount?.type],
+    () => calculateFee(numericAmount, paymentType, selectedAccount?.type ?? 'Cheque'),
+    [numericAmount, paymentType, selectedAccount?.type],
   );
+
   const total = numericAmount + fee;
-  const chequeAccounts = accounts.filter((a) => a.type === 'Cheque' || a.type === 'Savings');
-  const isValid = numericAmount > 0 && !!selectedAccountId && !!selectedAccount && selectedAccount.balance >= total;
+  const payableAccounts = accounts.filter((a) => a.type === 'Cheque' || a.type === 'Savings');
+
+  const hasInsufficientFunds =
+    !!selectedAccount && numericAmount > 0 && selectedAccount.balance < total;
+  const isValid =
+    numericAmount > 0 && !!selectedAccountId && !!selectedAccount && !hasInsufficientFunds;
 
   const handleNext = () => {
     if (!selectedAccount) return;
@@ -85,11 +89,12 @@ export default function AmountScreen() {
       ...p,
       fromAccountId: selectedAccountId,
       fromAccountName: `${selectedAccount.name} – ${selectedAccount.accountNumber}`,
+      fromAccountType: selectedAccount.type,
       fromAccountBalance: selectedAccount.balance,
       amount,
       yourReference,
       recipientReference,
-      notifyEmail,
+      paymentType,
     }));
     router.push('/pay/review');
   };
@@ -142,19 +147,65 @@ export default function AmountScreen() {
               keyboardType="decimal-pad"
             />
           </View>
-          {selectedAccount && numericAmount > selectedAccount.balance && (
+          {hasInsufficientFunds && (
             <Text style={{ color: '#fbbf24', fontSize: 12, marginTop: 6 }}>
-              Insufficient funds (balance: {formatCurrency(selectedAccount.balance, selectedAccount.currency)})
+              Insufficient funds (balance: {formatCurrency(selectedAccount!.balance, selectedAccount!.currency)})
             </Text>
           )}
         </View>
 
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }}>
-          <View style={{ paddingHorizontal: 16, paddingTop: 16 }}>
+          <View style={{ paddingHorizontal: 16, paddingTop: 14 }}>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#374151', marginBottom: 10 }}>
+              Payment type
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+              {(['Standard EFT', 'Instant Pay'] as const).map((pt) => (
+                <TouchableOpacity
+                  key={pt}
+                  onPress={() => setPaymentType(pt)}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 10,
+                    borderRadius: 10,
+                    borderWidth: 1.5,
+                    borderColor: paymentType === pt ? PRIMARY : '#e5e7eb',
+                    backgroundColor: paymentType === pt ? '#e8f5ee' : '#fff',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text style={{ color: paymentType === pt ? PRIMARY : '#6b7280', fontWeight: '600', fontSize: 13 }}>
+                    {pt}
+                  </Text>
+                  <Text style={{ color: '#9ca3af', fontSize: 10, marginTop: 2 }}>
+                    {pt === 'Standard EFT' ? 'R1 fee – 1-2 days' : 'R40 fee – instant'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#374151', marginBottom: 10 }}>
+              Payment date
+            </Text>
+            <View style={{
+              backgroundColor: '#fff',
+              borderRadius: 10,
+              borderWidth: 1,
+              borderColor: PRIMARY,
+              paddingHorizontal: 14,
+              paddingVertical: 12,
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginBottom: 16,
+            }}>
+              <Text style={{ flex: 1, color: '#111827', fontSize: 14 }}>{paymentDateLabel}</Text>
+              <Ionicons name="calendar-outline" size={18} color={PRIMARY} />
+            </View>
+
             <Text style={{ fontSize: 13, fontWeight: '700', color: '#374151', marginBottom: 10 }}>
               From which account?
             </Text>
-            {chequeAccounts.map((acc) => {
+            {payableAccounts.map((acc) => {
               const selected = acc.id === selectedAccountId;
               return (
                 <TouchableOpacity
@@ -200,19 +251,12 @@ export default function AmountScreen() {
             })}
           </View>
 
-          <View style={{ paddingHorizontal: 16, marginTop: 8 }}>
+          <View style={{ paddingHorizontal: 16, marginTop: 4 }}>
             <Text style={{ fontSize: 13, fontWeight: '700', color: '#374151', marginBottom: 10 }}>
               What is the payment for?
             </Text>
             <Field label="Your reference" value={yourReference} onChangeText={setYourReference} placeholder="e.g. Rent March" />
             <Field label="Recipient's reference" value={recipientReference} onChangeText={setRecipientReference} placeholder="Optional" />
-          </View>
-
-          <View style={{ paddingHorizontal: 16, marginTop: 8 }}>
-            <Text style={{ fontSize: 13, fontWeight: '700', color: '#374151', marginBottom: 10 }}>
-              Notifications (optional)
-            </Text>
-            <Field label="Email proof of payment to" value={notifyEmail} onChangeText={setNotifyEmail} placeholder="email@example.com" keyboardType="email-address" />
           </View>
 
           {numericAmount > 0 && (
@@ -226,7 +270,10 @@ export default function AmountScreen() {
               borderColor: '#e5e7eb',
             }}>
               <SummaryRow label="Amount" value={formatCurrency(numericAmount, 'ZAR')} />
-              <SummaryRow label={`${payment.paymentType} fee`} value={fee === 0 ? 'Free' : formatCurrency(fee, 'ZAR')} />
+              <SummaryRow
+                label={`${paymentType} fee`}
+                value={fee === 0 ? 'Free' : formatCurrency(fee, 'ZAR')}
+              />
               <View style={{ height: 1, backgroundColor: '#f3f4f6', marginVertical: 8 }} />
               <SummaryRow label="Total deduction" value={formatCurrency(total, 'ZAR')} bold />
             </View>

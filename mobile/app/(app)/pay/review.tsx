@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   View,
   Text,
+  TextInput,
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
@@ -10,9 +11,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { getAuth } from 'firebase/auth';
 import { useAuth } from '@/context/AuthContext';
 import { usePayment } from '@/context/PaymentContext';
 import { formatCurrency } from '@/lib/format';
+import { calculateFee } from '@/lib/fees';
 import type { Transaction } from '@/lib/definitions';
 
 const PRIMARY = '#00843d';
@@ -22,23 +25,40 @@ export default function ReviewScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { payment, resetPayment } = usePayment();
+
+  const [notifyEmail, setNotifyEmail] = useState(payment.notifyEmail || '');
   const [processing, setProcessing] = useState(false);
 
   const amount = parseFloat(payment.amount) || 0;
-  const fee = payment.paymentType === 'Instant Pay' ? 40 : 1;
+  const fee = calculateFee(amount, payment.paymentType, payment.fromAccountType);
   const total = amount + fee;
+
+  const dateLabel = new Date().toLocaleDateString('en-ZA', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
 
   const handlePay = async () => {
     if (!user?.uid) return;
     setProcessing(true);
 
     try {
+      const idToken = await getAuth().currentUser?.getIdToken();
+      if (!idToken) {
+        Alert.alert('Session expired', 'Please log in again.');
+        setProcessing(false);
+        return;
+      }
+
       const res = await fetch(`${API_BASE}/api/pay`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
         body: JSON.stringify({
           fromAccountId: payment.fromAccountId,
-          userId: user.uid,
           amount: payment.amount,
           recipientName: payment.recipientName,
           yourReference: payment.yourReference,
@@ -61,7 +81,7 @@ export default function ReviewScreen() {
         return;
       }
 
-      if (payment.notifyEmail && result.transactionId) {
+      if (notifyEmail.trim() && result.transactionId) {
         const txForEmail: Transaction = {
           id: result.transactionId,
           userId: user.uid,
@@ -79,8 +99,11 @@ export default function ReviewScreen() {
 
         fetch(`${API_BASE}/api/email/pop`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ transaction: txForEmail, recipientEmail: payment.notifyEmail }),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({ transaction: txForEmail, recipientEmail: notifyEmail.trim() }),
         }).catch(() => {});
       }
 
@@ -121,7 +144,7 @@ export default function ReviewScreen() {
         </View>
       </View>
 
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
         <View style={{
           backgroundColor: '#fff',
           borderRadius: 14,
@@ -159,6 +182,7 @@ export default function ReviewScreen() {
           backgroundColor: '#fff',
           borderRadius: 14,
           padding: 16,
+          marginBottom: 16,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 1 },
           shadowOpacity: 0.06,
@@ -169,13 +193,13 @@ export default function ReviewScreen() {
           <Divider />
           <DetailRow label="Amount" value={formatCurrency(amount, 'ZAR')} />
           <Divider />
-          <DetailRow label="Fee" value={formatCurrency(fee, 'ZAR')} />
+          <DetailRow label="Fee" value={fee === 0 ? 'Free' : formatCurrency(fee, 'ZAR')} />
           <Divider />
           <DetailRow label="Total deduction" value={formatCurrency(total, 'ZAR')} bold />
           <Divider />
           <DetailRow label="From account" value={payment.fromAccountName} />
           <Divider />
-          <DetailRow label="Payment date" value={new Date().toLocaleDateString('en-ZA', { day: '2-digit', month: 'long', year: 'numeric' })} />
+          <DetailRow label="Payment date" value={dateLabel} />
           {payment.yourReference ? (
             <>
               <Divider />
@@ -188,12 +212,34 @@ export default function ReviewScreen() {
               <DetailRow label="Recipient's reference" value={payment.recipientReference} />
             </>
           ) : null}
-          {payment.notifyEmail ? (
-            <>
-              <Divider />
-              <DetailRow label="Email notification" value={payment.notifyEmail} />
-            </>
-          ) : null}
+        </View>
+
+        <View style={{ marginBottom: 4 }}>
+          <Text style={{ fontSize: 13, fontWeight: '700', color: '#374151', marginBottom: 10 }}>
+            Notification (optional)
+          </Text>
+          <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 6, fontWeight: '600' }}>
+            EMAIL PROOF OF PAYMENT TO
+          </Text>
+          <TextInput
+            style={{
+              backgroundColor: '#fff',
+              borderWidth: 1,
+              borderColor: '#e5e7eb',
+              borderRadius: 10,
+              paddingHorizontal: 14,
+              paddingVertical: 12,
+              fontSize: 14,
+              color: '#111827',
+            }}
+            placeholder="email@example.com"
+            placeholderTextColor="#9ca3af"
+            value={notifyEmail}
+            onChangeText={setNotifyEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
         </View>
       </ScrollView>
 
