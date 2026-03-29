@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  Share,
   Modal,
   TextInput,
   KeyboardAvoidingView,
@@ -131,23 +130,6 @@ export default function TransactionDetailScreen() {
     };
     fetchData();
   }, [accountId, txId]);
-
-  const handleNativeShare = async () => {
-    if (!transaction) return;
-    const isNegative = transaction.type === 'debit';
-    const msg = [
-      'MoneyGO Proof of Payment',
-      `Recipient: ${transaction.recipientName ?? transaction.description}`,
-      `Amount: ${isNegative ? '-' : '+'}${formatCurrency(transaction.amount, account?.currency)}`,
-      `Date: ${formatDate(transaction.date, 'full')}`,
-      `Reference: ${transaction.popReferenceNumber ?? transaction.yourReference ?? '-'}`,
-    ].join('\n');
-    try {
-      await Share.share({ message: msg });
-    } catch {
-      // cancelled
-    }
-  };
 
   const handleSendEmail = async () => {
     if (!transaction || !emailInput.trim()) return;
@@ -287,13 +269,6 @@ export default function TransactionDetailScreen() {
           >
             <Ionicons name={'mail-outline' as IoniconsName} size={20} color={PRIMARY} style={{ marginRight: 12 }} />
             <Text style={styles.sheetRowText}>Send via Email</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => { setShareSheetOpen(false); handleNativeShare(); }}
-            style={styles.sheetRow}
-          >
-            <Ionicons name={'share-social-outline' as IoniconsName} size={20} color={PRIMARY} style={{ marginRight: 12 }} />
-            <Text style={styles.sheetRowText}>Share (SMS, WhatsApp…)</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => setShareSheetOpen(false)}

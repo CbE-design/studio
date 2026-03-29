@@ -3,60 +3,50 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
   StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { auth } from '@/lib/firebase';
 import type { ComponentProps } from 'react';
 
 type IoniconsName = ComponentProps<typeof Ionicons>['name'];
 
 const PRIMARY = '#00843d';
+const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? '';
 
-type Tip = { icon: IoniconsName; title: string; body: string; color: string };
+const CARD_COLORS = ['#dcfce7', '#dbeafe', '#fef9c3', '#ffe4e6', '#ede9fe', '#ffedd5'];
 
-const TIPS: Tip[] = [
-  {
-    icon: 'trending-up-outline',
-    title: 'Build an Emergency Fund',
-    body: 'Aim to keep 3–6 months of living expenses in a liquid savings account. This cushion protects you from unexpected costs without dipping into investments.',
-    color: '#dcfce7',
-  },
-  {
-    icon: 'calculator-outline',
-    title: 'Track Every Transaction',
-    body: 'Review your transactions weekly. Categorising spending reveals patterns and helps you identify areas to cut back and redirect funds toward your goals.',
-    color: '#dbeafe',
-  },
-  {
-    icon: 'repeat-outline',
-    title: 'Automate Savings',
-    body: 'Set up automatic transfers on payday so saving happens before you have a chance to spend. Even small consistent amounts compound significantly over time.',
-    color: '#fef9c3',
-  },
-  {
-    icon: 'shield-checkmark-outline',
-    title: 'Protect Your Accounts',
-    body: 'Enable transaction notifications for all accounts. Immediate alerts let you spot and dispute unauthorised transactions before they cause lasting damage.',
-    color: '#ffe4e6',
-  },
-  {
-    icon: 'pie-chart-outline',
-    title: 'Use the 50/30/20 Rule',
-    body: 'Allocate 50% of after-tax income to needs, 30% to wants, and 20% to savings and debt repayment. This simple framework keeps spending balanced.',
-    color: '#ede9fe',
-  },
-  {
-    icon: 'refresh-outline',
-    title: 'Review Debit Orders Regularly',
-    body: 'Check for subscriptions or debit orders you no longer use. Cancelling even one unused service per month can free up meaningful cash over a year.',
-    color: '#ffedd5',
-  },
-];
+type Tip = { title: string; body: string; icon: string };
 
 export default function TipsScreen() {
   const router = useRouter();
+  const [tips, setTips] = useState<Tip[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchTips = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const idToken = await auth.currentUser?.getIdToken();
+      const res = await fetch(`${API_BASE}/api/tips`, {
+        headers: { Authorization: `Bearer ${idToken ?? ''}` },
+      });
+      const data = (await res.json()) as { tips?: Tip[]; error?: string };
+      if (!res.ok || !data.tips) throw new Error(data.error ?? 'Failed to load tips');
+      setTips(data.tips);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Could not load tips');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => { void fetchTips(); }, []);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f9fafb' }}>
@@ -65,8 +55,8 @@ export default function TipsScreen() {
           <Ionicons name={'arrow-back' as IoniconsName} size={22} color="#fff" />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          <Text style={styles.headerTitle}>Financial Tips</Text>
-          <Text style={styles.headerSub}>Smart money management advice</Text>
+          <Text style={styles.headerTitle}>AI Financial Tips</Text>
+          <Text style={styles.headerSub}>Personalised money management advice</Text>
         </View>
         <Ionicons name={'bulb-outline' as IoniconsName} size={22} color="rgba(255,255,255,0.8)" />
       </View>
@@ -75,21 +65,43 @@ export default function TipsScreen() {
         <View style={styles.banner}>
           <Ionicons name={'information-circle-outline' as IoniconsName} size={20} color={PRIMARY} style={{ marginRight: 10 }} />
           <Text style={{ flex: 1, color: '#166534', fontSize: 13 }}>
-            These tips are curated to help Trust account holders manage finances effectively. AI-personalised tips are coming soon.
+            Tips are personalised for Trust account holders and refreshed each session by our AI engine.
           </Text>
         </View>
 
-        {TIPS.map((tip) => (
-          <View key={tip.title} style={[styles.card, { backgroundColor: tip.color }]}>
-            <View style={[styles.iconBox, { backgroundColor: 'rgba(0,0,0,0.06)' }]}>
-              <Ionicons name={tip.icon} size={22} color={PRIMARY} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.tipTitle}>{tip.title}</Text>
-              <Text style={styles.tipBody}>{tip.body}</Text>
-            </View>
+        {isLoading ? (
+          <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+            <ActivityIndicator size="large" color={PRIMARY} />
+            <Text style={{ color: '#9ca3af', marginTop: 12, fontSize: 14 }}>Generating your tips…</Text>
           </View>
-        ))}
+        ) : error ? (
+          <View style={styles.errorBox}>
+            <Ionicons name={'alert-circle-outline' as IoniconsName} size={32} color="#ef4444" />
+            <Text style={{ color: '#374151', marginTop: 8, fontSize: 14, textAlign: 'center' }}>{error}</Text>
+            <TouchableOpacity onPress={fetchTips} style={styles.retryBtn}>
+              <Text style={{ color: '#fff', fontWeight: '600' }}>Try again</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          tips.map((tip, i) => (
+            <View key={tip.title} style={[styles.card, { backgroundColor: CARD_COLORS[i % CARD_COLORS.length] }]}>
+              <View style={[styles.iconBox, { backgroundColor: 'rgba(0,0,0,0.06)' }]}>
+                <Ionicons name={(tip.icon || 'bulb-outline') as IoniconsName} size={22} color={PRIMARY} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.tipTitle}>{tip.title}</Text>
+                <Text style={styles.tipBody}>{tip.body}</Text>
+              </View>
+            </View>
+          ))
+        )}
+
+        {!isLoading && !error && (
+          <TouchableOpacity onPress={fetchTips} style={styles.refreshBtn} activeOpacity={0.85}>
+            <Ionicons name={'refresh-outline' as IoniconsName} size={18} color={PRIMARY} style={{ marginRight: 8 }} />
+            <Text style={{ color: PRIMARY, fontWeight: '600', fontSize: 14 }}>Refresh tips</Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity
           style={styles.chatBtn}
@@ -127,10 +139,24 @@ const styles = StyleSheet.create({
   },
   tipTitle: { fontSize: 14, fontWeight: '700', color: '#111827', marginBottom: 4 },
   tipBody: { fontSize: 13, color: '#374151', lineHeight: 19 },
+  errorBox: {
+    alignItems: 'center', padding: 32,
+    borderRadius: 14, backgroundColor: '#fff',
+    borderWidth: 1, borderColor: '#fee2e2',
+  },
+  retryBtn: {
+    backgroundColor: PRIMARY, borderRadius: 10,
+    paddingHorizontal: 20, paddingVertical: 10, marginTop: 14,
+  },
+  refreshBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    borderRadius: 12, paddingVertical: 12,
+    borderWidth: 1, borderColor: PRIMARY, backgroundColor: '#fff',
+  },
   chatBtn: {
     backgroundColor: PRIMARY, borderRadius: 14,
     paddingVertical: 16, alignItems: 'center',
     flexDirection: 'row', justifyContent: 'center',
-    marginTop: 8, marginBottom: 16,
+    marginTop: 4, marginBottom: 16,
   },
 });

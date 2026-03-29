@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
+import { useUnreadCount } from '@/hooks/useUnreadCount';
 import type { ComponentProps } from 'react';
 
 type IoniconsName = ComponentProps<typeof Ionicons>['name'];
@@ -44,6 +45,8 @@ const moreItems: MoreSection[] = [
 export default function MoreScreen() {
   const router = useRouter();
   const { appUser, logOut } = useAuth();
+  const unreadCount = useUnreadCount();
+  const unreadBadge = unreadCount > 0 ? (unreadCount > 99 ? '99+' : String(unreadCount)) : undefined;
 
   const handleLogout = () => {
     Alert.alert('Sign out', 'Are you sure you want to sign out?', [
@@ -101,9 +104,11 @@ export default function MoreScreen() {
                     <Ionicons name={item.icon} size={18} color={PRIMARY} />
                   </View>
                   <Text style={styles.rowLabel}>{item.label}</Text>
-                  {item.badge && (
-                    <View style={[styles.badge, { backgroundColor: item.badgeColor ?? '#6b7280' }]}>
-                      <Text style={styles.badgeText}>{item.badge}</Text>
+                  {(item.badge || (item.label === 'Notifications' && unreadBadge)) && (
+                    <View style={[styles.badge, { backgroundColor: item.label === 'Notifications' ? '#ef4444' : (item.badgeColor ?? '#6b7280') }]}>
+                      <Text style={styles.badgeText}>
+                        {item.label === 'Notifications' && unreadBadge ? unreadBadge : item.badge}
+                      </Text>
                     </View>
                   )}
                   <Ionicons name={'chevron-forward' as IoniconsName} size={16} color="#d1d5db" />
