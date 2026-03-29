@@ -247,7 +247,7 @@ export default function AccountDetailScreen() {
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                   <Text style={{
-                    color: isCredit ? '#16a34a' : '#111827',
+                    color: isCredit ? '#16a34a' : '#dc2626',
                     fontSize: 14, fontWeight: '600',
                   }}>
                     {isCredit ? '+' : '-'}{formatCurrency(tx.amount, account.currency)}

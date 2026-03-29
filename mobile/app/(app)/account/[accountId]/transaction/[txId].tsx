@@ -120,7 +120,6 @@ export default function TransactionDetailScreen() {
 
   const isCredit = transaction.type === 'credit';
   const isReturn = transaction.description.startsWith('RETURN:');
-  const showDebitActions = !isReturn && !isCredit;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -191,44 +190,29 @@ export default function TransactionDetailScreen() {
         borderTopWidth: 1, borderTopColor: '#f3f4f6',
         gap: 10,
       }}>
-        {showDebitActions ? (
-          <>
-            <TouchableOpacity
-              onPress={handleShare}
-              style={{
-                backgroundColor: PRIMARY, borderRadius: 12, paddingVertical: 14,
-                alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8,
-              }}
-              activeOpacity={0.85}
-            >
-              <Ionicons name="share-outline" size={18} color="#fff" />
-              <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700' }}>
-                Share proof of payment
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => router.back()}
-              style={{
-                borderRadius: 12, paddingVertical: 14,
-                alignItems: 'center', borderWidth: 1, borderColor: PRIMARY,
-              }}
-              activeOpacity={0.85}
-            >
-              <Text style={{ color: PRIMARY, fontSize: 16, fontWeight: '600' }}>Done</Text>
-            </TouchableOpacity>
-          </>
-        ) : (
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={{
-              backgroundColor: PRIMARY, borderRadius: 12, paddingVertical: 14,
-              alignItems: 'center',
-            }}
-            activeOpacity={0.85}
-          >
-            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700' }}>Done</Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          onPress={handleShare}
+          style={{
+            backgroundColor: PRIMARY, borderRadius: 12, paddingVertical: 14,
+            alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8,
+          }}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="share-outline" size={18} color="#fff" />
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700' }}>
+            Share proof of payment
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={{
+            borderRadius: 12, paddingVertical: 14,
+            alignItems: 'center', borderWidth: 1, borderColor: PRIMARY,
+          }}
+          activeOpacity={0.85}
+        >
+          <Text style={{ color: PRIMARY, fontSize: 16, fontWeight: '600' }}>Done</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
