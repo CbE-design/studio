@@ -34,20 +34,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
+        const baseUser: AppUser = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email ?? '',
+          firstName: undefined,
+          lastName: undefined,
+          createdAt: null,
+        };
+        setAppUser(baseUser);
         try {
           const userDoc = await getDoc(doc(firestore, 'users', firebaseUser.uid));
           if (userDoc.exists()) {
             const data = userDoc.data();
             setAppUser({
-              id: firebaseUser.uid,
-              email: firebaseUser.email ?? '',
+              ...baseUser,
               firstName: typeof data['firstName'] === 'string' ? data['firstName'] : undefined,
               lastName: typeof data['lastName'] === 'string' ? data['lastName'] : undefined,
               createdAt: typeof data['createdAt'] === 'string' ? data['createdAt'] : null,
             });
           }
         } catch {
-          // User profile fetch failed — auth still proceeds
+          // User profile fetch failed — base user (email/uid) is still set above
         }
       } else {
         setAppUser(null);
