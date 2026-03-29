@@ -6,6 +6,12 @@ import { auth, firestore } from '@/lib/firebase';
 
 const READ_IDS_KEY = 'readTransactionIds';
 
+let _refresh: (() => void) | null = null;
+
+export function triggerUnreadRefresh() {
+  _refresh?.();
+}
+
 export function useUnreadCount() {
   const [count, setCount] = useState(0);
 
@@ -33,11 +39,15 @@ export function useUnreadCount() {
   }, []);
 
   useEffect(() => {
+    _refresh = () => { void refresh(); };
     refresh();
     const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
-      if (state === 'active') refresh();
+      if (state === 'active') void refresh();
     });
-    return () => sub.remove();
+    return () => {
+      _refresh = null;
+      sub.remove();
+    };
   }, [refresh]);
 
   return count;

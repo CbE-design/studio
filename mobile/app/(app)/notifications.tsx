@@ -14,6 +14,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { auth, firestore } from '@/lib/firebase';
+import { triggerUnreadRefresh } from '@/hooks/useUnreadCount';
 import { formatCurrency, formatDate } from '@/lib/format';
 import type { Transaction } from '@/lib/definitions';
 import type { ComponentProps } from 'react';
@@ -72,6 +73,7 @@ export default function NotificationsScreen() {
     next.add(id);
     setReadIds(next);
     await AsyncStorage.setItem(READ_IDS_KEY, JSON.stringify([...next]));
+    triggerUnreadRefresh();
   };
 
   const handleToggle = (item: NotificationItem) => {
