@@ -19,7 +19,10 @@ import { calculateFee } from '@/lib/fees';
 import type { Transaction } from '@/lib/definitions';
 
 const PRIMARY = '#00843d';
-const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? '';
+const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL;
+if (!API_BASE) {
+  console.error('[PaymentFlow] EXPO_PUBLIC_API_BASE_URL is not set. API calls will fail.');
+}
 
 export default function ReviewScreen() {
   const router = useRouter();
@@ -81,6 +84,8 @@ export default function ReviewScreen() {
         return;
       }
 
+      let emailStatus: 'sent' | 'failed' | 'skipped' = 'skipped';
+
       if (notifyEmail.trim() && result.transactionId) {
         const txForEmail: Transaction = {
           id: result.transactionId,
@@ -97,14 +102,20 @@ export default function ReviewScreen() {
           type: 'debit',
         };
 
-        fetch(`${API_BASE}/api/email/pop`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${idToken}`,
-          },
-          body: JSON.stringify({ transaction: txForEmail, recipientEmail: notifyEmail.trim() }),
-        }).catch(() => {});
+        try {
+          const emailRes = await fetch(`${API_BASE}/api/email/pop`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${idToken}`,
+            },
+            body: JSON.stringify({ transaction: txForEmail, recipientEmail: notifyEmail.trim() }),
+          });
+          const emailJson = (await emailRes.json()) as { success: boolean };
+          emailStatus = emailJson.success ? 'sent' : 'failed';
+        } catch {
+          emailStatus = 'failed';
+        }
       }
 
       router.push({
@@ -119,6 +130,8 @@ export default function ReviewScreen() {
           transactionId: result.transactionId ?? '',
           popReferenceNumber: result.popReferenceNumber ?? '',
           paymentType: payment.paymentType,
+          emailStatus,
+          notifyEmail: notifyEmail.trim(),
         },
       });
       resetPayment();

@@ -18,6 +18,8 @@ export default function PaymentSuccessScreen() {
     transactionId: string;
     popReferenceNumber: string;
     paymentType: string;
+    emailStatus: 'sent' | 'failed' | 'skipped';
+    notifyEmail: string;
   }>();
 
   const amount = parseFloat(params.amount ?? '0');
@@ -77,6 +79,24 @@ export default function PaymentSuccessScreen() {
           <Ionicons name="information-circle-outline" size={18} color="#92400e" style={{ marginTop: 1 }} />
           <Text style={{ color: '#78350f', fontSize: 12, flex: 1, lineHeight: 18 }}>
             Instant payments take up to 30 minutes to process. Once successful, you can share your proof of payment from payment history.
+          </Text>
+        </View>
+      )}
+
+      {params.emailStatus === 'sent' && !!params.notifyEmail && (
+        <View style={{ backgroundColor: '#f0fdf4', padding: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Ionicons name="mail-outline" size={16} color="#15803d" />
+          <Text style={{ color: '#15803d', fontSize: 12, flex: 1 }}>
+            Proof of payment emailed to {params.notifyEmail}
+          </Text>
+        </View>
+      )}
+
+      {params.emailStatus === 'failed' && !!params.notifyEmail && (
+        <View style={{ backgroundColor: '#fef2f2', padding: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Ionicons name="warning-outline" size={16} color="#b91c1c" />
+          <Text style={{ color: '#b91c1c', fontSize: 12, flex: 1 }}>
+            Payment was successful but the email notification to {params.notifyEmail} could not be sent.
           </Text>
         </View>
       )}
