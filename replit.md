@@ -66,6 +66,33 @@ npm run build
 npm run start -- -p 5000 -H 0.0.0.0
 ```
 
+## Mobile App (React Native + Expo)
+
+A native Android app is being built in the `mobile/` directory using Expo SDK 52, React Native, Expo Router, and Firebase JS SDK. It connects to the same Firebase project as the web app.
+
+```
+mobile/
+  app/                    # Expo Router screens
+    (auth)/login.tsx      # Login screen (green brand)
+    (app)/                # Bottom tab screens
+      index.tsx           # Overview tab
+      cards.tsx           # Cards tab
+      transact.tsx        # Transact tab
+      recipients.tsx      # Recipients tab
+      more.tsx            # More tab
+  src/
+    lib/firebase.ts       # Firebase config (same project)
+    lib/definitions.ts    # TypeScript types (mirrored from web)
+    context/AuthContext   # Auth state management
+  package.json / babel.config.js / metro.config.js / tailwind.config.js
+```
+
+To run the mobile app:
+```bash
+cd mobile && npm install && npx expo start
+```
+Then scan the QR code with Expo Go on Android.
+
 ## Recent Changes
 - Feb 10, 2026: Email Proof of Payment feature added
   - Email notification sends POP PDF as attachment via Resend
