@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -66,10 +67,10 @@ export function BottomNav() {
           {navItems.map((item) => {
             const active = isActive(item.href);
             const content = (
-              <div className="flex flex-col items-center gap-1">
+              <div className="flex flex-col items-center gap-1.5">
                 <div className={cn(
-                  "relative flex items-center justify-center px-5 py-1 rounded-full transition-all duration-200",
-                  active ? "bg-primary/10 text-primary" : "text-gray-500"
+                  "relative flex items-center justify-center w-16 h-8 rounded-full transition-all duration-300 ease-in-out",
+                  active ? "bg-primary/15 text-primary" : "text-gray-500"
                 )}>
                   <item.icon />
                 </div>
