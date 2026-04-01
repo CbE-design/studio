@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "mobile": "cd mobile && npx expo start"
   },
   "dependencies": {
     "@fontsource/libre-franklin": "^5.2.8",

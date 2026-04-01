@@ -1,26 +1,48 @@
+
 # MoneyGO Mobile (React Native + Expo)
 
-Android native version of the MoneyGO banking app, built with Expo and React Native.
+Native Android version of the MoneyGO banking app, built with Expo and React Native.
 
-## Setup
+## Prerequisite
+1. Install the **Expo Go** app from the Google Play Store on your Android device.
+2. Ensure your computer and your phone are on the same Wi-Fi network.
 
-```bash
-cd mobile
-npm install
-npx expo start
-```
+## Setup & Run Instructions
 
-Scan the QR code with **Expo Go** on your Android device.
+1.  **Open a Terminal** in your IDE.
+2.  **Enter the mobile folder**:
+    ```bash
+    cd mobile
+    ```
+3.  **Install dependencies**:
+    ```bash
+    npm install
+    ```
+4.  **Configure Environment**:
+    Create a file named `.env` in the `mobile/` directory and add your Firebase credentials (copy values from your web `.env`):
+    ```env
+    EXPO_PUBLIC_FIREBASE_API_KEY=your_api_key
+    EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+    EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+    EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+    EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+    EXPO_PUBLIC_FIREBASE_APP_ID=your_app_id
+    EXPO_PUBLIC_API_BASE_URL=https://your-web-app-url.com
+    ```
+5.  **Start Expo**:
+    ```bash
+    npx expo start
+    ```
+    *Note: If you are using a cloud-based IDE (like Replit/Firebase Studio), you might need to use `npx expo start --tunnel` to bypass firewall issues.*
 
-## Firebase
-
-The app connects to the same Firebase project as the web app. Auth credentials work across both platforms.
+6.  **Scan the QR Code**:
+    Open the **Expo Go** app on your Android phone and scan the QR code displayed in your terminal.
 
 ## Project structure
 
 ```
 mobile/
-  app/                   # Expo Router screens
+  app/                   # Expo Router screens (File-based routing)
     (auth)/login.tsx     # Login screen
     (app)/               # Authenticated tab screens
       index.tsx          # Overview tab
@@ -33,12 +55,3 @@ mobile/
     lib/definitions.ts   # TypeScript types
     context/AuthContext  # Auth state
 ```
-
-## Phase status
-
-| Phase | Status |
-|-------|--------|
-| 1 — Foundation (auth, navigation shell) | ✅ Done |
-| 2 — Core banking screens | Pending |
-| 3 — Payment flow | Pending |
-| 4 — Remaining features | Pending |
