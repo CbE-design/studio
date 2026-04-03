@@ -7,37 +7,49 @@ Native Android version of the MoneyGO banking app, built with Expo and React Nat
 
 To run this app on your phone during development:
 
-1.  **Install Expo Go**: Download "Expo Go" from the Play Store.
-2.  **Environment Setup**: 
-    Ensure `mobile/.env` exists with your Firebase keys (see Troubleshooting).
-3.  **Start Development**:
-    From the **root** folder, run:
+1.  **Install Expo Go**: Download the "Expo Go" app from the Google Play Store.
+2.  **Start Development**:
+    From the **root** folder of your project, run:
     ```bash
     npm run mobile
     ```
-4.  **Scan the Code**: Scan the QR code in your terminal using the **Expo Go** app.
+3.  **Scan the Code**: Scan the QR code that appears in your terminal using the **Expo Go** app. (Ensure your phone and computer are on the same network, or use the `--tunnel` option which is included in the script).
 
-## 📦 How to Download the APK
+## 📦 How to Download the APK (Android)
 
-To get a standalone Android APK file that you can install on any device:
+To generate a standalone `.apk` file that you can install on any Android device, you use **EAS (Expo Application Services)**.
 
-1.  **Install EAS CLI**: 
-    ```bash
-    npm install -g eas-cli
-    ```
-2.  **Login to Expo**: 
-    ```bash
-    eas login
-    ```
-3.  **Start the Build**:
-    Navigate to the mobile directory and run the build command:
-    ```bash
-    cd mobile
-    npm run build:apk
-    ```
-4.  **Download**: Once the build finishes (usually 5-10 minutes), the terminal will provide a **direct download link** to your `.apk` file. You can also find it in your dashboard at [expo.dev](https://expo.dev).
+### 1. Setup EAS
+- Create a free account at [expo.dev](https://expo.dev).
+- Install the EAS tool globally on your computer:
+  ```bash
+  npm install -g eas-cli
+  ```
+- Log in to your account in the terminal:
+  ```bash
+  eas login
+  ```
 
-## 🛠 Troubleshooting
+### 2. Build the APK
+- Navigate into the mobile directory:
+  ```bash
+  cd mobile
+  ```
+- Run the build command:
+  ```bash
+  npm run build:apk
+  ```
+- **Wait for the Cloud Build**: Expo will handle the build in their cloud. This usually takes 5-10 minutes.
+- **Download**: Once finished, the terminal will show a **Download link**. You can also find the file in your dashboard at [expo.dev](https://expo.dev/projects).
 
-- **Firebase Errors?**: Ensure `mobile/.env` has all variables starting with `EXPO_PUBLIC_`.
-- **Build Failures?**: Ensure you have run `npm install` inside the `mobile` folder at least once.
+## 🛠 Environment Variables
+The mobile app requires Firebase keys to work. Ensure `mobile/.env` exists with:
+```env
+EXPO_PUBLIC_FIREBASE_API_KEY=your_key
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_id
+EXPO_PUBLIC_FIREBASE_APP_ID=your_app_id
+EXPO_PUBLIC_API_BASE_URL=https://your-web-app-url.com
+```
