@@ -1,3 +1,4 @@
+
 {
   "name": "moneygo-mobile",
   "main": "expo-router/entry",
@@ -5,7 +6,8 @@
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
-    "ios": "expo start --ios"
+    "ios": "expo start --ios",
+    "build:apk": "eas build --platform android --profile preview"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

@@ -3,38 +3,41 @@
 
 Native Android version of the MoneyGO banking app, built with Expo and React Native.
 
-## 🚀 Quick Start Instructions
+## 🚀 Quick Start (Development)
 
-To run this app on your phone, follow these steps in order:
+To run this app on your phone during development:
 
-1.  **Install Expo Go**: Download the "Expo Go" app from the Google Play Store on your Android device.
-2.  **Open the Terminal**: Look at the bottom of this IDE. Open a new terminal tab.
-3.  **Setup Environment**: 
-    Create a new file inside the `mobile/` folder named `.env`. 
-    Copy your Firebase configuration from the web project. It MUST look like this:
-    ```env
-    EXPO_PUBLIC_FIREBASE_API_KEY=your_key_here
-    EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-    EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-    EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-    EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-    EXPO_PUBLIC_FIREBASE_APP_ID=your_app_id
-    EXPO_PUBLIC_API_BASE_URL=https://your-preview-url.com
+1.  **Install Expo Go**: Download "Expo Go" from the Play Store.
+2.  **Environment Setup**: 
+    Ensure `mobile/.env` exists with your Firebase keys (see Troubleshooting).
+3.  **Start Development**:
+    From the **root** folder, run:
+    ```bash
+    npm run mobile
     ```
-4.  **Install & Start**:
-    In the terminal, type these commands:
+4.  **Scan the Code**: Scan the QR code in your terminal using the **Expo Go** app.
+
+## 📦 How to Download the APK
+
+To get a standalone Android APK file that you can install on any device:
+
+1.  **Install EAS CLI**: 
+    ```bash
+    npm install -g eas-cli
+    ```
+2.  **Login to Expo**: 
+    ```bash
+    eas login
+    ```
+3.  **Start the Build**:
+    Navigate to the mobile directory and run the build command:
     ```bash
     cd mobile
-    npm install
-    npm run android # This starts expo with the --tunnel flag automatically
+    npm run build:apk
     ```
-5.  **Scan the Code**: 
-    - Wait for a large QR code to appear in the terminal.
-    - Open **Expo Go** on your phone.
-    - Tap **"Scan QR Code"** and point it at the screen.
+4.  **Download**: Once the build finishes (usually 5-10 minutes), the terminal will provide a **direct download link** to your `.apk` file. You can also find it in your dashboard at [expo.dev](https://expo.dev).
 
 ## 🛠 Troubleshooting
 
-- **QR Code not appearing?**: Make sure you are in the `mobile` directory in the terminal.
-- **"Network request failed"?**: This usually means your phone can't talk to the computer. Ensure you see the `Starting tunnel` message in the terminal.
-- **Firebase Errors?**: Double-check your `mobile/.env` file. The variables MUST start with `EXPO_PUBLIC_`.
+- **Firebase Errors?**: Ensure `mobile/.env` has all variables starting with `EXPO_PUBLIC_`.
+- **Build Failures?**: Ensure you have run `npm install` inside the `mobile` folder at least once.
