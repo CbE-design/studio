@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "mobile": "cd mobile && npx expo start"
+    "mobile": "cd mobile && npx expo start --tunnel"
   },
   "dependencies": {
     "@fontsource/libre-franklin": "^5.2.8",

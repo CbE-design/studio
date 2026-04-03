@@ -1,3 +1,4 @@
+
 import { initializeApp, getApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
@@ -10,6 +11,11 @@ const firebaseConfig = {
   messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
+
+// Log warning if config is missing to help user debug
+if (!firebaseConfig.apiKey) {
+  console.warn('[Firebase] Warning: EXPO_PUBLIC_FIREBASE_API_KEY is not defined in mobile/.env');
+}
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 

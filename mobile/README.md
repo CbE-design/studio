@@ -3,25 +3,22 @@
 
 Native Android version of the MoneyGO banking app, built with Expo and React Native.
 
-## Prerequisite
-1. Install the **Expo Go** app from the Google Play Store on your Android device.
-2. Ensure your computer and your phone are on the same Wi-Fi network.
-
 ## Setup & Run Instructions
 
-1.  **Open a Terminal** in your IDE.
-2.  **Enter the mobile folder**:
+To run this app on your phone, you must follow these steps exactly:
+
+1.  **Install Expo Go**: Download the "Expo Go" app from the Google Play Store on your Android device.
+2.  **Open a Terminal**: In your IDE (e.g., Firebase Studio), open a new terminal tab.
+3.  **Install Dependencies**:
     ```bash
     cd mobile
-    ```
-3.  **Install dependencies**:
-    ```bash
     npm install
     ```
 4.  **Configure Environment**:
-    Create a file named `.env` in the `mobile/` directory and add your Firebase credentials (copy values from your web `.env`):
+    Create a file named `.env` in the `mobile/` directory. Copy your Firebase config from the web project.
+    **CRITICAL**: Variables must start with `EXPO_PUBLIC_`.
     ```env
-    EXPO_PUBLIC_FIREBASE_API_KEY=your_api_key
+    EXPO_PUBLIC_FIREBASE_API_KEY=your_key
     EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
     EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
     EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
@@ -29,29 +26,19 @@ Native Android version of the MoneyGO banking app, built with Expo and React Nat
     EXPO_PUBLIC_FIREBASE_APP_ID=your_app_id
     EXPO_PUBLIC_API_BASE_URL=https://your-web-app-url.com
     ```
-5.  **Start Expo**:
+5.  **Start Expo with Tunnel**:
+    From the project root, run:
     ```bash
-    npx expo start
+    npm run mobile
     ```
-    *Note: If you are using a cloud-based IDE (like Replit/Firebase Studio), you might need to use `npx expo start --tunnel` to bypass firewall issues.*
+    *This uses `--tunnel` which is required for cloud IDEs to connect to your phone.*
 
-6.  **Scan the QR Code**:
-    Open the **Expo Go** app on your Android phone and scan the QR code displayed in your terminal.
+6.  **Scan the QR Code**: 
+    - Wait for the QR code to appear in the terminal.
+    - Open the **Expo Go** app on your phone.
+    - Tap "Scan QR Code" and point it at your computer screen.
 
-## Project structure
-
-```
-mobile/
-  app/                   # Expo Router screens (File-based routing)
-    (auth)/login.tsx     # Login screen
-    (app)/               # Authenticated tab screens
-      index.tsx          # Overview tab
-      cards.tsx          # Cards tab
-      transact.tsx       # Transact tab
-      recipients.tsx     # Recipients tab
-      more.tsx           # More tab
-  src/
-    lib/firebase.ts      # Firebase config
-    lib/definitions.ts   # TypeScript types
-    context/AuthContext  # Auth state
-```
+## Troubleshooting
+- **QR Code not scanning?** Make sure you are using the `--tunnel` flag (the command `npm run mobile` does this automatically).
+- **"Network request failed"?** Ensure your `.env` variables are correct and the web app is deployed/running.
+- **Dependency errors?** Run `rm -rf node_modules && npm install` inside the `mobile` folder.
