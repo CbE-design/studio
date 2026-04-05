@@ -151,7 +151,7 @@ export default function ReviewScreen() {
             <Ionicons name="arrow-back" size={22} color="#fff" />
           </TouchableOpacity>
           <Text style={{ color: '#fff', fontSize: 18, fontWeight: '700', flex: 1 }}>Review payment</Text>
-          <TouchableOpacity onPress={() => router.push('/(tabs)')} style={{ padding: 4 }}>
+          <TouchableOpacity onPress={() => router.push('/(app)/(tabs)')} style={{ padding: 4 }}>
             <Ionicons name="close" size={22} color="#fff" />
           </TouchableOpacity>
         </View>
