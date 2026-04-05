@@ -32,9 +32,32 @@ const AccountSkeleton = () => (
   </div>
 )
 
+const HIDDEN_KEY = 'hiddenAccountIds';
+
 const AccountsDisplay = () => {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
+  const [hiddenIds, setHiddenIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(HIDDEN_KEY);
+      setHiddenIds(raw ? JSON.parse(raw) : []);
+    } catch {
+      setHiddenIds([]);
+    }
+
+    const handleStorage = () => {
+      try {
+        const raw = localStorage.getItem(HIDDEN_KEY);
+        setHiddenIds(raw ? JSON.parse(raw) : []);
+      } catch {
+        setHiddenIds([]);
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
 
   const accountsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
@@ -47,16 +70,18 @@ const AccountsDisplay = () => {
     return <AccountSkeleton />;
   }
 
+  const visibleAccounts = accounts ? accounts.filter(a => !hiddenIds.includes(a.id)) : [];
+
   return (
     <div className="space-y-0 text-white">
-      {accounts && accounts.length > 0 ? (
-        accounts.map((account, index) => {
+      {visibleAccounts.length > 0 ? (
+        visibleAccounts.map((account, index) => {
           const isDormant = account.name === 'Savvy Bundle Current Account';
           return (
             <Link href={`/account/${account.id}`} key={account.id}>
               <div className={cn(
                 "flex flex-row justify-between items-center p-3 cursor-pointer text-white",
-                index < accounts.length - 1 ? 'border-b border-white/20' : ''
+                index < visibleAccounts.length - 1 ? 'border-b border-white/20' : ''
               )}>
                 <div>
                   <p className={cn("text-sm font-normal normal-case", isDormant ? "text-white/70" : "text-white")}>{account.name}</p>
@@ -69,8 +94,8 @@ const AccountsDisplay = () => {
         })
       ) : (
          <div className="text-center py-4">
-            <p className="text-base text-white">No accounts found.</p>
-            <p className="text-sm text-white/80">This can happen if you just signed up. Try refreshing.</p>
+            <p className="text-base text-white">No accounts visible.</p>
+            <p className="text-sm text-white/80">Go to Settings to unhide accounts.</p>
          </div>
       )}
     </div>
