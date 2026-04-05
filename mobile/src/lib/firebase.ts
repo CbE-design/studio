@@ -12,19 +12,20 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+// Check BEFORE initializing so we know whether auth exists yet
+const alreadyInitialized = getApps().length > 0;
 
-function getFirebaseAuth() {
-  try {
-    return initializeAuth(app, {
+const app = alreadyInitialized ? getApp() : initializeApp(firebaseConfig);
+
+// initializeAuth must only be called once per app instance.
+// If the app already existed, auth was already registered — use getAuth().
+// If this is the first init, register auth with AsyncStorage persistence.
+const auth = alreadyInitialized
+  ? getAuth(app)
+  : initializeAuth(app, {
       persistence: getReactNativePersistence(AsyncStorage),
     });
-  } catch {
-    return getAuth(app);
-  }
-}
 
-const auth = getFirebaseAuth();
 const firestore = getFirestore(app);
 
 export { app, auth, firestore };
