@@ -12,12 +12,9 @@ import type { Account, Beneficiary } from "@/app/lib/definitions";
 import { collection } from "firebase/firestore";
 import { useUser, useCollection, useMemoFirebase, useFirestore } from "@/firebase-provider";
 import { query } from 'firebase/firestore';
-import { ArrowLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 
 export default function PaymentsPage() {
-  const router = useRouter();
   const { user } = useUser();
   const firestore = useFirestore();
 
@@ -60,15 +57,12 @@ export default function PaymentsPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      <header className="brand-header text-white p-4 flex items-center sticky top-0 z-10">
-        <Button variant="ghost" size="icon" className="mr-2 text-white hover:bg-white/10" onClick={() => router.back()}>
-          <ArrowLeft />
-        </Button>
-        <h1 className="text-xl font-semibold">Payments</h1>
-      </header>
-      <main className="flex-1 overflow-y-auto p-4 space-y-4">
-      <Card className="shadow-sm border border-gray-100 rounded-2xl overflow-hidden">
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold font-headline">Payments</h1>
+        <p className="text-muted-foreground">Transfer funds and pay your bills.</p>
+      </div>
+      <Card className="shadow-lg">
         <CardContent className="p-4 md:p-6">
           <Tabs defaultValue="transfer">
             <TabsList className="grid w-full grid-cols-2">
@@ -186,7 +180,6 @@ export default function PaymentsPage() {
           </Tabs>
         </CardContent>
       </Card>
-      </main>
     </div>
   );
 }

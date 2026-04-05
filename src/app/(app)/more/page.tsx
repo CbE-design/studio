@@ -205,13 +205,12 @@ export default function MorePage() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <div className="flex flex-col h-screen bg-gray-50">
+      <header className="bg-transparent h-12" />
+
       <main className="flex-1 overflow-y-auto">
-        <div className="bg-white pb-4 shadow-sm border-b">
-          <div className="pt-6 pb-2 px-6 text-left border-b border-gray-100 mb-2">
-            <h1 className="text-xl font-bold text-gray-800">Menu</h1>
-          </div>
-          <div className="flex justify-around items-start p-5 text-center">
+        <div className="bg-white pb-6 shadow-sm border-b">
+          <div className="flex justify-around items-start p-6 text-center">
             <div className="flex flex-col items-center">
               <Avatar className="h-16 w-16 mb-2 border-2 border-primary">
                 <AvatarFallback className="text-2xl bg-gray-100 text-primary font-bold">

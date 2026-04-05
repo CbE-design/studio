@@ -10,7 +10,7 @@ export function SplashScreen() {
   useEffect(() => {
     const timer = setTimeout(() => {
       router.push('/login');
-    }, 2000);
+    }, 4500); // 4.5 second delay
 
     return () => clearTimeout(timer); // Cleanup the timer
   }, [router]);
