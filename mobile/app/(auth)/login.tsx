@@ -13,7 +13,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/context/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 
-function getLoginErrorMessage(code: string): string {
+function getLoginErrorMessage(code: string, message?: string): string {
   switch (code) {
     case 'auth/invalid-credential':
     case 'auth/wrong-password':
@@ -21,8 +21,12 @@ function getLoginErrorMessage(code: string): string {
       return 'Incorrect email or password. Please try again.';
     case 'auth/too-many-requests':
       return 'Too many attempts. Please try again later.';
+    case 'auth/network-request-failed':
+      return 'Network error. Please check your internet connection.';
+    case 'auth/invalid-email':
+      return 'Invalid email address format.';
     default:
-      return 'Sign in failed. Please check your connection.';
+      return `Sign in failed (${code || 'unknown'}): ${message || 'Please check your connection.'}`;
   }
 }
 
@@ -45,7 +49,8 @@ export default function LoginScreen() {
       await signIn(email.trim(), password);
     } catch (err: unknown) {
       const code = err instanceof Error && 'code' in err ? String((err as { code: string }).code) : '';
-      setError(getLoginErrorMessage(code));
+      const message = err instanceof Error ? err.message : '';
+      setError(getLoginErrorMessage(code, message));
     } finally {
       setIsLoading(false);
     }
