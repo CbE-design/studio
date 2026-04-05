@@ -1,6 +1,7 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '@/context/AuthContext';
 import type { ComponentProps } from 'react';
 
 type IoniconsName = ComponentProps<typeof Ionicons>['name'];
@@ -17,6 +18,11 @@ const cardActions: CardAction[] = [
 ];
 
 export default function CardsScreen() {
+  const { appUser } = useAuth();
+  const cardHolderName = appUser?.firstName && appUser?.lastName
+    ? `${appUser.firstName} ${appUser.lastName}`.toUpperCase()
+    : appUser?.email?.split('@')[0]?.toUpperCase() ?? 'ACCOUNT HOLDER';
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f9fafb' }}>
       <View style={{ backgroundColor: PRIMARY, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 20 }}>
@@ -48,7 +54,7 @@ export default function CardsScreen() {
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <View>
               <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10 }}>CARD HOLDER</Text>
-              <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600' }}>Account Holder</Text>
+              <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600' }}>{cardHolderName}</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
               <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10 }}>EXPIRES</Text>
@@ -61,6 +67,8 @@ export default function CardsScreen() {
           {cardActions.map((action) => (
             <TouchableOpacity
               key={action.label}
+              onPress={() => Alert.alert('Coming soon', `${action.label} will be available in a future update.`)}
+              activeOpacity={0.7}
               style={{
                 flex: 1,
                 backgroundColor: '#fff',
