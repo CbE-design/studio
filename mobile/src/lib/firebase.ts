@@ -1,5 +1,5 @@
 import { initializeApp, getApp, getApps } from 'firebase/app';
-import { initializeAuth, getAuth, getReactNativePersistence } from 'firebase/auth';
+import { initializeAuth, getAuth, getReactNativePersistence, inMemoryPersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -12,19 +12,26 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Check BEFORE initializing so we know whether auth exists yet
-const alreadyInitialized = getApps().length > 0;
+// Capture BEFORE we call initializeApp so we know if this is a fresh start
+const isFirstInit = getApps().length === 0;
 
-const app = alreadyInitialized ? getApp() : initializeApp(firebaseConfig);
+const app = isFirstInit ? initializeApp(firebaseConfig) : getApp();
 
-// initializeAuth must only be called once per app instance.
-// If the app already existed, auth was already registered — use getAuth().
-// If this is the first init, register auth with AsyncStorage persistence.
-const auth = alreadyInitialized
-  ? getAuth(app)
-  : initializeAuth(app, {
+let auth;
+if (isFirstInit) {
+  try {
+    // Try with AsyncStorage persistence first (sessions survive app restart)
+    auth = initializeAuth(app, {
       persistence: getReactNativePersistence(AsyncStorage),
     });
+  } catch {
+    // Fall back to in-memory if AsyncStorage persistence fails
+    auth = initializeAuth(app, { persistence: inMemoryPersistence });
+  }
+} else {
+  // App already initialized — auth was already registered, just retrieve it
+  auth = getAuth(app);
+}
 
 const firestore = getFirestore(app);
 
