@@ -1,7 +1,7 @@
-# Nextn - Next.js Firebase Application
+# Nedbank Money — Web App (Next.js + Firebase)
 
 ## Overview
-A Next.js 15 application with Firebase integration for authentication, Firestore database, and cloud functions. Built with React 18, TypeScript, Tailwind CSS, and Radix UI components.
+A legitimate university/professional project replicating the Nedbank Money banking app UI. Built with Next.js 15, Firebase (Auth, Firestore, Cloud Functions), TypeScript, Tailwind CSS, and Radix UI components. Visual target: identical to the real Nedbank Money app across all pages.
 
 ## Project Structure
 ```

@@ -44,8 +44,8 @@ export default function DocumentsPage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-        <header className="bg-white p-4 flex items-center shadow-sm sticky top-0 z-10 border-b">
-            <Button variant="ghost" size="icon" className="mr-2" onClick={() => router.back()}>
+        <header className="brand-header text-white p-4 flex items-center sticky top-0 z-10">
+            <Button variant="ghost" size="icon" className="mr-2 text-white hover:bg-white/10" onClick={() => router.back()}>
               <ArrowLeft />
             </Button>
             <h1 className="text-xl font-semibold">Documents & Statements</h1>
