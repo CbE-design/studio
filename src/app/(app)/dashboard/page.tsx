@@ -192,14 +192,14 @@ export default function DashboardPage() {
       </header>
 
       <div className="flex-1 overflow-y-auto min-h-0 bg-white">
-        <div className="brand-header px-4 pt-6 pb-6 shadow-md">
+        <div className="brand-header px-4 pt-6 pb-3 shadow-md">
           <div className="relative z-10">
             <AccountsCarousel />
           </div>
         </div>
 
         <main className="flex flex-col bg-transparent">
-          <div className="px-6 pt-4 pb-0">
+          <div className="px-6 pt-2 pb-0">
             <div className="relative aspect-[16/7] w-full">
               <Image
                 src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
