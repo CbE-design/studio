@@ -169,7 +169,7 @@ export default function DashboardPage() {
                 {user.displayName || 'DICKSON FAMILY TRUST'}
               </span>
             </div>
-            <div className="flex items-center gap-5 text-white flex-shrink-0">
+            <div className="flex items-center gap-3 text-white flex-shrink-0">
               <Link href="/notifications" className="relative p-1">
                 <div className={cn('relative w-5 h-5 bg-transparent', isBellRinging && 'animate-ring')}>
                   <Image
