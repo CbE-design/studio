@@ -217,7 +217,7 @@ export function AccountsCarousel() {
         const title = slides[current]?.title || 'Accounts';
          return (
             <div className="flex items-center gap-3 text-white mb-2">
-                <h1 className="text-2xl font-bold">{title}</h1>
+                <h1 className="text-xl font-bold">{title}</h1>
                 <Eye className="h-6 w-6 text-white" />
             </div>
         )
