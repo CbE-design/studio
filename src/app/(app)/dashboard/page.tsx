@@ -18,7 +18,7 @@ const MessageIcon = ({ className }: { className?: string }) => (
       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_172101952.png?alt=media&token=2d52b45c-6169-486b-8c04-8e3965a21d47"
       alt="Messages"
       fill
-      className="object-contain [filter:drop-shadow(0_0_0.6px_white)_drop-shadow(0_0_0.6px_white)]"
+      className="object-contain"
     />
   </div>
 );
@@ -176,7 +176,7 @@ export default function DashboardPage() {
                     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320141309.png?alt=media&token=1836ae99-d919-48db-85fe-013baef40979"
                     alt="Notifications"
                     fill
-                    className="object-contain [filter:drop-shadow(0_0_0.6px_white)_drop-shadow(0_0_0.6px_white)]"
+                    className="object-contain"
                   />
                   {unreadCount > 0 && (
                     <div className="absolute top-[1px] right-[1px] h-2 w-2 rounded-full bg-[#9fff00] border border-[#004d00] z-10" />
