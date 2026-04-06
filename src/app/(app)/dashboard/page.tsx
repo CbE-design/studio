@@ -165,7 +165,7 @@ export default function DashboardPage() {
                 height={28}
                 className="flex-shrink-0"
               />
-              <span className="font-medium text-lg uppercase truncate tracking-wide">
+              <span className="font-normal text-lg uppercase truncate tracking-wide">
                 {user.displayName || 'DICKSON FAMILY TRUST'}
               </span>
             </div>
