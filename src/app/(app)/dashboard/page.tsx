@@ -154,9 +154,9 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full bg-white">
-      <header className="sticky top-0 z-50 brand-header p-4 text-white shadow-sm shrink-0">
+      <header className="sticky top-0 z-50 brand-header px-4 py-2 text-white shadow-sm shrink-0">
         <div className="relative z-10 flex flex-col gap-1">
-          <div className="flex items-center justify-between h-14">
+          <div className="flex items-center justify-between h-10">
             <div className="flex items-center gap-4 overflow-hidden">
               <Image
                 src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"
