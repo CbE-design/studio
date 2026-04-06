@@ -58,7 +58,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: strin
                     )}
                     <div className="relative flex items-center justify-center">
                         {src ? (
-                            <div className="relative w-7 h-7">
+                            <div className="relative w-6 h-6">
                                 <Image
                                     src={src}
                                     alt={`${label} icon`}
