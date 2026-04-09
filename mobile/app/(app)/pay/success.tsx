@@ -129,7 +129,7 @@ export default function PaymentSuccessScreen() {
 
       <View style={{ padding: 16, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f3f4f6' }}>
         <TouchableOpacity
-          onPress={() => router.replace('/(tabs)')}
+          onPress={() => router.replace('/(app)/(tabs)')}
           style={{ backgroundColor: PRIMARY, borderRadius: 10, paddingVertical: 14, alignItems: 'center' }}
           activeOpacity={0.8}
         >

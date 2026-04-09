@@ -20,10 +20,10 @@ export function SplashScreen() {
     <main className="gradient-background flex min-h-screen flex-col items-center justify-between p-8 text-white">
       <div className="flex-1 flex items-center justify-center">
          <div className="text-center animate-fade-in flex flex-col items-center">
-          <h1 className="text-4xl font-bold tracking-wider">
+          <h1 className="font-nedbank-brand text-4xl">
             <span className="text-white">NEDBANK</span>
             <span className="text-yellow-400">MONEY</span>
-            <sup className="text-sm align-super">App</sup>
+            <sup className="text-base align-super font-nedbank-brand">™</sup>
           </h1>
         </div>
       </div>

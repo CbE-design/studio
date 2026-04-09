@@ -1,5 +1,3 @@
-'use server';
-
 // Temporary mock until Genkit packages are available
 export const ai = {
   generate: async (config: any) => {

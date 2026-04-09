@@ -6,6 +6,8 @@ import { TransferForm } from '@/components/transfer-form';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase-provider';
 import { collection, query } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const LoadingSkeleton = () => (
     <div className="p-4 space-y-6 animate-pulse">
@@ -19,6 +21,13 @@ const LoadingSkeleton = () => (
 export default function TransferPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
 
   const accountsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;

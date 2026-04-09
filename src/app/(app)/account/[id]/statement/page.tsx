@@ -99,17 +99,28 @@ export default function StatementPage() {
         const closingBalance = account.balance;
         const openingBalance = closingBalance + totalDebits - totalCredits;
 
-        // Categorize transactions for graphs
-        const atmTellerDeposits = 0; // Placeholder
-        const electronicPaymentsReceived = totalCredits - atmTellerDeposits; // Simplified
-        const transfersIn = 0; // Placeholder
-        const otherCredits = 0; // Placeholder
+        const feeTxs = sortedTransactions.filter(tx => tx.transactionType === 'BANK_FEE');
+        const totalChargesAndFees = feeTxs.reduce((sum, tx) => sum + tx.amount, 0);
 
-        const accountPayments = sortedTransactions.filter(tx => tx.type === 'debit' && tx.transactionType === 'EFT_STANDARD').reduce((sum, tx) => sum + tx.amount, 0);
-        const electronicTransfers = sortedTransactions.filter(tx => tx.type === 'debit' && tx.transactionType === 'EFT_IMMEDIATE').reduce((sum, tx) => sum + tx.amount, 0);
-        const totalChargesAndFees = sortedTransactions.filter(tx => tx.transactionType === 'BANK_FEE').reduce((sum, tx) => sum + tx.amount, 0);
-        const otherDebits = totalDebits - accountPayments - electronicTransfers - totalChargesAndFees;
+        // Electronic banking fees = notification/electronic fees; service fees = remainder
+        const electronicBankingFees = feeTxs.filter(tx => (tx.description || '').toLowerCase().includes('notif') || (tx.description || '').toLowerCase().includes('electronic')).reduce((sum, tx) => sum + tx.amount, 0);
+        const serviceFees = totalChargesAndFees - electronicBankingFees;
+        const otherCharges = 0;
 
+        const transfersOut = sortedTransactions.filter(tx => tx.type === 'debit' && tx.transactionType !== 'BANK_FEE').reduce((sum, tx) => sum + tx.amount, 0);
+        const otherDebits = 0;
+
+        const otherCredits = totalCredits;
+        const statementPeriodStart = sortedTransactions.length > 0
+            ? normalizeDate(sortedTransactions[0].date).toLocaleDateString('en-GB')
+            : new Date().toLocaleDateString('en-GB');
+        const statementPeriodEnd = new Date().toLocaleDateString('en-GB');
+
+        // VAT at 15%
+        const ebVat = +(electronicBankingFees * 15 / 115).toFixed(2);
+        const sfVat = +(serviceFees * 15 / 115).toFixed(2);
+        const ebItemCost = +(electronicBankingFees - ebVat).toFixed(2);
+        const sfItemCost = +(serviceFees - sfVat).toFixed(2);
 
         return {
             account,
@@ -120,39 +131,43 @@ export default function StatementPage() {
                 accountNumber: account.accountNumber,
                 statementDate: new Date().toLocaleDateString('en-GB'),
                 envelope: '1 of 1',
-                statementPeriod: `${sortedTransactions.length > 0 ? normalizeDate(sortedTransactions[0].date).toLocaleDateString('en-GB') : new Date().toLocaleDateString('en-GB')} - ${new Date().toLocaleDateString('en-GB')}`,
-                totalPages: '2', // Placeholder
+                statementPeriod: `${statementPeriodStart} – ${statementPeriodEnd}`,
+                totalPages: '2',
                 statementFrequency: 'Monthly',
                 clientVatNumber: '',
             },
             bankSummary: {
-                cashFees: 0.00, // Placeholder
-                otherCharges: totalChargesAndFees, // Simplified
+                electronicBankingFees,
+                serviceFees,
+                otherCharges,
                 bankChargesTotal: totalChargesAndFees,
                 vatIncluded: 15.000,
-                vatCalculatedMonthly: 0.00,
                 openingBalance,
                 fundsReceivedCredits: totalCredits,
                 fundsUsedDebits: totalDebits,
                 closingBalance,
                 annualCreditInterestRate: 0.000,
             },
+            bankChargesBreakdown: {
+                electronicBankingFees: { itemCost: ebItemCost, vat: ebVat, total: +electronicBankingFees.toFixed(2) },
+                serviceFees: { itemCost: sfItemCost, vat: sfVat, total: +serviceFees.toFixed(2) },
+                otherCharges: { itemCost: 0, vat: 0, total: 0 },
+            },
             graphsData: {
                 fundsReceived: {
-                    totalCredits: totalCredits,
-                    atmTellerDeposits,
-                    electronicPaymentsReceived,
-                    transfersIn,
+                    totalCredits,
+                    atmTellerDeposits: 0,
+                    electronicPaymentsReceived: 0,
+                    transfersIn: 0,
                     otherCredits,
                 },
                 fundsUsed: {
-                    totalDebits: totalDebits,
-                    accountPayments,
-                    electronicTransfers,
+                    totalDebits,
+                    transfersOut,
                     totalChargesAndFees,
                     otherDebits,
-                }
-            }
+                },
+            },
         };
     }, [account, userData, sortedTransactions]);
 
@@ -223,6 +238,7 @@ export default function StatementPage() {
                             account={statementData.account} 
                             transactions={statementData.transactions} 
                             openingBalance={statementData.bankSummary.openingBalance}
+                            statementData={statementData}
                         />
                     </div>
                 )}

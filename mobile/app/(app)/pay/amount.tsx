@@ -123,7 +123,7 @@ export default function AmountScreen() {
                 {payment.bank} • {payment.accountNumber}
               </Text>
             </View>
-            <TouchableOpacity onPress={() => router.push('/(tabs)')} style={{ padding: 4 }}>
+            <TouchableOpacity onPress={() => router.push('/(app)/(tabs)')} style={{ padding: 4 }}>
               <Ionicons name="close" size={22} color="#fff" />
             </TouchableOpacity>
           </View>

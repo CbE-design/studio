@@ -178,7 +178,7 @@ export default function MorePage() {
         {
           icon: Settings,
           label: 'Settings',
-          href: '#',
+          href: '/settings',
         },
         {
           icon: Shield,

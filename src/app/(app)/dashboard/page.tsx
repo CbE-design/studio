@@ -13,7 +13,7 @@ import { ShieldCheck } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const MessageIcon = ({ className }: { className?: string }) => (
-  <div className={cn("relative w-5 h-5 flex items-center justify-center bg-transparent", className)}>
+  <div className={cn("relative w-4 h-4 flex items-center justify-center bg-transparent", className)}>
     <Image
       src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320_172101952.png?alt=media&token=2d52b45c-6169-486b-8c04-8e3965a21d47"
       alt="Messages"
@@ -48,7 +48,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: strin
     return (
         <Link href={href}>
             <div className="flex flex-col items-center justify-start space-y-2 text-center h-full group">
-                <div className="relative flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 group-hover:shadow-md transition-all active:scale-95 overflow-hidden w-[72px] h-[72px]">
+                <div className="relative flex items-center justify-center bg-white rounded-xl shadow-sm border border-gray-100 group-hover:shadow-md transition-all active:scale-95 overflow-hidden w-[50px] h-[50px]">
                     {isNew && (
                         <div className="absolute top-0 left-0 z-10 overflow-hidden w-[52px] h-[52px] pointer-events-none">
                             <div className="absolute -top-1 -left-1 bg-green-600 text-white text-[8px] font-bold uppercase leading-none rotate-[-45deg] origin-bottom-right px-6 py-1">
@@ -58,7 +58,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: strin
                     )}
                     <div className="relative flex items-center justify-center">
                         {src ? (
-                            <div className="relative w-10 h-10">
+                            <div className="relative w-6 h-6">
                                 <Image
                                     src={src}
                                     alt={`${label} icon`}
@@ -68,7 +68,7 @@ const WidgetItem = ({ src, icon: Icon, label, href, isNew, hint }: { src?: strin
                                 />
                             </div>
                         ) : Icon ? (
-                            <Icon className="text-primary h-9 w-9" strokeWidth={1.5} />
+                            <Icon className="text-primary h-6 w-6" strokeWidth={1.5} />
                         ) : null}
                     </div>
                 </div>
@@ -154,9 +154,9 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col h-full bg-white">
-      <header className="sticky top-0 z-50 brand-header p-4 text-white shadow-sm shrink-0">
+      <header className="sticky top-0 z-50 brand-header px-4 py-2 text-white shadow-sm shrink-0">
         <div className="relative z-10 flex flex-col gap-1">
-          <div className="flex items-center justify-between h-14">
+          <div className="flex items-center justify-between h-10">
             <div className="flex items-center gap-4 overflow-hidden">
               <Image
                 src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"
@@ -165,13 +165,13 @@ export default function DashboardPage() {
                 height={28}
                 className="flex-shrink-0"
               />
-              <span className="font-semibold text-lg uppercase truncate tracking-wide">
+              <span className="font-normal text-lg uppercase truncate tracking-wide">
                 {user.displayName || 'DICKSON FAMILY TRUST'}
               </span>
             </div>
-            <div className="flex items-center gap-5 text-white flex-shrink-0">
+            <div className="flex items-center gap-3 text-white flex-shrink-0">
               <Link href="/notifications" className="relative p-1">
-                <div className={cn('relative w-6 h-6 bg-transparent', isBellRinging && 'animate-ring')}>
+                <div className={cn('relative w-5 h-5 bg-transparent', isBellRinging && 'animate-ring')}>
                   <Image
                     src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/20260320141309.png?alt=media&token=1836ae99-d919-48db-85fe-013baef40979"
                     alt="Notifications"
@@ -192,14 +192,14 @@ export default function DashboardPage() {
       </header>
 
       <div className="flex-1 overflow-y-auto min-h-0 bg-white">
-        <div className="brand-header px-4 pt-6 pb-6 shadow-md">
+        <div className="brand-header px-4 pt-6 pb-3 shadow-md">
           <div className="relative z-10">
             <AccountsCarousel />
           </div>
         </div>
 
         <main className="flex flex-col bg-transparent">
-          <div className="px-6 pt-4 pb-0">
+          <div className="px-6 pt-2 pb-0">
             <div className="relative aspect-[16/7] w-full">
               <Image
                 src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/IMG_20260303_210333.jpg?alt=media&token=bfc49ba7-9c39-41aa-a85b-b7b2a3ec9dc0"
