@@ -46,12 +46,12 @@ export default function BuyPage() {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Standalone Block Container */}
-      <div className="bg-white border-b shadow-sm flex-shrink-0">
+      <div className="bg-[#007a33] flex-shrink-0 shadow-sm">
         <header className="p-4 pt-6">
-          <Button variant="ghost" size="icon" className="-ml-2 mb-2" onClick={() => router.back()}>
+          <Button variant="ghost" size="icon" className="-ml-2 mb-2 text-white hover:bg-white/10" onClick={() => router.back()}>
             <ArrowLeft className="h-6 w-6" />
           </Button>
-          <h1 className="text-3xl font-bold text-gray-800 px-2 pb-6">What would you like to do?</h1>
+          <h1 className="text-3xl font-bold text-white px-2 pb-6">What would you like to do?</h1>
         </header>
       </div>
 
