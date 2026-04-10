@@ -34,7 +34,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
         amount: Number(transaction.amount || '0'),
         currency: account.currency,
         recipientReference: transaction.recipientReference,
-        payer: "CORRIE-DIRK VAN SCHALKWYK",
+        payer: "DICKSON FAMILY TRUST",
         bank: transaction.bank,
         accountNumber: transaction.accountNumber ? `...${transaction.accountNumber.slice(-6)}` : '...',
         channel: 'Internet payment',
@@ -143,7 +143,7 @@ export async function generateProofOfPaymentPdf(transaction: Transaction, accoun
     page.drawLine({ start: { x: margin, y: y + 5 }, end: { x: width - margin, y: y + 5 }, thickness: 1, color: rgb(0, 0, 0) });
     y -= 15;
 
-    const emailDisclaimer = 'This email and any accompanying attachments may contain confidential and proprietary information. Emails cannot be guaranteed to be secure or free of errors or viruses. The sender does not accept any liability or responsibility for any interception, loss, late arrival or incompleteness of or tampering or interference with any of the information contained in this email.';
+    const emailDisclaimer = 'This email and any accompanying attachments may contain confidential and proprietary information. This information is private and protected by law and, accordingly, if you are not the intended recipient, you are requested to delete this entire communication immediately and are notified that any disclosure, copying or distribution of or taking any action based on this information is prohibited. Emails cannot be guaranteed to be secure or free of errors or viruses.';
     const wrappedEmail = wrapText(emailDisclaimer, commonTextOptions.maxWidth, font, 8);
     
     wrappedEmail.forEach(line => {
