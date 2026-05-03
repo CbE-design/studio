@@ -10,6 +10,8 @@ export type Account = {
   userId?: string;
 };
 
+export type TransactionStatus = 'PENDING_APPROVAL' | 'SUCCESS' | 'FAILED' | 'REJECTED';
+
 export type TransactionType = 'EFT_IMMEDIATE' | 'EFT_STANDARD' | 'POS_PURCHASE' | 'ATM_WITHDRAWAL_OWN' | 'ATM_WITHDRAWAL_OTHER' | 'DEBIT_ORDER' | 'BANK_FEE' | 'SAVINGS_TRANSFER';
 
 export type Transaction = {
@@ -29,7 +31,7 @@ export type Transaction = {
   accountNumber?: string;
   popReferenceNumber?: string;
   popSecurityCode?: string;
-  status?: 'PENDING_APPROVAL' | 'SUCCESS' | 'FAILED' | 'REJECTED';
+  status?: TransactionStatus;
 };
 
 export type ApprovalRequest = {
@@ -41,6 +43,8 @@ export type ApprovalRequest = {
   reference: string;
   accountNumber: string;
   bankName: string;
+  fromAccountId: string;
+  userId: string;
 };
 
 export type Beneficiary = {
