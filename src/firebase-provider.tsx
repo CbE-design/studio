@@ -106,41 +106,49 @@ export function useAllTransactions() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!user || !firestore) {
+    const uid = user?.uid;
+    if (!uid || !firestore) {
       setTransactions([]);
       setIsLoading(false);
       return;
     }
 
-    // We remove the server-side orderBy to avoid SDK assertion failures 
-    // and sort in memory for better compatibility.
+    let isMounted = true;
+
+    // Use a stable query to prevent rapid listener restarts
     const q = query(
       collectionGroup(firestore, 'transactions'),
-      where('userId', '==', user.uid)
+      where('userId', '==', uid)
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const docs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-      
-      // Sort in memory: Latest First
-      const sorted = [...docs].sort((a, b) => {
-          const dateA = a.date ? new Date(a.date).getTime() : 0;
-          const dateB = b.date ? new Date(b.date).getTime() : 0;
-          return dateB - dateA;
-      });
+    const unsubscribe = onSnapshot(q, {
+      next: (snapshot) => {
+        if (!isMounted) return;
+        const docs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+        
+        // Sort in memory: Latest First
+        const sorted = [...docs].sort((a, b) => {
+            const dateA = a.date ? new Date(a.date).getTime() : 0;
+            const dateB = b.date ? new Date(b.date).getTime() : 0;
+            return dateB - dateA;
+        });
 
-      setTransactions(sorted);
-      setIsLoading(false);
-    }, (err: any) => {
-      console.warn("Firestore listener error in useAllTransactions:", err.message);
-      setTransactions([]);
-      setIsLoading(false);
+        setTransactions(sorted);
+        setIsLoading(false);
+      },
+      error: (err: any) => {
+        if (!isMounted) return;
+        console.warn("Firestore listener error in useAllTransactions:", err.message);
+        setTransactions([]);
+        setIsLoading(false);
+      }
     });
 
     return () => {
-        if (unsubscribe) unsubscribe();
+        isMounted = false;
+        unsubscribe();
     };
-  }, [user, firestore]);
+  }, [user?.uid, firestore]);
 
   return { transactions, isLoading };
 }
