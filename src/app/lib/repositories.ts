@@ -77,7 +77,7 @@ export async function createPayment(input: {
     if (!accountDoc.exists) throw new Error("Source account not found.");
 
     const accountData = accountDoc.data() as Account;
-    const { amount: feeAmount, description: feeDescription } = calculateFee(amount, transactionType, accountDataData.type);
+    const { amount: feeAmount, description: feeDescription } = calculateFee(amount, transactionType, accountData.type);
     
     // In a trust account, we capture the instruction as PENDING_APPROVAL.
     // We don't deduct funds yet, but we check if the instruction is valid.

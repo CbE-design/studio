@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Suspense, useState } from 'react';
@@ -80,9 +79,9 @@ function ReviewPaymentContent() {
                     try {
                         const addBeneficiaryFn = httpsCallable(functions, 'addBeneficiary');
                         await addBeneficiaryFn({
-                            name: paymentDetails.recipientName,
-                            bank: paymentDetails.bankName,
-                            accountNumber: paymentDetails.accountNumber,
+                            name: paymentDetails.recipientName || 'RECIPIENT',
+                            bank: paymentDetails.bankName || 'BANK',
+                            accountNumber: paymentDetails.accountNumber || '000000',
                         });
                         toast({
                             title: 'Recipient Saved',
@@ -100,15 +99,15 @@ function ReviewPaymentContent() {
             }
 
             const result = await createTransactionAction({
-                fromAccountId: paymentDetails.fromAccountId,
+                fromAccountId: paymentDetails.fromAccountId!,
                 userId: user.uid,
-                amount: paymentDetails.amount,
+                amount: paymentDetails.amount!,
                 recipientName: paymentDetails.recipientName || undefined,
                 yourReference: paymentDetails.yourReference || undefined,
                 recipientReference: paymentDetails.recipientReference || undefined,
                 bankName: paymentDetails.bankName || undefined,
                 accountNumber: paymentDetails.accountNumber || undefined,
-                paymentType: paymentDetails.paymentType,
+                paymentType: paymentDetails.paymentType!,
             });
 
             if (result.success) {
