@@ -13,6 +13,7 @@ type TransactOption = {
   icon: IoniconsName;
   desc: string;
   route?: string;
+  isTracking?: boolean;
 };
 
 const transactOptions: TransactOption[] = [
@@ -26,6 +27,13 @@ const transactOptions: TransactOption[] = [
     label: 'Transfer between accounts',
     icon: 'swap-horizontal-outline',
     desc: 'Move money between your accounts',
+  },
+  {
+    label: 'Tracking instructions',
+    icon: 'time-outline',
+    desc: 'Awaiting authorisation and processed',
+    route: '/pay/tracking',
+    isTracking: true,
   },
   {
     label: 'Buy prepaid',
@@ -71,19 +79,21 @@ export default function TransactScreen() {
               shadowRadius: 4,
               elevation: 1,
               opacity: option.route ? 1 : 0.6,
+              borderLeftWidth: option.isTracking ? 4 : 0,
+              borderLeftColor: option.isTracking ? '#f59e0b' : 'transparent',
             }}
             activeOpacity={option.route ? 0.7 : 1}
           >
             <View style={{
               width: 48,
               height: 48,
-              backgroundColor: '#e8f5ee',
+              backgroundColor: option.isTracking ? '#fffbeb' : '#e8f5ee',
               borderRadius: 12,
               alignItems: 'center',
               justifyContent: 'center',
               marginRight: 14,
             }}>
-              <Ionicons name={option.icon} size={24} color={PRIMARY} />
+              <Ionicons name={option.icon} size={24} color={option.isTracking ? '#d97706' : PRIMARY} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ color: '#111827', fontSize: 15, fontWeight: '600' }}>{option.label}</Text>
@@ -96,6 +106,12 @@ export default function TransactScreen() {
             />
           </TouchableOpacity>
         ))}
+        
+        <View style={{ paddingVertical: 24, alignItems: 'center' }}>
+          <Text style={{ fontSize: 10, color: '#d1d5db', fontWeight: '800', letterSpacing: 1, textTransform: 'uppercase' }}>
+            Nedbank Trust Mandate Layer Active
+          </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
