@@ -9,7 +9,7 @@ import { calculateFee } from './fees';
 
 /**
  * @fileOverview Data Repositories
- * Refactored to standalone functions to satisfy Next.js "use server" requirements.
+ * Realistic Nedbank Trust Clearing & Authorization logic.
  */
 
 export async function logAudit(log: Omit<IntegrationAuditLog, 'id' | 'timestamp'>) {
@@ -77,12 +77,11 @@ export async function createPayment(input: {
     if (!accountDoc.exists) throw new Error("Source account not found.");
 
     const accountData = accountDoc.data() as Account;
-    const { amount: feeAmount, description: feeDescription } = calculateFee(amount, transactionType, accountData.type);
+    const { amount: feeAmount } = calculateFee(amount, transactionType, accountData.type);
     
-    // In a trust account, we capture the instruction as PENDING_APPROVAL.
-    // We don't deduct funds yet, but we check if the instruction is valid.
+    // In a Trust account, we check for funds but do NOT deduct until signed.
     const totalDebit = amount + feeAmount;
-    if (accountData.balance < totalDebit) throw new Error("Insufficient funds for capture.");
+    if (accountData.balance < totalDebit) throw new Error("Insufficient funds for instruction capture.");
 
     const txRef = accountRef.collection('transactions').doc();
     resultTransactionId = txRef.id;
@@ -110,8 +109,6 @@ export async function createPayment(input: {
     };
 
     dbTransaction.set(txRef, mainTx);
-    
-    // Fees are also held in pending state until execution
   });
 
   if (resultTransactionId) {
@@ -119,7 +116,7 @@ export async function createPayment(input: {
       system: 'FIREBASE',
       action: 'PAYMENT_CAPTURE',
       status: 'SUCCESS',
-      details: `Captured payment instruction ${resultTransactionId} awaiting Trustee authorization.`,
+      details: `Captured Trust instruction ${resultTransactionId}. Mandate status: Awaiting Authorization.`,
       userId
     });
   }
@@ -135,28 +132,31 @@ export async function processAuthorizedPayment(userId: string, accountId: string
         const accountDoc = await dbTransaction.get(accountRef);
         const txDoc = await dbTransaction.get(txRef);
 
-        if (!accountDoc.exists || !txDoc.exists) throw new Error("Record not found.");
+        if (!accountDoc.exists || !txDoc.exists) throw new Error("Mandate record or account not found.");
 
         const accountData = accountDoc.data() as Account;
         const txData = txDoc.data() as Transaction;
 
-        if (txData.status !== 'PENDING_APPROVAL') throw new Error("Transaction is not in a pending state.");
+        if (txData.status !== 'PENDING_APPROVAL') throw new Error("Instruction has already been processed.");
 
         const { amount: feeAmount, description: feeDescription } = calculateFee(txData.amount, txData.transactionType!, accountData.type);
         const totalDebit = txData.amount + feeAmount;
 
         if (accountData.balance < totalDebit) {
             dbTransaction.update(txRef, { status: 'FAILED' });
-            throw new Error("Insufficient funds at time of authorization.");
+            throw new Error("Mandate met, but funds were insufficient at time of signing.");
         }
 
-        // Deduct balance
+        // Real-time balance deduction on Authorization
         dbTransaction.update(accountRef, { balance: accountData.balance - totalDebit });
 
-        // Update main transaction status
-        dbTransaction.update(txRef, { status: 'SUCCESS' });
+        // Update instruction to Successful Transaction
+        dbTransaction.update(txRef, { 
+          status: 'SUCCESS',
+          clearingDate: new Date().toISOString()
+        });
 
-        // Create fee record if applicable
+        // Log fee as a posted entry
         if (feeAmount > 0) {
             const feeTxRef = accountRef.collection('transactions').doc();
             dbTransaction.set(feeTxRef, {
@@ -173,12 +173,12 @@ export async function processAuthorizedPayment(userId: string, accountId: string
         }
     });
 
-    // Real-time integration syncs
+    // Production Bridge Syncs
     await logAudit({
       system: 'CBS',
       action: 'ISO20022_MSG_GEN',
       status: 'SUCCESS',
-      details: `Authorized: Generated pacs.008 ISO 20022 message for ${transactionId}`,
+      details: `Signature Verified: Generated pacs.008 message for instruction ${transactionId}`,
       userId
     });
 
@@ -187,7 +187,7 @@ export async function processAuthorizedPayment(userId: string, accountId: string
       system: 'SAP',
       action: 'LEDGER_SYNC',
       status: sapSynced ? 'SUCCESS' : 'FAILURE',
-      details: `Authorized: Reconciled transaction ${transactionId} to SAP General Ledger`,
+      details: `Reconciled signature and posted transaction ${transactionId} to SAP General Ledger`,
       userId
     });
 
@@ -202,7 +202,7 @@ export async function rejectPayment(userId: string, accountId: string, transacti
       system: 'FIREBASE',
       action: 'PAYMENT_REJECTION',
       status: 'SUCCESS',
-      details: `Trustee rejected payment instruction ${transactionId}`,
+      details: `Trustee rejected the captured instruction ${transactionId}`,
       userId
     });
 

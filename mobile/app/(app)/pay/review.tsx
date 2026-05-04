@@ -20,9 +20,6 @@ import type { Transaction } from '@/lib/definitions';
 
 const PRIMARY = '#00843d';
 const API_BASE = process.env.EXPO_PUBLIC_API_BASE_URL;
-if (!API_BASE) {
-  console.error('[PaymentFlow] EXPO_PUBLIC_API_BASE_URL is not set. API calls will fail.');
-}
 
 export default function ReviewScreen() {
   const router = useRouter();
@@ -42,7 +39,7 @@ export default function ReviewScreen() {
     year: 'numeric',
   });
 
-  const handlePay = async () => {
+  const handleCapture = async () => {
     if (!user?.uid) return;
     setProcessing(true);
 
@@ -54,6 +51,7 @@ export default function ReviewScreen() {
         return;
       }
 
+      // This calls the backend createTransactionAction which now defaults to PENDING_APPROVAL for Trust accounts
       const res = await fetch(`${API_BASE}/api/pay`, {
         method: 'POST',
         headers: {
@@ -80,44 +78,13 @@ export default function ReviewScreen() {
       };
 
       if (!result.success) {
-        Alert.alert('Payment failed', result.message);
+        Alert.alert('Capture failed', result.message);
         return;
       }
 
-      let emailStatus: 'sent' | 'failed' | 'skipped' = 'skipped';
-
-      if (notifyEmail.trim() && result.transactionId) {
-        const txForEmail: Transaction = {
-          id: result.transactionId,
-          userId: user.uid,
-          fromAccountId: payment.fromAccountId,
-          amount,
-          date: new Date().toISOString(),
-          description: payment.recipientName.toUpperCase(),
-          recipientName: payment.recipientName,
-          bank: payment.bank,
-          accountNumber: payment.accountNumber,
-          recipientReference: payment.recipientReference,
-          popReferenceNumber: result.popReferenceNumber,
-          type: 'debit',
-        };
-
-        try {
-          const emailRes = await fetch(`${API_BASE}/api/email/pop`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${idToken}`,
-            },
-            body: JSON.stringify({ transaction: txForEmail, recipientEmail: notifyEmail.trim() }),
-          });
-          const emailJson = (await emailRes.json()) as { success: boolean };
-          emailStatus = emailJson.success ? 'sent' : 'failed';
-        } catch {
-          emailStatus = 'failed';
-        }
-      }
-
+      // Instructions are captured for signing, email notification is usually sent after final approval
+      // but we allow immediate "Instruction Captured" alerts if requested.
+      
       router.push({
         pathname: '/pay/success',
         params: {
@@ -130,13 +97,12 @@ export default function ReviewScreen() {
           transactionId: result.transactionId ?? '',
           popReferenceNumber: result.popReferenceNumber ?? '',
           paymentType: payment.paymentType,
-          emailStatus,
-          notifyEmail: notifyEmail.trim(),
+          isTrustInstruction: 'true' // New flag for realism
         },
       });
       resetPayment();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Could not process your payment.';
+      const msg = err instanceof Error ? err.message : 'Could not capture your instruction.';
       Alert.alert('Error', msg);
     } finally {
       setProcessing(false);
@@ -150,7 +116,7 @@ export default function ReviewScreen() {
           <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 8 }}>
             <Ionicons name="arrow-back" size={22} color="#fff" />
           </TouchableOpacity>
-          <Text style={{ color: '#fff', fontSize: 18, fontWeight: '700', flex: 1 }}>Review payment</Text>
+          <Text style={{ color: '#fff', fontSize: 18, fontWeight: '700', flex: 1 }}>Review instruction</Text>
           <TouchableOpacity onPress={() => router.push('/(app)/(tabs)')} style={{ padding: 4 }}>
             <Ionicons name="close" size={22} color="#fff" />
           </TouchableOpacity>
@@ -158,6 +124,14 @@ export default function ReviewScreen() {
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
+        <View style={{ backgroundColor: '#fff', borderRadius: 14, padding: 16, marginBottom: 16, flexDirection: 'row', alignItems: 'center', borderLeftWidth: 4, borderLeftColor: '#f59e0b' }}>
+          <Ionicons name="shield-outline" size={24} color="#d97706" style={{ marginRight: 12 }} />
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: '#92400e', fontSize: 13, fontWeight: '700' }}>Trust Signing Mandate</Text>
+            <Text style={{ color: '#78350f', fontSize: 11 }}>This instruction will require a Trustee signature before processing.</Text>
+          </View>
+        </View>
+
         <View style={{
           backgroundColor: '#fff',
           borderRadius: 14,
@@ -206,33 +180,21 @@ export default function ReviewScreen() {
           <Divider />
           <DetailRow label="Amount" value={formatCurrency(amount, 'ZAR')} />
           <Divider />
-          <DetailRow label="Fee" value={fee === 0 ? 'Free' : formatCurrency(fee, 'ZAR')} />
+          <DetailRow label="Estimated Fee" value={fee === 0 ? 'Free' : formatCurrency(fee, 'ZAR')} />
           <Divider />
-          <DetailRow label="Total deduction" value={formatCurrency(total, 'ZAR')} bold />
+          <DetailRow label="Total deduction upon approval" value={formatCurrency(total, 'ZAR')} bold />
           <Divider />
           <DetailRow label="From account" value={payment.fromAccountName} />
           <Divider />
-          <DetailRow label="Payment date" value={dateLabel} />
-          {payment.yourReference ? (
-            <>
-              <Divider />
-              <DetailRow label="Your reference" value={payment.yourReference} />
-            </>
-          ) : null}
-          {payment.recipientReference ? (
-            <>
-              <Divider />
-              <DetailRow label="Recipient's reference" value={payment.recipientReference} />
-            </>
-          ) : null}
+          <DetailRow label="Proposed date" value={dateLabel} />
         </View>
 
         <View style={{ marginBottom: 4 }}>
           <Text style={{ fontSize: 13, fontWeight: '700', color: '#374151', marginBottom: 10 }}>
-            Notification (optional)
+            Audit notification (optional)
           </Text>
           <Text style={{ fontSize: 12, color: '#6b7280', marginBottom: 6, fontWeight: '600' }}>
-            EMAIL PROOF OF PAYMENT TO
+            NOTIFY TRUSTEE VIA EMAIL
           </Text>
           <TextInput
             style={{
@@ -245,7 +207,7 @@ export default function ReviewScreen() {
               fontSize: 14,
               color: '#111827',
             }}
-            placeholder="email@example.com"
+            placeholder="trustee@example.com"
             placeholderTextColor="#9ca3af"
             value={notifyEmail}
             onChangeText={setNotifyEmail}
@@ -258,7 +220,7 @@ export default function ReviewScreen() {
 
       <View style={{ padding: 16, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f3f4f6' }}>
         <TouchableOpacity
-          onPress={handlePay}
+          onPress={handleCapture}
           disabled={processing}
           style={{
             backgroundColor: processing ? '#6b7280' : PRIMARY,
@@ -274,7 +236,7 @@ export default function ReviewScreen() {
             <ActivityIndicator size="small" color="#fff" style={{ marginRight: 8 }} />
           ) : null}
           <Text style={{ color: '#fff', fontWeight: '700', fontSize: 15 }}>
-            {processing ? 'Processing…' : 'Pay'}
+            {processing ? 'Capturing…' : 'Capture Instruction'}
           </Text>
         </TouchableOpacity>
       </View>

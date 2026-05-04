@@ -20,36 +20,37 @@ export default function PaymentSuccessScreen() {
     paymentType: string;
     emailStatus: 'sent' | 'failed' | 'skipped';
     notifyEmail: string;
+    isTrustInstruction?: string;
   }>();
 
   const amount = parseFloat(params.amount ?? '0');
   const dateStr = new Date().toLocaleDateString('en-ZA', { day: '2-digit', month: 'long', year: 'numeric' });
-  const isInstant = params.paymentType === 'Instant Pay';
+  const isTrust = params.isTrustInstruction === 'true';
 
   const handleShare = async () => {
     const lines = [
-      `Payment Confirmation`,
+      isTrust ? `Payment Instruction Captured` : `Payment Confirmation`,
       `Amount: ${formatCurrency(amount, 'ZAR')}`,
       `To: ${params.recipientName}`,
       `Bank: ${params.bank}`,
       `Account: ${params.accountNumber}`,
       `Date: ${dateStr}`,
+      `Status: ${isTrust ? 'Awaiting Authorization' : 'Successful'}`,
       params.yourReference ? `Your ref: ${params.yourReference}` : '',
-      params.recipientReference ? `Recipient ref: ${params.recipientReference}` : '',
-      params.popReferenceNumber ? `POP ref: ${params.popReferenceNumber}` : '',
+      params.popReferenceNumber ? `Reference: ${params.popReferenceNumber}` : '',
     ]
       .filter(Boolean)
       .join('\n');
 
     try {
-      await Share.share({ message: lines, title: 'Payment Confirmation' });
+      await Share.share({ message: lines, title: isTrust ? 'Instruction Captured' : 'Payment Confirmation' });
     } catch {
     }
   };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-      <View style={{ backgroundColor: PRIMARY, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 32, alignItems: 'center', position: 'relative' }}>
+      <View style={{ backgroundColor: isTrust ? '#f59e0b' : PRIMARY, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 32, alignItems: 'center', position: 'relative' }}>
         <TouchableOpacity
           onPress={handleShare}
           style={{ position: 'absolute', right: 16, top: 8, padding: 8, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.15)' }}
@@ -67,42 +68,29 @@ export default function PaymentSuccessScreen() {
           marginBottom: 12,
           marginTop: 8,
         }}>
-          <Ionicons name="checkmark" size={30} color="#fff" />
+          <Ionicons name={isTrust ? "time" : "checkmark"} size={30} color="#fff" />
         </View>
         <Text style={{ color: '#fff', fontSize: 20, fontWeight: '300', textAlign: 'center', paddingHorizontal: 24, lineHeight: 28 }}>
-          {formatCurrency(amount, 'ZAR')} paid to {params.recipientName}&apos;s bank account
+          {isTrust 
+            ? `Instruction for ${formatCurrency(amount, 'ZAR')} captured. Awaiting Trustee signature.`
+            : `${formatCurrency(amount, 'ZAR')} paid to ${params.recipientName}'s bank account`
+          }
         </Text>
       </View>
 
-      {isInstant && (
-        <View style={{ backgroundColor: '#fefce8', padding: 14, flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
-          <Ionicons name="information-circle-outline" size={18} color="#92400e" style={{ marginTop: 1 }} />
-          <Text style={{ color: '#78350f', fontSize: 12, flex: 1, lineHeight: 18 }}>
-            Instant payments take up to 30 minutes to process. Once successful, you can share your proof of payment from payment history.
-          </Text>
-        </View>
-      )}
-
-      {params.emailStatus === 'sent' && !!params.notifyEmail && (
-        <View style={{ backgroundColor: '#f0fdf4', padding: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Ionicons name="mail-outline" size={16} color="#15803d" />
-          <Text style={{ color: '#15803d', fontSize: 12, flex: 1 }}>
-            Proof of payment emailed to {params.notifyEmail}
-          </Text>
-        </View>
-      )}
-
-      {params.emailStatus === 'failed' && !!params.notifyEmail && (
-        <View style={{ backgroundColor: '#fef2f2', padding: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Ionicons name="warning-outline" size={16} color="#b91c1c" />
-          <Text style={{ color: '#b91c1c', fontSize: 12, flex: 1 }}>
-            Payment was successful but the email notification to {params.notifyEmail} could not be sent.
+      {isTrust && (
+        <View style={{ backgroundColor: '#fffbeb', padding: 14, flexDirection: 'row', alignItems: 'flex-start', gap: 10, borderBottomWidth: 1, borderBottomColor: '#fef3c7' }}>
+          <Ionicons name="information-circle-outline" size={18} color="#b45309" style={{ marginTop: 1 }} />
+          <Text style={{ color: '#92400e', fontSize: 12, flex: 1, lineHeight: 18 }}>
+            The funds will remain in your account until a Trustee authorizes this instruction. You can track the status in Tracking Instructions.
           </Text>
         </View>
       )}
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }}>
-        <DetailRow label="Payment date" value={dateStr} />
+        <DetailRow label="Instruction date" value={dateStr} />
+        <Divider />
+        <DetailRow label="Recipient" value={params.recipientName ?? '-'} />
         <Divider />
         <DetailRow label="Bank name" value={params.bank ?? '-'} />
         <Divider />
@@ -113,18 +101,8 @@ export default function PaymentSuccessScreen() {
             <DetailRow label="Your reference" value={params.yourReference} />
           </>
         ) : null}
-        {params.recipientReference ? (
-          <>
-            <Divider />
-            <DetailRow label="Recipient's reference" value={params.recipientReference} />
-          </>
-        ) : null}
-        {params.popReferenceNumber ? (
-          <>
-            <Divider />
-            <DetailRow label="POP reference" value={params.popReferenceNumber} />
-          </>
-        ) : null}
+        <Divider />
+        <DetailRow label="Status" value={isTrust ? "AWAITING AUTHORIZATION" : "SUCCESS"} />
       </ScrollView>
 
       <View style={{ padding: 16, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#f3f4f6' }}>
