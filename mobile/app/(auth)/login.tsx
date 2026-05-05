@@ -40,8 +40,11 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
-  // Prototype Trustee Role Mapping
-  const TRUSTEE_EMAIL = 'trustee@nedbank.co.za';
+  /**
+   * TRUSTEE CREDENTIALS CONFIGURATION
+   * Provide the specific Nedbank ID for Trustees here.
+   */
+  const TRUSTEE_ID = 'trustee@nedbank.co.za'; // Provide your Trustee ID here
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -54,16 +57,18 @@ export default function LoginScreen() {
       const userCredential = await signIn(email.trim(), password);
       const user = userCredential.user;
 
-      // Unified Role-Based Redirection
-      if (user.email?.toLowerCase() === TRUSTEE_EMAIL.toLowerCase()) {
+      // 1. Role-Based Redirection Check
+      if (user.email?.toLowerCase() === TRUSTEE_ID.toLowerCase()) {
         router.replace('/trustee/dashboard' as any);
         return;
       }
 
+      // 2. Firestore check fallback
       const userDoc = await getDoc(doc(firestore, 'users', user.uid));
       if (userDoc.exists() && userDoc.data().role === 'trustee') {
         router.replace('/trustee/dashboard' as any);
       } else {
+        // 3. Regular client redirect
         router.replace('/(app)/(tabs)' as any);
       }
     } catch (err: unknown) {

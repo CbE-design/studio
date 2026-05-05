@@ -29,13 +29,16 @@ export default function LoginPage() {
   const auth = useAuth();
   const firestore = useFirestore();
 
-  // Standard Client Demo Credentials
+  /**
+   * TRUSTEE CREDENTIALS CONFIGURATION
+   * Provide the specific Nedbank ID and Password for Trustees here.
+   */
+  const TRUSTEE_ID = 'trustee@nedbank.co.za'; // Provide your Trustee ID here
+  const TRUSTEE_PASS = 'NedbankTrustee2026!'; // Provide your Trustee Password here
+
+  // Standard Client Demo Credentials (for the "Log in" button / biometric simulation)
   const CLIENT_EMAIL = 'cbenterprise@outlook.com';
   const CLIENT_PASSWORD = 'Ninkenel@143';
-
-  // Trustee Credentials (Update these with the ones you provide)
-  const TRUSTEE_EMAIL = 'trustee@nedbank.co.za'; 
-  const TRUSTEE_PASSWORD = 'NedbankTrustee2026!';
 
   const handlePinLogin = async () => {
     handleLogin(CLIENT_EMAIL, CLIENT_PASSWORD);
@@ -59,25 +62,20 @@ export default function LoginPage() {
         const userCredential = await signInWithEmailAndPassword(auth, loginEmail, loginPass);
         const user = userCredential.user;
 
-        // Check if this is the hardcoded Trustee for the prototype
-        if (user.email?.toLowerCase() === TRUSTEE_EMAIL.toLowerCase()) {
+        // 1. Check if the credentials match the defined Trustee ID
+        if (user.email?.toLowerCase() === TRUSTEE_ID.toLowerCase()) {
             router.push('/trustee/dashboard');
             return;
         }
 
-        // Otherwise, fetch user document to check for assigned role in Firestore
+        // 2. Fallback: Check Firestore for a 'role' field
         const userDocRef = doc(firestore, 'users', user.uid);
         const userDoc = await getDoc(userDocRef);
         
-        if (userDoc.exists()) {
-            const userData = userDoc.data();
-            if (userData.role === 'trustee') {
-                router.push('/trustee/dashboard');
-            } else {
-                router.push('/dashboard');
-            }
+        if (userDoc.exists() && userDoc.data().role === 'trustee') {
+            router.push('/trustee/dashboard');
         } else {
-            // Default redirection for Personal/Business Trust users
+            // 3. Otherwise, go to standard client Dashboard
             router.push('/dashboard');
         }
     } catch (error: any) {
