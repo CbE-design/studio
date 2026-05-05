@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, CheckCircle2, XCircle, ShieldCheck, Clock, ShieldAlert, LoaderCircle, History } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, XCircle, ShieldCheck, Clock, ShieldAlert, LoaderCircle, History, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -16,24 +15,31 @@ import { authorizePaymentAction, rejectPaymentAction } from '@/app/lib/actions';
 export default function TrusteeAuthorizationsPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
   const [pendingTransactions, setPendingTransactions] = useState<(Transaction & { accountId: string; userId: string; trustName: string })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+      return;
+    }
+
     if (!firestore || !user?.uid) return;
 
     const fetchPending = async () => {
       setIsLoading(true);
+      setError(null);
       try {
-        // Optimized: Fetch users once to create a trust name map
+        // Fetch all users to create a trust name map for lookup
         const trustsSnap = await getDocs(collection(firestore, 'users'));
         const trustsMap = new Map(trustsSnap.docs.map(d => [d.id, d.data().firstName || 'DICKSON FAMILY TRUST']));
 
-        // Optimized: Use collectionGroup to fetch ALL pending instructions across ALL trusts in one go
+        // Optimized: Fetch all pending transactions across the entire system
         const q = query(
           collectionGroup(firestore, 'transactions'),
           where('status', '==', 'PENDING_APPROVAL')
@@ -55,15 +61,16 @@ export default function TrusteeAuthorizationsPage() {
         
         allPending.sort((a, b) => normalizeDate(b.date).getTime() - normalizeDate(a.date).getTime());
         setPendingTransactions(allPending);
-      } catch (error) {
-        console.error("Failed to fetch pending transactions:", error);
+      } catch (e: any) {
+        console.error("Failed to fetch pending transactions:", e);
+        setError("Mandate queue synchronization failed. Please check production node settings.");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchPending();
-  }, [firestore, user?.uid]);
+  }, [firestore, user, isUserLoading, router]);
 
   const handleAction = async (tx: Transaction & { accountId: string; userId: string }, action: 'approve' | 'reject') => {
     setProcessingId(tx.id);
@@ -93,6 +100,14 @@ export default function TrusteeAuthorizationsPage() {
     }
   };
 
+  if (isUserLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+        <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen bg-[#0a0a0a]">
       <header className="border-b border-white/5 bg-[#141414] px-6 py-4 flex items-center sticky top-0 z-10 shadow-sm shrink-0">
@@ -104,6 +119,13 @@ export default function TrusteeAuthorizationsPage() {
 
       <main className="flex-1 overflow-y-auto p-6 space-y-6">
         <div className="max-w-4xl mx-auto w-full space-y-6">
+          {error && (
+            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-sm">
+              <AlertTriangle className="h-5 w-5" />
+              {error}
+            </div>
+          )}
+
           <div className="p-4 bg-primary/5 border border-primary/10 rounded-xl flex gap-3">
             <ShieldCheck className="h-5 w-5 text-primary shrink-0" />
             <div className="space-y-1">
@@ -117,15 +139,16 @@ export default function TrusteeAuthorizationsPage() {
           </div>
 
           {isLoading ? (
-            <div className="flex items-center justify-center py-20">
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
               <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-gray-500 text-sm animate-pulse">Syncing Mandate Queue...</p>
             </div>
           ) : pendingTransactions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-gray-600 bg-[#141414] border border-white/5 rounded-2xl">
               <ShieldCheck className="h-16 w-16 mb-4 opacity-20" />
               <p className="font-bold text-white">Mandate queue is empty</p>
               <p className="text-sm">No instructions awaiting signature across managed trusts.</p>
-              <Button variant="outline" className="mt-6 border-white/10" onClick={() => router.push('/trustee/dashboard')}>
+              <Button variant="outline" className="mt-6 border-white/10 text-white" onClick={() => router.push('/trustee/dashboard')}>
                 Return to Dashboard
               </Button>
             </div>

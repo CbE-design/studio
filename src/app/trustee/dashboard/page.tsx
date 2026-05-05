@@ -1,16 +1,14 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldCheck, FileText, Users, Clock, ArrowRight, LogOut, LayoutDashboard, Bell, LoaderCircle } from 'lucide-react';
+import { ShieldCheck, FileText, Users, Clock, ArrowRight, LogOut, LayoutDashboard, Bell, LoaderCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUser, useFirestore } from '@/firebase-provider';
 import { collection, query, getDocs, where, collectionGroup } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/app/lib/firebase';
-import { formatCurrency } from '@/app/lib/data';
 
 export default function TrusteeDashboardPage() {
   const router = useRouter();
@@ -19,36 +17,59 @@ export default function TrusteeDashboardPage() {
   const [pendingCount, setPendingCount] = useState(0);
   const [managedTrusts, setManagedTrusts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // If user is not loading and not present, redirect to login
+    if (!isUserLoading && !user) {
+      router.push('/login');
+      return;
+    }
+
     if (!firestore || !user?.uid) return;
 
     const fetchTrusteeData = async () => {
       setIsLoading(true);
+      setError(null);
       try {
-        // Optimized: Parallel fetch for users and pending counts
-        const [trustsSnap, pendingSnap] = await Promise.all([
-            getDocs(collection(firestore, 'users')),
-            getDocs(query(collectionGroup(firestore, 'transactions'), where('status', '==', 'PENDING_APPROVAL')))
-        ]);
-
+        // Fetch all users to identify managed trusts
+        const trustsSnap = await getDocs(collection(firestore, 'users'));
         const trusts = trustsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
         setManagedTrusts(trusts);
-        setPendingCount(pendingSnap.size);
-      } catch (e) {
+
+        // Fetch count of pending approvals
+        // Using a try-catch specifically for the collectionGroup query as it's the most likely to fail if indexes are building
+        try {
+          const pendingSnap = await getDocs(query(collectionGroup(firestore, 'transactions'), where('status', '==', 'PENDING_APPROVAL')));
+          setPendingCount(pendingSnap.size);
+        } catch (idxError: any) {
+          console.warn("Pending count query failed (check indexes):", idxError.message);
+          setPendingCount(0);
+        }
+
+      } catch (e: any) {
         console.error("Failed to load trustee data:", e);
+        setError("Unable to sync with production ledger. Please verify your connection.");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchTrusteeData();
-  }, [firestore, user?.uid]);
+  }, [firestore, user, isUserLoading, router]);
 
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/login');
   };
+
+  if (isUserLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+        <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen bg-[#0a0a0a]">
@@ -74,9 +95,17 @@ export default function TrusteeDashboardPage() {
 
       <main className="flex-1 overflow-y-auto p-6">
         <div className="max-w-6xl mx-auto w-full space-y-6">
+          {error && (
+            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-sm">
+              <AlertTriangle className="h-5 w-5" />
+              {error}
+            </div>
+          )}
+
           {isLoading ? (
-            <div className="flex items-center justify-center py-20">
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
                <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+               <p className="text-gray-500 text-sm font-medium animate-pulse">Establishing Secure Connection to CBS...</p>
             </div>
           ) : (
             <>
