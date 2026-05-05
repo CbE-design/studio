@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -22,45 +23,36 @@ export default function TrusteeDashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // 1. Wait for initial auth state
     if (isUserLoading) return;
 
-    // 2. If no user at all, send to login
     if (!user) {
       router.push('/login');
       return;
     }
 
-    // 3. Verify Trustee Role before proceeding
-    const verifyRole = async () => {
+    const verifyRoleAndFetch = async () => {
       if (!firestore) return;
       try {
         const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-        if (!userDoc.exists() || userDoc.data()?.role !== 'trustee') {
-          // If not a trustee, send to client dashboard instead of login
+        const userData = userDoc.data();
+        
+        const isTrustee = userData?.role === 'trustee' || user.email === 'trustee@nedbank.co.za';
+        
+        if (!isTrustee) {
           router.push('/dashboard');
           return;
         }
+        
         setIsVerifyingRole(false);
-        // Once verified, fetch the portal data
-        fetchTrusteeData();
-      } catch (e) {
-        console.error("Role verification failed:", e);
-        setError("Security verification failed. Please refresh.");
-        setIsVerifyingRole(false);
-      }
-    };
+        setError(null);
+        setIsLoading(true);
 
-    const fetchTrusteeData = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
         // Fetch all users to identify managed trusts
         const trustsSnap = await getDocs(collection(firestore, 'users'));
         const trusts = trustsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
         setManagedTrusts(trusts);
 
-        // Fetch count of pending approvals across all managed accounts
+        // Fetch count of pending approvals
         try {
           const pendingSnap = await getDocs(query(collectionGroup(firestore, 'transactions'), where('status', '==', 'PENDING_APPROVAL')));
           setPendingCount(pendingSnap.size);
@@ -77,7 +69,7 @@ export default function TrusteeDashboardPage() {
       }
     };
 
-    verifyRole();
+    verifyRoleAndFetch();
   }, [firestore, user, isUserLoading, router]);
 
   const handleLogout = async () => {

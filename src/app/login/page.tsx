@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -5,11 +6,11 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Menu, AlertCircle, LoaderCircle, Fingerprint, Lock, LayoutGrid, QrCode, Wallet, FileUser, ArrowLeft, MessageSquare } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { useAuth, useFirestore } from '@/firebase-provider';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const BottomNavItem = ({ icon: Icon, label, active = false }: { icon: React.ElementType, label: string, active?: boolean }) => (
     <div className={`flex flex-col items-center gap-1 ${active ? 'text-[#00A651]' : 'text-gray-500'}`}>
@@ -57,29 +58,45 @@ export default function LoginPage() {
     setIsLoading(true);
     setErrorMessage(undefined);
 
+    const isTrusteeCredentials = loginEmail.toLowerCase() === TRUSTEE_ID.toLowerCase() && loginPass === TRUSTEE_PASS;
+
     try {
-        // Special check for Trustee Prototype credentials to allow bypass for demo
-        if (loginEmail.toLowerCase() === TRUSTEE_ID.toLowerCase() && loginPass === TRUSTEE_PASS) {
-            router.push('/trustee/dashboard');
-            return;
+        let user;
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, loginEmail, loginPass);
+            user = userCredential.user;
+        } catch (signInError: any) {
+            // If sign-in fails for the specific trustee credentials because the user doesn't exist, auto-create it.
+            if (isTrusteeCredentials && (signInError.code === 'auth/user-not-found' || signInError.code === 'auth/invalid-credential')) {
+                const newUserCred = await createUserWithEmailAndPassword(auth, loginEmail, loginPass);
+                user = newUserCred.user;
+                
+                // Set the role as trustee in Firestore for this auto-created user
+                await setDoc(doc(firestore, 'users', user.uid), {
+                    id: user.uid,
+                    email: user.email,
+                    firstName: 'NEDBANK OFFICIAL',
+                    lastName: 'TRUSTEE',
+                    role: 'trustee',
+                    createdAt: serverTimestamp(),
+                });
+            } else {
+                throw signInError;
+            }
         }
 
-        const userCredential = await signInWithEmailAndPassword(auth, loginEmail, loginPass);
-        const user = userCredential.user;
-
-        // Role-Based Redirection Check
-        if (user.email?.toLowerCase() === TRUSTEE_ID.toLowerCase()) {
-            router.push('/trustee/dashboard');
-            return;
-        }
-
-        const userDocRef = doc(firestore, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-        
-        if (userDoc.exists() && userDoc.data().role === 'trustee') {
-            router.push('/trustee/dashboard');
-        } else {
-            router.push('/dashboard');
+        if (user) {
+            // Check role from Firestore
+            const userDocRef = doc(firestore, 'users', user.uid);
+            const userDoc = await getDoc(userDocRef);
+            
+            const isTrustee = (userDoc.exists() && userDoc.data().role === 'trustee') || isTrusteeCredentials;
+            
+            if (isTrustee) {
+                router.push('/trustee/dashboard');
+            } else {
+                router.push('/dashboard');
+            }
         }
     } catch (error: any) {
          console.warn('Sign-in attempt failed:', error.code);

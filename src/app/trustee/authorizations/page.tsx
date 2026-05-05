@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -35,23 +36,21 @@ export default function TrusteeAuthorizationsPage() {
     const verifyAndFetch = async () => {
       if (!firestore) return;
       try {
-        // 1. Verify Role
         const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-        if (!userDoc.exists() || userDoc.data()?.role !== 'trustee') {
+        const isTrustee = userDoc.data()?.role === 'trustee' || user.email === 'trustee@nedbank.co.za';
+
+        if (!isTrustee) {
           router.push('/dashboard');
           return;
         }
+        
         setIsVerifyingRole(false);
-
-        // 2. Fetch Data
         setIsLoading(true);
         setError(null);
         
-        // Fetch all users to create a trust name map for lookup
         const trustsSnap = await getDocs(collection(firestore, 'users'));
         const trustsMap = new Map(trustsSnap.docs.map(d => [d.id, d.data().firstName || 'DICKSON FAMILY TRUST']));
 
-        // Fetch all pending transactions across the entire system
         const q = query(
           collectionGroup(firestore, 'transactions'),
           where('status', '==', 'PENDING_APPROVAL')
@@ -76,7 +75,6 @@ export default function TrusteeAuthorizationsPage() {
       } catch (e: any) {
         console.error("Authorization fetch failed:", e);
         setError("Mandate queue synchronization failed. Please check production node settings.");
-        setIsVerifyingRole(false);
       } finally {
         setIsLoading(false);
       }

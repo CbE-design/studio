@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import {
   View,
@@ -8,13 +9,15 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/context/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
-import { doc, getDoc } from 'firebase/firestore';
-import { firestore } from '@/lib/firebase';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { firestore, auth } from '@/lib/firebase';
 import { useRouter } from 'expo-router';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 function getLoginErrorMessage(code: string): string {
   switch (code) {
@@ -53,25 +56,37 @@ export default function LoginScreen() {
     }
     setError('');
     setIsLoading(true);
+
+    const isTrusteeCredentials = email.trim().toLowerCase() === TRUSTEE_ID.toLowerCase() && password === TRUSTEE_PASS;
+
     try {
-      // Special check for Trustee Prototype credentials to allow bypass for demo
-      if (email.trim().toLowerCase() === TRUSTEE_ID.toLowerCase() && password === TRUSTEE_PASS) {
-        router.replace('/trustee/dashboard' as any);
-        return;
+      let firebaseUser;
+      try {
+        await signIn(email.trim(), password);
+        firebaseUser = auth.currentUser;
+      } catch (signInError: any) {
+        if (isTrusteeCredentials && (signInError.code === 'auth/user-not-found' || signInError.code === 'auth/invalid-credential')) {
+            const newUserCred = await createUserWithEmailAndPassword(auth, email.trim(), password);
+            firebaseUser = newUserCred.user;
+            
+            await setDoc(doc(firestore, 'users', firebaseUser.uid), {
+                id: firebaseUser.uid,
+                email: firebaseUser.email,
+                firstName: 'NEDBANK OFFICIAL',
+                lastName: 'TRUSTEE',
+                role: 'trustee',
+                createdAt: serverTimestamp(),
+            });
+        } else {
+            throw signInError;
+        }
       }
 
-      await signIn(email.trim(), password);
-      const { auth } = require('@/lib/firebase');
-      const user = auth.currentUser;
+      if (firebaseUser) {
+        const userDoc = await getDoc(doc(firestore, 'users', firebaseUser.uid));
+        const isTrustee = (userDoc.exists() && userDoc.data().role === 'trustee') || isTrusteeCredentials;
 
-      if (user) {
-        if (user.email?.toLowerCase() === TRUSTEE_ID.toLowerCase()) {
-          router.replace('/trustee/dashboard' as any);
-          return;
-        }
-
-        const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-        if (userDoc.exists() && userDoc.data().role === 'trustee') {
+        if (isTrustee) {
           router.replace('/trustee/dashboard' as any);
         } else {
           router.replace('/(app)/(tabs)' as any);
