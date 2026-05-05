@@ -6,7 +6,7 @@ import { ShieldCheck, FileText, Users, Clock, ArrowRight, LogOut, LayoutDashboar
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUser, useFirestore } from '@/firebase-provider';
-import { collection, query, getDocs, where, collectionGroup } from 'firebase/firestore';
+import { collection, query, getDocs, where, collectionGroup, doc, getDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/app/lib/firebase';
 
@@ -14,19 +14,42 @@ export default function TrusteeDashboardPage() {
   const router = useRouter();
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
+  
   const [pendingCount, setPendingCount] = useState(0);
   const [managedTrusts, setManagedTrusts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isVerifyingRole, setIsVerifyingRole] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // If user is not loading and not present, redirect to login
-    if (!isUserLoading && !user) {
+    // 1. Wait for initial auth state
+    if (isUserLoading) return;
+
+    // 2. If no user at all, send to login
+    if (!user) {
       router.push('/login');
       return;
     }
 
-    if (!firestore || !user?.uid) return;
+    // 3. Verify Trustee Role before proceeding
+    const verifyRole = async () => {
+      if (!firestore) return;
+      try {
+        const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+        if (!userDoc.exists() || userDoc.data()?.role !== 'trustee') {
+          // If not a trustee, send to client dashboard instead of login
+          router.push('/dashboard');
+          return;
+        }
+        setIsVerifyingRole(false);
+        // Once verified, fetch the portal data
+        fetchTrusteeData();
+      } catch (e) {
+        console.error("Role verification failed:", e);
+        setError("Security verification failed. Please refresh.");
+        setIsVerifyingRole(false);
+      }
+    };
 
     const fetchTrusteeData = async () => {
       setIsLoading(true);
@@ -37,8 +60,7 @@ export default function TrusteeDashboardPage() {
         const trusts = trustsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
         setManagedTrusts(trusts);
 
-        // Fetch count of pending approvals
-        // Using a try-catch specifically for the collectionGroup query as it's the most likely to fail if indexes are building
+        // Fetch count of pending approvals across all managed accounts
         try {
           const pendingSnap = await getDocs(query(collectionGroup(firestore, 'transactions'), where('status', '==', 'PENDING_APPROVAL')));
           setPendingCount(pendingSnap.size);
@@ -55,7 +77,7 @@ export default function TrusteeDashboardPage() {
       }
     };
 
-    fetchTrusteeData();
+    verifyRole();
   }, [firestore, user, isUserLoading, router]);
 
   const handleLogout = async () => {
@@ -63,10 +85,13 @@ export default function TrusteeDashboardPage() {
     router.push('/login');
   };
 
-  if (isUserLoading) {
+  if (isUserLoading || isVerifyingRole) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
-        <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-4">
+          <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-gray-500 text-sm font-medium">Verifying Credentials...</p>
+        </div>
       </div>
     );
   }
@@ -110,7 +135,7 @@ export default function TrusteeDashboardPage() {
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="bg-[#141414] border-white/5 text-white">
+                <Card className="bg-[#141414] border-white/5 text-white shadow-lg">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-gray-400 uppercase tracking-wider flex items-center gap-2">
                       <Clock className="h-4 w-4 text-amber-500" />
@@ -129,7 +154,7 @@ export default function TrusteeDashboardPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-[#141414] border-white/5 text-white">
+                <Card className="bg-[#141414] border-white/5 text-white shadow-lg">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-gray-400 uppercase tracking-wider flex items-center gap-2">
                       <Users className="h-4 w-4 text-blue-500" />
@@ -145,7 +170,7 @@ export default function TrusteeDashboardPage() {
                   </CardContent>
                 </Card>
 
-                <Card className="bg-[#141414] border-white/5 text-white">
+                <Card className="bg-[#141414] border-white/5 text-white shadow-lg">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-gray-400 uppercase tracking-wider flex items-center gap-2">
                       <FileText className="h-4 w-4 text-green-500" />
@@ -167,11 +192,11 @@ export default function TrusteeDashboardPage() {
                   <LayoutDashboard className="h-5 w-5 text-primary" />
                   Active Mandates
                 </h2>
-                <div className="bg-[#141414] border border-white/5 rounded-xl divide-y divide-white/5">
+                <div className="bg-[#141414] border border-white/5 rounded-xl divide-y divide-white/5 overflow-hidden">
                   {managedTrusts.map(trust => (
                     <div key={trust.id} className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors cursor-pointer group">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center font-bold text-primary">
+                        <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center font-bold text-primary border border-primary/10">
                           {trust.firstName?.charAt(0) || 'T'}
                         </div>
                         <div>
@@ -179,7 +204,7 @@ export default function TrusteeDashboardPage() {
                           <p className="text-xs text-gray-500 uppercase tracking-widest">{trust.id.substring(0, 12)}...</p>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right hidden sm:block">
                         <p className="text-xs text-gray-500 mb-1">Status</p>
                         <div className="flex items-center gap-2 text-green-500 text-xs font-bold uppercase">
                           <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
@@ -189,6 +214,11 @@ export default function TrusteeDashboardPage() {
                       <ArrowRight className="h-5 w-5 text-gray-700 group-hover:text-primary transition-colors" />
                     </div>
                   ))}
+                  {managedTrusts.length === 0 && (
+                    <div className="p-12 text-center text-gray-500">
+                      No active mandates found.
+                    </div>
+                  )}
                 </div>
               </div>
             </>

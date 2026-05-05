@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { formatCurrency, normalizeDate } from '@/app/lib/data';
 import type { Transaction } from '@/app/lib/definitions';
 import { useUser, useFirestore } from '@/firebase-provider';
-import { collection, query, getDocs, where, collectionGroup } from 'firebase/firestore';
+import { collection, query, getDocs, where, collectionGroup, doc, getDoc } from 'firebase/firestore';
 import { authorizePaymentAction, rejectPaymentAction } from '@/app/lib/actions';
 
 export default function TrusteeAuthorizationsPage() {
@@ -20,26 +20,38 @@ export default function TrusteeAuthorizationsPage() {
 
   const [pendingTransactions, setPendingTransactions] = useState<(Transaction & { accountId: string; userId: string; trustName: string })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isVerifyingRole, setIsVerifyingRole] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isUserLoading && !user) {
+    if (isUserLoading) return;
+
+    if (!user) {
       router.push('/login');
       return;
     }
 
-    if (!firestore || !user?.uid) return;
-
-    const fetchPending = async () => {
-      setIsLoading(true);
-      setError(null);
+    const verifyAndFetch = async () => {
+      if (!firestore) return;
       try {
+        // 1. Verify Role
+        const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+        if (!userDoc.exists() || userDoc.data()?.role !== 'trustee') {
+          router.push('/dashboard');
+          return;
+        }
+        setIsVerifyingRole(false);
+
+        // 2. Fetch Data
+        setIsLoading(true);
+        setError(null);
+        
         // Fetch all users to create a trust name map for lookup
         const trustsSnap = await getDocs(collection(firestore, 'users'));
         const trustsMap = new Map(trustsSnap.docs.map(d => [d.id, d.data().firstName || 'DICKSON FAMILY TRUST']));
 
-        // Optimized: Fetch all pending transactions across the entire system
+        // Fetch all pending transactions across the entire system
         const q = query(
           collectionGroup(firestore, 'transactions'),
           where('status', '==', 'PENDING_APPROVAL')
@@ -62,14 +74,15 @@ export default function TrusteeAuthorizationsPage() {
         allPending.sort((a, b) => normalizeDate(b.date).getTime() - normalizeDate(a.date).getTime());
         setPendingTransactions(allPending);
       } catch (e: any) {
-        console.error("Failed to fetch pending transactions:", e);
+        console.error("Authorization fetch failed:", e);
         setError("Mandate queue synchronization failed. Please check production node settings.");
+        setIsVerifyingRole(false);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchPending();
+    verifyAndFetch();
   }, [firestore, user, isUserLoading, router]);
 
   const handleAction = async (tx: Transaction & { accountId: string; userId: string }, action: 'approve' | 'reject') => {
@@ -100,10 +113,11 @@ export default function TrusteeAuthorizationsPage() {
     }
   };
 
-  if (isUserLoading) {
+  if (isUserLoading || isVerifyingRole) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+      <div className="flex flex-col items-center justify-center h-screen bg-[#0a0a0a] gap-4">
         <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-gray-500 text-sm">Synchronizing Signatures...</p>
       </div>
     );
   }
