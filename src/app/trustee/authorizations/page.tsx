@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -19,7 +18,7 @@ export default function TrusteeAuthorizationsPage() {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  const [pendingTransactions, setPendingTransactions] = useState<(Transaction & { accountId: string; trustName: string })[]>([]);
+  const [pendingTransactions, setPendingTransactions] = useState<(Transaction & { accountId: string; userId: string; trustName: string })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -30,7 +29,7 @@ export default function TrusteeAuthorizationsPage() {
       setIsLoading(true);
       try {
         const trustsSnap = await getDocs(collection(firestore, 'users'));
-        let allPending: (Transaction & { accountId: string; trustName: string })[] = [];
+        let allPending: (Transaction & { accountId: string; userId: string; trustName: string })[] = [];
 
         for (const trustDoc of trustsSnap.docs) {
           const accountsSnap = await getDocs(collection(firestore, 'users', trustDoc.id, 'bankAccounts'));
@@ -48,8 +47,9 @@ export default function TrusteeAuthorizationsPage() {
                 id: d.id, 
                 ...d.data(), 
                 accountId: accountDoc.id,
+                userId: trustDoc.id,
                 trustName: trustDoc.data().firstName || 'DICKSON FAMILY TRUST'
-              } as Transaction & { accountId: string; trustName: string });
+              } as Transaction & { accountId: string; userId: string; trustName: string });
             });
           }
         }
@@ -163,7 +163,7 @@ export default function TrusteeAuthorizationsPage() {
                   <div className="flex gap-3 pt-2">
                     <Button 
                       className="flex-1 bg-primary hover:bg-primary/90 text-white font-bold h-12 rounded-xl shadow-lg shadow-primary/10"
-                      onClick={() => handleAction(req as any, 'approve')}
+                      onClick={() => handleAction(req, 'approve')}
                       disabled={processingId !== null}
                     >
                       {processingId === req.id ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
@@ -172,7 +172,7 @@ export default function TrusteeAuthorizationsPage() {
                     <Button 
                       variant="outline" 
                       className="border-white/10 text-gray-400 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 font-bold h-12 rounded-xl"
-                      onClick={() => handleAction(req as any, 'reject')}
+                      onClick={() => handleAction(req, 'reject')}
                       disabled={processingId !== null}
                     >
                       <XCircle className="h-5 w-5" />
