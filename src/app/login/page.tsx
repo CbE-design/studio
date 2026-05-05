@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Menu, AlertCircle, LoaderCircle, Fingerprint, Lock, LayoutGrid, QrCode, Wallet, FileUser, ArrowLeft, MessageSquare } from 'lucide-react';
+import { Menu, AlertCircle, LoaderCircle, Fingerprint, Lock, LayoutGrid, QrCode, Wallet, FileUser, ArrowLeft, MessageSquare, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from '@/firebase-provider';
@@ -106,6 +107,16 @@ export default function LoginPage() {
               >
                 Or use your Nedbank ID password &rarr;
               </button>
+              
+              <div className="pt-4 border-t w-full text-center">
+                 <button 
+                  onClick={() => router.push('/trustee/login')}
+                  className="inline-flex items-center text-gray-500 hover:text-primary transition-colors text-sm font-medium"
+                 >
+                   <ShieldCheck className="mr-2 h-4 w-4" />
+                   Are you a Trustee? Sign in here
+                 </button>
+              </div>
             </div>
           </>
         ) : (
