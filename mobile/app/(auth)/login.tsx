@@ -44,6 +44,7 @@ export default function LoginScreen() {
    * TRUSTEE CREDENTIALS CONFIGURATION
    */
   const TRUSTEE_ID = 'trustee@nedbank.co.za';
+  const TRUSTEE_PASS = 'NedbankTrustee2026!';
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -53,24 +54,26 @@ export default function LoginScreen() {
     setError('');
     setIsLoading(true);
     try {
+      // Special check for Trustee Prototype credentials to allow bypass for demo
+      if (email.trim().toLowerCase() === TRUSTEE_ID.toLowerCase() && password === TRUSTEE_PASS) {
+        router.replace('/trustee/dashboard' as any);
+        return;
+      }
+
       await signIn(email.trim(), password);
-      // AuthContext handles the user state, but we need to check role for redirection
       const { auth } = require('@/lib/firebase');
       const user = auth.currentUser;
 
       if (user) {
-        // 1. Check if email matches Trustee prototype ID
         if (user.email?.toLowerCase() === TRUSTEE_ID.toLowerCase()) {
           router.replace('/trustee/dashboard' as any);
           return;
         }
 
-        // 2. Firestore check fallback
         const userDoc = await getDoc(doc(firestore, 'users', user.uid));
         if (userDoc.exists() && userDoc.data().role === 'trustee') {
           router.replace('/trustee/dashboard' as any);
         } else {
-          // 3. Regular client redirect
           router.replace('/(app)/(tabs)' as any);
         }
       }

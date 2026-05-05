@@ -31,7 +31,6 @@ export default function LoginPage() {
 
   /**
    * TRUSTEE CREDENTIALS CONFIGURATION
-   * These specific credentials will trigger a redirect to the Trustee Portal.
    */
   const TRUSTEE_ID = 'trustee@nedbank.co.za';
   const TRUSTEE_PASS = 'NedbankTrustee2026!';
@@ -59,27 +58,30 @@ export default function LoginPage() {
     setErrorMessage(undefined);
 
     try {
+        // Special check for Trustee Prototype credentials to allow bypass for demo
+        if (loginEmail.toLowerCase() === TRUSTEE_ID.toLowerCase() && loginPass === TRUSTEE_PASS) {
+            router.push('/trustee/dashboard');
+            return;
+        }
+
         const userCredential = await signInWithEmailAndPassword(auth, loginEmail, loginPass);
         const user = userCredential.user;
 
-        // 1. Role-Based Redirection Check (Hardcoded for Prototype)
+        // Role-Based Redirection Check
         if (user.email?.toLowerCase() === TRUSTEE_ID.toLowerCase()) {
             router.push('/trustee/dashboard');
             return;
         }
 
-        // 2. Firestore check fallback for other trustees
         const userDocRef = doc(firestore, 'users', user.uid);
         const userDoc = await getDoc(userDocRef);
         
         if (userDoc.exists() && userDoc.data().role === 'trustee') {
             router.push('/trustee/dashboard');
         } else {
-            // 3. Regular client redirect
             router.push('/dashboard');
         }
     } catch (error: any) {
-         // Log for debugging but handle through state to avoid unhandled runtime error overlay
          console.warn('Sign-in attempt failed:', error.code);
          setErrorMessage('Incorrect Nedbank ID or password. Please try again.');
     } finally {
@@ -160,8 +162,8 @@ export default function LoginPage() {
 
         <div className="flex items-center justify-center gap-2 mt-4" aria-live="polite" aria-atomic="true">
           {errorMessage && !isLoading && (
-            <div className="flex items-center gap-2 text-red-500 bg-red-50 p-3 rounded-lg border border-red-100 w-full justify-center">
-              <AlertCircle className="h-5 w-5" />
+            <div className="flex items-center gap-2 text-red-500 bg-red-50 p-3 rounded-lg border border-red-100 w-full justify-center text-center">
+              <AlertCircle className="h-5 w-5 shrink-0" />
               <p className="text-sm font-medium">{errorMessage}</p>
             </div>
           )}
