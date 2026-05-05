@@ -59,7 +59,7 @@ export async function syncTransactionToSap(transactionId: string): Promise<boole
   
   const apiUrl = process.env.SAP_ERP_URL;
   if (!apiUrl) {
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 100));
     return true;
   }
 

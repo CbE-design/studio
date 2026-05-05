@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -6,7 +7,7 @@ import { ShieldCheck, FileText, Users, Clock, ArrowRight, LogOut, LayoutDashboar
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUser, useFirestore } from '@/firebase-provider';
-import { collection, query, getDocs, where } from 'firebase/firestore';
+import { collection, query, getDocs, where, collectionGroup } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/app/lib/firebase';
 import { formatCurrency } from '@/app/lib/data';
@@ -25,22 +26,15 @@ export default function TrusteeDashboardPage() {
     const fetchTrusteeData = async () => {
       setIsLoading(true);
       try {
-        const trustsSnap = await getDocs(collection(firestore, 'users'));
+        // Optimized: Parallel fetch for users and pending counts
+        const [trustsSnap, pendingSnap] = await Promise.all([
+            getDocs(collection(firestore, 'users')),
+            getDocs(query(collectionGroup(firestore, 'transactions'), where('status', '==', 'PENDING_APPROVAL')))
+        ]);
+
         const trusts = trustsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
         setManagedTrusts(trusts);
-
-        let count = 0;
-        for (const trust of trusts) {
-          const accountsSnap = await getDocs(collection(firestore, 'users', trust.id, 'bankAccounts'));
-          for (const acc of accountsSnap.docs) {
-            const pendingSnap = await getDocs(query(
-              collection(firestore, 'users', trust.id, 'bankAccounts', acc.id, 'transactions'),
-              where('status', '==', 'PENDING_APPROVAL')
-            ));
-            count += pendingSnap.size;
-          }
-        }
-        setPendingCount(count);
+        setPendingCount(pendingSnap.size);
       } catch (e) {
         console.error("Failed to load trustee data:", e);
       } finally {
@@ -49,7 +43,7 @@ export default function TrusteeDashboardPage() {
     };
 
     fetchTrusteeData();
-  }, [firestore, user]);
+  }, [firestore, user?.uid]);
 
   const handleLogout = async () => {
     await signOut(auth);

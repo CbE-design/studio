@@ -1,15 +1,16 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, CheckCircle2, XCircle, Info, ShieldCheck, Clock, ShieldAlert, LoaderCircle, History } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, XCircle, ShieldCheck, Clock, ShieldAlert, LoaderCircle, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency, normalizeDate } from '@/app/lib/data';
 import type { Transaction } from '@/app/lib/definitions';
 import { useUser, useFirestore } from '@/firebase-provider';
-import { collection, query, getDocs, where } from 'firebase/firestore';
+import { collection, query, getDocs, where, collectionGroup } from 'firebase/firestore';
 import { authorizePaymentAction, rejectPaymentAction } from '@/app/lib/actions';
 
 export default function TrusteeAuthorizationsPage() {
@@ -28,31 +29,29 @@ export default function TrusteeAuthorizationsPage() {
     const fetchPending = async () => {
       setIsLoading(true);
       try {
+        // Optimized: Fetch users once to create a trust name map
         const trustsSnap = await getDocs(collection(firestore, 'users'));
-        let allPending: (Transaction & { accountId: string; userId: string; trustName: string })[] = [];
+        const trustsMap = new Map(trustsSnap.docs.map(d => [d.id, d.data().firstName || 'DICKSON FAMILY TRUST']));
 
-        for (const trustDoc of trustsSnap.docs) {
-          const accountsSnap = await getDocs(collection(firestore, 'users', trustDoc.id, 'bankAccounts'));
-          
-          for (const accountDoc of accountsSnap.docs) {
-            const txSnap = await getDocs(
-              query(
-                collection(firestore, 'users', trustDoc.id, 'bankAccounts', accountDoc.id, 'transactions'),
-                where('status', '==', 'PENDING_APPROVAL')
-              )
-            );
-            
-            txSnap.docs.forEach(d => {
-              allPending.push({ 
-                id: d.id, 
-                ...d.data(), 
-                accountId: accountDoc.id,
-                userId: trustDoc.id,
-                trustName: trustDoc.data().firstName || 'DICKSON FAMILY TRUST'
-              } as Transaction & { accountId: string; userId: string; trustName: string });
-            });
-          }
-        }
+        // Optimized: Use collectionGroup to fetch ALL pending instructions across ALL trusts in one go
+        const q = query(
+          collectionGroup(firestore, 'transactions'),
+          where('status', '==', 'PENDING_APPROVAL')
+        );
+        const txSnap = await getDocs(q);
+        
+        const allPending = txSnap.docs.map(d => {
+          const data = d.data();
+          const accountId = d.ref.parent.parent?.id || 'unknown';
+          const userId = data.userId;
+          return {
+            id: d.id,
+            ...data,
+            accountId,
+            userId,
+            trustName: trustsMap.get(userId) || 'DICKSON FAMILY TRUST'
+          } as Transaction & { accountId: string; userId: string; trustName: string };
+        });
         
         allPending.sort((a, b) => normalizeDate(b.date).getTime() - normalizeDate(a.date).getTime());
         setPendingTransactions(allPending);
@@ -64,7 +63,7 @@ export default function TrusteeAuthorizationsPage() {
     };
 
     fetchPending();
-  }, [firestore, user]);
+  }, [firestore, user?.uid]);
 
   const handleAction = async (tx: Transaction & { accountId: string; userId: string }, action: 'approve' | 'reject') => {
     setProcessingId(tx.id);

@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useUser, useFirestore, useMemoFirebase, useCollection } from '@/firebase-provider';
-import { collection, query, getDocs } from 'firebase/firestore';
+import { useUser, useFirestore, useAllTransactions } from '@/firebase-provider';
 import type { Transaction } from '@/app/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, isToday, isYesterday } from 'date-fns';
@@ -96,10 +95,8 @@ const LoadingSkeleton = () => (
 export default function TransactionNotificationsPage() {
     const router = useRouter();
     const { user, isUserLoading } = useUser();
-    const firestore = useFirestore();
+    const { transactions, isLoading: isTransactionsLoading } = useAllTransactions();
     const [searchTerm, setSearchTerm] = useState('');
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
     const [expandedId, setExpandedId] = useState<string | null>(null);
     const [readIds, setReadIds] = useState<string[]>([]);
 
@@ -115,56 +112,6 @@ export default function TransactionNotificationsPage() {
             setReadIds([]);
         }
     }, []);
-
-    const accountsQuery = useMemoFirebase(() => {
-      if (!firestore || !user?.uid) return null;
-      return query(collection(firestore, 'users', user.uid, 'bankAccounts'));
-    }, [firestore, user?.uid]);
-    const { data: accounts, isLoading: isAccountsLoading } = useCollection(accountsQuery);
-
-    useEffect(() => {
-        if (isUserLoading || isAccountsLoading) return;
-
-        if (!accounts || accounts.length === 0) {
-            setIsTransactionsLoading(false);
-            return;
-        }
-
-        const fetchAllTransactions = async () => {
-            setIsTransactionsLoading(true);
-            try {
-                if (!user?.uid) {
-                    setIsTransactionsLoading(false);
-                    return;
-                }
-                let allTransactions: Transaction[] = [];
-
-                for (const account of accounts) {
-                    try {
-                        const transactionsCollectionRef = collection(firestore, 'users', user.uid, 'bankAccounts', account.id, 'transactions');
-                        const transactionsSnapshot = await getDocs(query(transactionsCollectionRef));
-                        transactionsSnapshot.forEach(doc => {
-                            const data = doc.data();
-                            if (data.date && data.transactionType !== 'BANK_FEE') {
-                                allTransactions.push({ id: doc.id, ...data, accountNumber: account.accountNumber } as Transaction);
-                            }
-                        });
-                    } catch (accountError: any) {
-                        console.warn(`Could not fetch transactions for account ${account.id}:`, accountError.message);
-                    }
-                }
-                
-                allTransactions.sort((a, b) => normalizeDate(b.date).getTime() - normalizeDate(a.date).getTime());
-                setTransactions(allTransactions);
-            } catch (error: any) {
-                console.error("Error fetching transactions:", error);
-            } finally {
-                setIsTransactionsLoading(false);
-            }
-        };
-
-        fetchAllTransactions();
-    }, [accounts, isAccountsLoading, firestore, user?.uid, isUserLoading]);
     
     const handleToggle = (id: string) => {
         setExpandedId(prevId => (prevId === id ? null : id));
@@ -206,7 +153,7 @@ export default function TransactionNotificationsPage() {
     return (
         <div className="flex flex-col h-screen bg-gray-100">
             <header className="brand-header text-primary-foreground p-4 flex items-center sticky top-0 z-30">
-                <Button variant="ghost" size="icon" className="mr-2 -ml-2" onClick={() => router.back()}>
+                <Button variant="ghost" size="icon" className="mr-2 -ml-2 text-white" onClick={() => router.back()}>
                     <ArrowLeft />
                 </Button>
                 <h1 className="text-xl font-semibold">Transaction notifications</h1>
