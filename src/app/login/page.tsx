@@ -1,15 +1,15 @@
-
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Menu, AlertCircle, LoaderCircle, Fingerprint, Lock, LayoutGrid, QrCode, Wallet, FileUser, ArrowLeft, MessageSquare, ShieldCheck } from 'lucide-react';
+import { Menu, AlertCircle, LoaderCircle, Fingerprint, Lock, LayoutGrid, QrCode, Wallet, FileUser, ArrowLeft, MessageSquare } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { useAuth } from '@/firebase-provider';
+import { useAuth, useFirestore } from '@/firebase-provider';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { doc, getDoc } from 'firebase/firestore';
 
 const BottomNavItem = ({ icon: Icon, label, active = false }: { icon: React.ElementType, label: string, active?: boolean }) => (
     <div className={`flex flex-col items-center gap-1 ${active ? 'text-[#00A651]' : 'text-gray-500'}`}>
@@ -27,6 +27,7 @@ export default function LoginPage() {
 
   const router = useRouter();
   const auth = useAuth();
+  const firestore = useFirestore();
 
   const DEMO_EMAIL = 'cbenterprise@outlook.com';
   const DEMO_PASSWORD = 'Ninkenel@143';
@@ -41,7 +42,7 @@ export default function LoginPage() {
   };
 
   const handleLogin = async (loginEmail: string, loginPass: string) => {
-    if (!auth) {
+    if (!auth || !firestore) {
       setErrorMessage('Firebase is not initialized. Please try again later.');
       return;
     }
@@ -50,8 +51,25 @@ export default function LoginPage() {
     setErrorMessage(undefined);
 
     try {
-        await signInWithEmailAndPassword(auth, loginEmail, loginPass);
-        router.push('/dashboard');
+        const userCredential = await signInWithEmailAndPassword(auth, loginEmail, loginPass);
+        const user = userCredential.user;
+
+        // Fetch user document to check for role
+        const userDocRef = doc(firestore, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+        
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            // Redirect based on role
+            if (userData.role === 'trustee') {
+                router.push('/trustee/dashboard');
+            } else {
+                router.push('/dashboard');
+            }
+        } else {
+            // Fallback for provisioned users without a specific role field yet
+            router.push('/dashboard');
+        }
     } catch (error: any) {
          console.error('Sign-in failed:', error);
          if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
@@ -107,16 +125,6 @@ export default function LoginPage() {
               >
                 Or use your Nedbank ID password &rarr;
               </button>
-              
-              <div className="pt-4 border-t w-full text-center">
-                 <button 
-                  onClick={() => router.push('/trustee/login')}
-                  className="inline-flex items-center text-gray-500 hover:text-primary transition-colors text-sm font-medium"
-                 >
-                   <ShieldCheck className="mr-2 h-4 w-4" />
-                   Are you a Trustee? Sign in here
-                 </button>
-              </div>
             </div>
           </>
         ) : (
