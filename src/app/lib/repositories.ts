@@ -195,9 +195,33 @@ export async function processAuthorizedPayment(userId: string, accountId: string
 }
 
 export async function rejectPayment(userId: string, accountId: string, transactionId: string) {
-    const txRef = db.doc(`users/${userId}/bankAccounts/${accountId}/transactions/${transactionId}`);
-    await txRef.update({ status: 'REJECTED' });
+    const accountRef = db.doc(`users/${userId}/bankAccounts/${accountId}`);
+    const txRef = accountRef.collection('transactions').doc(transactionId);
     
+    await db.runTransaction(async (dbTransaction) => {
+        const txDoc = await dbTransaction.get(txRef);
+        const accountDoc = await dbTransaction.get(accountRef);
+        
+        if (!txDoc.exists || !accountDoc.exists) throw new Error("Instruction or account not found.");
+        
+        const txData = txDoc.data() as Transaction;
+        const accountData = accountDoc.data() as Account;
+
+        // Update main transaction status
+        dbTransaction.update(txRef, { status: 'REJECTED' });
+
+        // Add to failedTransactions subcollection
+        const failedTxRef = accountRef.collection('failedTransactions').doc();
+        dbTransaction.set(failedTxRef, {
+            id: failedTxRef.id,
+            returnDate: format(new Date(), 'dd MMM yyyy'),
+            fromAccount: accountData.accountNumber,
+            toAccount: txData.accountNumber || 'N/A',
+            beneficiaryName: txData.recipientName || txData.description,
+            failureReason: 'Not Authorised'
+        });
+    });
+
     await logAudit({
       system: 'FIREBASE',
       action: 'PAYMENT_REJECTION',
