@@ -55,6 +55,7 @@ export default function TrusteeAuthorizationsPage() {
           collectionGroup(firestore, 'transactions'),
           where('status', '==', 'PENDING_APPROVAL')
         );
+        
         const txSnap = await getDocs(q);
         
         const allPending = txSnap.docs.map(d => {
@@ -74,7 +75,11 @@ export default function TrusteeAuthorizationsPage() {
         setPendingTransactions(allPending);
       } catch (e: any) {
         console.error("Authorization fetch failed:", e);
-        setError("Mandate queue synchronization failed. Please check production node settings.");
+        if (e.code === 'failed-precondition' || e.message?.includes('index')) {
+          setError("The database is currently optimizing its indexes for Trustee signatures. This usually takes a few minutes for new production environments. Please refresh shortly.");
+        } else {
+          setError("Mandate queue synchronization failed. Please check production node settings.");
+        }
       } finally {
         setIsLoading(false);
       }
@@ -132,9 +137,15 @@ export default function TrusteeAuthorizationsPage() {
       <main className="flex-1 overflow-y-auto p-6 space-y-6">
         <div className="max-w-4xl mx-auto w-full space-y-6">
           {error && (
-            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-sm">
-              <AlertTriangle className="h-5 w-5" />
-              {error}
+            <div className="p-5 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start gap-4 text-amber-200 text-sm leading-relaxed">
+              <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold mb-1">Index Provisioning in Progress</p>
+                <p>{error}</p>
+                <Button variant="outline" size="sm" className="mt-4 border-amber-500/30 text-amber-200 hover:bg-amber-500/10" onClick={() => window.location.reload()}>
+                  Refresh Queue
+                </Button>
+              </div>
             </div>
           )}
 
@@ -155,7 +166,7 @@ export default function TrusteeAuthorizationsPage() {
               <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
               <p className="text-gray-500 text-sm animate-pulse">Syncing Mandate Queue...</p>
             </div>
-          ) : pendingTransactions.length === 0 ? (
+          ) : !error && pendingTransactions.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-gray-600 bg-[#141414] border border-white/5 rounded-2xl">
               <ShieldCheck className="h-16 w-16 mb-4 opacity-20" />
               <p className="font-bold text-white">Mandate queue is empty</p>
