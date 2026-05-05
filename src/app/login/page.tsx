@@ -31,12 +31,12 @@ export default function LoginPage() {
 
   /**
    * TRUSTEE CREDENTIALS CONFIGURATION
-   * Provide the specific Nedbank ID and Password for Trustees here.
+   * These specific credentials will trigger a redirect to the Trustee Portal.
    */
-  const TRUSTEE_ID = 'trustee@nedbank.co.za'; // Provide your Trustee ID here
-  const TRUSTEE_PASS = 'NedbankTrustee2026!'; // Provide your Trustee Password here
+  const TRUSTEE_ID = 'trustee@nedbank.co.za';
+  const TRUSTEE_PASS = 'NedbankTrustee2026!';
 
-  // Standard Client Demo Credentials (for the "Log in" button / biometric simulation)
+  // Standard Client Demo Credentials
   const CLIENT_EMAIL = 'cbenterprise@outlook.com';
   const CLIENT_PASSWORD = 'Ninkenel@143';
 
@@ -62,29 +62,25 @@ export default function LoginPage() {
         const userCredential = await signInWithEmailAndPassword(auth, loginEmail, loginPass);
         const user = userCredential.user;
 
-        // 1. Check if the credentials match the defined Trustee ID
+        // 1. Role-Based Redirection Check (Hardcoded for Prototype)
         if (user.email?.toLowerCase() === TRUSTEE_ID.toLowerCase()) {
             router.push('/trustee/dashboard');
             return;
         }
 
-        // 2. Fallback: Check Firestore for a 'role' field
+        // 2. Firestore check fallback for other trustees
         const userDocRef = doc(firestore, 'users', user.uid);
         const userDoc = await getDoc(userDocRef);
         
         if (userDoc.exists() && userDoc.data().role === 'trustee') {
             router.push('/trustee/dashboard');
         } else {
-            // 3. Otherwise, go to standard client Dashboard
+            // 3. Regular client redirect
             router.push('/dashboard');
         }
     } catch (error: any) {
          console.error('Sign-in failed:', error);
-         if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-             setErrorMessage('Incorrect Nedbank ID or password. Please try again.');
-         } else {
-             setErrorMessage('A system error occurred. Please check your connection.');
-         }
+         setErrorMessage('Incorrect Nedbank ID or password. Please try again.');
     } finally {
         setIsLoading(false);
     }

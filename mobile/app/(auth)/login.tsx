@@ -16,7 +16,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { firestore } from '@/lib/firebase';
 import { useRouter } from 'expo-router';
 
-function getLoginErrorMessage(code: string, message?: string): string {
+function getLoginErrorMessage(code: string): string {
   switch (code) {
     case 'auth/invalid-credential':
     case 'auth/wrong-password':
@@ -42,9 +42,8 @@ export default function LoginScreen() {
 
   /**
    * TRUSTEE CREDENTIALS CONFIGURATION
-   * Provide the specific Nedbank ID for Trustees here.
    */
-  const TRUSTEE_ID = 'trustee@nedbank.co.za'; // Provide your Trustee ID here
+  const TRUSTEE_ID = 'trustee@nedbank.co.za';
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -54,26 +53,29 @@ export default function LoginScreen() {
     setError('');
     setIsLoading(true);
     try {
-      const userCredential = await signIn(email.trim(), password);
-      const user = userCredential.user;
+      await signIn(email.trim(), password);
+      // AuthContext handles the user state, but we need to check role for redirection
+      const { auth } = require('@/lib/firebase');
+      const user = auth.currentUser;
 
-      // 1. Role-Based Redirection Check
-      if (user.email?.toLowerCase() === TRUSTEE_ID.toLowerCase()) {
-        router.replace('/trustee/dashboard' as any);
-        return;
-      }
+      if (user) {
+        // 1. Check if email matches Trustee prototype ID
+        if (user.email?.toLowerCase() === TRUSTEE_ID.toLowerCase()) {
+          router.replace('/trustee/dashboard' as any);
+          return;
+        }
 
-      // 2. Firestore check fallback
-      const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-      if (userDoc.exists() && userDoc.data().role === 'trustee') {
-        router.replace('/trustee/dashboard' as any);
-      } else {
-        // 3. Regular client redirect
-        router.replace('/(app)/(tabs)' as any);
+        // 2. Firestore check fallback
+        const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+        if (userDoc.exists() && userDoc.data().role === 'trustee') {
+          router.replace('/trustee/dashboard' as any);
+        } else {
+          // 3. Regular client redirect
+          router.replace('/(app)/(tabs)' as any);
+        }
       }
-    } catch (err: unknown) {
-      const code = err instanceof Error && 'code' in err ? String((err as { code: string }).code) : '';
-      setError(getLoginErrorMessage(code));
+    } catch (err: any) {
+      setError(getLoginErrorMessage(err.code || ''));
     } finally {
       setIsLoading(false);
     }
@@ -215,12 +217,12 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
 
-            <View style={{ marginTop: 48, alignItems: 'center' }}>
+            <div className="mt-12 items-center">
               <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, textAlign: 'center' }}>
                 Nedbank Ltd Reg No 1951/000009/06.{'\n'}
                 Licensed financial services provider (FSP9363)
               </Text>
-            </View>
+            </div>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
