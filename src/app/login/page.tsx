@@ -29,11 +29,16 @@ export default function LoginPage() {
   const auth = useAuth();
   const firestore = useFirestore();
 
-  const DEMO_EMAIL = 'cbenterprise@outlook.com';
-  const DEMO_PASSWORD = 'Ninkenel@143';
+  // Standard Client Demo Credentials
+  const CLIENT_EMAIL = 'cbenterprise@outlook.com';
+  const CLIENT_PASSWORD = 'Ninkenel@143';
+
+  // Trustee Credentials (Update these with the ones you provide)
+  const TRUSTEE_EMAIL = 'trustee@nedbank.co.za'; 
+  const TRUSTEE_PASSWORD = 'NedbankTrustee2026!';
 
   const handlePinLogin = async () => {
-    handleLogin(DEMO_EMAIL, DEMO_PASSWORD);
+    handleLogin(CLIENT_EMAIL, CLIENT_PASSWORD);
   };
 
   const handlePasswordLogin = async (event: React.FormEvent) => {
@@ -54,28 +59,33 @@ export default function LoginPage() {
         const userCredential = await signInWithEmailAndPassword(auth, loginEmail, loginPass);
         const user = userCredential.user;
 
-        // Fetch user document to check for role
+        // Check if this is the hardcoded Trustee for the prototype
+        if (user.email?.toLowerCase() === TRUSTEE_EMAIL.toLowerCase()) {
+            router.push('/trustee/dashboard');
+            return;
+        }
+
+        // Otherwise, fetch user document to check for assigned role in Firestore
         const userDocRef = doc(firestore, 'users', user.uid);
         const userDoc = await getDoc(userDocRef);
         
         if (userDoc.exists()) {
             const userData = userDoc.data();
-            // Redirect based on role
             if (userData.role === 'trustee') {
                 router.push('/trustee/dashboard');
             } else {
                 router.push('/dashboard');
             }
         } else {
-            // Fallback for provisioned users without a specific role field yet
+            // Default redirection for Personal/Business Trust users
             router.push('/dashboard');
         }
     } catch (error: any) {
          console.error('Sign-in failed:', error);
          if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-             setErrorMessage('Authentication failed. Please check your credentials.');
+             setErrorMessage('Incorrect Nedbank ID or password. Please try again.');
          } else {
-             setErrorMessage('An unexpected error occurred during login.');
+             setErrorMessage('A system error occurred. Please check your connection.');
          }
     } finally {
         setIsLoading(false);
@@ -136,7 +146,7 @@ export default function LoginPage() {
 
             <form onSubmit={handlePasswordLogin} className="space-y-4">
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Nedbank ID (Email)</Label>
                 <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
               <div>

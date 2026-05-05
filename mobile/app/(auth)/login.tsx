@@ -12,6 +12,9 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { useAuth } from '@/context/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
+import { doc, getDoc } from 'firebase/firestore';
+import { firestore } from '@/lib/firebase';
+import { useRouter } from 'expo-router';
 
 function getLoginErrorMessage(code: string, message?: string): string {
   switch (code) {
@@ -23,20 +26,22 @@ function getLoginErrorMessage(code: string, message?: string): string {
       return 'Too many attempts. Please try again later.';
     case 'auth/network-request-failed':
       return 'Network error. Please check your internet connection.';
-    case 'auth/invalid-email':
-      return 'Invalid email address format.';
     default:
-      return `Sign in failed (${code || 'unknown'}): ${message || 'Please check your connection.'}`;
+      return `Sign in failed. Please check your details.`;
   }
 }
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+
+  // Prototype Trustee Role Mapping
+  const TRUSTEE_EMAIL = 'trustee@nedbank.co.za';
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -46,11 +51,24 @@ export default function LoginScreen() {
     setError('');
     setIsLoading(true);
     try {
-      await signIn(email.trim(), password);
+      const userCredential = await signIn(email.trim(), password);
+      const user = userCredential.user;
+
+      // Unified Role-Based Redirection
+      if (user.email?.toLowerCase() === TRUSTEE_EMAIL.toLowerCase()) {
+        router.replace('/trustee/dashboard' as any);
+        return;
+      }
+
+      const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+      if (userDoc.exists() && userDoc.data().role === 'trustee') {
+        router.replace('/trustee/dashboard' as any);
+      } else {
+        router.replace('/(app)/(tabs)' as any);
+      }
     } catch (err: unknown) {
       const code = err instanceof Error && 'code' in err ? String((err as { code: string }).code) : '';
-      const message = err instanceof Error ? err.message : '';
-      setError(getLoginErrorMessage(code, message));
+      setError(getLoginErrorMessage(code));
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +106,7 @@ export default function LoginScreen() {
                 </View>
               </View>
               <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 15, textAlign: 'center' }}>
-                Sign in to your account
+                Sign in with your Nedbank ID
               </Text>
             </View>
 
@@ -189,12 +207,6 @@ export default function LoginScreen() {
                     Sign in
                   </Text>
                 )}
-              </TouchableOpacity>
-
-              <TouchableOpacity style={{ alignItems: 'center', marginTop: 8 }}>
-                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>
-                  Forgot password?
-                </Text>
               </TouchableOpacity>
             </View>
 
