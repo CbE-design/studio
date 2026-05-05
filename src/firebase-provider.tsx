@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, {
@@ -83,10 +84,10 @@ export function useCollection<T extends DocumentData>(query: Query<T> | null) {
 
         const unsubscribe = onSnapshot(query, (snapshot: QuerySnapshot<T>) => {
             const docs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-            setData(docs);
+            setData(docs as T[]);
             setIsLoading(false);
         }, (err) => {
-            console.error(err);
+            console.warn("Firestore collection listener error:", err.message);
             setError(err);
             setIsLoading(false);
         });
@@ -138,7 +139,8 @@ export function useAllTransactions() {
       },
       error: (err: any) => {
         if (!isMounted) return;
-        console.warn("Firestore listener error in useAllTransactions:", err.message);
+        // This often happens if indexes are missing or being built
+        console.warn("Firestore collectionGroup listener error (check indexes):", err.message);
         setTransactions([]);
         setIsLoading(false);
       }
