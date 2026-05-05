@@ -217,12 +217,12 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
 
-            <div className="mt-12 items-center">
+            <View style={{ marginTop: 48, alignItems: 'center' }}>
               <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, textAlign: 'center' }}>
                 Nedbank Ltd Reg No 1951/000009/06.{'\n'}
                 Licensed financial services provider (FSP9363)
               </Text>
-            </div>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

