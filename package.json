@@ -11,6 +11,7 @@
     "mobile": "cd mobile && npx expo start --tunnel"
   },
   "dependencies": {
+    "@expo/ngrok": "^4.1.3",
     "@fontsource/libre-franklin": "^5.2.8",
     "@hookform/resolvers": "^4.1.3",
     "@pdf-lib/fontkit": "^1.1.1",

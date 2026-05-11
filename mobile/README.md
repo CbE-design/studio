@@ -13,7 +13,9 @@ To run this app on your phone immediately without a full build:
     ```bash
     npm run mobile
     ```
-3.  **Scan the Code**: Scan the QR code that appears in your terminal using your phone. Ensure your phone and computer are on the same network.
+    *Note: This command uses `--tunnel` via `@expo/ngrok` (which is already pre-installed in your package.json). This ensures your phone can connect to the development server even if they are on different Wi-Fi networks.*
+
+3.  **Scan the Code**: Scan the QR code that appears in your terminal using your phone. 
 
 ## 📦 How to Download the APK (Standalone Android App)
 
@@ -41,5 +43,6 @@ To generate a standalone `.apk` file that you can install on any Android device,
 - **Wait for the Cloud Build**: Expo will handle the build in their cloud. This usually takes 5-10 minutes.
 - **Download**: Once finished, the terminal will show a **Download link**. You can also find the file in your dashboard at [expo.dev](https://expo.dev/projects).
 
-## 🛠 Environment Variables
-The mobile app requires Firebase keys to work. Ensure `mobile/.env` exists with your Firebase configuration.
+## 🛠 Troubleshooting
+- **Tunnel Error**: If you see an error related to `ngrok`, it is likely already installed. If not, running `npm run mobile` from the root will ensure all dependencies are resolved.
+- **Firebase Config**: Ensure `mobile/.env` exists with your Firebase configuration.
